@@ -188,19 +188,22 @@ void VulkanPipeline::CreateRenderPasses()
 	colorRef.attachment = 0;
 	colorRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
+
+	//TODO: Finish implementing Depth Buffer
 	vk::AttachmentDescription depthAttachment;
-	colorAttachment.format = m_format.format;
-	colorAttachment.samples = vk::SampleCountFlagBits::e1;
-	colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-	colorAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
-	colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-	colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-	colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-	colorAttachment.finalLayout = vk::ImageLayout::eDepthAttachmentOptimal;
+	depthAttachment.format = m_format.format;
+	depthAttachment.samples = vk::SampleCountFlagBits::e1;
+	depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+	depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+	depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+	depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+	depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
+	depthAttachment.finalLayout = vk::ImageLayout::eDepthAttachmentOptimal;
 
 	vk::AttachmentReference depthRef;
 	depthRef.attachment = 1;
 	depthRef.layout = vk::ImageLayout::eDepthAttachmentOptimal;
+	//Endof Depth Buffer Ref
 
 	vk::SubpassDescription subpass{};
 	subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
@@ -233,6 +236,7 @@ void VulkanPipeline::CreateRenderPasses()
 
 void VulkanPipeline::CreateRenderPipeline()
 {
+	//Shader Information
 	auto vertexShaderBytes = readFile("Shaders/vert.spv");
 	auto fragmentShaderBytes = readFile("Shaders/frag.spv");
 	vk::ShaderModule vertexModule = WrapShader(vertexShaderBytes);
@@ -252,6 +256,7 @@ void VulkanPipeline::CreateRenderPipeline()
 
 	vk::PipelineShaderStageCreateInfo createInfos[] = { vertexInfo, fragmentInfo };
 
+	//Vertex Information
 	vk::VertexInputBindingDescription vBinding;
 	vBinding.stride = 24;
 	vBinding.inputRate = vk::VertexInputRate::eVertex;
@@ -276,11 +281,13 @@ void VulkanPipeline::CreateRenderPipeline()
 	vertexInputInfo.vertexAttributeDescriptionCount = 2;
 	vertexInputInfo.pVertexAttributeDescriptions = attributes;
 
+
 	vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
 	inputAssemblyInfo.sType = vk::StructureType::ePipelineInputAssemblyStateCreateInfo;
 	inputAssemblyInfo.topology = vk::PrimitiveTopology::eTriangleList;
 	inputAssemblyInfo.primitiveRestartEnable = false;
 
+	//View of the screen
 	vk::Viewport viewport;
 	viewport.x = 0;
 	viewport.y = 0;
@@ -301,6 +308,7 @@ void VulkanPipeline::CreateRenderPipeline()
 	viewportStateInfo.scissorCount = 1;
 	viewportStateInfo.viewportCount = 1;
 
+	//Rasterizer
 	vk::PipelineRasterizationStateCreateInfo rasterizerInfo{};
 	rasterizerInfo.sType = vk::StructureType::ePipelineRasterizationStateCreateInfo;
 	rasterizerInfo.depthClampEnable = false;
@@ -314,6 +322,7 @@ void VulkanPipeline::CreateRenderPipeline()
 	rasterizerInfo.depthBiasClamp = 0.0f;
 	rasterizerInfo.depthBiasSlopeFactor = 0.0f;
 
+	//Multisampling
 	vk::PipelineMultisampleStateCreateInfo multisampling{};
 	multisampling.sType = vk::StructureType::ePipelineMultisampleStateCreateInfo;
 	multisampling.sampleShadingEnable = false;
@@ -323,6 +332,7 @@ void VulkanPipeline::CreateRenderPipeline()
 	multisampling.alphaToCoverageEnable = false; // Optional
 	multisampling.alphaToOneEnable = false; // Optional
 
+	//Color Attachments
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment{};
 	colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
 	colorBlendAttachment.blendEnable = false;
@@ -333,12 +343,13 @@ void VulkanPipeline::CreateRenderPipeline()
 	colorBlending.attachmentCount = 1;
 	colorBlending.pAttachments = &colorBlendAttachment;
 
-
+	//Layout
 	vk::PipelineLayoutCreateInfo pipelineLayout{};
 	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
 	pipelineLayout.pSetLayouts = &m_descriptorLayout;
 	pipelineLayout.setLayoutCount = 1;
 	m_pipelineLayout = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
+
 
 	std::vector<vk::DynamicState> dynamicStates = {
 	vk::DynamicState::eViewport,

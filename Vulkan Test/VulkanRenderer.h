@@ -15,7 +15,7 @@ public:
 
 private:
 
-	uint32_t m_framesInFlight = 2;
+	uint32_t m_framesInFlight = 3;
 	uint32_t m_currentFrame = 0;
 
 	//Vertex* m_vertices;

@@ -276,15 +276,15 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 
 	vk::ClearValue value;
 	value.color = vk::ClearColorValue();
-	value.color.float32.at(0) = 1.0f;
-	value.color.float32.at(1) = 0.0f;
-	value.color.float32.at(2) = 0.0f;
-	value.color.float32.at(3) = 1.0f;
+	value.color.float32.at(0) = 0.0f ;
+	value.color.float32.at(1) = 0.25f;
+	value.color.float32.at(2) = 0.25f;
+	value.color.float32.at(3) = 1.0f ;
 
 	vk::RenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
 	renderPassInfo.renderPass = _renderPass;
-	renderPassInfo.framebuffer = m_frameBuffers->at(0);
+	renderPassInfo.framebuffer = m_frameBuffers->at(m_currentFrame);
 	renderPassInfo.renderArea.offset = vk::Offset2D{ 0,0 };
 	renderPassInfo.renderArea.extent = m_extent;
 	renderPassInfo.clearValueCount = 1;

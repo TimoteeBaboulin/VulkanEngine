@@ -4,18 +4,8 @@
 
 VulkanPipeline::VulkanPipeline(VulkanPipelineInfo _info) : m_info(_info)
 {
-	m_vertexCount = 4;
-	m_triangleCount = 2;
-
-	m_vertices.resize(4);
-	m_indices.resize(6);
-	//I am going to kms
-	m_vertices[0] = Vertex{ -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f };
-	m_vertices[1] = Vertex{  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f };
-	m_vertices[2] = Vertex{  0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f };
-	m_vertices[3] = Vertex{ -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f };
-
-	m_indices = { 0,1,2,2,3,0 };
+	m_vertexCount = 0;
+	m_triangleCount = 0;
 }
 
 void VulkanPipeline::Init(vk::Extent2D _extent)
@@ -34,7 +24,7 @@ void VulkanPipeline::Init(vk::Extent2D _extent)
 
 void VulkanPipeline::Init(vk::Extent2D _extent, aiMesh* _mesh)
 {
-	//Load(_mesh);
+	Load(_mesh);
 	Init(_extent);
 }
 

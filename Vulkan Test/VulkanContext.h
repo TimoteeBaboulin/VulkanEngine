@@ -20,6 +20,8 @@ struct ContextInfo
 class VulkanContext
 {
 public:
+	static bool ValidationLayersEnabled;
+
 	void Init(const ContextInfo& _info);
 	void Cleanup();
 

@@ -15,6 +15,7 @@ void VulkanPipeline::Init(vk::Extent2D _extent)
 
 	CreateSwapChain(_extent);
 	CreateImageViews();
+	CreateDepthImage();
 	CreateRenderPasses();
 	CreateDescriptorSetLayout();
 	CreateRenderPipeline();
@@ -45,6 +46,7 @@ RenderInfo VulkanPipeline::GetRenderInfo()
 	RenderInfo info = {
 		.renderPass = m_renderPass,
 		.pipeline = m_pipeline,
+		.depthPipeline = m_depthPipeline,
 		.pipelineLayout = m_pipelineLayout,
 		.vertexBuffer = &m_vertexBuffer,
 		.indexBuffer = &m_indexBuffer,
@@ -158,7 +160,7 @@ void VulkanPipeline::CreateDepthImage()
 {
 	vk::Format format = vk::Format::eD32Sfloat;
 
-	vhf::CreateImage(m_extent, format, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_depthImage, m_depthMemory, vk::ImageLayout::eDepthAttachmentOptimal);
+	vhf::CreateImage(m_extent, format, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_depthImage, m_depthMemory, vk::ImageLayout::eUndefined);
 	m_depthImageView = vhf::CreateImageView(m_depthImage, format, vk::ImageAspectFlagBits::eDepth);
 }
 
@@ -175,51 +177,70 @@ void VulkanPipeline::CreateRenderPasses()
 	colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
 
 	vk::AttachmentReference colorRef{};
-	colorRef.attachment = 0;
+	colorRef.attachment = 1;
 	colorRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
 
 	//TODO: Finish implementing Depth Buffer
 	vk::AttachmentDescription depthAttachment;
-	depthAttachment.format = m_format.format;
+	depthAttachment.format = vk::Format::eD32Sfloat;
 	depthAttachment.samples = vk::SampleCountFlagBits::e1;
-	depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-	depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+	depthAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
+	depthAttachment.storeOp = vk::AttachmentStoreOp::eStore;
 	depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
 	depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 	depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
-	depthAttachment.finalLayout = vk::ImageLayout::eDepthAttachmentOptimal;
+	depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
 	vk::AttachmentReference depthRef;
-	depthRef.attachment = 1;
-	depthRef.layout = vk::ImageLayout::eDepthAttachmentOptimal;
+	depthRef.attachment = 0;
+	depthRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 	//Endof Depth Buffer Ref
 
-	vk::SubpassDescription subpass{};
-	subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorRef;
-	subpass.pDepthStencilAttachment = nullptr;
+	//Depth Subpass
+	vk::SubpassDescription depthSubpass;
+	depthSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	depthSubpass.colorAttachmentCount = 0;
+	depthSubpass.pDepthStencilAttachment = &depthRef;
+
+	vk::SubpassDependency depthSubDep;
+	depthSubDep.srcSubpass = vk::SubpassExternal;
+	depthSubDep.dstSubpass = 0;
+
+	depthSubDep.srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	depthSubDep.dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+
+	depthSubDep.srcAccessMask = vk::AccessFlagBits::eNone;
+	depthSubDep.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+	//Endof Depth Subpass
+
+	vk::SubpassDescription colorSubpass{};
+	colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	colorSubpass.colorAttachmentCount = 1;
+	colorSubpass.pColorAttachments = &colorRef;
+	colorSubpass.pDepthStencilAttachment = &depthRef;
 
 	vk::SubpassDependency dependency;
-	dependency.srcSubpass = vk::SubpassExternal;
-	dependency.dstSubpass = 0;
+	dependency.srcSubpass = 0;
+	dependency.dstSubpass = 1;
 
 	dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
 	dependency.srcAccessMask = vk::AccessFlagBits::eNone;
 	dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-	dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+	dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
-	std::vector <vk::AttachmentDescription> attachments = { colorAttachment};
+	std::vector <vk::AttachmentDescription> attachments = { depthAttachment, colorAttachment};
+	std::vector <vk::SubpassDescription> subpasses = { depthSubpass, colorSubpass };
+	std::vector <vk::SubpassDependency> dependencies = { depthSubDep, dependency };
 
 	vk::RenderPassCreateInfo renderpass{};
 	renderpass.sType = vk::StructureType::eRenderPassCreateInfo;
 	renderpass.attachmentCount = attachments.size();
 	renderpass.pAttachments = attachments.data();
-	renderpass.subpassCount = 1;
-	renderpass.pSubpasses = &subpass;
-	renderpass.dependencyCount = 1;
-	renderpass.pDependencies = &dependency;
+	renderpass.subpassCount = 2;
+	renderpass.pSubpasses = subpasses.data();
+	renderpass.dependencyCount = 2;
+	renderpass.pDependencies = dependencies.data();
 
 	m_renderPass = VulkanEngine::LogicalDevice.createRenderPass(renderpass);
 }
@@ -351,6 +372,13 @@ void VulkanPipeline::CreateRenderPipeline()
 	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
 	dynamicState.pDynamicStates = dynamicStates.data();
 
+	vk::PipelineDepthStencilStateCreateInfo depthState;
+	depthState.sType = vk::StructureType::ePipelineDepthStencilStateCreateInfo;
+	depthState.depthCompareOp = vk::CompareOp::eLessOrEqual;
+	depthState.depthTestEnable = true;
+	depthState.depthWriteEnable = true;
+	depthState.stencilTestEnable = false;
+
 	vk::GraphicsPipelineCreateInfo graphicsPipeline{};
 	graphicsPipeline.sType = vk::StructureType::eGraphicsPipelineCreateInfo;
 	graphicsPipeline.stageCount = 2;
@@ -364,9 +392,27 @@ void VulkanPipeline::CreateRenderPipeline()
 	graphicsPipeline.pDynamicState = &dynamicState;
 	graphicsPipeline.layout = m_pipelineLayout;
 	graphicsPipeline.renderPass = m_renderPass;
-	graphicsPipeline.subpass = 0;
+	graphicsPipeline.subpass = 1;
+	graphicsPipeline.pDepthStencilState = &depthState;
+
+	vk::GraphicsPipelineCreateInfo depthPipeline{};
+	depthPipeline.sType = vk::StructureType::eGraphicsPipelineCreateInfo;
+	depthPipeline.stageCount = 2;
+	depthPipeline.pStages = createInfos;
+	depthPipeline.pVertexInputState = &vertexInputInfo;
+	depthPipeline.pInputAssemblyState = &inputAssemblyInfo;
+	depthPipeline.pViewportState = &viewportStateInfo;
+	depthPipeline.pRasterizationState = &rasterizerInfo;
+	depthPipeline.pMultisampleState = &multisampling;
+	depthPipeline.pColorBlendState = &colorBlending;
+	depthPipeline.pDynamicState = &dynamicState;
+	depthPipeline.layout = m_pipelineLayout;
+	depthPipeline.renderPass = m_renderPass;
+	depthPipeline.subpass = 0;
+	depthPipeline.pDepthStencilState = &depthState;
 
 	m_pipeline = VulkanEngine::LogicalDevice.createGraphicsPipeline(nullptr, graphicsPipeline).value;
+	m_depthPipeline = VulkanEngine::LogicalDevice.createGraphicsPipeline(nullptr, depthPipeline).value;
 
 	VulkanEngine::LogicalDevice.destroyShaderModule(vertexModule);
 	VulkanEngine::LogicalDevice.destroyShaderModule(fragmentModule);
@@ -379,15 +425,15 @@ void VulkanPipeline::CreateFrameBuffers()
 	for (size_t i = 0; i < m_imageViews.size(); i++)
 	{
 		//std::vector<ImageView>
-		vk::ImageView* attachment = &m_imageViews[i];
+		std::vector<vk::ImageView> attachments = { m_depthImageView, m_imageViews[i]};
 
 		vk::FramebufferCreateInfo createInfo{};
 		createInfo.sType = vk::StructureType::eFramebufferCreateInfo;
 		createInfo.renderPass = m_renderPass;
 		createInfo.height = m_extent.height;
 		createInfo.width = m_extent.width;
-		createInfo.attachmentCount = 1;
-		createInfo.pAttachments = attachment;
+		createInfo.attachmentCount = 2;
+		createInfo.pAttachments = attachments.data();
 		createInfo.layers = 1;
 		m_frameBuffers.push_back(VulkanEngine::LogicalDevice.createFramebuffer(createInfo));
 	}
@@ -409,11 +455,9 @@ void VulkanPipeline::CreateVertexBuffer()
 	};
 
 	vhf::CreateBuffer(staging);
-	void* map = VulkanEngine::LogicalDevice.mapMemory(stagingMemory, 0, bufferSize, vk::MemoryMapFlagBits::ePlacedEXT);
+	void* map = VulkanEngine::LogicalDevice.mapMemory(stagingMemory, 0, bufferSize);
 	memcpy(map, m_vertices.data(), bufferSize);
-	VulkanEngine::LogicalDevice.unmapMemory(stagingMemory);
-	map = nullptr;
-
+	
 	VertexBufferInfo vertexBuffer = {
 		.buffer = m_vertexBuffer,
 		.memory = m_vertexMemory,
@@ -426,13 +470,16 @@ void VulkanPipeline::CreateVertexBuffer()
 
 	vhf::CopyBufferToBuffer(stagingBuffer, m_vertexBuffer, bufferSize, VulkanEngine::GraphicsQueue);
 
+	VulkanEngine::LogicalDevice.unmapMemory(stagingMemory);
+	map = nullptr;
+
 	VulkanEngine::LogicalDevice.freeMemory(stagingMemory);
 	VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
 }
 
 void VulkanPipeline::CreateIndexBuffer()
 {
-	uint64_t bufferSize = sizeof(unsigned short) *  m_indices.size();
+	uint64_t bufferSize = sizeof(uint32_t) *  m_indices.size();
 	
 	vk::Buffer stagingBuffer;
 	vk::DeviceMemory stagingMemory;
@@ -446,12 +493,12 @@ void VulkanPipeline::CreateIndexBuffer()
 	};
 	
 	vhf::CreateBuffer(staging);
-	void* map = VulkanEngine::LogicalDevice.mapMemory(stagingMemory, 0, bufferSize, vk::MemoryMapFlagBits::ePlacedEXT);
+	void* map = VulkanEngine::LogicalDevice.mapMemory(stagingMemory, 0, bufferSize);
 	memcpy(map, m_indices.data(), bufferSize);
 	VulkanEngine::LogicalDevice.unmapMemory(stagingMemory);
 	map = nullptr;
 	
-	VertexBufferInfo vertexBuffer = {
+	VertexBufferInfo indexBuffer = {
 		.buffer = m_indexBuffer,
 		.memory = m_indexMemory,
 		.usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
@@ -459,7 +506,7 @@ void VulkanPipeline::CreateIndexBuffer()
 		.size = bufferSize
 	};
 	
-	vhf::CreateBuffer(vertexBuffer);
+	vhf::CreateBuffer(indexBuffer);
 	
 	vhf::CopyBufferToBuffer(stagingBuffer, m_indexBuffer, bufferSize, VulkanEngine::GraphicsQueue);
 	
@@ -478,9 +525,9 @@ void VulkanPipeline::AddMesh(aiMesh* _mesh)
 	for (int i = 0; i < _mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
-		vertex.r = rand() / RAND_MAX;
-		vertex.g = rand() / RAND_MAX;
-		vertex.b = rand() / RAND_MAX;
+		vertex.r = (float) rand() / RAND_MAX;
+		vertex.g = (float) rand() / RAND_MAX;
+		vertex.b = (float) rand() / RAND_MAX;
 
 		memcpy(&vertex, &_mesh->mVertices[i], sizeof(aiVector3D));
 
@@ -510,6 +557,15 @@ vk::ShaderModule VulkanPipeline::WrapShader(std::vector<char> _shaderBytes)
 
 vk::SurfaceFormatKHR VulkanPipeline::GetFormat(std::vector<vk::SurfaceFormatKHR>& _format)
 {
+	for (int i = 0; i < _format.size(); i++)
+	{
+		auto properties = VulkanEngine::PhysicalDevice.getFormatProperties(_format[i].format);
+		auto value = properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment;
+		if ((properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment) == vk::FormatFeatureFlagBits::eDepthStencilAttachment)
+			return _format[i];
+	}
+
+	std::cout << "No format found with linear tiling features including depth stencil attachment." << std::endl;
 	return _format[0];
 }
 

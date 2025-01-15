@@ -260,7 +260,7 @@ void VulkanRenderer::UpdateUniformBuffer(void* _map)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.proj = glm::perspective(glm::radians(45.0f), m_extent.width / (float)m_extent.height, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
@@ -281,17 +281,21 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	value.color.float32.at(2) = 0.25f;
 	value.color.float32.at(3) = 1.0f ;
 
+	vk::ClearValue depthClearValue;
+	depthClearValue.depthStencil = 1000.0f;
+
+	std::vector<vk::ClearValue> clearValues = { depthClearValue, value };
+
 	vk::RenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
 	renderPassInfo.renderPass = _renderPass;
 	renderPassInfo.framebuffer = m_frameBuffers->at(m_currentFrame);
 	renderPassInfo.renderArea.offset = vk::Offset2D{ 0,0 };
 	renderPassInfo.renderArea.extent = m_extent;
-	renderPassInfo.clearValueCount = 1;
-	renderPassInfo.pClearValues = &value;
+	renderPassInfo.clearValueCount = 2;
+	renderPassInfo.pClearValues = clearValues.data();
 
-
-	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.pipeline);
+	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.depthPipeline);
 
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
@@ -316,6 +320,11 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _renderInfo.pipelineLayout, 0, m_descriptorSets[0], nullptr);
 	_buffer.bindVertexBuffers(0, buffers, offsets);
 	_buffer.bindIndexBuffer(*_renderInfo.indexBuffer, 0, vk::IndexType::eUint32);
+	_buffer.drawIndexed(_renderInfo.triangleCount * 3, 1, 0, 0, 0);
+
+
+	_buffer.nextSubpass(vk::SubpassContents::eInline);
+	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.pipeline);
 	_buffer.drawIndexed(_renderInfo.triangleCount * 3, 1, 0, 0, 0);
 	_buffer.endRenderPass();
 	_buffer.end();

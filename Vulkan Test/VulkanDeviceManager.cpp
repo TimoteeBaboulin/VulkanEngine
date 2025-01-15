@@ -64,6 +64,7 @@ bool VulkanDeviceManager::CheckDeviceExtensions(vk::PhysicalDevice& _device)
 	std::set<std::string> requiredExtensions(m_extensionNames.begin(), m_extensionNames.end());
 
 	for (const auto& extension : properties) {
+		// std::cout << extension.extensionName << std::endl;
 		requiredExtensions.erase(extension.extensionName);
 	}
 

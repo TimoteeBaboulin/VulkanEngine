@@ -39,7 +39,7 @@ private:
 	VulkanPipelineInfo m_info;
 
 	std::vector<Vertex> m_vertices;
-	std::vector<uint16_t> m_indices;
+	std::vector<uint32_t> m_indices;
 
 	vk::SwapchainKHR m_swapChain;
 	std::vector<vk::Image> m_images;
@@ -55,6 +55,7 @@ private:
 	vk::SurfaceFormatKHR m_format;
 	vk::RenderPass m_renderPass;
 	vk::Pipeline m_pipeline;
+	vk::Pipeline m_depthPipeline;
 	vk::PipelineLayout m_pipelineLayout;
 	
 	vk::Buffer m_vertexBuffer;

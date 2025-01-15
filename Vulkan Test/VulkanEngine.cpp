@@ -24,6 +24,10 @@ vk::Queue VulkanEngine::GraphicsQueue;
 vk::Queue VulkanEngine::KHRPresentQueue;
 
 
+
+
+
+
 void VulkanEngine::Run()
 {
 	InitContext();
@@ -37,9 +41,26 @@ void VulkanEngine::LoadMesh(aiMesh* _mesh)
 	m_vulkanPipeline->Load(_mesh);
 }
 
+//VKAPI_ATTR VkBool32 VKAPI_CALL debug_utils_messenger_callback(
+//	VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+//	VkDebugUtilsMessageTypeFlagsEXT message_type,
+//	const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+//	void* user_data)
+//{
+//	if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+//	{
+//		std::cout << callback_data->messageIdNumber << " - " << callback_data->pMessageIdName << ": " << callback_data->pMessage << std::endl;
+//	}
+//	else if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+//	{
+//		std::cout << callback_data->messageIdNumber << " - " << callback_data->pMessageIdName << ": " << callback_data->pMessage << std::endl;
+//	}
+//	return VK_FALSE;
+//}
+
 void VulkanEngine::InitContext()
 {
-	m_context = new VulkanContext();
+		m_context = new VulkanContext();
 	ContextInfo info = {
 		.name = "Vulkan",
 		.width = WIDTH,
@@ -47,7 +68,24 @@ void VulkanEngine::InitContext()
 		.hints = {{GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_FALSE}}
 	};
 	m_context->Init(info);
-	m_instance = m_context->CreateInstance(GetAppInfo());
+
+	vk::ApplicationInfo appInfo = GetAppInfo();
+
+//#ifndef NDEBUG
+//	vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+//	debugCreateInfo.sType = vk::StructureType::eDebugUtilsMessengerCreateInfoEXT;
+//	debugCreateInfo.messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eError | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning;
+//	debugCreateInfo.messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation;
+//	debugCreateInfo.pfnUserCallback = &debug_utils_messenger_callback;
+//	appInfo.pNext = &debugCreateInfo;
+//#endif
+
+	m_instance = m_context->CreateInstance(appInfo);
+
+//#ifndef NDEBUG
+//	m_instance.createDebugUtilsMessengerEXT(debugCreateInfo, nullptr, vk::DispatchLoaderDynamic({ *m_instance }));
+//#endif // !NDEBUG
+
 	m_context->CreateSurfaceKHR(&m_renderingSurface);
 }
 
@@ -60,6 +98,7 @@ vk::ApplicationInfo VulkanEngine::GetAppInfo()
 	appInfo.pEngineName = "No Engine";
 	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 	appInfo.apiVersion = VK_API_VERSION_1_0;
+
 	return appInfo;
 }
 

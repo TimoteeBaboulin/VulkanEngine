@@ -1,4 +1,15 @@
 #include "VulkanContext.h"
+#include "VulkanEngine.h"
+
+#ifdef NDEBUG
+bool VulkanContext::ValidationLayersEnabled = false;
+#else
+bool VulkanContext::ValidationLayersEnabled = true;
+#endif // NDEBUG
+
+const std::vector<const char*> requiredLayers = {
+	"VK_LAYER_KHRONOS_validation"
+};
 
 void VulkanContext::Init(const ContextInfo& _info)
 {
@@ -18,6 +29,32 @@ void VulkanContext::Cleanup()
 	m_window = nullptr;
 }
 
+bool CheckValidationLayerSupport()
+{
+	uint32_t layerCount = 0;
+	vk::enumerateInstanceLayerProperties(&layerCount, nullptr);
+
+	std::vector<vk::LayerProperties> availableLayers(layerCount);
+	vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+	for (const char* layerName : requiredLayers)
+	{
+		bool layerFound = false;
+		for (const auto layer : availableLayers)
+		{
+			if (strcmp(layer.layerName, layerName) == 0)
+			{
+				layerFound = true;
+				break;
+			}
+		}
+
+		if (!layerFound) return false;
+	}
+
+	return true;
+}
+
 vk::Instance VulkanContext::CreateInstance(vk::ApplicationInfo _appInfo)
 {
 	unsigned int extensionCount;
@@ -26,10 +63,26 @@ vk::Instance VulkanContext::CreateInstance(vk::ApplicationInfo _appInfo)
 
 	const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
 
+	if (ValidationLayersEnabled && !CheckValidationLayerSupport())
+	{
+		std::cout << "Couldn't activate validation layers." << std::endl;
+		ValidationLayersEnabled = false;
+	}
+
 	vk::InstanceCreateInfo createInfo{};
 	createInfo.pApplicationInfo = &appInfo;
 	createInfo.enabledExtensionCount = extensionCount;
 	createInfo.ppEnabledExtensionNames = extensions;
+
+	if (VulkanContext::ValidationLayersEnabled)
+	{
+		createInfo.enabledLayerCount = static_cast<uint32_t>(requiredLayers.size());
+		createInfo.ppEnabledLayerNames = requiredLayers.data();
+	}
+	else
+	{
+		createInfo.enabledLayerCount = 0;
+	}
 
 	m_instance = vk::createInstance(createInfo);
 	return m_instance;

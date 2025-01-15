@@ -29,6 +29,7 @@ struct RenderInfo
 {
 	vk::RenderPass renderPass;
 	vk::Pipeline pipeline;
+	vk::Pipeline depthPipeline;
 	vk::PipelineLayout pipelineLayout;
 
 	vk::Buffer* vertexBuffer;

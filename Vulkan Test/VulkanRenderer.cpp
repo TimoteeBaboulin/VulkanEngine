@@ -261,8 +261,8 @@ void VulkanRenderer::UpdateUniformBuffer(void* _map)
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), m_extent.width / (float)m_extent.height, 0.1f, 10.0f);
+	ubo.view = glm::lookAt(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = glm::perspective(glm::radians(90.0f), m_extent.width / (float)m_extent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
 	memcpy(_map, &ubo, sizeof(UniformBufferObject));
@@ -282,7 +282,7 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	value.color.float32.at(3) = 1.0f ;
 
 	vk::ClearValue depthClearValue;
-	depthClearValue.depthStencil = 1000.0f;
+	depthClearValue.depthStencil = 1.0f;
 
 	std::vector<vk::ClearValue> clearValues = { depthClearValue, value };
 

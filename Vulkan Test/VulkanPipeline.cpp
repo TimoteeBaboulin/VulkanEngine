@@ -18,6 +18,7 @@ void VulkanPipeline::Init(vk::Extent2D _extent)
 	CreateDepthImage();
 	CreateRenderPasses();
 	CreateDescriptorSetLayout();
+	CreatePipelineLayout();
 	CreateRenderPipeline();
 
 	CreateFrameBuffers();
@@ -107,6 +108,8 @@ void VulkanPipeline::CreateSwapChain(vk::Extent2D _extent)
 	else
 		frameBufferCount = m_info.details.capabilities.minImageCount;
 
+	m_frameCount = frameBufferCount;
+
 	vk::SwapchainCreateInfoKHR createInfo{};
 	createInfo.sType = vk::StructureType::eSwapchainCreateInfoKHR;
 	createInfo.setSurface(m_info.surface);
@@ -159,9 +162,28 @@ void VulkanPipeline::CreateImageViews()
 void VulkanPipeline::CreateDepthImage()
 {
 	vk::Format format = vk::Format::eD32Sfloat;
+	uint32_t queueFamilyIndices[] = {VulkanEngine::FamilyIndices.graphicsFamily.value(), VulkanEngine::FamilyIndices.khrPresentFamily.value()};
 
-	vhf::CreateImage(m_extent, format, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_depthImage, m_depthMemory, vk::ImageLayout::eUndefined);
-	m_depthImageView = vhf::CreateImageView(m_depthImage, format, vk::ImageAspectFlagBits::eDepth);
+	m_depthImages.resize(m_frameCount);
+	m_depthImageViews.resize(m_frameCount);
+
+	//vk::ImageCreateInfo imageInfo;
+	//imageInfo.sType = vk::StructureType::eImageCreateInfo;
+	//imageInfo.extent = vk::Extent3D(m_extent);
+	//imageInfo.format = vk::Format::eD32Sfloat;
+	//imageInfo.imageType = vk::ImageType::e2D;
+	//imageInfo.queueFamilyIndexCount = 2;
+	//imageInfo.pQueueFamilyIndices = queueFamilyIndices;
+	//imageInfo.mipLevels = 1;
+	//imageInfo.arrayLayers = 1;
+	//imageInfo.tiling = vk::ImageTiling::eOptimal;
+	//imageInfo.samples = vk::SampleCountFlagBits::e1;
+
+	for (int i = 0; i < m_frameCount; i++)
+	{
+		vhf::CreateImage(m_extent, format, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_depthImages[i], m_depthMemory, vk::ImageLayout::eUndefined);
+		m_depthImageViews[i] = vhf::CreateImageView(m_depthImages[i], format, vk::ImageAspectFlagBits::eDepth);
+	}
 }
 
 void VulkanPipeline::CreateRenderPasses()
@@ -185,9 +207,9 @@ void VulkanPipeline::CreateRenderPasses()
 	vk::AttachmentDescription depthAttachment;
 	depthAttachment.format = vk::Format::eD32Sfloat;
 	depthAttachment.samples = vk::SampleCountFlagBits::e1;
-	depthAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
+	depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
 	depthAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-	depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+	depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eClear;
 	depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 	depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
 	depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
@@ -243,6 +265,16 @@ void VulkanPipeline::CreateRenderPasses()
 	renderpass.pDependencies = dependencies.data();
 
 	m_renderPass = VulkanEngine::LogicalDevice.createRenderPass(renderpass);
+}
+
+void VulkanPipeline::CreatePipelineLayout()
+{
+	//Layout
+	vk::PipelineLayoutCreateInfo pipelineLayout{};
+	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
+	pipelineLayout.pSetLayouts = &m_descriptorLayout;
+	pipelineLayout.setLayoutCount = 1;
+	m_pipelineLayout = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
 }
 
 void VulkanPipeline::CreateRenderPipeline()
@@ -354,12 +386,7 @@ void VulkanPipeline::CreateRenderPipeline()
 	colorBlending.attachmentCount = 1;
 	colorBlending.pAttachments = &colorBlendAttachment;
 
-	//Layout
-	vk::PipelineLayoutCreateInfo pipelineLayout{};
-	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
-	pipelineLayout.pSetLayouts = &m_descriptorLayout;
-	pipelineLayout.setLayoutCount = 1;
-	m_pipelineLayout = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
+	
 
 
 	std::vector<vk::DynamicState> dynamicStates = {
@@ -372,12 +399,19 @@ void VulkanPipeline::CreateRenderPipeline()
 	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
 	dynamicState.pDynamicStates = dynamicStates.data();
 
-	vk::PipelineDepthStencilStateCreateInfo depthState;
-	depthState.sType = vk::StructureType::ePipelineDepthStencilStateCreateInfo;
-	depthState.depthCompareOp = vk::CompareOp::eLessOrEqual;
-	depthState.depthTestEnable = true;
-	depthState.depthWriteEnable = true;
-	depthState.stencilTestEnable = false;
+	vk::PipelineDepthStencilStateCreateInfo depthStateRW;
+	depthStateRW.sType = vk::StructureType::ePipelineDepthStencilStateCreateInfo;
+	depthStateRW.depthCompareOp = vk::CompareOp::eLessOrEqual;
+	depthStateRW.depthTestEnable = true;
+	depthStateRW.depthWriteEnable = true;
+	depthStateRW.stencilTestEnable = false;
+
+	vk::PipelineDepthStencilStateCreateInfo depthStateR;
+	depthStateR.sType = vk::StructureType::ePipelineDepthStencilStateCreateInfo;
+	depthStateR.depthCompareOp = vk::CompareOp::eLessOrEqual;
+	depthStateR.depthTestEnable = true;
+	depthStateR.depthWriteEnable = false;
+	depthStateR.stencilTestEnable = false;
 
 	vk::GraphicsPipelineCreateInfo graphicsPipeline{};
 	graphicsPipeline.sType = vk::StructureType::eGraphicsPipelineCreateInfo;
@@ -393,7 +427,7 @@ void VulkanPipeline::CreateRenderPipeline()
 	graphicsPipeline.layout = m_pipelineLayout;
 	graphicsPipeline.renderPass = m_renderPass;
 	graphicsPipeline.subpass = 1;
-	graphicsPipeline.pDepthStencilState = &depthState;
+	graphicsPipeline.pDepthStencilState = &depthStateR;
 
 	vk::GraphicsPipelineCreateInfo depthPipeline{};
 	depthPipeline.sType = vk::StructureType::eGraphicsPipelineCreateInfo;
@@ -404,12 +438,12 @@ void VulkanPipeline::CreateRenderPipeline()
 	depthPipeline.pViewportState = &viewportStateInfo;
 	depthPipeline.pRasterizationState = &rasterizerInfo;
 	depthPipeline.pMultisampleState = &multisampling;
-	depthPipeline.pColorBlendState = &colorBlending;
+	depthPipeline.pColorBlendState = nullptr;
 	depthPipeline.pDynamicState = &dynamicState;
 	depthPipeline.layout = m_pipelineLayout;
 	depthPipeline.renderPass = m_renderPass;
 	depthPipeline.subpass = 0;
-	depthPipeline.pDepthStencilState = &depthState;
+	depthPipeline.pDepthStencilState = &depthStateRW;
 
 	m_pipeline = VulkanEngine::LogicalDevice.createGraphicsPipeline(nullptr, graphicsPipeline).value;
 	m_depthPipeline = VulkanEngine::LogicalDevice.createGraphicsPipeline(nullptr, depthPipeline).value;
@@ -425,7 +459,7 @@ void VulkanPipeline::CreateFrameBuffers()
 	for (size_t i = 0; i < m_imageViews.size(); i++)
 	{
 		//std::vector<ImageView>
-		std::vector<vk::ImageView> attachments = { m_depthImageView, m_imageViews[i]};
+		std::vector<vk::ImageView> attachments = { m_depthImageViews[i], m_imageViews[i]};
 
 		vk::FramebufferCreateInfo createInfo{};
 		createInfo.sType = vk::StructureType::eFramebufferCreateInfo;

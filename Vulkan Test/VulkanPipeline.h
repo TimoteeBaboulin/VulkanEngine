@@ -45,8 +45,8 @@ private:
 	std::vector<vk::Image> m_images;
 	std::vector<vk::ImageView> m_imageViews;
 
-	vk::Image m_depthImage;
-	vk::ImageView m_depthImageView;
+	std::vector<vk::Image> m_depthImages;
+	std::vector<vk::ImageView> m_depthImageViews;
 	vk::DeviceMemory m_depthMemory;
 
 	std::vector<vk::Framebuffer> m_frameBuffers;
@@ -65,6 +65,7 @@ private:
 
 	uint32_t m_vertexCount;
 	uint32_t m_triangleCount;
+	uint32_t m_frameCount;
 
 	vk::DescriptorSetLayout m_descriptorLayout;
 
@@ -74,6 +75,7 @@ private:
 	void CreateImageViews();
 	void CreateDepthImage();
 	void CreateRenderPasses();
+	void CreatePipelineLayout();
 	void CreateRenderPipeline();
 
 	void CreateFrameBuffers();

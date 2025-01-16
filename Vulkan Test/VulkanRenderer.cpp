@@ -6,9 +6,7 @@
 #include "VulkanEngine.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "common.h"
-//#include "assimp/Importer.hpp"
-//#include "assimp/postprocess.h"
-//#include "assimp/scene.h"
+
 #define GLM_FORCE_RADIANS
 
 VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers) : m_extent(_extent), m_frameBuffers(_frameBuffers)

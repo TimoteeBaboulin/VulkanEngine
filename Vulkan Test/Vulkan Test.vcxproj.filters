@@ -21,51 +21,45 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Source Files\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanEngine.cpp">
+    <ClCompile Include="Source Files\MoonlitVulkan\VulkanContext.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanContext.cpp">
+    <ClCompile Include="Source Files\MoonlitVulkan\VulkanDeviceManager.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanDeviceManager.cpp">
+    <ClCompile Include="Source Files\MoonlitVulkan\VulkanEngine.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanPipeline.cpp">
+    <ClCompile Include="Source Files\MoonlitVulkan\VulkanPipeline.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanRenderer.cpp">
+    <ClCompile Include="Source Files\MoonlitVulkan\VulkanRenderer.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common.h">
+    <ClInclude Include="Header Files\common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VertexMeshImport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanEngine.h">
+    <ClInclude Include="Header Files\MoonlitVulkan\VulkanContext.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanContext.h">
+    <ClInclude Include="Header Files\MoonlitVulkan\VulkanDeviceManager.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanDeviceManager.h">
+    <ClInclude Include="Header Files\MoonlitVulkan\VulkanEngine.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanHelperFunctions.h">
+    <ClInclude Include="Header Files\MoonlitVulkan\VulkanHelperFunctions.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanPipeline.h">
+    <ClInclude Include="Header Files\MoonlitVulkan\VulkanPipeline.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanRenderer.h">
-      <Filter>Header Files\Vulkan</Filter>
-    </ClInclude>
-    <ClInclude Include="NewVulkanRenderer.h">
+    <ClInclude Include="Header Files\MoonlitVulkan\VulkanRenderer.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

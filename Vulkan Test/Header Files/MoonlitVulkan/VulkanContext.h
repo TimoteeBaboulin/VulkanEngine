@@ -7,7 +7,7 @@
 #include "GLFW/glfw3.h"
 #include "vulkan/vulkan.hpp"
 
-
+#include "MoonlitVulkanExport.h"
 
 struct ContextInfo
 {
@@ -17,7 +17,7 @@ struct ContextInfo
 		std::vector<std::pair<int, int>> hints;
 };
 
-class VulkanContext
+class MOONLIT_API VulkanContext
 {
 public:
 	static bool ValidationLayersEnabled;

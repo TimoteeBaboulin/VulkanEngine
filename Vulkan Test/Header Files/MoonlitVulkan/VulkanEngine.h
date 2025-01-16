@@ -12,7 +12,7 @@ class VulkanDeviceManager;
 class VulkanRenderer;
 class VulkanPipeline;
 
-class VulkanEngine
+class MOONLIT_API VulkanEngine
 {
 public:
 	void Run();

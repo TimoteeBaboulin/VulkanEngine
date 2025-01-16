@@ -4,6 +4,8 @@
 #include "common.h"
 #include "assimp/scene.h"
 
+#include "MoonlitVulkanExport.h"
+
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
 

@@ -1,5 +1,5 @@
-#include "VulkanContext.h"
-#include "VulkanEngine.h"
+#include "MoonlitVulkan/VulkanContext.h"
+#include "MoonlitVulkan/VulkanEngine.h"
 
 #ifdef NDEBUG
 bool VulkanContext::ValidationLayersEnabled = false;
@@ -32,10 +32,22 @@ void VulkanContext::Cleanup()
 bool CheckValidationLayerSupport()
 {
 	uint32_t layerCount = 0;
-	vk::enumerateInstanceLayerProperties(&layerCount, nullptr);
+	vk::Result result;
+
+	result = vk::enumerateInstanceLayerProperties(&layerCount, nullptr);
+
+	if (result != vk::Result::eSuccess)
+	{
+		throw new std::runtime_error("Couldn't enumerate layer properties.");
+	}
 
 	std::vector<vk::LayerProperties> availableLayers(layerCount);
-	vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+	result = vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+	if (result != vk::Result::eSuccess)
+	{
+		throw new std::runtime_error("Couldn't enumerate layer properties on second run.");
+	}
 
 	for (const char* layerName : requiredLayers)
 	{

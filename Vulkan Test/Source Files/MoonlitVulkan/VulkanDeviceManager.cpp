@@ -2,8 +2,8 @@
 #include <string>
 
 #include "vulkan/vulkan.hpp"
-#include "VulkanDeviceManager.h"
-#include "VulkanEngine.h"
+#include "MoonlitVulkan/VulkanDeviceManager.h"
+#include "MoonlitVulkan/VulkanEngine.h"
 
 VulkanDeviceManager::VulkanDeviceManager(vk::SurfaceKHR& _surface) : m_surface(_surface)
 {
@@ -128,9 +128,9 @@ void VulkanDeviceManager::CreateLogicalDevice()
 	vk::DeviceCreateInfo createInfo{};
 	createInfo.sType = vk::StructureType::eDeviceCreateInfo,
 	createInfo.pQueueCreateInfos = queueInfos.data();
-	createInfo.queueCreateInfoCount = queueInfos.size();
+	createInfo.queueCreateInfoCount = (uint32_t) queueInfos.size();
 	createInfo.pEnabledFeatures = &targetedFeatures;
-	createInfo.enabledExtensionCount = m_extensionNames.size();
+	createInfo.enabledExtensionCount = (uint32_t) m_extensionNames.size();
 	createInfo.ppEnabledExtensionNames = m_extensionNames.data();
 
 	VulkanEngine::LogicalDevice = VulkanEngine::PhysicalDevice.createDevice(createInfo);

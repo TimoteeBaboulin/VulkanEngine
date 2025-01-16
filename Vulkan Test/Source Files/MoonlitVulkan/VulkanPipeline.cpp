@@ -1,6 +1,6 @@
-#include "VulkanPipeline.h"
-#include "VulkanEngine.h"
-#include "VulkanHelperFunctions.h"
+#include "MoonlitVulkan/VulkanPipeline.h"
+#include "MoonlitVulkan/VulkanEngine.h"
+#include "MoonlitVulkan/VulkanHelperFunctions.h"
 
 VulkanPipeline::VulkanPipeline(VulkanPipelineInfo _info) : m_info(_info)
 {

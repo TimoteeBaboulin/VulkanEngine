@@ -5,7 +5,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <iostream>
-#include "VulkanEngine.h"
+#include "MoonlitVulkan/VulkanEngine.h"
 
 int main() {
     VulkanEngine app;

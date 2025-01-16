@@ -1,4 +1,4 @@
-#include "VulkanEngine.h"
+#include "MoonlitVulkan/VulkanEngine.h"
 
 #include <stdexcept>
 #include <vector>
@@ -6,10 +6,10 @@
 #include <iostream>
 #include <fstream>
 
-#include "VulkanContext.h"
-#include "VulkanDeviceManager.h"
-#include "VulkanPipeline.h"
-#include "VulkanRenderer.h"
+#include "MoonlitVulkan/VulkanContext.h"
+#include "MoonlitVulkan/VulkanDeviceManager.h"
+#include "MoonlitVulkan/VulkanPipeline.h"
+#include "MoonlitVulkan/VulkanRenderer.h"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"

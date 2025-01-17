@@ -11,10 +11,6 @@
 #include "MoonlitVulkan/VulkanPipeline.h"
 #include "MoonlitVulkan/VulkanRenderer.h"
 
-#include "assimp/Importer.hpp"
-#include "assimp/postprocess.h"
-#include "assimp/scene.h"
-
 vk::Device VulkanEngine::LogicalDevice = nullptr;
 vk::PhysicalDevice VulkanEngine::PhysicalDevice = VK_NULL_HANDLE;
 vk::CommandPool VulkanEngine::MainCommandPool;
@@ -36,7 +32,7 @@ void VulkanEngine::Run()
 	Cleanup();
 }
 
-void VulkanEngine::LoadMesh(aiMesh* _mesh)
+void VulkanEngine::LoadMesh(Mesh& _mesh)
 {
 	m_vulkanPipeline->Load(_mesh);
 }
@@ -120,11 +116,7 @@ void VulkanEngine::InitVulkan()
 	m_vulkanPipeline = new VulkanPipeline(pipelineInfo);
 	extent = m_context->GetExtent(details.capabilities);
 
-	Assimp::Importer importer;
-
-	const aiScene* scene = importer.ReadFile("C:/Models/test.fbx", aiProcess_Triangulate);
-
-	m_vulkanPipeline->Init(extent, scene->mMeshes[0]);
+	m_vulkanPipeline->Init(extent);
 	m_swapChain = m_vulkanPipeline->GetSwapChain();
 	
 	m_vulkanRenderer = new VulkanRenderer(extent, m_vulkanPipeline->GetFrameBuffers());

@@ -2,9 +2,9 @@
 
 #include "vulkan/vulkan.hpp"
 #include "common.h"
-#include "assimp/scene.h"
 
 #include "MoonlitVulkanExport.h"
+#include "MoonlitVulkan/VulkanContext.h"
 
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
@@ -18,8 +18,15 @@ class MOONLIT_API VulkanEngine
 {
 public:
 	void Run();
+	void InitContext();
+	void InitVulkan();
+	void MainLoop();
+	void Render();
 
-	void LoadMesh(aiMesh* _mesh);
+	void LoadMesh(Mesh& _mesh);
+
+	VulkanContext* GetContext() const { return m_context; }
+	GLFWwindow* GetWindow() const { return m_context->GetWindow(); }
 
 	static vk::Device LogicalDevice;
 	static vk::PhysicalDevice PhysicalDevice;
@@ -43,11 +50,10 @@ private:
 	VulkanRenderer* m_vulkanRenderer;
 	
 
-	void InitContext();
+	
 	vk::ApplicationInfo GetAppInfo();
 
-	//Vulkan
-	void InitVulkan();
+	
 
 	//Helpers
 	vk::PresentModeKHR GetPresentMode(std::vector<vk::PresentModeKHR>& _modes);
@@ -55,7 +61,5 @@ private:
 
 
 	void CreateMainCommandPool();
-	void MainLoop();
-	void Render();
 	void Cleanup();
 };

@@ -2,8 +2,6 @@
 
 #include "vulkan/vulkan.hpp"
 #include "common.h"
-#include "assimp/scene.h"
-#include "assimp/mesh.h"
 
 struct VulkanPipelineInfo
 {
@@ -12,14 +10,12 @@ struct VulkanPipelineInfo
 	vk::SurfaceKHR& surface;
 };
 
-class aiMesh;
-
 class VulkanPipeline
 {
 public:
 	VulkanPipeline(VulkanPipelineInfo _info);
 	void Init(vk::Extent2D _extent);
-	void Init(vk::Extent2D _extent, aiMesh* _mesh);
+	void Init(vk::Extent2D _extent, Mesh& _mesh);
 
 	void Cleanup();
 
@@ -32,7 +28,7 @@ public:
 
 	RenderInfo GetRenderInfo();
 
-	void Load(aiMesh* _mesh);
+	void Load(Mesh& _mesh);
 private:
 
 
@@ -83,7 +79,7 @@ private:
 	void CreateVertexBuffer();
 	void CreateIndexBuffer();
 
-	void AddMesh(aiMesh* _mesh);
+	void AddMesh(Mesh _mesh);
 
 	vk::ShaderModule WrapShader(std::vector<char> _shaderBytes);
 	vk::SurfaceFormatKHR GetFormat(std::vector<vk::SurfaceFormatKHR>& _format);

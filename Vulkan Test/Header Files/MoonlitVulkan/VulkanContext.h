@@ -31,6 +31,7 @@ public:
 	void PollEvents() const;
 
 	vk::Extent2D GetExtent(vk::SurfaceCapabilitiesKHR _capabilities) const;
+	GLFWwindow* GetWindow() const { return m_window; }
 
 private:
 	GLFWwindow* m_window = nullptr;

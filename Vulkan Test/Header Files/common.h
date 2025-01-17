@@ -56,6 +56,14 @@ struct Vertex
 	float b = 1.0f;
 };
 
+struct Mesh
+{
+	int vertexCount;
+	float* vertices;
+	int triangleCount;
+	int* indices;
+};
+
 struct TransitionInfo
 {
 	vk::AccessFlags srcAccessFlags;

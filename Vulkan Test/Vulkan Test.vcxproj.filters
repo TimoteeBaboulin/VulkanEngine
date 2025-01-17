@@ -62,10 +62,10 @@
     <ClInclude Include="Header Files\MoonlitVulkan\VulkanRenderer.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="MoonlitVulkanExport.h">
+    <ClInclude Include="Header Files\MoonlitVulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MoonlitVulkan.h">
+    <ClInclude Include="Header Files\MoonlitVulkanExport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

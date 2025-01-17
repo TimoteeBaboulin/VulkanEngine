@@ -24,7 +24,7 @@ void VulkanPipeline::Init(vk::Extent2D _extent)
 	CreateFrameBuffers();
 }
 
-void VulkanPipeline::Init(vk::Extent2D _extent, aiMesh* _mesh)
+void VulkanPipeline::Init(vk::Extent2D _extent, Mesh& _mesh)
 {
 	Load(_mesh);
 	Init(_extent);
@@ -58,7 +58,7 @@ RenderInfo VulkanPipeline::GetRenderInfo()
 	return info;
 }
 
-void VulkanPipeline::Load(aiMesh* _mesh)
+void VulkanPipeline::Load(Mesh& _mesh)
 {
 	AddMesh(_mesh);
 
@@ -548,34 +548,33 @@ void VulkanPipeline::CreateIndexBuffer()
 	VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
 }
 
-void VulkanPipeline::AddMesh(aiMesh* _mesh)
+void VulkanPipeline::AddMesh(Mesh _mesh)
 {
 	int baseIndex = m_triangleCount * 3;
 	int baseVertexIndex = m_vertexCount;
 
-	m_vertexCount += _mesh->mNumVertices;
+	m_vertexCount += _mesh.vertexCount;
 	m_vertices.reserve(m_vertexCount);
 
-	for (int i = 0; i < _mesh->mNumVertices; i++)
+	for (int i = 0; i < _mesh.vertexCount; i++)
 	{
 		Vertex vertex;
 		vertex.r = (float) rand() / RAND_MAX;
 		vertex.g = (float) rand() / RAND_MAX;
 		vertex.b = (float) rand() / RAND_MAX;
 
-		memcpy(&vertex, &_mesh->mVertices[i], sizeof(aiVector3D));
+		memcpy(&vertex, &_mesh.vertices[i], sizeof(float) * 3);
 
 		m_vertices.push_back(vertex);
 	}
 
-	m_triangleCount += _mesh->mNumFaces;
-	m_indices.reserve(m_indices.size() + _mesh->mNumFaces);
-	for (int i = 0; i < _mesh->mNumFaces; i++)
+	m_triangleCount += _mesh.triangleCount;
+	m_indices.reserve(m_indices.size() + _mesh.triangleCount);
+	for (int i = 0; i < _mesh.triangleCount; i++)
 	{
-		aiFace& face = _mesh->mFaces[i];
-		m_indices.push_back(face.mIndices[0]);
-		m_indices.push_back(face.mIndices[1]);
-		m_indices.push_back(face.mIndices[2]);
+		m_indices.push_back(_mesh.indices[i * 3    ]);
+		m_indices.push_back(_mesh.indices[i * 3 + 1]);
+		m_indices.push_back(_mesh.indices[i * 3 + 2]);
 	}
 }
 

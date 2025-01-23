@@ -24,13 +24,13 @@ vk::Queue VulkanEngine::KHRPresentQueue;
 
 
 
-void VulkanEngine::Run()
-{
-	InitContext();
-	InitVulkan();
-	MainLoop();
-	Cleanup();
-}
+//void VulkanEngine::Run()
+//{
+//	InitContext();
+//	InitVulkan();
+//	MainLoop();
+//	Cleanup();
+//}
 
 void VulkanEngine::LoadMesh(Mesh& _mesh)
 {
@@ -54,16 +54,9 @@ void VulkanEngine::LoadMesh(Mesh& _mesh)
 //	return VK_FALSE;
 //}
 
-void VulkanEngine::InitContext()
+void VulkanEngine::InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount)
 {
-		m_context = new VulkanContext();
-	ContextInfo info = {
-		.name = "Vulkan",
-		.width = WIDTH,
-		.height = HEIGHT,
-		.hints = {{GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_FALSE}}
-	};
-	m_context->Init(info);
+	m_context->Init(_info);
 
 	vk::ApplicationInfo appInfo = GetAppInfo();
 
@@ -76,7 +69,7 @@ void VulkanEngine::InitContext()
 //	appInfo.pNext = &debugCreateInfo;
 //#endif
 
-	m_instance = m_context->CreateInstance(appInfo);
+	m_instance = m_context->CreateInstance(appInfo, requiredExtensions, extensionCount);
 
 //#ifndef NDEBUG
 //	m_instance.createDebugUtilsMessengerEXT(debugCreateInfo, nullptr, vk::DispatchLoaderDynamic({ *m_instance }));

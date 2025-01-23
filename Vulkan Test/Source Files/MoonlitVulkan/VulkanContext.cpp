@@ -13,19 +13,14 @@ const std::vector<const char*> requiredLayers = {
 
 void VulkanContext::Init(const ContextInfo& _info)
 {
-	glfwInit();
-	for (std::pair<int,int> pair : _info.hints)
-	{
-		glfwWindowHint(pair.first, pair.second);
-	}
+	m_extent.width = _info.width;
+	m_extent.height = _info.height;
 
-	m_window = glfwCreateWindow(_info.width, _info.height, _info.name, nullptr, nullptr);
+	m_windowName = _info.name;
 }
 
 void VulkanContext::Cleanup()
 {
-	glfwDestroyWindow(m_window);
-	glfwTerminate();
 	m_window = nullptr;
 }
 
@@ -67,13 +62,9 @@ bool CheckValidationLayerSupport()
 	return true;
 }
 
-vk::Instance VulkanContext::CreateInstance(vk::ApplicationInfo _appInfo)
+vk::Instance VulkanContext::CreateInstance(vk::ApplicationInfo _appInfo, const char ** requiredExtensions, int extensionCount)
 {
-	unsigned int extensionCount;
-
 	vk::ApplicationInfo appInfo = _appInfo;
-
-	const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
 
 	if (ValidationLayersEnabled && !CheckValidationLayerSupport())
 	{
@@ -84,7 +75,7 @@ vk::Instance VulkanContext::CreateInstance(vk::ApplicationInfo _appInfo)
 	vk::InstanceCreateInfo createInfo{};
 	createInfo.pApplicationInfo = &appInfo;
 	createInfo.enabledExtensionCount = extensionCount;
-	createInfo.ppEnabledExtensionNames = extensions;
+	createInfo.ppEnabledExtensionNames = requiredExtensions;
 
 	if (VulkanContext::ValidationLayersEnabled)
 	{
@@ -102,6 +93,7 @@ vk::Instance VulkanContext::CreateInstance(vk::ApplicationInfo _appInfo)
 
 void VulkanContext::CreateSurfaceKHR(vk::SurfaceKHR* _out)
 {
+	VkWin32SurfaceCreateInfoKHR createInfo{};
 	glfwCreateWindowSurface(m_instance, m_window, nullptr, (VkSurfaceKHR*)_out);
 }
 

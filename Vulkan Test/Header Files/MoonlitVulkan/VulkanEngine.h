@@ -17,8 +17,8 @@ class VulkanPipeline;
 class MOONLIT_API VulkanEngine
 {
 public:
-	void Run();
-	void InitContext();
+	//void Run();
+	void InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount);
 	void InitVulkan();
 	void MainLoop();
 	void Render();
@@ -26,7 +26,7 @@ public:
 	void LoadMesh(Mesh& _mesh);
 
 	VulkanContext* GetContext() const { return m_context; }
-	GLFWwindow* GetWindow() const { return m_context->GetWindow(); }
+	HWND* GetWindow() const { return m_context->GetWindow(); }
 
 	static vk::Device LogicalDevice;
 	static vk::PhysicalDevice PhysicalDevice;

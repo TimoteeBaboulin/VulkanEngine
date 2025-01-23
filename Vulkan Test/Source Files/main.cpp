@@ -11,6 +11,9 @@
 #include "assimp/postprocess.h"
 #include "assimp/mesh.h"
 
+constexpr int WindowWidth = 1920;
+constexpr int WindowHeight = 1080;
+
 Mesh GetMesh(aiMesh* _mesh)
 {
     Mesh mesh;
@@ -43,7 +46,24 @@ int main() {
     const aiScene* scene = importer.GetScene();
     Mesh mesh = GetMesh(scene->mMeshes[0]);
     
-    app.InitContext();
+    std::vector<std::pair<int, int>> hints;
+    hints = { {GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_FALSE} };
+    glfwInit();
+    for (std::pair<int, int> pair : hints)
+    {
+        glfwWindowHint(pair.first, pair.second);
+    }
+    GLFWwindow* window = glfwCreateWindow(WindowWidth, WindowHeight, "Vulkan Engine", nullptr, nullptr);;
+    unsigned int extensionCount;
+    const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
+
+    ContextInfo context = { 
+        .name = "Vulkan Engine",
+        .width = WindowWidth, 
+        .height = WindowHeight 
+    };
+
+    app.InitContext(context, extensions, extensionCount);
     app.InitVulkan(); 
     app.LoadMesh(mesh);
 

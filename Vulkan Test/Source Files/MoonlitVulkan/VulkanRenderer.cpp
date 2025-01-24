@@ -38,12 +38,14 @@ void VulkanRenderer::Cleanup()
 
 void VulkanRenderer::Render(vk::SwapchainKHR _swapchain, RenderInfo _renderInfo, vk::RenderPass _renderPass)
 {
+
 	VulkanEngine::LogicalDevice.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
 	VulkanEngine::LogicalDevice.resetFences(m_waitForPreviousFrame[m_currentFrame]);
 
 	UpdateUniformBuffer(m_uniformMaps[m_currentFrame]);
 
 	uint32_t index;
+
 	index = VulkanEngine::LogicalDevice.acquireNextImageKHR(_swapchain, std::numeric_limits<unsigned int>::max(), m_imageAvailable[m_currentFrame]).value;
 	vk::CommandBuffer& buffer = m_commandBuffers[m_currentFrame];
 	buffer.reset();

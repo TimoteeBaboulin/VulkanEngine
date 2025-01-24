@@ -17,6 +17,7 @@ void VulkanContext::Init(const ContextInfo& _info)
 	m_extent.height = _info.height;
 
 	m_windowName = _info.name;
+	m_window = _info.windowHandle;
 }
 
 void VulkanContext::Cleanup()
@@ -93,34 +94,40 @@ vk::Instance VulkanContext::CreateInstance(vk::ApplicationInfo _appInfo, const c
 
 void VulkanContext::CreateSurfaceKHR(vk::SurfaceKHR* _out)
 {
-	VkWin32SurfaceCreateInfoKHR createInfo{};
-	glfwCreateWindowSurface(m_instance, m_window, nullptr, (VkSurfaceKHR*)_out);
+	vk::Win32SurfaceCreateInfoKHR surfaceCreate;
+	surfaceCreate.sType = vk::StructureType::eWin32SurfaceCreateInfoKHR;
+	surfaceCreate.hwnd = m_window;
+	surfaceCreate.hinstance = GetModuleHandle(nullptr);
+
+	*_out = m_instance.createWin32SurfaceKHR(surfaceCreate);
 }
 
-bool VulkanContext::ShouldClose() const
-{
-	return glfwWindowShouldClose(m_window);
-}
+//bool VulkanContext::ShouldClose() const
+//{
+//	return glfwWindowShouldClose(m_window);
+//}
+//
+//void VulkanContext::PollEvents() const
+//{
+//	glfwPollEvents();
+//}
 
-void VulkanContext::PollEvents() const
-{
-	glfwPollEvents();
-}
-
-vk::Extent2D VulkanContext::GetExtent(vk::SurfaceCapabilitiesKHR _capabilities) const
+vk::Extent2D VulkanContext::GetExtent(vk::SurfaceCapabilitiesKHR _capabilities)
 {
 	if (_capabilities.currentExtent != std::numeric_limits<uint32_t>::max())
 		return _capabilities.currentExtent;
 
-	int width;
-	int height;
-	glfwGetFramebufferSize(m_window, &width, &height);
+	int width = m_extent.width;
+	int height = m_extent.height;
 
 	uint32_t uwidth = (uint32_t)width;
 	uint32_t uheight = (uint32_t)height;
 
 	uwidth = std::clamp(uwidth, _capabilities.minImageExtent.width, _capabilities.maxImageExtent.width);
 	uheight = std::clamp(uheight, _capabilities.minImageExtent.height, _capabilities.maxImageExtent.height);
+
+	m_extent.width = uwidth;
+	m_extent.height = uheight;
 
 	return vk::Extent2D(uwidth, uheight);
 }

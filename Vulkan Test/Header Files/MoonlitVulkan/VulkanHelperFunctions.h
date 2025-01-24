@@ -2,9 +2,14 @@
 #ifndef VULKAN_HELPER_FUNCTIONS_H
 #define VULKAN_HELPER_FUNCTIONS_H
 
+//#define VK_USE_PLATFORM_WIN32_KHR
+
+
 #include <cstdint>
 #include "vulkan/vulkan.hpp"
 #include "VulkanEngine.h"
+
+#define WIN32_LEAN_AND_MEAN
 
 class VulkanHelperFunctions
 {

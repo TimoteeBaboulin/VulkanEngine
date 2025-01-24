@@ -56,6 +56,7 @@ void VulkanEngine::LoadMesh(Mesh& _mesh)
 
 void VulkanEngine::InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount)
 {
+	m_context = new VulkanContext();
 	m_context->Init(_info);
 
 	vk::ApplicationInfo appInfo = GetAppInfo();
@@ -140,14 +141,14 @@ void VulkanEngine::CreateMainCommandPool()
 	MainCommandPool = LogicalDevice.createCommandPool(poolInfo);
 }
 
-void VulkanEngine::MainLoop()
-{
-	while (!m_context->ShouldClose())
-	{
-		m_context->PollEvents();
-		Render();
-	}
-}
+//void VulkanEngine::MainLoop()
+//{
+//	while (!m_context->ShouldClose())
+//	{
+//		m_context->PollEvents();
+//		Render();
+//	}
+//}
 
 void VulkanEngine::Render()
 {

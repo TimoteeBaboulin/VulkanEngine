@@ -1,11 +1,18 @@
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define VK_USE_PLATFORM_WIN32_KHR
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
+#define WIN32_LEAN_AND_MEAN
+
+#include <vulkan/vulkan.hpp>
+
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 #include <iostream>
-#include "MoonlitVulkan/VulkanEngine.h"
+#include "MoonlitVulkan.h"
 #include "assimp/scene.h"
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -20,7 +27,7 @@ Mesh GetMesh(aiMesh* _mesh)
     mesh.vertexCount = _mesh->mNumVertices;
     mesh.vertices = new float[mesh.vertexCount * 3];
 
-    for (int i = 0; i < _mesh->mNumVertices * 3; i++)
+    for (int i = 0; i < _mesh->mNumFaces; i++)
     {
         mesh.vertices[i * 3] = _mesh->mVertices[i].x;
         mesh.vertices[i * 3 + 1] = _mesh->mVertices[i].y;
@@ -42,8 +49,12 @@ Mesh GetMesh(aiMesh* _mesh)
 int main() {
     VulkanEngine app;
     Assimp::Importer importer;
-    importer.ReadFile("./Assets/shull.fbx", aiPostProcessSteps::aiProcess_Triangulate);
-    const aiScene* scene = importer.GetScene();
+    const aiScene* scene = importer.ReadFile("Assets/shull.fbx", aiPostProcessSteps::aiProcess_Triangulate);
+    if (scene == nullptr)
+    {
+        std::string errorMessage = importer.GetErrorString();
+        throw new std::runtime_error(errorMessage);
+    }
     Mesh mesh = GetMesh(scene->mMeshes[0]);
     
     std::vector<std::pair<int, int>> hints;
@@ -57,33 +68,22 @@ int main() {
     unsigned int extensionCount;
     const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
 
-    ContextInfo context = { 
+    ContextInfo context = {
         .name = "Vulkan Engine",
-        .width = WindowWidth, 
-        .height = WindowHeight 
+        .width = WindowWidth,
+        .height = WindowHeight,
+        .windowHandle = glfwGetWin32Window(window)
     };
 
     app.InitContext(context, extensions, extensionCount);
     app.InitVulkan(); 
     app.LoadMesh(mesh);
 
-    GLFWwindow* window = app.GetWindow();
-
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
         app.Render();
-    }
-
-    try
-    {
-        app.Run();
-    }
-    catch (const std::exception& err)
-    {
-        std::cerr << err.what() << std::endl;
-        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

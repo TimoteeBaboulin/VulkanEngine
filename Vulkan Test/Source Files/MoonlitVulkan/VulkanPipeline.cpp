@@ -485,7 +485,7 @@ void VulkanPipeline::CreateVertexBuffer()
 		.memory = stagingMemory,
 		.usage = vk::BufferUsageFlagBits::eTransferSrc,
 		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-		.size = bufferSize
+		.size = bufferSize == 0 ? 3 : bufferSize
 	};
 
 	vhf::CreateBuffer(staging);

@@ -1,5 +1,6 @@
 #pragma once
 
+#define VK_USE_PLATFORM_WIN32_KHR
 #include "vulkan/vulkan.hpp"
 #include "common.h"
 
@@ -20,13 +21,13 @@ public:
 	//void Run();
 	void InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount);
 	void InitVulkan();
-	void MainLoop();
+	//void MainLoop();
 	void Render();
 
 	void LoadMesh(Mesh& _mesh);
 
 	VulkanContext* GetContext() const { return m_context; }
-	HWND* GetWindow() const { return m_context->GetWindow(); }
+	HWND GetWindow() const { return m_context->GetWindow(); }
 
 	static vk::Device LogicalDevice;
 	static vk::PhysicalDevice PhysicalDevice;

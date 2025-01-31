@@ -21,6 +21,7 @@ public:
 	//void Run();
 	void InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount);
 	void InitVulkan();
+
 	//void MainLoop();
 	void Render();
 
@@ -50,11 +51,7 @@ private:
 
 	VulkanRenderer* m_vulkanRenderer;
 	
-
-	
 	vk::ApplicationInfo GetAppInfo();
-
-	
 
 	//Helpers
 	vk::PresentModeKHR GetPresentMode(std::vector<vk::PresentModeKHR>& _modes);

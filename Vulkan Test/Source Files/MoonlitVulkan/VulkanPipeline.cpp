@@ -477,6 +477,9 @@ void VulkanPipeline::CreateVertexBuffer()
 {
 	uint64_t bufferSize = sizeof(Vertex) * m_vertices.size();
 
+	if (bufferSize == 0)
+		return;
+
 	vk::Buffer stagingBuffer;
 	vk::DeviceMemory stagingMemory;
 
@@ -509,19 +512,24 @@ void VulkanPipeline::CreateVertexBuffer()
 
 	VulkanEngine::LogicalDevice.freeMemory(stagingMemory);
 	VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
+
+	vertexBufferCreated = true;
 }
 
 void VulkanPipeline::CreateIndexBuffer()
 {
 	uint64_t bufferSize = sizeof(uint32_t) *  m_indices.size();
 	
+	if (bufferSize == 0)
+		return;
+
 	vk::Buffer stagingBuffer;
 	vk::DeviceMemory stagingMemory;
 	
 	VertexBufferInfo staging = {
 		.buffer = stagingBuffer,
 		.memory = stagingMemory,
-		.usage = vk::BufferUsageFlagBits::eTransferSrc,
+		.usage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eIndexBuffer,
 		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
 		.size = bufferSize
 	};
@@ -546,6 +554,8 @@ void VulkanPipeline::CreateIndexBuffer()
 	
 	VulkanEngine::LogicalDevice.freeMemory(stagingMemory);
 	VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
+
+	indexBufferCreated = true;
 }
 
 void VulkanPipeline::AddMesh(Mesh _mesh)
@@ -558,18 +568,16 @@ void VulkanPipeline::AddMesh(Mesh _mesh)
 
 	for (int i = 0; i < _mesh.vertexCount; i++)
 	{
-		Vertex vertex;
+		Vertex vertex = _mesh.vertices[i];
 		vertex.r = (float) rand() / RAND_MAX;
 		vertex.g = (float) rand() / RAND_MAX;
 		vertex.b = (float) rand() / RAND_MAX;
-
-		memcpy(&vertex, &_mesh.vertices[i], sizeof(float) * 3);
 
 		m_vertices.push_back(vertex);
 	}
 
 	m_triangleCount += _mesh.triangleCount;
-	m_indices.reserve(m_indices.size() + _mesh.triangleCount);
+	m_indices.reserve(m_indices.size() + _mesh.triangleCount * 3);
 	for (int i = 0; i < _mesh.triangleCount; i++)
 	{
 		m_indices.push_back(_mesh.indices[i * 3    ]);

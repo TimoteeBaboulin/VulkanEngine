@@ -54,10 +54,13 @@ private:
 	vk::Pipeline m_depthPipeline;
 	vk::PipelineLayout m_pipelineLayout;
 	
-	vk::Buffer m_vertexBuffer;
+	vk::Buffer m_vertexBuffer = nullptr;
 	vk::DeviceMemory m_vertexMemory;
-	vk::Buffer m_indexBuffer;
+	vk::Buffer m_indexBuffer = nullptr;
 	vk::DeviceMemory m_indexMemory;
+
+	bool vertexBufferCreated = false;
+	bool indexBufferCreated = false;
 
 	uint32_t m_vertexCount;
 	uint32_t m_triangleCount;

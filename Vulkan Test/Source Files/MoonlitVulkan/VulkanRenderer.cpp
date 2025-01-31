@@ -322,34 +322,12 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	_buffer.bindIndexBuffer(*_renderInfo.indexBuffer, 0, vk::IndexType::eUint32);
 	_buffer.drawIndexed(_renderInfo.triangleCount * 3, 1, 0, 0, 0);
 
-
 	_buffer.nextSubpass(vk::SubpassContents::eInline);
 	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.pipeline);
 	_buffer.drawIndexed(_renderInfo.triangleCount * 3, 1, 0, 0, 0);
 	_buffer.endRenderPass();
 	_buffer.end();
 }
-
-//void VulkanRenderer::CreateFrameBuffers()
-//{
-//	m_frameBuffers.reserve(m_renderInfo.swapChainImageViews.size());
-//
-//	for (size_t i = 0; i < m_renderInfo.swapChainImageViews.size(); i++)
-//	{
-//		//std::vector<ImageView>
-//		vk::ImageView* attachment = &m_renderInfo.swapChainImageViews[i];
-//
-//		vk::FramebufferCreateInfo createInfo{};
-//		createInfo.sType = vk::StructureType::eFramebufferCreateInfo;
-//		createInfo.renderPass = m_renderInfo.renderPass;
-//		createInfo.height = m_renderInfo.extent.height;
-//		createInfo.width = m_renderInfo.extent.width;
-//		createInfo.attachmentCount = 1;
-//		createInfo.pAttachments = attachment;
-//		createInfo.layers = 1;
-//		m_frameBuffers.push_back(VulkanEngine::LogicalDevice.createFramebuffer(createInfo));
-//	}
-//}
 
 void VulkanRenderer::CreateCommandBuffers()
 {

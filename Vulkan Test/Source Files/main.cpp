@@ -25,13 +25,11 @@ Mesh GetMesh(aiMesh* _mesh)
 {
     Mesh mesh;
     mesh.vertexCount = _mesh->mNumVertices;
-    mesh.vertices = new float[mesh.vertexCount * 3];
+    mesh.vertices = new Vertex[mesh.vertexCount];
 
-    for (int i = 0; i < _mesh->mNumFaces; i++)
+    for (int i = 0; i < _mesh->mNumVertices; i++)
     {
-        mesh.vertices[i * 3] = _mesh->mVertices[i].x;
-        mesh.vertices[i * 3 + 1] = _mesh->mVertices[i].y;
-        mesh.vertices[i * 3 + 2] = _mesh->mVertices[i].z;
+        mesh.vertices[i] = Vertex(_mesh->mVertices[i].x, _mesh->mVertices[i].y, _mesh->mVertices[i].z);
     }
     mesh.triangleCount = _mesh->mNumFaces;
     mesh.indices = new int[mesh.triangleCount * 3];
@@ -49,7 +47,7 @@ Mesh GetMesh(aiMesh* _mesh)
 int main() {
     VulkanEngine app;
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("Assets/shull.fbx", aiPostProcessSteps::aiProcess_Triangulate);
+    const aiScene* scene = importer.ReadFile("Assets/shull.fbx", aiPostProcessSteps::aiProcess_OptimizeMeshes| aiPostProcessSteps::aiProcess_Triangulate);
     if (scene == nullptr)
     {
         std::string errorMessage = importer.GetErrorString();

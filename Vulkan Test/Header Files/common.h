@@ -59,7 +59,7 @@ struct Vertex
 struct Mesh
 {
 	int vertexCount;
-	float* vertices;
+	Vertex* vertices;
 	int triangleCount;
 	int* indices;
 };

@@ -173,6 +173,8 @@ public:
 	{
 		vk::BufferCreateInfo bufferInfo;
 		bufferInfo.sType = vk::StructureType::eBufferCreateInfo;
+		/*if (_info.size == 0)
+			_info.size = vk::WholeSize;*/
 		bufferInfo.size = _info.size;
 		bufferInfo.usage = _info.usage;
 		bufferInfo.sharingMode = vk::SharingMode::eExclusive;
@@ -184,7 +186,7 @@ public:
 
 		vk::MemoryAllocateInfo memoryInfo;
 		memoryInfo.sType = vk::StructureType::eMemoryAllocateInfo;
-		memoryInfo.allocationSize = memoryReqs.size;
+		memoryInfo.allocationSize = memoryReqs.size > 0 ? memoryReqs.size : vk::WholeSize;
 		memoryInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memoryReqs.memoryTypeBits, _info.properties, VulkanEngine::PhysicalDevice);
 		_info.memory = VulkanEngine::LogicalDevice.allocateMemory(memoryInfo);
 		VulkanEngine::LogicalDevice.bindBufferMemory(_info.buffer, _info.memory, 0);

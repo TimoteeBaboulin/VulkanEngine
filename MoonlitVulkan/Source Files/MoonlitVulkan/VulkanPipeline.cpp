@@ -480,38 +480,15 @@ void VulkanPipeline::CreateVertexBuffer()
 	if (bufferSize == 0)
 		return;
 
-	vk::Buffer stagingBuffer;
-	vk::DeviceMemory stagingMemory;
-
-	VertexBufferInfo staging = {
-		.buffer = stagingBuffer,
-		.memory = stagingMemory,
-		.usage = vk::BufferUsageFlagBits::eTransferSrc,
-		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+	VertexBufferInfo bufferInfo = {
+		.buffer = m_vertexBuffer,
+		.memory = m_vertexMemory,
+		.usage = vk::BufferUsageFlagBits::eVertexBuffer,
+		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
 		.size = bufferSize == 0 ? 3 : bufferSize
 	};
 
-	vhf::CreateBuffer(staging);
-	void* map = VulkanEngine::LogicalDevice.mapMemory(stagingMemory, 0, bufferSize);
-	memcpy(map, m_vertices.data(), bufferSize);
-	
-	VertexBufferInfo vertexBuffer = {
-		.buffer = m_vertexBuffer,
-		.memory = m_vertexMemory,
-		.usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
-		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
-		.size = bufferSize
-	};
-
-	vhf::CreateBuffer(vertexBuffer);
-
-	vhf::CopyBufferToBuffer(stagingBuffer, m_vertexBuffer, bufferSize, VulkanEngine::GraphicsQueue);
-
-	VulkanEngine::LogicalDevice.unmapMemory(stagingMemory);
-	map = nullptr;
-
-	VulkanEngine::LogicalDevice.freeMemory(stagingMemory);
-	VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
+	vhf::CreateBufferWithStaging(bufferInfo, m_vertices.data());
 
 	vertexBufferCreated = true;
 }
@@ -522,38 +499,16 @@ void VulkanPipeline::CreateIndexBuffer()
 	
 	if (bufferSize == 0)
 		return;
-
-	vk::Buffer stagingBuffer;
-	vk::DeviceMemory stagingMemory;
 	
-	VertexBufferInfo staging = {
-		.buffer = stagingBuffer,
-		.memory = stagingMemory,
-		.usage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eIndexBuffer,
-		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-		.size = bufferSize
-	};
-	
-	vhf::CreateBuffer(staging);
-	void* map = VulkanEngine::LogicalDevice.mapMemory(stagingMemory, 0, bufferSize);
-	memcpy(map, m_indices.data(), bufferSize);
-	VulkanEngine::LogicalDevice.unmapMemory(stagingMemory);
-	map = nullptr;
-	
-	VertexBufferInfo indexBuffer = {
+	VertexBufferInfo bufferInfo = {
 		.buffer = m_indexBuffer,
 		.memory = m_indexMemory,
-		.usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+		.usage = vk::BufferUsageFlagBits::eIndexBuffer,
 		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
 		.size = bufferSize
 	};
-	
-	vhf::CreateBuffer(indexBuffer);
-	
-	vhf::CopyBufferToBuffer(stagingBuffer, m_indexBuffer, bufferSize, VulkanEngine::GraphicsQueue);
-	
-	VulkanEngine::LogicalDevice.freeMemory(stagingMemory);
-	VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
+
+	vhf::CreateBufferWithStaging(bufferInfo, m_indices.data());
 
 	indexBufferCreated = true;
 }

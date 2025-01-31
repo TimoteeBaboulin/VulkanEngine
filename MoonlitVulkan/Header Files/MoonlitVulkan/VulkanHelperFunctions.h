@@ -169,12 +169,32 @@ public:
 		VulkanEngine::LogicalDevice.freeCommandBuffers(VulkanEngine::MainCommandPool, command);
 	}
 
+	static void CopyBufferToImage(vk::Buffer& _src, vk::Image& _dst, vk::Extent2D _size)
+	{
+		vk::CommandBuffer commandBuffer = BeginSingleUseCommand(VulkanEngine::MainCommandPool, VulkanEngine::LogicalDevice);
+
+		vk::BufferImageCopy copyCommand;
+		copyCommand.bufferOffset = 0;
+		copyCommand.bufferRowLength = 0;
+		copyCommand.bufferImageHeight = 0;
+
+		copyCommand.imageOffset = vk::Offset3D{ 0,0,0 };
+		copyCommand.imageExtent = vk::Extent3D{ _size.width, _size.height, 1 };
+
+		copyCommand.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+		copyCommand.imageSubresource.mipLevel = 0;
+		copyCommand.imageSubresource.layerCount = 1;
+		copyCommand.imageSubresource.baseArrayLayer = 0;
+
+		commandBuffer.copyBufferToImage(_src, _dst, vk::ImageLayout::eTransferDstOptimal, copyCommand);
+
+		EndSingleUseCommandBuffer(commandBuffer, VulkanEngine::GraphicsQueue, VulkanEngine::LogicalDevice, VulkanEngine::MainCommandPool);
+	}
+
 	static void CreateBuffer(VertexBufferInfo _info)
 	{
 		vk::BufferCreateInfo bufferInfo;
 		bufferInfo.sType = vk::StructureType::eBufferCreateInfo;
-		/*if (_info.size == 0)
-			_info.size = vk::WholeSize;*/
 		bufferInfo.size = _info.size;
 		bufferInfo.usage = _info.usage;
 		bufferInfo.sharingMode = vk::SharingMode::eExclusive;
@@ -190,6 +210,34 @@ public:
 		memoryInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memoryReqs.memoryTypeBits, _info.properties, VulkanEngine::PhysicalDevice);
 		_info.memory = VulkanEngine::LogicalDevice.allocateMemory(memoryInfo);
 		VulkanEngine::LogicalDevice.bindBufferMemory(_info.buffer, _info.memory, 0);
+	}
+
+	static void CreateBufferWithStaging(VertexBufferInfo _info, void* _data)
+	{
+		vk::Buffer stagingBuffer;
+		vk::DeviceMemory stagingMemory;
+
+		VertexBufferInfo stagingBufferInfo =
+		{
+			.buffer = stagingBuffer,
+			.memory = stagingMemory,
+			.usage = vk::BufferUsageFlagBits::eTransferSrc,
+			.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			.size = _info.size
+		};
+
+		CreateBuffer(stagingBufferInfo);
+		void* stagingMap = VulkanEngine::LogicalDevice.mapMemory(stagingBufferInfo.memory, 0, _info.size);
+		memcpy(stagingMap, _data, _info.size);
+
+		_info.usage |= vk::BufferUsageFlagBits::eTransferDst;
+		CreateBuffer(_info);
+		CopyBufferToBuffer(stagingBuffer, _info.buffer, _info.size, VulkanEngine::GraphicsQueue);
+
+		VulkanEngine::LogicalDevice.unmapMemory(stagingMemory);
+		VulkanEngine::LogicalDevice.freeMemory(stagingMemory);
+		VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
+		stagingMap = nullptr;
 	}
 };
 

@@ -5,6 +5,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #define WIN32_LEAN_AND_MEAN
+#define STB_IMAGE_IMPLEMENTATION
 
 #include <vulkan/vulkan.hpp>
 
@@ -22,6 +23,64 @@
 constexpr int WindowWidth = 1920;
 constexpr int WindowHeight = 1080;
 
+struct Image
+{
+    stbi_uc* pixels;
+
+    int width;
+    int height;
+    int channels;
+};
+
+Mesh GetMesh(aiMesh* _mesh);
+Mesh ImportMesh(std::string _path);
+GLFWwindow* InitWindow(VulkanEngine& _app);
+void ImportImage(std::string _path, Image& _image);
+
+void ImportImage(std::string _path, Image& _image)
+{
+	_image.pixels = stbi_load(_path.c_str(), &_image.width, &_image.height, &_image.channels, STBI_rgb_alpha);
+
+	if (_image.pixels == nullptr)
+	{
+		throw std::runtime_error("Failed to load image");
+	}
+}
+
+int main() 
+{
+    VulkanEngine app;
+    Mesh mesh = ImportMesh("Assets/shull.fbx");
+	GLFWwindow* window = InitWindow(app);
+    Image image;
+
+    ImportImage("Assets/Textures/texture.png", image);
+
+    app.InitVulkan(); 
+    app.LoadMesh(mesh);
+
+    while (!glfwWindowShouldClose(window))
+    {
+        glfwPollEvents();
+
+        app.Render();
+    }
+
+    return EXIT_SUCCESS;
+}
+
+Mesh ImportMesh(std::string _path)
+{
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(_path, aiPostProcessSteps::aiProcess_OptimizeMeshes | aiPostProcessSteps::aiProcess_Triangulate);
+    if (scene == nullptr)
+    {
+        std::string errorMessage = importer.GetErrorString();
+        throw new std::runtime_error(errorMessage);
+    }
+    Mesh mesh = GetMesh(scene->mMeshes[0]);
+    return mesh;
+}
 Mesh GetMesh(aiMesh* _mesh)
 {
     Mesh mesh;
@@ -37,25 +96,15 @@ Mesh GetMesh(aiMesh* _mesh)
 
     for (int i = 0; i < mesh.triangleCount; i++)
     {
-        mesh.indices[i * 3    ] = _mesh->mFaces[i].mIndices[0];
+        mesh.indices[i * 3] = _mesh->mFaces[i].mIndices[0];
         mesh.indices[i * 3 + 1] = _mesh->mFaces[i].mIndices[1];
         mesh.indices[i * 3 + 2] = _mesh->mFaces[i].mIndices[2];
     }
 
     return mesh;
 }
-
-int main() {
-    VulkanEngine app;
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("Assets/shull.fbx", aiPostProcessSteps::aiProcess_OptimizeMeshes| aiPostProcessSteps::aiProcess_Triangulate);
-    if (scene == nullptr)
-    {
-        std::string errorMessage = importer.GetErrorString();
-        throw new std::runtime_error(errorMessage);
-    }
-    Mesh mesh = GetMesh(scene->mMeshes[0]);
-    
+GLFWwindow* InitWindow(VulkanEngine& _app)
+{
     std::vector<std::pair<int, int>> hints;
     hints = { {GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_FALSE} };
     glfwInit();
@@ -74,16 +123,6 @@ int main() {
         .windowHandle = glfwGetWin32Window(window)
     };
 
-    app.InitContext(context, extensions, extensionCount);
-    app.InitVulkan(); 
-    app.LoadMesh(mesh);
-
-    while (!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
-
-        app.Render();
-    }
-
-    return EXIT_SUCCESS;
+    _app.InitContext(context, extensions, extensionCount);
+    return window;
 }

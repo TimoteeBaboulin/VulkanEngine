@@ -17,6 +17,7 @@
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/mesh.h"
+#include "stb_image.h"
 
 constexpr int WindowWidth = 1920;
 constexpr int WindowHeight = 1080;

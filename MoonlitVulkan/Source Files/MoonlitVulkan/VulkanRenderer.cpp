@@ -14,13 +14,13 @@ VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer
 
 }
 
-void VulkanRenderer::Init(vk::DescriptorSetLayout _descriptorLayout)
+void VulkanRenderer::Init(vk::DescriptorSetLayout _descriptorLayout, vk::ImageView _textureImageView, vk::Sampler _sampler)
 {
 	InitSyncs();
 	CreateCommandBuffers();
 	CreateUniformBuffers();
 	CreateDescriptorPools();
-	CreateDescriptorSets(_descriptorLayout);
+	CreateDescriptorSets(_descriptorLayout, _textureImageView, _sampler);
 }
 
 void VulkanRenderer::Cleanup()
@@ -215,7 +215,7 @@ void VulkanRenderer::CreateDescriptorPools()
 	m_descriptorPools[0] = VulkanEngine::LogicalDevice.createDescriptorPool(poolInfo);
 }
 
-void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLayout)
+void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLayout, vk::ImageView _textureImageView, vk::Sampler _sampler)
 {
 	m_descriptorSets.resize(1);
 	vk::DescriptorSetAllocateInfo allocInfo;
@@ -228,12 +228,19 @@ void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLay
 
 	std::vector<vk::WriteDescriptorSet> writeSets;
 
+	char i = 0;
+
 	for (auto set : m_descriptorSets)
 	{
 		vk::DescriptorBufferInfo bufferInfo;
-		bufferInfo.buffer = m_uniformBuffers[0];
+		bufferInfo.buffer = m_uniformBuffers[i];
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
+
+		vk::DescriptorImageInfo imageInfo{};
+		imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+		imageInfo.imageView = _textureImageView;
+		imageInfo.sampler = _sampler;
 
 		vk::WriteDescriptorSet writeSet;
 		writeSet.sType = vk::StructureType::eWriteDescriptorSet;
@@ -245,10 +252,21 @@ void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLay
 		writeSet.descriptorType = vk::DescriptorType::eUniformBuffer;
 		writeSet.pBufferInfo = &bufferInfo;
 
+		vk::WriteDescriptorSet combinedSamplerSet;
+		combinedSamplerSet.sType = vk::StructureType::eWriteDescriptorSet;
+		combinedSamplerSet.dstSet = set;
+		combinedSamplerSet.dstBinding = 1;
+		combinedSamplerSet.dstArrayElement = 0;
+		combinedSamplerSet.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+		combinedSamplerSet.descriptorCount = 1;
+		combinedSamplerSet.pImageInfo = &imageInfo;
+
 		writeSets.push_back(writeSet);
+		writeSets.push_back(combinedSamplerSet);
+		i++;
 	}
 
-	VulkanEngine::LogicalDevice.updateDescriptorSets(m_descriptorSets.size(), writeSets.data(), 0, nullptr);
+	VulkanEngine::LogicalDevice.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
 }
 
 void VulkanRenderer::UpdateUniformBuffer(void* _map)

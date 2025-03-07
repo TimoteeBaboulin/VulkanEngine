@@ -26,12 +26,14 @@ public:
 	std::vector<vk::Framebuffer>* GetFrameBuffers() { return &m_frameBuffers; }
 	std::vector<vk::ImageView> GetImageViews() { return m_imageViews; }
 
+	vk::ImageView GetTextureView(int index = 0) { return m_textureImageViews[index]; }
+	vk::Sampler GetSampler() { return m_textureSampler; }
+
 	RenderInfo GetRenderInfo();
 
 	void Load(Mesh& _mesh);
+	void AddTexture(Image _texture);
 private:
-
-
 	VulkanPipelineInfo m_info;
 
 	std::vector<Vertex> m_vertices;
@@ -44,6 +46,10 @@ private:
 	std::vector<vk::Image> m_depthImages;
 	std::vector<vk::ImageView> m_depthImageViews;
 	vk::DeviceMemory m_depthMemory;
+
+	std::vector<vk::Image> m_textureImages;
+	std::vector<vk::ImageView> m_textureImageViews;
+	vk::Sampler m_textureSampler;
 
 	std::vector<vk::Framebuffer> m_frameBuffers;
 
@@ -78,6 +84,8 @@ private:
 	void CreateRenderPipeline();
 
 	void CreateFrameBuffers();
+	void CreateTextureImages();
+	void CreateTextureSampler();
 
 	void CreateVertexBuffer();
 	void CreateIndexBuffer();

@@ -18,43 +18,26 @@
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/mesh.h"
-#include "stb_image.h"
+
+#include "InputManager.h"
 
 constexpr int WindowWidth = 1920;
 constexpr int WindowHeight = 1080;
 
-struct Image
-{
-    stbi_uc* pixels;
 
-    int width;
-    int height;
-    int channels;
-};
 
 Mesh GetMesh(aiMesh* _mesh);
 Mesh ImportMesh(std::string _path);
-GLFWwindow* InitWindow(VulkanEngine& _app);
+GLFWwindow* InitWindow(VulkanEngine& _app, InputManager& _input);
 void ImportImage(std::string _path, Image& _image);
-
-void ImportImage(std::string _path, Image& _image)
-{
-	_image.pixels = stbi_load(_path.c_str(), &_image.width, &_image.height, &_image.channels, STBI_rgb_alpha);
-
-	if (_image.pixels == nullptr)
-	{
-		throw std::runtime_error("Failed to load image");
-	}
-}
 
 int main() 
 {
     VulkanEngine app;
-    Mesh mesh = ImportMesh("Assets/shull.fbx");
-	GLFWwindow* window = InitWindow(app);
-    Image image;
-
-    ImportImage("Assets/Textures/texture.png", image);
+    Mesh mesh = ImportMesh("Assets/Link Tunic.fbx");
+    InputManager input;
+	GLFWwindow* window = InitWindow(app, input);
+    
 
     app.InitVulkan(); 
     app.LoadMesh(mesh);
@@ -72,7 +55,7 @@ int main()
 Mesh ImportMesh(std::string _path)
 {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(_path, aiPostProcessSteps::aiProcess_OptimizeMeshes | aiPostProcessSteps::aiProcess_Triangulate);
+    const aiScene* scene = importer.ReadFile(_path, aiPostProcessSteps::aiProcess_OptimizeMeshes | aiPostProcessSteps::aiProcess_Triangulate | aiPostProcessSteps::aiProcess_GenUVCoords);
     if (scene == nullptr)
     {
         std::string errorMessage = importer.GetErrorString();
@@ -90,6 +73,8 @@ Mesh GetMesh(aiMesh* _mesh)
     for (int i = 0; i < _mesh->mNumVertices; i++)
     {
         mesh.vertices[i] = Vertex(_mesh->mVertices[i].x, _mesh->mVertices[i].y, _mesh->mVertices[i].z);
+        mesh.vertices[i].uvX = _mesh->mTextureCoords[0]->x;
+        mesh.vertices[i].uvY = _mesh->mTextureCoords[0]->y;
     }
     mesh.triangleCount = _mesh->mNumFaces;
     mesh.indices = new int[mesh.triangleCount * 3];
@@ -103,7 +88,7 @@ Mesh GetMesh(aiMesh* _mesh)
 
     return mesh;
 }
-GLFWwindow* InitWindow(VulkanEngine& _app)
+GLFWwindow* InitWindow(VulkanEngine& _app, InputManager& _input)
 {
     std::vector<std::pair<int, int>> hints;
     hints = { {GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_FALSE} };
@@ -116,11 +101,14 @@ GLFWwindow* InitWindow(VulkanEngine& _app)
     unsigned int extensionCount;
     const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
 
+    HWND winHandle = glfwGetWin32Window(window);
+    _input.Init(winHandle);
+
     ContextInfo context = {
         .name = "Vulkan Engine",
         .width = WindowWidth,
         .height = WindowHeight,
-        .windowHandle = glfwGetWin32Window(window)
+        .windowHandle = winHandle
     };
 
     _app.InitContext(context, extensions, extensionCount);

@@ -26,6 +26,7 @@ public:
 	void Render();
 
 	void LoadMesh(Mesh& _mesh);
+	void LoadTexture(Image& _texture);
 
 	VulkanContext* GetContext() const { return m_context; }
 	HWND GetWindow() const { return m_context->GetWindow(); }

@@ -320,6 +320,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\main.cpp" />
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanContext.cpp" />
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanDeviceManager.cpp" />
@@ -329,6 +330,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\common.h" />
+    <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\MoonlitVulkan.h" />
     <ClInclude Include="Header Files\MoonlitVulkanExport.h" />
     <ClInclude Include="Header Files\MoonlitVulkan\VulkanContext.h" />

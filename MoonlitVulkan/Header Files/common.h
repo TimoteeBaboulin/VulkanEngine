@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "glm/glm.hpp"
+#include "stb_image.h"
 
 struct QueueFamilyIndices
 {
@@ -54,6 +55,9 @@ struct Vertex
 	float r = 1.0f;
 	float g = 1.0f;
 	float b = 1.0f;
+
+	float uvX;
+	float uvY;
 };
 
 struct Mesh
@@ -83,6 +87,27 @@ struct VertexBufferInfo
 
 	uint64_t size;
 };
+
+struct Image
+{
+	stbi_uc* pixels;
+
+	uint32_t width;
+	uint32_t height;
+	int channels;
+};
+
+static void ImportImage(std::string _path, Image& _image)
+{
+	int width = _image.width;
+	int height = _image.height;
+	_image.pixels = stbi_load(_path.c_str(), &width, &height, &_image.channels, STBI_rgb_alpha);
+
+	if (_image.pixels == nullptr)
+	{
+		throw std::runtime_error("Failed to load image");
+	}
+}
 
 static std::vector<char> readFile(const char* _filename)
 {

@@ -8,7 +8,7 @@ class VulkanRenderer
 {
 public:
 	VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers);
-	void Init(vk::DescriptorSetLayout _descriptorLayout);
+	void Init(vk::DescriptorSetLayout _descriptorLayout, vk::ImageView _textureImageView, vk::Sampler _sampler);
 	void Cleanup();
 
 	void Render(vk::SwapchainKHR _swapchain, RenderInfo _renderInfo, vk::RenderPass _renderPass);
@@ -51,7 +51,7 @@ private:
 	//void CreateVertexBuffers(vk::Queue _queue);
 	void CreateUniformBuffers();
 	void CreateDescriptorPools();
-	void CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLayout);
+	void CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLayout, vk::ImageView _textureImageView, vk::Sampler _sampler);
 	void UpdateUniformBuffer(void* _map);
 	//void CreateFrameBuffers();
 	void CreateCommandBuffers();

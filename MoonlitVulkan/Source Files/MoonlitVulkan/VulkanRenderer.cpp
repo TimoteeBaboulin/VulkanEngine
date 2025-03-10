@@ -7,6 +7,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "common.h"
 
+#include "MoonlitVulkan/VulkanData.h"
+
 #define GLM_FORCE_RADIANS
 
 VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers) : m_extent(_extent), m_frameBuffers(_frameBuffers)
@@ -14,13 +16,14 @@ VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer
 
 }
 
-void VulkanRenderer::Init(vk::DescriptorSetLayout _descriptorLayout, vk::ImageView _textureImageView, vk::Sampler _sampler)
+void VulkanRenderer::Init(vk::DescriptorSetLayout _descriptorLayout)
 {
 	InitSyncs();
 	CreateCommandBuffers();
 	CreateUniformBuffers();
 	CreateDescriptorPools();
-	CreateDescriptorSets(_descriptorLayout, _textureImageView, _sampler);
+	CreateDescriptorSets(_descriptorLayout);
+	m_descriptorLayout = _descriptorLayout;
 }
 
 void VulkanRenderer::Cleanup()
@@ -34,6 +37,13 @@ void VulkanRenderer::Cleanup()
 		VulkanEngine::LogicalDevice.destroyFence(m_waitForPreviousFrame[i]);
 	}
 	
+}
+
+void VulkanRenderer::LoadMesh(MeshData& _mesh)
+{
+	Mesh mesh;
+	mesh.Load(VulkanEngine::LogicalDevice, _mesh, m_descriptorLayout, m_descriptorPools[0]);
+	m_meshes.push_back(mesh);
 }
 
 void VulkanRenderer::Render(vk::SwapchainKHR _swapchain, RenderInfo _renderInfo, vk::RenderPass _renderPass)
@@ -205,17 +215,17 @@ void VulkanRenderer::CreateDescriptorPools()
 	vk::DescriptorPoolSize size;
 	vk::DescriptorPoolCreateInfo poolInfo;
 	size.type = vk::DescriptorType::eUniformBuffer;
-	size.descriptorCount = 1;
+	size.descriptorCount = 10;
 
 	poolInfo.sType = vk::StructureType::eDescriptorPoolCreateInfo;
 	poolInfo.poolSizeCount = 1;
 	poolInfo.pPoolSizes = &size;
-	poolInfo.maxSets = 1;
+	poolInfo.maxSets = 16;
 
 	m_descriptorPools[0] = VulkanEngine::LogicalDevice.createDescriptorPool(poolInfo);
 }
 
-void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLayout, vk::ImageView _textureImageView, vk::Sampler _sampler)
+void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLayout)
 {
 	m_descriptorSets.resize(1);
 	vk::DescriptorSetAllocateInfo allocInfo;
@@ -237,20 +247,21 @@ void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLay
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
-		vk::DescriptorImageInfo imageInfo{};
-		imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-		imageInfo.imageView = _textureImageView;
-		imageInfo.sampler = _sampler;
-
 		vk::WriteDescriptorSet writeSet;
 		writeSet.sType = vk::StructureType::eWriteDescriptorSet;
 		writeSet.dstSet = set;
 		writeSet.dstBinding = 0;
 		writeSet.dstArrayElement = 0;
-
 		writeSet.descriptorCount = 1;
 		writeSet.descriptorType = vk::DescriptorType::eUniformBuffer;
 		writeSet.pBufferInfo = &bufferInfo;
+
+		writeSets.push_back(writeSet);
+
+		/*vk::DescriptorImageInfo imageInfo{};
+		imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+		imageInfo.imageView = _textureImageView;
+		imageInfo.sampler = _sampler;
 
 		vk::WriteDescriptorSet combinedSamplerSet;
 		combinedSamplerSet.sType = vk::StructureType::eWriteDescriptorSet;
@@ -261,8 +272,7 @@ void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLay
 		combinedSamplerSet.descriptorCount = 1;
 		combinedSamplerSet.pImageInfo = &imageInfo;
 
-		writeSets.push_back(writeSet);
-		writeSets.push_back(combinedSamplerSet);
+		writeSets.push_back(combinedSamplerSet);*/
 		i++;
 	}
 
@@ -285,6 +295,12 @@ void VulkanRenderer::UpdateUniformBuffer(void* _map)
 
 	memcpy(_map, &ubo, sizeof(UniformBufferObject));
 }
+
+void VulkanRenderer::BindDescriptorSets(vk::PipelineLayout& _layout, Mesh& _mesh, vk::CommandBuffer& _cmdBuffer)
+{
+	
+}
+
 
 void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex, RenderInfo& _renderInfo, vk::RenderPass _renderPass)
 {
@@ -332,17 +348,31 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	scissor.extent = m_extent;
 	_buffer.setScissor(0, scissor);
 
-	vk::Buffer buffers[] = { *_renderInfo.vertexBuffer };
-	vk::DeviceSize offsets[] = { 0 };
+	for(auto& Mesh : m_meshes)
+	{
+		vk::DeviceSize offsets[] = { 0 };
 
-	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _renderInfo.pipelineLayout, 0, m_descriptorSets[0], nullptr);
-	_buffer.bindVertexBuffers(0, buffers, offsets);
-	_buffer.bindIndexBuffer(*_renderInfo.indexBuffer, 0, vk::IndexType::eUint32);
-	_buffer.drawIndexed(_renderInfo.triangleCount * 3, 1, 0, 0, 0);
+		Mesh.BindSets(_buffer, _renderInfo.pipelineLayout);
+		_buffer.bindVertexBuffers(0, Mesh.m_vertexBuffer, offsets);
+		_buffer.bindIndexBuffer(Mesh.m_indexBuffer, 0, vk::IndexType::eUint32);
+		_buffer.drawIndexed(Mesh.m_triangleCount * 3, 1, 0, 0, 0);
+	}
 
 	_buffer.nextSubpass(vk::SubpassContents::eInline);
 	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.pipeline);
-	_buffer.drawIndexed(_renderInfo.triangleCount * 3, 1, 0, 0, 0);
+
+	for (auto& Mesh : m_meshes)
+	{
+		vk::DeviceSize offsets[] = { 0 };
+
+		BindDescriptorSets(_renderInfo.pipelineLayout, Mesh, _buffer);
+
+		_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _renderInfo.pipelineLayout, 0, m_descriptorSets[0], nullptr);
+		_buffer.bindVertexBuffers(0, Mesh.m_vertexBuffer, offsets);
+		_buffer.bindIndexBuffer(Mesh.m_indexBuffer, 0, vk::IndexType::eUint32);
+		_buffer.drawIndexed(Mesh.m_triangleCount * 3, 1, 0, 0, 0);
+	}
+
 	_buffer.endRenderPass();
 	_buffer.end();
 }

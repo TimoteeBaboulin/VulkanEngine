@@ -26,15 +26,17 @@ constexpr int WindowHeight = 1080;
 
 
 
-Mesh GetMesh(aiMesh* _mesh);
-Mesh ImportMesh(std::string _path);
+MeshData GetMesh(aiMesh* _mesh);
+MeshData ImportMesh(std::string _path);
 GLFWwindow* InitWindow(VulkanEngine& _app, InputManager& _input);
 void ImportImage(std::string _path, Image& _image);
 
 int main() 
 {
     VulkanEngine app;
-    Mesh mesh = ImportMesh("Assets/Link Tunic.fbx");
+    MeshData mesh = ImportMesh("Assets/Models/Souta/Souta.fbx");
+    mesh.textures.push_back(Image());
+    ImportImage("Assets/Models/Cyndaquil/Textures/pm0155_00_BodyA1.png", mesh.textures[0]);
     InputManager input;
 	GLFWwindow* window = InitWindow(app, input);
     
@@ -52,7 +54,7 @@ int main()
     return EXIT_SUCCESS;
 }
 
-Mesh ImportMesh(std::string _path)
+MeshData ImportMesh(std::string _path)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(_path, aiPostProcessSteps::aiProcess_OptimizeMeshes | aiPostProcessSteps::aiProcess_Triangulate | aiPostProcessSteps::aiProcess_GenUVCoords);
@@ -61,12 +63,12 @@ Mesh ImportMesh(std::string _path)
         std::string errorMessage = importer.GetErrorString();
         throw new std::runtime_error(errorMessage);
     }
-    Mesh mesh = GetMesh(scene->mMeshes[0]);
+    MeshData mesh = GetMesh(scene->mMeshes[0]);
     return mesh;
 }
-Mesh GetMesh(aiMesh* _mesh)
+MeshData GetMesh(aiMesh* _mesh)
 {
-    Mesh mesh;
+    MeshData mesh;
     mesh.vertexCount = _mesh->mNumVertices;
     mesh.vertices = new Vertex[mesh.vertexCount];
 

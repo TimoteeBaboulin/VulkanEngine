@@ -27,14 +27,9 @@ vk::Queue VulkanEngine::KHRPresentQueue;
 //	Cleanup();
 //}
 
-void VulkanEngine::LoadMesh(Mesh& _mesh)
+void VulkanEngine::LoadMesh(MeshData& _mesh)
 {
-	m_vulkanPipeline->Load(_mesh);
-}
-
-void VulkanEngine::LoadTexture(Image& _texture)
-{
-	m_vulkanPipeline->AddTexture(_texture);
+	m_vulkanRenderer->LoadMesh(_mesh);
 }
 
 //VKAPI_ATTR VkBool32 VKAPI_CALL debug_utils_messenger_callback(
@@ -114,7 +109,7 @@ void VulkanEngine::InitVulkan()
 	m_swapChain = m_vulkanPipeline->GetSwapChain();
 	
 	m_vulkanRenderer = new VulkanRenderer(extent, m_vulkanPipeline->GetFrameBuffers());
-	m_vulkanRenderer->Init(m_vulkanPipeline->GetDescriptorSetLayout(), m_vulkanPipeline->GetTextureView(0), m_vulkanPipeline->GetSampler());
+	m_vulkanRenderer->Init(m_vulkanPipeline->GetDescriptorSetLayout());
 }
 
 vk::PresentModeKHR VulkanEngine::GetPresentMode(std::vector<vk::PresentModeKHR>& _modes)

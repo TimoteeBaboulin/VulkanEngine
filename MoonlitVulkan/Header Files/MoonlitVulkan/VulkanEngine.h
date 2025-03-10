@@ -25,8 +25,7 @@ public:
 	//void MainLoop();
 	void Render();
 
-	void LoadMesh(Mesh& _mesh);
-	void LoadTexture(Image& _texture);
+	void LoadMesh(MeshData& _mesh);
 
 	VulkanContext* GetContext() const { return m_context; }
 	HWND GetWindow() const { return m_context->GetWindow(); }
@@ -41,16 +40,16 @@ public:
 	static vk::Queue KHRPresentQueue;
 
 private:
-	VulkanContext* m_context;
+	VulkanContext* m_context = nullptr;
 	vk::Instance m_instance;
 	vk::SurfaceKHR m_renderingSurface;
 
-	VulkanDeviceManager* m_deviceManager;
+	VulkanDeviceManager* m_deviceManager = nullptr;
 
-	VulkanPipeline* m_vulkanPipeline;
+	VulkanPipeline* m_vulkanPipeline = nullptr;
 	vk::SwapchainKHR m_swapChain;
 
-	VulkanRenderer* m_vulkanRenderer;
+	VulkanRenderer* m_vulkanRenderer = nullptr;
 	
 	vk::ApplicationInfo GetAppInfo();
 

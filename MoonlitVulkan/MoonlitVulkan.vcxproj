@@ -159,7 +159,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -178,7 +178,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -202,7 +202,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.296.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;C:\VulkanSDK\1.3.296.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -225,7 +225,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -245,7 +245,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -264,7 +264,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -288,7 +288,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.296.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;C:\VulkanSDK\1.3.296.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -311,7 +311,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;C:\VulkanSDK\1.3.296.0\Lib;..\..\Libraries\glfw-3.4\lib-vc2022;..\..\Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -327,6 +327,7 @@
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanEngine.cpp" />
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanPipeline.cpp" />
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanRenderer.cpp" />
+    <ClCompile Include="Source Files\MoonlitVulkan\VulkanData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\common.h" />
@@ -334,6 +335,7 @@
     <ClInclude Include="Header Files\MoonlitVulkan.h" />
     <ClInclude Include="Header Files\MoonlitVulkanExport.h" />
     <ClInclude Include="Header Files\MoonlitVulkan\VulkanContext.h" />
+    <ClInclude Include="Header Files\MoonlitVulkan\VulkanData.h" />
     <ClInclude Include="Header Files\MoonlitVulkan\VulkanDeviceManager.h" />
     <ClInclude Include="Header Files\MoonlitVulkan\VulkanEngine.h" />
     <ClInclude Include="Header Files\MoonlitVulkan\VulkanHelperFunctions.h" />

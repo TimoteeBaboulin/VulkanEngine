@@ -2,29 +2,16 @@
 #include "MoonlitVulkan/VulkanEngine.h"
 #include "MoonlitVulkan/VulkanHelperFunctions.h"
 
+#include "MoonlitVulkan/VulkanData.h"
+
 VulkanPipeline::VulkanPipeline(VulkanPipelineInfo _info) : m_info(_info)
 {
-	m_vertexCount = 0;
-	m_triangleCount = 0;
 }
 
 void VulkanPipeline::Init(vk::Extent2D _extent)
 {
-	//TODO: Remove temporary hard coded texture test code
-	Image image;
-
-	image.width = 576;
-	image.height = 324;
-	ImportImage("Assets/Textures/texture.png", image);
-
-	CreateVertexBuffer();
-	CreateIndexBuffer();
-
 	CreateSwapChain(_extent);
 	CreateImageViews();
-
-	CreateTextureImages();
-	CreateTextureSampler();
 
 	CreateDepthImage();
 	CreateRenderPasses();
@@ -33,13 +20,10 @@ void VulkanPipeline::Init(vk::Extent2D _extent)
 	CreateRenderPipeline();
 
 	CreateFrameBuffers();
-
-	AddTexture(image);
 }
 
-void VulkanPipeline::Init(vk::Extent2D _extent, Mesh& _mesh)
+void VulkanPipeline::Init(vk::Extent2D _extent, MeshData& _mesh)
 {
-	Load(_mesh);
 	Init(_extent);
 }
 
@@ -61,28 +45,10 @@ RenderInfo VulkanPipeline::GetRenderInfo()
 		.renderPass = m_renderPass,
 		.pipeline = m_pipeline,
 		.depthPipeline = m_depthPipeline,
-		.pipelineLayout = m_pipelineLayout,
-		.vertexBuffer = &m_vertexBuffer,
-		.indexBuffer = &m_indexBuffer,
-		.vertexCount = m_vertexCount,
-		.triangleCount = m_triangleCount
+		.pipelineLayout = m_pipelineLayout
 	};
 
 	return info;
-}
-
-void VulkanPipeline::Load(Mesh& _mesh)
-{
-	AddMesh(_mesh);
-
-	if (m_vertexBuffer != nullptr)
-	{
-		VulkanEngine::LogicalDevice.destroyBuffer(m_vertexBuffer);
-		VulkanEngine::LogicalDevice.destroyBuffer(m_indexBuffer);
-	}
-
-	CreateVertexBuffer();
-	CreateIndexBuffer();
 }
 
 vk::PresentModeKHR VulkanPipeline::GetPresentMode(std::vector<vk::PresentModeKHR>& _modes)
@@ -95,7 +61,7 @@ vk::PresentModeKHR VulkanPipeline::GetPresentMode(std::vector<vk::PresentModeKHR
 
 void VulkanPipeline::CreateDescriptorSetLayout()
 {
-	vk::DescriptorSetLayoutBinding* bindings = new vk::DescriptorSetLayoutBinding[2];
+	vk::DescriptorSetLayoutBinding* bindings = new vk::DescriptorSetLayoutBinding[TEXTURE_DESCRIPTOR_COUNT + 1];
 
 	vk::DescriptorSetLayoutBinding& uboLayoutBinding = bindings[0];
 	uboLayoutBinding.binding = 0;
@@ -103,16 +69,19 @@ void VulkanPipeline::CreateDescriptorSetLayout()
 	uboLayoutBinding.descriptorCount = 1;
 	uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
-	vk::DescriptorSetLayoutBinding& textureLayoutBinding = bindings[1];
-	textureLayoutBinding.binding = 1;
-	textureLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-	textureLayoutBinding.descriptorCount = 1;
-	textureLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-	textureLayoutBinding.pImmutableSamplers = nullptr;
+	for (int i = 1; i <= TEXTURE_DESCRIPTOR_COUNT; i++)
+	{
+		vk::DescriptorSetLayoutBinding& textureLayoutBinding = bindings[i];
+		textureLayoutBinding.binding = i;
+		textureLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+		textureLayoutBinding.descriptorCount = 1;
+		textureLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+		textureLayoutBinding.pImmutableSamplers = nullptr;
+	}
 
 	vk::DescriptorSetLayoutCreateInfo createInfo;
 	createInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
-	createInfo.bindingCount = 2;
+	createInfo.bindingCount = TEXTURE_DESCRIPTOR_COUNT + 1;
 	createInfo.pBindings = bindings;
 	
 	m_descriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
@@ -413,9 +382,6 @@ void VulkanPipeline::CreateRenderPipeline()
 	colorBlending.attachmentCount = 1;
 	colorBlending.pAttachments = &colorBlendAttachment;
 
-	
-
-
 	std::vector<vk::DynamicState> dynamicStates = {
 	vk::DynamicState::eViewport,
 	vk::DynamicState::eScissor
@@ -498,164 +464,6 @@ void VulkanPipeline::CreateFrameBuffers()
 		createInfo.layers = 1;
 		m_frameBuffers.push_back(VulkanEngine::LogicalDevice.createFramebuffer(createInfo));
 	}
-}
-
-void VulkanPipeline::CreateTextureImages()
-{
-	m_textureImages.reserve(128);
-	m_textureImageViews.reserve(128);
-}
-
-void VulkanPipeline::CreateTextureSampler()
-{
-	vk::SamplerCreateInfo info;
-	info.sType = vk::StructureType::eSamplerCreateInfo;
-	info.magFilter = vk::Filter::eLinear;
-	info.minFilter = vk::Filter::eLinear;
-
-	info.addressModeU = vk::SamplerAddressMode::eRepeat;
-	info.addressModeV = vk::SamplerAddressMode::eRepeat;
-	info.addressModeW = vk::SamplerAddressMode::eRepeat;
-
-	info.anisotropyEnable = false;
-	info.maxAnisotropy = 4;
-	info.borderColor = vk::BorderColor::eIntOpaqueBlack;
-	info.unnormalizedCoordinates = false;
-
-	info.compareEnable = false;
-	info.compareOp = vk::CompareOp::eAlways;
-
-	info.mipmapMode = vk::SamplerMipmapMode::eLinear;
-	info.mipLodBias = 0.0f;
-	info.minLod = 0.0f;
-	info.maxLod = 0.0f;
-
-	m_textureSampler = VulkanEngine::LogicalDevice.createSampler(info);
-}
-
-void VulkanPipeline::CreateVertexBuffer()
-{
-	uint64_t bufferSize = sizeof(Vertex) * m_vertices.size();
-
-	if (bufferSize == 0)
-		return;
-
-	VertexBufferInfo bufferInfo = {
-		.buffer = m_vertexBuffer,
-		.memory = m_vertexMemory,
-		.usage = vk::BufferUsageFlagBits::eVertexBuffer,
-		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
-		.size = bufferSize == 0 ? 3 : bufferSize
-	};
-
-	vhf::CreateBufferWithStaging(bufferInfo, m_vertices.data());
-
-	vertexBufferCreated = true;
-}
-
-void VulkanPipeline::CreateIndexBuffer()
-{
-	uint64_t bufferSize = sizeof(uint32_t) *  m_indices.size();
-	
-	if (bufferSize == 0)
-		return;
-	
-	VertexBufferInfo bufferInfo = {
-		.buffer = m_indexBuffer,
-		.memory = m_indexMemory,
-		.usage = vk::BufferUsageFlagBits::eIndexBuffer,
-		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
-		.size = bufferSize
-	};
-
-	vhf::CreateBufferWithStaging(bufferInfo, m_indices.data());
-
-	indexBufferCreated = true;
-}
-
-void VulkanPipeline::AddMesh(Mesh _mesh)
-{
-	int baseIndex = m_triangleCount * 3;
-	int baseVertexIndex = m_vertexCount;
-
-	m_vertexCount += _mesh.vertexCount;
-	m_vertices.reserve(m_vertexCount);
-
-	for (int i = 0; i < _mesh.vertexCount; i++)
-	{
-		Vertex vertex = _mesh.vertices[i];
-		vertex.r = (float) rand() / RAND_MAX;
-		vertex.g = (float) rand() / RAND_MAX;
-		vertex.b = (float) rand() / RAND_MAX;
-
-		vertex.uvX = _mesh.vertices[i].uvX;
-		vertex.uvY = _mesh.vertices[i].uvY;
-
-		m_vertices.push_back(vertex);
-	}
-
-	m_triangleCount += _mesh.triangleCount;
-	m_indices.reserve(m_indices.size() + _mesh.triangleCount * 3);
-	for (int i = 0; i < _mesh.triangleCount; i++)
-	{
-		m_indices.push_back(_mesh.indices[i * 3    ]);
-		m_indices.push_back(_mesh.indices[i * 3 + 1]);
-		m_indices.push_back(_mesh.indices[i * 3 + 2]);
-	}
-}
-
-void VulkanPipeline::AddTexture(Image _texture)
-{
-	vk::Image textureImage;
-	vk::Buffer buffer;
-	vk::DeviceMemory memory;
-	vk::DeviceMemory imageMemory;
-	vk::Extent2D extent = { _texture.width, _texture.height };
-	uint32_t memorySize = (uint32_t)(_texture.width * _texture.height * 4);
-
-	VertexBufferInfo info = {
-		.buffer = buffer,
-		.memory = memory,
-		.usage = vk::BufferUsageFlagBits::eTransferSrc,
-		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-		.size = memorySize
-
-	};
-
-	vhf::CreateBuffer(info);
-	void* map = VulkanEngine::LogicalDevice.mapMemory(memory, 0, memorySize);
-	memcpy(map, (void*)_texture.pixels, memorySize);
-	
-	vhf::CreateImage(extent, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
-		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal,
-		textureImage, imageMemory, vk::ImageLayout::eUndefined);
-	
-	TransitionInfo transInfo =
-	{
-		.srcAccessFlags = vk::AccessFlagBits::eNone,
-		.dstAccessFlags = vk::AccessFlagBits::eTransferWrite,
-
-		.srcStage = vk::PipelineStageFlagBits::eTopOfPipe,
-		.dstStage = vk::PipelineStageFlagBits::eTransfer
-	};
-
-	vhf::TransitionImageLayout(textureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eTransferDstOptimal, transInfo);
-
-	vhf::CopyBufferToImage(buffer, textureImage, extent);
-
-	transInfo.srcAccessFlags = vk::AccessFlagBits::eTransferWrite;
-	transInfo.dstAccessFlags = vk::AccessFlagBits::eShaderRead;
-
-	transInfo.srcStage = vk::PipelineStageFlagBits::eTransfer;
-	transInfo.dstStage = vk::PipelineStageFlagBits::eFragmentShader;
-
-	vhf::TransitionImageLayout(textureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eTransferDstOptimal,
-		vk::ImageLayout::eShaderReadOnlyOptimal, transInfo);
-	m_textureImages.push_back(textureImage);
-
-	vk::ImageView view = vhf::CreateImageView(textureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
-	m_textureImageViews.push_back(view);
 }
 
 vk::ShaderModule VulkanPipeline::WrapShader(std::vector<char> _shaderBytes)

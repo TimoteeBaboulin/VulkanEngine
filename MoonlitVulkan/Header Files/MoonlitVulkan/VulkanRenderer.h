@@ -8,8 +8,10 @@ class VulkanRenderer
 {
 public:
 	VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers);
-	void Init(vk::DescriptorSetLayout _descriptorLayout, vk::ImageView _textureImageView, vk::Sampler _sampler);
+	void Init(vk::DescriptorSetLayout _descriptorLayout);
 	void Cleanup();
+
+	void LoadMesh(MeshData& _mesh);
 
 	void Render(vk::SwapchainKHR _swapchain, RenderInfo _renderInfo, vk::RenderPass _renderPass);
 
@@ -37,12 +39,15 @@ private:
 	//vk::Buffer m_indexBuffer;
 	//vk::DeviceMemory m_indexMemory;
 
+	std::vector<Mesh> m_meshes;
+
 	std::vector<vk::Buffer> m_uniformBuffers;
 	std::vector<vk::DeviceMemory> m_uniformMemories;
 	std::vector<void*> m_uniformMaps;
 
 	std::vector<vk::DescriptorPool> m_descriptorPools;
 	std::vector<vk::DescriptorSet> m_descriptorSets;
+	vk::DescriptorSetLayout m_descriptorLayout;
 
 	//RenderInfo m_renderInfo;
 
@@ -51,8 +56,9 @@ private:
 	//void CreateVertexBuffers(vk::Queue _queue);
 	void CreateUniformBuffers();
 	void CreateDescriptorPools();
-	void CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLayout, vk::ImageView _textureImageView, vk::Sampler _sampler);
+	void CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLayout);
 	void UpdateUniformBuffer(void* _map);
+	void BindDescriptorSets(vk::PipelineLayout& _layout, Mesh& _mesh, vk::CommandBuffer& _cmdBuffer);
 	//void CreateFrameBuffers();
 	void CreateCommandBuffers();
 

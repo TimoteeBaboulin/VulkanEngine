@@ -3,6 +3,10 @@
 #include "vulkan/vulkan.hpp"
 #include "common.h"
 
+constexpr int TEXTURE_DESCRIPTOR_COUNT = 16;
+
+class Mesh;
+
 struct VulkanPipelineInfo
 {
 	SwapChainSupportDetails details;
@@ -15,7 +19,7 @@ class VulkanPipeline
 public:
 	VulkanPipeline(VulkanPipelineInfo _info);
 	void Init(vk::Extent2D _extent);
-	void Init(vk::Extent2D _extent, Mesh& _mesh);
+	void Init(vk::Extent2D _extent, MeshData& _mesh);
 
 	void Cleanup();
 
@@ -26,13 +30,9 @@ public:
 	std::vector<vk::Framebuffer>* GetFrameBuffers() { return &m_frameBuffers; }
 	std::vector<vk::ImageView> GetImageViews() { return m_imageViews; }
 
-	vk::ImageView GetTextureView(int index = 0) { return m_textureImageViews[index]; }
-	vk::Sampler GetSampler() { return m_textureSampler; }
-
 	RenderInfo GetRenderInfo();
 
-	void Load(Mesh& _mesh);
-	void AddTexture(Image _texture);
+	//void Load(MeshData& _mesh);
 private:
 	VulkanPipelineInfo m_info;
 
@@ -47,9 +47,7 @@ private:
 	std::vector<vk::ImageView> m_depthImageViews;
 	vk::DeviceMemory m_depthMemory;
 
-	std::vector<vk::Image> m_textureImages;
-	std::vector<vk::ImageView> m_textureImageViews;
-	vk::Sampler m_textureSampler;
+	//std::vector<Mesh> m_meshes;
 
 	std::vector<vk::Framebuffer> m_frameBuffers;
 
@@ -59,22 +57,16 @@ private:
 	vk::Pipeline m_pipeline;
 	vk::Pipeline m_depthPipeline;
 	vk::PipelineLayout m_pipelineLayout;
-	
-	vk::Buffer m_vertexBuffer = nullptr;
-	vk::DeviceMemory m_vertexMemory;
-	vk::Buffer m_indexBuffer = nullptr;
-	vk::DeviceMemory m_indexMemory;
 
-	bool vertexBufferCreated = false;
-	bool indexBufferCreated = false;
+	//TODO: Remove mesh from pipeline to put it in renderer
 
-	uint32_t m_vertexCount;
-	uint32_t m_triangleCount;
+	//uint64_t m_vertexCount;
+	//uint64_t m_triangleCount;
+
 	uint32_t m_frameCount;
 
 	vk::DescriptorSetLayout m_descriptorLayout;
 
-	//void CreateMainCommandPool();
 	void CreateDescriptorSetLayout();
 	void CreateSwapChain(vk::Extent2D _extent);
 	void CreateImageViews();
@@ -84,13 +76,8 @@ private:
 	void CreateRenderPipeline();
 
 	void CreateFrameBuffers();
-	void CreateTextureImages();
-	void CreateTextureSampler();
 
-	void CreateVertexBuffer();
-	void CreateIndexBuffer();
-
-	void AddMesh(Mesh _mesh);
+	//void AddMesh(MeshData _mesh);
 
 	vk::ShaderModule WrapShader(std::vector<char> _shaderBytes);
 	vk::SurfaceFormatKHR GetFormat(std::vector<vk::SurfaceFormatKHR>& _format);

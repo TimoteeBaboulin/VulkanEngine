@@ -9,6 +9,11 @@
 #include "glm/glm.hpp"
 #include "stb_image.h"
 
+#include "vulkan/vulkan.hpp"
+
+typedef uint32_t MeshCountType;
+class Mesh;
+
 struct QueueFamilyIndices
 {
 	std::optional<unsigned int> graphicsFamily;
@@ -32,12 +37,6 @@ struct RenderInfo
 	vk::Pipeline pipeline;
 	vk::Pipeline depthPipeline;
 	vk::PipelineLayout pipelineLayout;
-
-	vk::Buffer* vertexBuffer;
-	vk::Buffer* indexBuffer;
-
-	uint32_t vertexCount;
-	uint32_t triangleCount;
 };
 
 struct UniformBufferObject {
@@ -48,24 +47,35 @@ struct UniformBufferObject {
 
 struct Vertex
 {
-	float x;
-	float y;
+	float x = 0.0f;
+	float y = 0.0f;
 	float z = 0.0f;
 
 	float r = 1.0f;
 	float g = 1.0f;
 	float b = 1.0f;
 
-	float uvX;
-	float uvY;
+	float uvX = 0.0f;
+	float uvY = 0.0f;
 };
 
-struct Mesh
+struct Image
 {
-	int vertexCount;
-	Vertex* vertices;
-	int triangleCount;
-	int* indices;
+	stbi_uc* pixels;
+
+	uint32_t width;
+	uint32_t height;
+	int channels;
+};
+
+struct MeshData
+{
+	int vertexCount = 0;
+	Vertex* vertices = nullptr;
+	int triangleCount = 0;
+	int* indices = nullptr;
+
+	std::vector<Image> textures;
 };
 
 struct TransitionInfo
@@ -88,17 +98,10 @@ struct VertexBufferInfo
 	uint64_t size;
 };
 
-struct Image
-{
-	stbi_uc* pixels;
-
-	uint32_t width;
-	uint32_t height;
-	int channels;
-};
-
 static void ImportImage(std::string _path, Image& _image)
 {
+	stbi_info(_path.c_str(), (int*)&_image.width, (int*)&_image.height, &_image.channels);
+
 	int width = _image.width;
 	int height = _image.height;
 	_image.pixels = stbi_load(_path.c_str(), &width, &height, &_image.channels, STBI_rgb_alpha);

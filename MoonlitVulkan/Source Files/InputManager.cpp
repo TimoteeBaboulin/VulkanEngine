@@ -23,5 +23,5 @@ DWORD KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lP
 
 void InputManager::Init(HWND _windowHandle)
 {
-	SetWindowLongPtrA(_windowHandle, -4, (LONG_PTR)KeyDownSubscribeCallback);
+	//SetWindowLongPtrA(_windowHandle, -4, (LONG_PTR)KeyDownSubscribeCallback);
 }

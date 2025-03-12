@@ -26,7 +26,7 @@ public:
 	vk::Pipeline GetPipeline() const { return m_pipeline; }
 	vk::RenderPass GetRenderPass() const { return m_renderPass; }
 	vk::SwapchainKHR GetSwapChain() const { return m_swapChain; }
-	vk::DescriptorSetLayout GetDescriptorSetLayout() const { return m_descriptorLayout; }
+	vk::DescriptorSetLayout GetDescriptorSetLayout() const { return m_shaderDescriptorLayout; }
 	std::vector<vk::Framebuffer>* GetFrameBuffers() { return &m_frameBuffers; }
 	std::vector<vk::ImageView> GetImageViews() { return m_imageViews; }
 
@@ -65,7 +65,8 @@ private:
 
 	uint32_t m_frameCount;
 
-	vk::DescriptorSetLayout m_descriptorLayout;
+	vk::DescriptorSetLayout m_shaderDescriptorLayout;
+	vk::DescriptorSetLayout m_uboDescriptorLayout;
 
 	void CreateDescriptorSetLayout();
 	void CreateSwapChain(vk::Extent2D _extent);

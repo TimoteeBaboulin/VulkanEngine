@@ -34,9 +34,9 @@ void ImportImage(std::string _path, Image& _image);
 int main() 
 {
     VulkanEngine app;
-    MeshData mesh = ImportMesh("Assets/Models/Souta/Souta.fbx");
+    MeshData mesh = ImportMesh("Assets/shull.fbx");
     mesh.textures.push_back(Image());
-    ImportImage("Assets/Models/Cyndaquil/Textures/pm0155_00_BodyA1.png", mesh.textures[0]);
+    ImportImage("Assets/Textures/texture.png", mesh.textures[0]);
     InputManager input;
 	GLFWwindow* window = InitWindow(app, input);
     

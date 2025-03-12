@@ -240,23 +240,25 @@ void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLay
 
 	char i = 0;
 
+	vk::DescriptorBufferInfo bufferInfo;
+	bufferInfo.buffer = m_uniformBuffers[0];
+	bufferInfo.offset = 0;
+	bufferInfo.range = sizeof(UniformBufferObject);
+
+	vk::WriteDescriptorSet writeSet;
+	writeSet.sType = vk::StructureType::eWriteDescriptorSet;
+	writeSet.dstSet = m_descriptorSets[0];
+	writeSet.dstBinding = 0;
+	writeSet.dstArrayElement = 0;
+	writeSet.descriptorCount = 1;
+	writeSet.descriptorType = vk::DescriptorType::eUniformBuffer;
+	writeSet.pBufferInfo = &bufferInfo;
+
+	writeSets.push_back(writeSet);
+
 	for (auto set : m_descriptorSets)
 	{
-		vk::DescriptorBufferInfo bufferInfo;
-		bufferInfo.buffer = m_uniformBuffers[i];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
-
-		vk::WriteDescriptorSet writeSet;
-		writeSet.sType = vk::StructureType::eWriteDescriptorSet;
-		writeSet.dstSet = set;
-		writeSet.dstBinding = 0;
-		writeSet.dstArrayElement = 0;
-		writeSet.descriptorCount = 1;
-		writeSet.descriptorType = vk::DescriptorType::eUniformBuffer;
-		writeSet.pBufferInfo = &bufferInfo;
-
-		writeSets.push_back(writeSet);
+		
 
 		/*vk::DescriptorImageInfo imageInfo{};
 		imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;

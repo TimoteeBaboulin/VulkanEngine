@@ -61,15 +61,22 @@ vk::PresentModeKHR VulkanPipeline::GetPresentMode(std::vector<vk::PresentModeKHR
 
 void VulkanPipeline::CreateDescriptorSetLayout()
 {
-	vk::DescriptorSetLayoutBinding* bindings = new vk::DescriptorSetLayoutBinding[TEXTURE_DESCRIPTOR_COUNT + 1];
+	vk::DescriptorSetLayoutBinding* bindings = new vk::DescriptorSetLayoutBinding[TEXTURE_DESCRIPTOR_COUNT];
 
-	vk::DescriptorSetLayoutBinding& uboLayoutBinding = bindings[0];
+	vk::DescriptorSetLayoutBinding uboLayoutBinding;
 	uboLayoutBinding.binding = 0;
 	uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
 	uboLayoutBinding.descriptorCount = 1;
 	uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
-	for (int i = 1; i <= TEXTURE_DESCRIPTOR_COUNT; i++)
+	vk::DescriptorSetLayoutCreateInfo createInfo;
+	createInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
+	createInfo.bindingCount = 1;
+	createInfo.pBindings = &uboLayoutBinding;
+
+	m_shaderDescriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
+
+	for (int i = 0; i < TEXTURE_DESCRIPTOR_COUNT; i++)
 	{
 		vk::DescriptorSetLayoutBinding& textureLayoutBinding = bindings[i];
 		textureLayoutBinding.binding = i;
@@ -79,12 +86,10 @@ void VulkanPipeline::CreateDescriptorSetLayout()
 		textureLayoutBinding.pImmutableSamplers = nullptr;
 	}
 
-	vk::DescriptorSetLayoutCreateInfo createInfo;
-	createInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
-	createInfo.bindingCount = TEXTURE_DESCRIPTOR_COUNT + 1;
+	createInfo.bindingCount = TEXTURE_DESCRIPTOR_COUNT;
 	createInfo.pBindings = bindings;
-	
-	m_descriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
+
+	m_shaderDescriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
 }
 
 void VulkanPipeline::CreateSwapChain(vk::Extent2D _extent)
@@ -263,7 +268,7 @@ void VulkanPipeline::CreatePipelineLayout()
 	//Layout
 	vk::PipelineLayoutCreateInfo pipelineLayout{};
 	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
-	pipelineLayout.pSetLayouts = &m_descriptorLayout;
+	pipelineLayout.pSetLayouts = &m_shaderDescriptorLayout;
 	pipelineLayout.setLayoutCount = 1;
 	m_pipelineLayout = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
 }

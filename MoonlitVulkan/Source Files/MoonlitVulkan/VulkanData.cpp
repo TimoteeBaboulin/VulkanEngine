@@ -143,7 +143,8 @@ void Mesh::BindSets(vk::CommandBuffer _buffer, vk::PipelineLayout _layout)
 
 void Material::AllocateSets(vk::Device _device, vk::DescriptorSetLayout _descriptorLayout, vk::DescriptorPool _descriptorPool, int _count)
 {
-	m_descriptorSets.resize(_count);
+	m_descriptorSets = new vk::DescriptorSet[_count];
+	m_descriptorSetCount = _count;
 
 	vk::DescriptorSetAllocateInfo allocInfo;
 	allocInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
@@ -151,14 +152,15 @@ void Material::AllocateSets(vk::Device _device, vk::DescriptorSetLayout _descrip
 	allocInfo.descriptorSetCount = _count;
 	allocInfo.pSetLayouts = &_descriptorLayout;
 	
-	_device.allocateDescriptorSets(allocInfo, m_descriptorSets.data());
+	_device.allocateDescriptorSets(&allocInfo, m_descriptorSets);
 }
 
 void Material::UpdateSets(vk::Device _device, std::vector<vk::ImageView> _views, std::vector<vk::Sampler> _samplers)
 {
-	std::vector<vk::WriteDescriptorSet> writeSets(m_descriptorSets.size());
+	std::vector<vk::WriteDescriptorSet> writeSets;
+	writeSets.reserve(m_descriptorSetCount);
 
-	for (int i = 0; i < m_descriptorSets.size(); i++)
+	for (int i = 0; i < m_descriptorSetCount; i++)
 	{
 		vk::DescriptorImageInfo imageInfo{};
 		imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
@@ -173,6 +175,8 @@ void Material::UpdateSets(vk::Device _device, std::vector<vk::ImageView> _views,
 		combinedSamplerSet.descriptorType = vk::DescriptorType::eCombinedImageSampler;
 		combinedSamplerSet.descriptorCount = 1;
 		combinedSamplerSet.pImageInfo = &imageInfo;
+
+		writeSets.push_back(combinedSamplerSet);
 	}
 
 	_device.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
@@ -180,5 +184,5 @@ void Material::UpdateSets(vk::Device _device, std::vector<vk::ImageView> _views,
 
 void Material::BindSets(vk::CommandBuffer _buffer, vk::PipelineLayout _layout)
 {
-	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _layout, 1, m_descriptorSetCount, m_descriptorSets.data(), 0, nullptr);
+	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _layout, 0, m_descriptorSetCount, m_descriptorSets, 0, nullptr);
 }

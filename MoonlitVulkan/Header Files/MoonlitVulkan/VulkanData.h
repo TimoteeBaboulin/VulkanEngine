@@ -1,7 +1,8 @@
 #pragma once
 
-#include "common.h"
 #include "vulkan/vulkan.hpp"
+#include "common.h"
+
 
 class Material;
 
@@ -37,6 +38,6 @@ public:
 	
 	void BindSets(vk::CommandBuffer _buffer, vk::PipelineLayout _layout);
 
-	std::vector<vk::DescriptorSet> m_descriptorSets;
+	vk::DescriptorSet* m_descriptorSets;
 	int m_descriptorSetCount;
 };

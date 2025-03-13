@@ -16,14 +16,14 @@ VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer
 
 }
 
-void VulkanRenderer::Init(vk::DescriptorSetLayout _descriptorLayout)
+void VulkanRenderer::Init(vk::DescriptorSetLayout _uboDescriptorLayout, vk::DescriptorSetLayout _shaderDescriptorLayout)
 {
 	InitSyncs();
 	CreateCommandBuffers();
 	CreateUniformBuffers();
 	CreateDescriptorPools();
-	CreateDescriptorSets(_descriptorLayout);
-	m_descriptorLayout = _descriptorLayout;
+	CreateDescriptorSets(_uboDescriptorLayout);
+	m_shaderDescriptorLayout = _shaderDescriptorLayout;
 }
 
 void VulkanRenderer::Cleanup()
@@ -42,7 +42,7 @@ void VulkanRenderer::Cleanup()
 void VulkanRenderer::LoadMesh(MeshData& _mesh)
 {
 	Mesh mesh;
-	mesh.Load(VulkanEngine::LogicalDevice, _mesh, m_descriptorLayout, m_descriptorPools[0]);
+	mesh.Load(VulkanEngine::LogicalDevice, _mesh, m_shaderDescriptorLayout, m_descriptorPools[0]);
 	m_meshes.push_back(mesh);
 }
 
@@ -332,6 +332,7 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	renderPassInfo.pClearValues = clearValues.data();
 
 	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.depthPipeline);
+	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _renderInfo.pipelineLayout, 0, 1, &m_descriptorSets[0], 0, nullptr);
 
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 

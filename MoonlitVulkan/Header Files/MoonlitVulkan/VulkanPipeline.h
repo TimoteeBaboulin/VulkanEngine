@@ -26,7 +26,8 @@ public:
 	vk::Pipeline GetPipeline() const { return m_pipeline; }
 	vk::RenderPass GetRenderPass() const { return m_renderPass; }
 	vk::SwapchainKHR GetSwapChain() const { return m_swapChain; }
-	vk::DescriptorSetLayout GetDescriptorSetLayout() const { return m_shaderDescriptorLayout; }
+	vk::DescriptorSetLayout GetDescriptorSetLayout() const { return m_uboDescriptorLayout; }
+	vk::DescriptorSetLayout GetShaderDescriptorSetLayout() const { return m_shaderDescriptorLayout; }
 	std::vector<vk::Framebuffer>* GetFrameBuffers() { return &m_frameBuffers; }
 	std::vector<vk::ImageView> GetImageViews() { return m_imageViews; }
 

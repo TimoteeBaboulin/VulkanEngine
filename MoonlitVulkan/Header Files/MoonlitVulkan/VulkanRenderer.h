@@ -8,7 +8,7 @@ class VulkanRenderer
 {
 public:
 	VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers);
-	void Init(vk::DescriptorSetLayout _descriptorLayout);
+	void Init(vk::DescriptorSetLayout _uboDescriptorLayout, vk::DescriptorSetLayout _shaderDescriptorLayout);
 	void Cleanup();
 
 	void LoadMesh(MeshData& _mesh);
@@ -47,7 +47,9 @@ private:
 
 	std::vector<vk::DescriptorPool> m_descriptorPools;
 	std::vector<vk::DescriptorSet> m_descriptorSets;
-	vk::DescriptorSetLayout m_descriptorLayout;
+	vk::DescriptorSetLayout m_shaderDescriptorLayout;
+
+	vk::DescriptorSetLayout m_uboDescriptorLayout;
 
 	//RenderInfo m_renderInfo;
 

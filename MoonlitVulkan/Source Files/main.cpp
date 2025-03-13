@@ -34,7 +34,7 @@ void ImportImage(std::string _path, Image& _image);
 int main() 
 {
     VulkanEngine app;
-    MeshData mesh = ImportMesh("Assets/shull.fbx");
+    MeshData mesh = ImportMesh("Assets/barstool.gltf");
     mesh.textures.push_back(Image());
     ImportImage("Assets/Textures/texture.png", mesh.textures[0]);
     InputManager input;
@@ -75,8 +75,11 @@ MeshData GetMesh(aiMesh* _mesh)
     for (int i = 0; i < _mesh->mNumVertices; i++)
     {
         mesh.vertices[i] = Vertex(_mesh->mVertices[i].x, _mesh->mVertices[i].y, _mesh->mVertices[i].z);
-        mesh.vertices[i].uvX = _mesh->mTextureCoords[0]->x;
-        mesh.vertices[i].uvY = _mesh->mTextureCoords[0]->y;
+        //mesh.vertices[i].uvX = rand() / (float)RAND_MAX;
+        //mesh.vertices[i].uvY = rand() / (float)RAND_MAX;
+        
+        mesh.vertices[i].uvX = _mesh->mTextureCoords[0][i].x;
+        mesh.vertices[i].uvY = _mesh->mTextureCoords[0][i].y;
     }
     mesh.triangleCount = _mesh->mNumFaces;
     mesh.indices = new int[mesh.triangleCount * 3];

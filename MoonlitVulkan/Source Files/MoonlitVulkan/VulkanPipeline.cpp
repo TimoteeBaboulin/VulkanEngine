@@ -74,7 +74,7 @@ void VulkanPipeline::CreateDescriptorSetLayout()
 	createInfo.bindingCount = 1;
 	createInfo.pBindings = &uboLayoutBinding;
 
-	m_shaderDescriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
+	m_uboDescriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
 
 	for (int i = 0; i < TEXTURE_DESCRIPTOR_COUNT; i++)
 	{
@@ -266,10 +266,12 @@ void VulkanPipeline::CreateRenderPasses()
 void VulkanPipeline::CreatePipelineLayout()
 {
 	//Layout
+	vk::DescriptorSetLayout* layouts = new vk::DescriptorSetLayout[2]{m_uboDescriptorLayout, m_shaderDescriptorLayout};
+
 	vk::PipelineLayoutCreateInfo pipelineLayout{};
 	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
-	pipelineLayout.pSetLayouts = &m_shaderDescriptorLayout;
-	pipelineLayout.setLayoutCount = 1;
+	pipelineLayout.pSetLayouts = layouts;
+	pipelineLayout.setLayoutCount = 2;
 	m_pipelineLayout = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
 }
 

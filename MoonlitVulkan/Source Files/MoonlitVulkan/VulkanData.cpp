@@ -170,7 +170,7 @@ void Material::UpdateSets(vk::Device _device, std::vector<vk::ImageView> _views,
 		vk::WriteDescriptorSet combinedSamplerSet;
 		combinedSamplerSet.sType = vk::StructureType::eWriteDescriptorSet;
 		combinedSamplerSet.dstSet = m_descriptorSets[i];
-		combinedSamplerSet.dstBinding = 1;
+		combinedSamplerSet.dstBinding = i;
 		combinedSamplerSet.dstArrayElement = 0;
 		combinedSamplerSet.descriptorType = vk::DescriptorType::eCombinedImageSampler;
 		combinedSamplerSet.descriptorCount = 1;
@@ -184,5 +184,5 @@ void Material::UpdateSets(vk::Device _device, std::vector<vk::ImageView> _views,
 
 void Material::BindSets(vk::CommandBuffer _buffer, vk::PipelineLayout _layout)
 {
-	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _layout, 0, m_descriptorSetCount, m_descriptorSets, 0, nullptr);
+	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _layout, 1, m_descriptorSetCount, m_descriptorSets, 0, nullptr);
 }

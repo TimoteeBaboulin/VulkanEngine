@@ -28,18 +28,16 @@ constexpr int WindowHeight = 1080;
 
 MeshData GetMesh(aiMesh* _mesh);
 MeshData ImportMesh(std::string _path);
-GLFWwindow* InitWindow(VulkanEngine& _app, InputManager& _input);
+GLFWwindow* InitWindow(VulkanEngine& _app);
 void ImportImage(std::string _path, Image& _image);
 
 int main() 
 {
     VulkanEngine app;
-    MeshData mesh = ImportMesh("Assets/barstool.gltf");
+    MeshData mesh = ImportMesh("Assets/Models/barstool.gltf");
     mesh.textures.push_back(Image());
-    ImportImage("Assets/Textures/texture.png", mesh.textures[0]);
-    InputManager input;
-	GLFWwindow* window = InitWindow(app, input);
-    
+    ImportImage("Assets/Textures/barstool_albedo.png", mesh.textures[0]);
+	GLFWwindow* window = InitWindow(app);
 
     app.InitVulkan(); 
     app.LoadMesh(mesh);
@@ -57,7 +55,7 @@ int main()
 MeshData ImportMesh(std::string _path)
 {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(_path, aiPostProcessSteps::aiProcess_OptimizeMeshes | aiPostProcessSteps::aiProcess_Triangulate | aiPostProcessSteps::aiProcess_GenUVCoords);
+    const aiScene* scene = importer.ReadFile(_path, aiPostProcessSteps::aiProcess_OptimizeMeshes | aiPostProcessSteps::aiProcess_Triangulate | aiPostProcessSteps::aiProcess_FlipUVs);
     if (scene == nullptr)
     {
         std::string errorMessage = importer.GetErrorString();
@@ -93,7 +91,7 @@ MeshData GetMesh(aiMesh* _mesh)
 
     return mesh;
 }
-GLFWwindow* InitWindow(VulkanEngine& _app, InputManager& _input)
+GLFWwindow* InitWindow(VulkanEngine& _app)
 {
     std::vector<std::pair<int, int>> hints;
     hints = { {GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_FALSE} };
@@ -107,7 +105,6 @@ GLFWwindow* InitWindow(VulkanEngine& _app, InputManager& _input)
     const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
 
     HWND winHandle = glfwGetWin32Window(window);
-    _input.Init(winHandle);
 
     ContextInfo context = {
         .name = "Vulkan Engine",
@@ -116,6 +113,6 @@ GLFWwindow* InitWindow(VulkanEngine& _app, InputManager& _input)
         .windowHandle = winHandle
     };
 
-    _app.InitContext(context, extensions, extensionCount);
+    _app.InitContext(context, extensions, extensionCount, winHandle);
     return window;
 }

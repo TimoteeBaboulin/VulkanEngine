@@ -18,6 +18,9 @@ VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer
 
 void VulkanRenderer::Init(vk::DescriptorSetLayout _uboDescriptorLayout, vk::DescriptorSetLayout _shaderDescriptorLayout)
 {
+	m_inputHandler = new CameraInputHandler(&m_cameraPos);
+	InputManager::GetInstance()->AddInputHandler(m_inputHandler);
+
 	InitSyncs();
 	CreateCommandBuffers();
 	CreateUniformBuffers();
@@ -291,7 +294,7 @@ void VulkanRenderer::UpdateUniformBuffer(void* _map)
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(m_cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.proj = glm::perspective(glm::radians(90.0f), m_extent.width / (float)m_extent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
@@ -391,4 +394,22 @@ void VulkanRenderer::CreateCommandBuffers()
 	bufferInfo.level = vk::CommandBufferLevel::ePrimary;
 
 	m_commandBuffers = VulkanEngine::LogicalDevice.allocateCommandBuffers(bufferInfo);
+}
+
+void CameraInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
+{
+	return;
+
+	m_cameraPos->x += _deltaX * 0.1f;
+	m_cameraPos->y += _deltaY * 0.1f;
+}
+
+void CameraInputHandler::HandleKeyboardInput(int _key, bool _keyDown)
+{
+	switch (_key)
+	{
+	case VK_LEFT:
+		m_cameraPos->x -= 5.0f;
+		break;
+	}
 }

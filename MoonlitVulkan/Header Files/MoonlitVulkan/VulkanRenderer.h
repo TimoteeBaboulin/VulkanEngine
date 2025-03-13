@@ -1,8 +1,19 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
+#include "InputManager.h"
 #include "common.h"
 
+class CameraInputHandler : public InputHandler
+{
+private:
+	glm::vec3* m_cameraPos;
+public:
+	CameraInputHandler(glm::vec3* _cameraPos) : m_cameraPos(_cameraPos) {}
+
+	void HandleMouseMoveInput(int _deltaX, int _deltaY) override;
+	void HandleKeyboardInput(int _key, bool _keyDown) override;
+};
 
 class VulkanRenderer
 {
@@ -17,8 +28,12 @@ public:
 
 private:
 
+	CameraInputHandler* m_inputHandler;
+
 	uint32_t m_framesInFlight = 3;
 	uint32_t m_currentFrame = 0;
+
+	glm::vec3 m_cameraPos = glm::vec3(20.0f, 30.0f, 35.0f);
 
 	//Vertex* m_vertices;
 	//uint32_t* m_indexes;

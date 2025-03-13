@@ -10,6 +10,7 @@
 #include "MoonlitVulkan/VulkanDeviceManager.h"
 #include "MoonlitVulkan/VulkanPipeline.h"
 #include "MoonlitVulkan/VulkanRenderer.h"
+#include "InputManager.h"
 
 vk::Device VulkanEngine::LogicalDevice = nullptr;
 vk::PhysicalDevice VulkanEngine::PhysicalDevice = VK_NULL_HANDLE;
@@ -49,12 +50,13 @@ void VulkanEngine::LoadMesh(MeshData& _mesh)
 //	return VK_FALSE;
 //}
 
-void VulkanEngine::InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount)
+void VulkanEngine::InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount, HWND _windowHandle)
 {
 	m_context = new VulkanContext();
 	m_context->Init(_info);
 
 	vk::ApplicationInfo appInfo = GetAppInfo();
+	InputManager::InitManager(_windowHandle);
 
 //#ifndef NDEBUG
 //	vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo;

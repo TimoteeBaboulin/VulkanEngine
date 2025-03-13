@@ -19,7 +19,7 @@ class MOONLIT_API VulkanEngine
 {
 public:
 	//void Run();
-	void InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount);
+	void InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount, HWND _windowHandle);
 	void InitVulkan();
 
 	//void MainLoop();

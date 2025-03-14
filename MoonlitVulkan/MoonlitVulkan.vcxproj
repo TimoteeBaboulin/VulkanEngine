@@ -182,8 +182,7 @@
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>xcopy /y /d /s "$(ProjectDir)Header Files" "$(SolutionDir)Libraries/Include/MoonlitVulkan"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -268,8 +267,7 @@
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>xcopy /y /d /s "$(ProjectDir)Header Files" "$(SolutionDir)Libraries/Include/MoonlitVulkan"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -320,6 +318,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\main.cpp" />
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanContext.cpp" />
@@ -330,6 +329,7 @@
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanData.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\common.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\MoonlitVulkan.h" />

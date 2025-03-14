@@ -3,6 +3,8 @@
 
 void Mesh::Load(vk::Device device, MeshData _data, vk::DescriptorSetLayout _layout, vk::DescriptorPool _pool)
 {
+	m_descriptorPool = _pool;
+
 	m_vertexCount = (MeshCountType)_data.vertexCount;
 	m_triangleCount = (MeshCountType)_data.triangleCount;
 
@@ -136,6 +138,24 @@ void Mesh::Load(vk::Device device, MeshData _data, vk::DescriptorSetLayout _layo
 	m_materials[0].UpdateSets(device, m_textureImageViews, m_textureSamplers);
 }
 
+void Mesh::CleanUp(vk::Device _device)
+{
+	for (int i = 0; i < m_textureCount; i++)
+	{
+		m_materials[i].CleanUp(_device, m_descriptorPool);
+
+		_device.destroySampler(m_textureSamplers[i]);
+		_device.destroyImageView(m_textureImageViews[i]);
+		_device.destroyImage(m_textureImages[i]);
+	}
+
+	_device.unmapMemory(m_indexMemory);
+	_device.unmapMemory(m_vertexMemory);
+
+	_device.destroyBuffer(m_indexBuffer);
+	_device.destroyBuffer(m_vertexBuffer);
+}
+
 void Mesh::BindSets(vk::CommandBuffer _buffer, vk::PipelineLayout _layout)
 {
 	m_materials[0].BindSets(_buffer, _layout);
@@ -185,4 +205,9 @@ void Material::UpdateSets(vk::Device _device, std::vector<vk::ImageView> _views,
 void Material::BindSets(vk::CommandBuffer _buffer, vk::PipelineLayout _layout)
 {
 	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _layout, 1, m_descriptorSetCount, m_descriptorSets, 0, nullptr);
+}
+
+void Material::CleanUp(vk::Device _device, vk::DescriptorPool _pool)
+{
+	_device.freeDescriptorSets(_pool, m_descriptorSetCount, m_descriptorSets);
 }

@@ -44,9 +44,12 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        if (!glfwWindowShouldClose(window))
+        {
+            app.Render();
+        }
+        
         glfwPollEvents();
-
-        app.Render();
     }
 
     return EXIT_SUCCESS;
@@ -73,8 +76,6 @@ MeshData GetMesh(aiMesh* _mesh)
     for (int i = 0; i < _mesh->mNumVertices; i++)
     {
         mesh.vertices[i] = Vertex(_mesh->mVertices[i].x, _mesh->mVertices[i].y, _mesh->mVertices[i].z);
-        //mesh.vertices[i].uvX = rand() / (float)RAND_MAX;
-        //mesh.vertices[i].uvY = rand() / (float)RAND_MAX;
         
         mesh.vertices[i].uvX = _mesh->mTextureCoords[0][i].x;
         mesh.vertices[i].uvY = _mesh->mTextureCoords[0][i].y;
@@ -113,6 +114,6 @@ GLFWwindow* InitWindow(VulkanEngine& _app)
         .windowHandle = winHandle
     };
 
-    _app.InitContext(context, extensions, extensionCount, winHandle);
+    _app.InitContext(context, extensions, extensionCount);
     return window;
 }

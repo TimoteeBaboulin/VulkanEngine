@@ -22,21 +22,34 @@ void VulkanPipeline::Init(vk::Extent2D _extent)
 	CreateFrameBuffers();
 }
 
-void VulkanPipeline::Init(vk::Extent2D _extent, MeshData& _mesh)
-{
-	Init(_extent);
-}
-
 void VulkanPipeline::Cleanup()
 {
-	for (auto imageView : m_imageViews)
+	vk::Device& device = VulkanEngine::LogicalDevice;
+
+	for (auto frameBuffer : m_frameBuffers)
 	{
-		VulkanEngine::LogicalDevice.destroyImageView(imageView);
+		device.destroyFramebuffer(frameBuffer);
 	}
 
-	VulkanEngine::LogicalDevice.destroyPipeline(m_pipeline);
-	VulkanEngine::LogicalDevice.destroyPipelineLayout(m_pipelineLayout);
-	VulkanEngine::LogicalDevice.destroyRenderPass(m_renderPass);
+	device.destroyPipeline(m_pipeline);
+	device.destroyPipeline(m_depthPipeline);
+	device.destroyPipelineLayout(m_pipelineLayout);
+
+	device.destroyDescriptorSetLayout(m_uboDescriptorLayout);
+	device.destroyDescriptorSetLayout(m_shaderDescriptorLayout);
+
+	device.destroyRenderPass(m_renderPass);
+	device.unmapMemory(m_depthMemory);
+
+	for (int i = 0; i < m_frameCount; i++)
+	{
+		device.destroyImageView(m_imageViews[i]);
+		device.destroyImageView(m_depthImageViews[i]);
+		device.destroyImage(m_images[i]);
+		device.destroyImage(m_depthImages[i]);
+	}
+
+	device.destroySwapchainKHR(m_swapChain);
 }
 
 RenderInfo VulkanPipeline::GetRenderInfo()

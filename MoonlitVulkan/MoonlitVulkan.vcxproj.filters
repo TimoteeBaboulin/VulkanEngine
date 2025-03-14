@@ -45,6 +45,9 @@
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanData.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\common.h">
@@ -79,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="Header Files\MoonlitVulkan\VulkanData.h">
       <Filter>Header Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Camera.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

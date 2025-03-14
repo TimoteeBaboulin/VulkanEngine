@@ -13,7 +13,7 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam)
 			{
 				//Called when mouse moves while holding the window
 				MSLLHOOKSTRUCT* pMouseStruct = (MSLLHOOKSTRUCT*)lParam;
-				std::wcout << L"Mouse move: " << pMouseStruct->pt.x << L", " << pMouseStruct->pt.y << std::endl;
+				//std::wcout << L"Mouse move: " << pMouseStruct->pt.x << L", " << pMouseStruct->pt.y << std::endl;
 				break;
 			}
 			case WM_NCMOUSEMOVE:
@@ -53,11 +53,30 @@ void InputManager::HandleMouseInput(INPUTEVENTTYPE _type, LPARAM _param)
 	case INPUTEVENTTYPE::MOUSEMOVE:
 	{
 		MSLLHOOKSTRUCT* pMouseStruct = (MSLLHOOKSTRUCT*)_param;
-		int deltaX = pMouseStruct->pt.x - m_mouseX;
-		int deltaY = pMouseStruct->pt.y - m_mouseY;
+		int deltaX;
+		int deltaY;
 
-		m_mouseX = pMouseStruct->pt.x;
-		m_mouseY = pMouseStruct->pt.y;
+		int x = (m_lockRect.left + m_lockRect.right) / 2;
+		int y = (m_lockRect.top + m_lockRect.bottom) / 2;
+
+		if (!m_cursorLocked)
+		{
+			deltaX = pMouseStruct->pt.x - m_mouseX;
+			deltaY = pMouseStruct->pt.y - m_mouseY;
+
+			m_mouseX = pMouseStruct->pt.x;
+			m_mouseY = pMouseStruct->pt.y;
+		}
+		else
+		{
+			deltaX = pMouseStruct->pt.x - x;
+			deltaY = pMouseStruct->pt.y - y;
+
+			m_mouseX = x;
+			m_mouseY = y;
+		}
+		
+		
 
 		if (!m_inputHandlers.empty())
 		{
@@ -67,6 +86,12 @@ void InputManager::HandleMouseInput(INPUTEVENTTYPE _type, LPARAM _param)
 			}
 		}
 
+		if (m_cursorLocked)
+		{
+			
+			SetCursorPos(x, y);
+		}
+
 		break;
 	}
 	default:
@@ -74,7 +99,7 @@ void InputManager::HandleMouseInput(INPUTEVENTTYPE _type, LPARAM _param)
 	}
 }
 
-void InputManager::HandleKeyboardInput(int _key, bool _keyDown)
+void InputManager::HandleKeyboardInput(int _key, bool _keyDown) 
 {
 	if (!m_inputHandlers.empty())
 	{
@@ -85,7 +110,7 @@ void InputManager::HandleKeyboardInput(int _key, bool _keyDown)
 	}
 }
 
-InputManager::InputManager(HWND _windowHandle)
+InputManager::InputManager(HWND _windowHandle) : m_winHandle(_windowHandle)
 {
 	SetWindowLongPtrA(_windowHandle, -4, (LONG_PTR)KeyDownSubscribeCallback);
 	SetWindowsHookA(WH_MOUSE, MouseProc);
@@ -121,4 +146,21 @@ void InputManager::RemoveInputHandler(InputHandler* _handler)
 	}
 
 	m_inputHandlers.erase(it);
+}
+
+void InputManager::LockCursor()
+{
+	if (!GetWindowRect(m_winHandle, &m_lockRect))
+	{
+		std::cout << "Couldn't lock the cursor because we couldn't get the screen rect" << std::endl;
+		return;
+	}
+	ClipCursor(&m_lockRect);
+	m_cursorLocked = true;
+}
+
+void InputManager::UnlockCursor()
+{
+	ClipCursor(nullptr);
+	m_cursorLocked = false;
 }

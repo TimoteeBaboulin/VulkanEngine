@@ -8,19 +8,21 @@
 #include "common.h"
 
 #include "MoonlitVulkan/VulkanData.h"
+#include "Camera.h"
 
 #define GLM_FORCE_RADIANS
 
 VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers) : m_extent(_extent), m_frameBuffers(_frameBuffers)
 {
+	m_cameras.push_back(new Camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 
+	m_inputHandler = new CameraInputHandler(m_cameras[0]);
+	InputManager::GetInstance()->AddInputHandler(m_inputHandler);
+	InputManager::GetInstance()->LockCursor();
 }
 
 void VulkanRenderer::Init(vk::DescriptorSetLayout _uboDescriptorLayout, vk::DescriptorSetLayout _shaderDescriptorLayout)
 {
-	m_inputHandler = new CameraInputHandler(&m_cameraPos);
-	InputManager::GetInstance()->AddInputHandler(m_inputHandler);
-
 	InitSyncs();
 	CreateCommandBuffers();
 	CreateUniformBuffers();
@@ -31,15 +33,40 @@ void VulkanRenderer::Init(vk::DescriptorSetLayout _uboDescriptorLayout, vk::Desc
 
 void VulkanRenderer::Cleanup()
 {
-	VulkanEngine::LogicalDevice.destroyCommandPool(VulkanEngine::MainCommandPool);
+	vk::Device& device = VulkanEngine::LogicalDevice;
+
+	for (int i = 0; i < m_meshes.size(); i++)
+	{
+		m_meshes[i].CleanUp(device);
+	}
+
+	device.freeCommandBuffers(VulkanEngine::MainCommandPool, m_commandBuffers);
+	device.destroyCommandPool(VulkanEngine::MainCommandPool);
+
+	for (int i = 0; i < m_uniformBuffers.size(); i++)
+	{
+		device.unmapMemory(m_uniformMemories[i]);
+		device.destroyBuffer(m_uniformBuffers[i]);
+	}
+
+	for (int i = 0; i < m_descriptorSets.size(); i++)
+	{
+		device.freeDescriptorSets(m_descriptorPools[i], (uint32_t)m_descriptorSets.size(), m_descriptorSets.data());
+	}
+
+	for (int i = 0; i < m_descriptorPools.size(); i++)
+	{
+		device.destroyDescriptorPool(m_descriptorPools[i]);
+	}
 
 	for (int i = 0; i < m_framesInFlight; i++)
 	{
-		VulkanEngine::LogicalDevice.destroySemaphore(m_imageAvailable[i]);
-		VulkanEngine::LogicalDevice.destroySemaphore(m_renderFinished[i]);
-		VulkanEngine::LogicalDevice.destroyFence(m_waitForPreviousFrame[i]);
+		device.destroySemaphore(m_imageAvailable[i]);
+		device.destroySemaphore(m_renderFinished[i]);
+		device.destroyFence(m_waitForPreviousFrame[i]);
 	}
 	
+	device.freeDescriptorSets(m_descriptorPools[0], m_descriptorSets);	
 }
 
 void VulkanRenderer::LoadMesh(MeshData& _mesh)
@@ -55,7 +82,7 @@ void VulkanRenderer::Render(vk::SwapchainKHR _swapchain, RenderInfo _renderInfo,
 	VulkanEngine::LogicalDevice.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
 	VulkanEngine::LogicalDevice.resetFences(m_waitForPreviousFrame[m_currentFrame]);
 
-	UpdateUniformBuffer(m_uniformMaps[m_currentFrame]);
+	UpdateUniformBuffer(m_uniformMaps[m_currentFrame], m_cameras[0]);
 
 	uint32_t index;
 
@@ -114,80 +141,6 @@ void VulkanRenderer::InitSyncs()
 	}
 }
 
-//void VulkanRenderer::CreateIndexBuffer()
-//{
-//	uint64_t bufferSize = sizeof(uint32_t) * m_triangleCount * 3;
-//
-//	vk::Buffer stagingBuffer;
-//	vk::DeviceMemory stagingMemory;
-//
-//	VertexBufferInfo staging = {
-//		.buffer = stagingBuffer,
-//		.memory = stagingMemory,
-//		.usage = vk::BufferUsageFlagBits::eTransferSrc,
-//		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-//		.size = bufferSize
-//	};
-//
-//	CreateBuffer(staging);
-//	void* map = VulkanEngine::LogicalDevice.mapMemory(stagingMemory, 0, bufferSize, vk::MemoryMapFlagBits::ePlacedEXT);
-//	memcpy(map, m_indexes, bufferSize);
-//	VulkanEngine::LogicalDevice.unmapMemory(stagingMemory);
-//	map = nullptr;
-//
-//	VertexBufferInfo vertexBuffer = {
-//		.buffer = m_indexBuffer,
-//		.memory = m_indexMemory,
-//		.usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-//		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
-//		.size = bufferSize
-//	};
-//
-//	CreateBuffer(vertexBuffer);
-//
-//	vhf::CopyBufferToBuffer(stagingBuffer, m_indexBuffer, bufferSize);
-//
-//	VulkanEngine::LogicalDevice.freeMemory(stagingMemory);
-//	VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
-//}
-
-//void VulkanRenderer::CreateVertexBuffers(vk::Queue _queue)
-//{
-//	uint64_t bufferSize = sizeof(Vertex) * m_vertexCount;
-//
-//	vk::Buffer stagingBuffer;
-//	vk::DeviceMemory stagingMemory;
-//
-//	VertexBufferInfo staging = {
-//		.buffer = stagingBuffer,
-//		.memory = stagingMemory,
-//		.usage = vk::BufferUsageFlagBits::eTransferSrc,
-//		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-//		.size = bufferSize
-//	};
-//
-//	CreateBuffer(staging);
-//	void* map = VulkanEngine::LogicalDevice.mapMemory(stagingMemory, 0, bufferSize, vk::MemoryMapFlagBits::ePlacedEXT);
-//	memcpy(map, m_vertices, bufferSize);
-//	VulkanEngine::LogicalDevice.unmapMemory(stagingMemory);
-//	map = nullptr;
-//
-//	VertexBufferInfo vertexBuffer = {
-//		.buffer = m_vertexBuffer,
-//		.memory = m_vertexMemory,
-//		.usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
-//		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
-//		.size = bufferSize
-//	};
-//
-//	CreateBuffer(vertexBuffer);
-//
-//	vhf::CopyBufferToBuffer(stagingBuffer, m_vertexBuffer, bufferSize, _queue);
-//
-//	VulkanEngine::LogicalDevice.freeMemory(stagingMemory);
-//	VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
-//}
-
 void VulkanRenderer::CreateUniformBuffers()
 {
 	uint64_t bufferSize = sizeof(UniformBufferObject);
@@ -241,8 +194,6 @@ void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLay
 
 	std::vector<vk::WriteDescriptorSet> writeSets;
 
-	char i = 0;
-
 	vk::DescriptorBufferInfo bufferInfo;
 	bufferInfo.buffer = m_uniformBuffers[0];
 	bufferInfo.offset = 0;
@@ -259,32 +210,10 @@ void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLay
 
 	writeSets.push_back(writeSet);
 
-	for (auto set : m_descriptorSets)
-	{
-		
-
-		/*vk::DescriptorImageInfo imageInfo{};
-		imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-		imageInfo.imageView = _textureImageView;
-		imageInfo.sampler = _sampler;
-
-		vk::WriteDescriptorSet combinedSamplerSet;
-		combinedSamplerSet.sType = vk::StructureType::eWriteDescriptorSet;
-		combinedSamplerSet.dstSet = set;
-		combinedSamplerSet.dstBinding = 1;
-		combinedSamplerSet.dstArrayElement = 0;
-		combinedSamplerSet.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-		combinedSamplerSet.descriptorCount = 1;
-		combinedSamplerSet.pImageInfo = &imageInfo;
-
-		writeSets.push_back(combinedSamplerSet);*/
-		i++;
-	}
-
 	VulkanEngine::LogicalDevice.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
 }
 
-void VulkanRenderer::UpdateUniformBuffer(void* _map)
+void VulkanRenderer::UpdateUniformBuffer(void* _map, Camera* _camera)
 {
 	UniformBufferObject ubo;
 
@@ -293,8 +222,8 @@ void VulkanRenderer::UpdateUniformBuffer(void* _map)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(m_cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = _camera->GetViewMatrix();
 	ubo.proj = glm::perspective(glm::radians(90.0f), m_extent.width / (float)m_extent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
@@ -398,10 +327,8 @@ void VulkanRenderer::CreateCommandBuffers()
 
 void CameraInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
 {
-	return;
-
-	m_cameraPos->x += _deltaX * 0.1f;
-	m_cameraPos->y += _deltaY * 0.1f;
+	m_camera->Rotate(glm::vec3(0.0f, -1.0f, 0.0f), _deltaX * 0.01f);
+	m_camera->Rotate(glm::vec3(-1.0f, 0.0f, 0.0f), _deltaY * 0.01f);
 }
 
 void CameraInputHandler::HandleKeyboardInput(int _key, bool _keyDown)
@@ -409,7 +336,13 @@ void CameraInputHandler::HandleKeyboardInput(int _key, bool _keyDown)
 	switch (_key)
 	{
 	case VK_LEFT:
-		m_cameraPos->x -= 5.0f;
+		m_camera->Translate(-m_camera->GetRightVector());
+		break;
+	case VK_ESCAPE:
+		InputManager::GetInstance()->UnlockCursor();
+		break;
+	case VK_SPACE:
+		InputManager::GetInstance()->LockCursor();
 		break;
 	}
 }

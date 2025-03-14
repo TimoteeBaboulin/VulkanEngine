@@ -50,13 +50,13 @@ void VulkanEngine::LoadMesh(MeshData& _mesh)
 //	return VK_FALSE;
 //}
 
-void VulkanEngine::InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount, HWND _windowHandle)
+void VulkanEngine::InitContext(ContextInfo& _info, const char** requiredExtensions, int extensionCount)
 {
 	m_context = new VulkanContext();
 	m_context->Init(_info);
 
 	vk::ApplicationInfo appInfo = GetAppInfo();
-	InputManager::InitManager(_windowHandle);
+	InputManager::InitManager(_info.windowHandle);
 
 //#ifndef NDEBUG
 //	vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo;
@@ -137,15 +137,6 @@ void VulkanEngine::CreateMainCommandPool()
 
 	MainCommandPool = LogicalDevice.createCommandPool(poolInfo);
 }
-
-//void VulkanEngine::MainLoop()
-//{
-//	while (!m_context->ShouldClose())
-//	{
-//		m_context->PollEvents();
-//		Render();
-//	}
-//}
 
 void VulkanEngine::Render()
 {

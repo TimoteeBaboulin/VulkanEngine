@@ -15,6 +15,7 @@ public:
 
 	void HandleMouseMoveInput(int _deltaX, int _deltaY) override;
 	void HandleKeyboardInput(int _key, bool _keyDown) override;
+	void HandleGamepadInput(WORD _key, bool _keyDown) override;
 };
 
 class VulkanRenderer

@@ -24,6 +24,7 @@ class InputHandler
 public:
 	virtual void HandleMouseMoveInput(int _deltaX, int _deltaY) = 0;
 	virtual void HandleKeyboardInput(int _key, bool _keyDown) = 0;
+	virtual void HandleGamepadInput(WORD _key, bool _keyDown) = 0;
 };
 
 class InputManager
@@ -52,6 +53,8 @@ private:
 public:
 	static InputManager* GetInstance() {return m_instance; }
 	static void InitManager(HWND _windowHandle);
+
+	void PollEvents();
 
 	void AddInputHandler(InputHandler* _handler);
 	void RemoveInputHandler(InputHandler* _handler);

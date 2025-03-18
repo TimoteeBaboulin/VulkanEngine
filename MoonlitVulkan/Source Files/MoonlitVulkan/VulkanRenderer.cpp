@@ -1,5 +1,7 @@
 #include <chrono>
 #include <random>
+#include <Windows.h>
+#include <Xinput.h>
 
 #include "MoonlitVulkan/VulkanRenderer.h"
 #include "MoonlitVulkan/VulkanHelperFunctions.h"
@@ -343,6 +345,20 @@ void CameraInputHandler::HandleKeyboardInput(int _key, bool _keyDown)
 		break;
 	case VK_SPACE:
 		InputManager::GetInstance()->LockCursor();
+		break;
+	}
+}
+
+void CameraInputHandler::HandleGamepadInput(WORD _key, bool _keyDown)
+{
+	
+
+	switch (_key)
+	{
+	case VK_PAD_DPAD_LEFT:
+		m_camera->Translate(-m_camera->GetRightVector());
+		break;
+	default:
 		break;
 	}
 }

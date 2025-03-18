@@ -44,6 +44,8 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        InputManager::GetInstance()->PollEvents();
+
         if (!glfwWindowShouldClose(window))
         {
             app.Render();

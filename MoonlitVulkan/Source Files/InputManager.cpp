@@ -140,7 +140,7 @@ void InputManager::InitManager(HWND _windowHandle)
 
 void InputManager::PollEvents()
 {
-	DWORD result;
+	DWORD result(0);
 	XINPUT_STATE state;
 	for (DWORD gamepadIndex = 0; gamepadIndex < XUSER_MAX_COUNT; gamepadIndex++)
 	{
@@ -149,7 +149,7 @@ void InputManager::PollEvents()
 			continue;
 		}
 
-		DWORD reserved;
+		DWORD reserved(0);
 		XINPUT_KEYSTROKE keystroke;
 
 		result = XInputGetKeystroke(gamepadIndex, reserved, &keystroke);
@@ -161,13 +161,13 @@ void InputManager::PollEvents()
 
 		std::wcout << keystroke.VirtualKey << std::endl;
 
-		//if (!m_inputHandlers.empty())
-		//{
-		//	for (auto& handler : m_inputHandlers)
-		//	{
-		//		handler->HandleGamepadInput(state);
-		//	}
-		//}
+		if (!m_inputHandlers.empty())
+		{
+			for (auto& handler : m_inputHandlers)
+			{
+				handler->HandleGamepadInput(keystroke.VirtualKey, keystroke.Flags & XINPUT_KEYSTROKE_KEYDOWN);
+			}
+		}
 	}
 	result = XInputGetState(0, &state);
 

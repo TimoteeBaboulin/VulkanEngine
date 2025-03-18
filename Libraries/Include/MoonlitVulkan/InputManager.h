@@ -53,6 +53,8 @@ public:
 	static InputManager* GetInstance() {return m_instance; }
 	static void InitManager(HWND _windowHandle);
 
+	void PollEvents();
+
 	void AddInputHandler(InputHandler* _handler);
 	void RemoveInputHandler(InputHandler* _handler);
 

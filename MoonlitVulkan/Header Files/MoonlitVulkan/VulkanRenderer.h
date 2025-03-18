@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
-#include "InputManager.h"
+#include "Inputs/InputManager.h"
 #include "common.h"
 
 class Camera;
@@ -14,8 +14,10 @@ public:
 	CameraInputHandler(Camera* _camera) : m_camera(_camera) {}
 
 	void HandleMouseMoveInput(int _deltaX, int _deltaY) override;
-	void HandleKeyboardInput(int _key, bool _keyDown) override;
-	void HandleGamepadInput(WORD _key, bool _keyDown) override;
+	void HandleMouseInput(MOUSE_KEY _key, bool _keyDown) override;
+	void HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown) override;
+	void HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown) override;
+	void HandleGamepadAxis(GAMEPAD_KEY _key, float _value) override;
 };
 
 class VulkanRenderer

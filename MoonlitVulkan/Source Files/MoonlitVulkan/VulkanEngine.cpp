@@ -10,7 +10,7 @@
 #include "MoonlitVulkan/VulkanDeviceManager.h"
 #include "MoonlitVulkan/VulkanPipeline.h"
 #include "MoonlitVulkan/VulkanRenderer.h"
-#include "InputManager.h"
+#include "Inputs/InputManager.h"
 
 vk::Device VulkanEngine::LogicalDevice = nullptr;
 vk::PhysicalDevice VulkanEngine::PhysicalDevice = VK_NULL_HANDLE;

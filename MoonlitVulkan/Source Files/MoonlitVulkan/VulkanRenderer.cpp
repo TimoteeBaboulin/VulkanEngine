@@ -333,30 +333,57 @@ void CameraInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
 	m_camera->Rotate(glm::vec3(-1.0f, 0.0f, 0.0f), _deltaY * 0.01f);
 }
 
-void CameraInputHandler::HandleKeyboardInput(int _key, bool _keyDown)
+void CameraInputHandler::HandleMouseInput(MOUSE_KEY _key, bool _keyDown)
+{
+}
+
+void CameraInputHandler::HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown)
 {
 	switch (_key)
 	{
-	case VK_LEFT:
+	case KEYBOARD_KEY::ARROW_LEFT:
 		m_camera->Translate(-m_camera->GetRightVector());
 		break;
-	case VK_ESCAPE:
+	case KEYBOARD_KEY::ESCAPE:
 		InputManager::GetInstance()->UnlockCursor();
 		break;
-	case VK_SPACE:
+	case KEYBOARD_KEY::SPACE:
 		InputManager::GetInstance()->LockCursor();
 		break;
 	}
 }
 
-void CameraInputHandler::HandleGamepadInput(WORD _key, bool _keyDown)
+void CameraInputHandler::HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown)
 {
 	
 
 	switch (_key)
 	{
-	case VK_PAD_DPAD_LEFT:
+	case GAMEPAD_KEY::DPAD_LEFT:
 		m_camera->Translate(-m_camera->GetRightVector());
+		break;
+	case GAMEPAD_KEY::DPAD_RIGHT:
+		m_camera->Translate(m_camera->GetRightVector());
+		break;
+	default:
+		break;
+	}
+}
+
+void CameraInputHandler::HandleGamepadAxis(GAMEPAD_KEY _key, float _value)
+{
+	switch (_key)
+	{
+	case AXIS_LEFT_X:
+
+		break;
+	case AXIS_LEFT_Y:
+		break;
+	case AXIS_RIGHT_X:
+		m_camera->Rotate(glm::vec3(0.0f, -1.0f, 0.0f), _value * 0.1f);
+		break;
+	case AXIS_RIGHT_Y:
+		m_camera->Rotate(glm::vec3(-1.0f, 0.0f, 0.0f), _value * 0.1f);
 		break;
 	default:
 		break;

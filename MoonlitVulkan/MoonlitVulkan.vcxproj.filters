@@ -39,13 +39,19 @@
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanRenderer.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\InputManager.cpp">
+    <ClCompile Include="Source Files\Inputs\InputManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanData.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Inputs\WindowsInputAbstraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Inputs\PlatformInputAbstraction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,13 +83,22 @@
     <ClInclude Include="Header Files\MoonlitVulkanExport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\InputManager.h">
+    <ClInclude Include="Header Files\Inputs\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\MoonlitVulkan\VulkanData.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Inputs\PlatformInputAbstraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Inputs\WindowsInputAbstraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Inputs\Inputs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

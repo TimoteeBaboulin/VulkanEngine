@@ -318,8 +318,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Inputs\PlatformInputAbstraction.cpp" />
+    <ClCompile Include="Source Files\Inputs\WindowsInputAbstraction.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
-    <ClCompile Include="Source Files\InputManager.cpp" />
+    <ClCompile Include="Source Files\Inputs\InputManager.cpp" />
     <ClCompile Include="Source Files\main.cpp" />
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanContext.cpp" />
     <ClCompile Include="Source Files\MoonlitVulkan\VulkanDeviceManager.cpp" />
@@ -331,7 +333,10 @@
   <ItemGroup>
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\common.h" />
-    <ClInclude Include="Header Files\InputManager.h" />
+    <ClInclude Include="Header Files\Inputs\InputManager.h" />
+    <ClInclude Include="Header Files\Inputs\Inputs.h" />
+    <ClInclude Include="Header Files\Inputs\PlatformInputAbstraction.h" />
+    <ClInclude Include="Header Files\Inputs\WindowsInputAbstraction.h" />
     <ClInclude Include="Header Files\MoonlitVulkan.h" />
     <ClInclude Include="Header Files\MoonlitVulkanExport.h" />
     <ClInclude Include="Header Files\MoonlitVulkan\VulkanContext.h" />

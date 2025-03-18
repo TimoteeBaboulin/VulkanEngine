@@ -19,7 +19,7 @@
 #include "assimp/postprocess.h"
 #include "assimp/mesh.h"
 
-#include "InputManager.h"
+#include "Inputs/InputManager.h"
 
 constexpr int WindowWidth = 1920;
 constexpr int WindowHeight = 1080;

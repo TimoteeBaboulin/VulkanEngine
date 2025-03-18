@@ -2,6 +2,7 @@
 #include <cwchar>
 #include <winuser.h>
 #include <iostream>
+#include <Xinput.h>
 
 LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -35,6 +36,11 @@ DWORD KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lP
 	case WM_KEYDOWN:
 	{
 		InputManager::m_instance->HandleKeyboardInput(wParam, true);
+		break;
+	}
+	case WM_KEYUP:
+	{
+		InputManager::m_instance->HandleKeyboardInput(wParam, false);
 		break;
 	}
 	default:
@@ -130,6 +136,42 @@ void InputManager::InitManager(HWND _windowHandle)
 			m_instance = nullptr;
 		}
 	}
+}
+
+void InputManager::PollEvents()
+{
+	DWORD result;
+	XINPUT_STATE state;
+	for (DWORD gamepadIndex = 0; gamepadIndex < XUSER_MAX_COUNT; gamepadIndex++)
+	{
+		if (result != ERROR_SUCCESS)
+		{
+			continue;
+		}
+
+		DWORD reserved;
+		XINPUT_KEYSTROKE keystroke;
+
+		result = XInputGetKeystroke(gamepadIndex, reserved, &keystroke);
+
+		if (result != ERROR_SUCCESS)
+		{
+			continue;
+		}
+
+		std::wcout << keystroke.VirtualKey << std::endl;
+
+		//if (!m_inputHandlers.empty())
+		//{
+		//	for (auto& handler : m_inputHandlers)
+		//	{
+		//		handler->HandleGamepadInput(state);
+		//	}
+		//}
+	}
+	result = XInputGetState(0, &state);
+
+	
 }
 
 void InputManager::AddInputHandler(InputHandler* _handler)

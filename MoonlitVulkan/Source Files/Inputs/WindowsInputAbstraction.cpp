@@ -86,11 +86,13 @@ std::map<int, GAMEPAD_KEY> WindowsInputAbstraction::m_gamepadKeyMap =
 	{VK_PAD_X, GAMEPAD_KEY::BUTTON_X},
 	{VK_PAD_Y, GAMEPAD_KEY::BUTTON_Y},
 	{VK_PAD_LSHOULDER, GAMEPAD_KEY::BUTTON_LB},
-	{VK_PAD_RSHOULDER, GAMEPAD_KEY::BUTTON_RB},
-	{VK_PAD_LTRIGGER, GAMEPAD_KEY::BUTTON_LT},
-	{VK_PAD_RTRIGGER, GAMEPAD_KEY::BUTTON_RT}
+	{VK_PAD_RSHOULDER, GAMEPAD_KEY::BUTTON_RB}
 };
 
+std::map<GAMEPAD_KEY, int> WindowsInputAbstraction::m_gamepadAxisReverseMap =
+{
+	{GAMEPAD_KEY::AXIS_LEFT_X, VK_LEFT}
+};
 
 LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -182,6 +184,24 @@ WindowsInputAbstraction::WindowsInputAbstraction(HWND _windowHandle) : m_windowH
 		throw new std::exception("There can only be one instance of WindowsInputAbstraction");
 	}
 	m_instance = this;
+
+	m_leftThumbAxisXDown = new bool[XUSER_MAX_COUNT];
+	m_leftThumbAxisYDown = new bool[XUSER_MAX_COUNT];
+	m_rightThumbAxisXDown = new bool[XUSER_MAX_COUNT];
+	m_rightThumbAxisYDown = new bool[XUSER_MAX_COUNT];
+}
+
+WindowsInputAbstraction::~WindowsInputAbstraction()
+{
+	delete m_leftThumbAxisXDown;
+	delete m_leftThumbAxisYDown;
+	delete m_rightThumbAxisXDown;
+	delete m_rightThumbAxisYDown;
+
+	m_leftThumbAxisXDown = nullptr;
+	m_leftThumbAxisYDown = nullptr;
+	m_rightThumbAxisXDown = nullptr;
+	m_rightThumbAxisYDown = nullptr;
 }
 
 void WindowsInputAbstraction::Init()
@@ -223,6 +243,10 @@ void WindowsInputAbstraction::PollEvents()
 		{
 			SendGamepadInput(key->second, keystroke.Flags == XINPUT_KEYSTROKE_KEYDOWN);
 		}
+		else
+		{
+
+		}
 	}
 }
 
@@ -241,4 +265,9 @@ void WindowsInputAbstraction::UnlockCursor()
 {
 	ClipCursor(nullptr);
 	m_cursorLocked = false;
+}
+
+float WindowsInputAbstraction::GetGamepadAxisNormalized(GAMEPAD_KEY _axis)
+{
+	
 }

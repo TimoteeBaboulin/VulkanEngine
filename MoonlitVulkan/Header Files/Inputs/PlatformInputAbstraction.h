@@ -10,6 +10,7 @@ protected:
 	void SendMouseMovement(float _x, float _y);
 	void SendGamepadInput(GAMEPAD_KEY _key, bool _keyDown);
 	void SendGamepadAxis(GAMEPAD_KEY _key, float _value);
+	
 
 public:
 	virtual void Init() = 0;
@@ -17,4 +18,6 @@ public:
 
 	virtual void LockCursor() = 0;
 	virtual void UnlockCursor() = 0;
+
+	virtual float GetGamepadAxisNormalized(GAMEPAD_KEY _axis) = 0;
 };

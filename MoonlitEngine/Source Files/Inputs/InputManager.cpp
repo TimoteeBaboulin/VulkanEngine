@@ -5,11 +5,7 @@
 
 
 #ifdef _WIN32
-
-#include "Inputs/WindowsInputAbstraction.h"
-#include <Windows.h>
-#include <Xinput.h>
-
+	#include "Inputs/WindowsInputAbstraction.h"
 #endif
 
 InputManager* InputManager::m_instance;

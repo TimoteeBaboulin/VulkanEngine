@@ -24,12 +24,31 @@
 constexpr int WindowWidth = 1920;
 constexpr int WindowHeight = 1080;
 
-
-
 MeshData GetMesh(aiMesh* _mesh);
 MeshData ImportMesh(std::string _path);
 GLFWwindow* InitWindow(VulkanEngine& _app);
 void ImportImage(std::string _path, Image& _image);
+
+void MousePressedCallback(MOUSE_KEY _key)
+{
+    if (_key == MOUSE_KEY::LEFT_CLICK)
+    {
+        std::cout << "Left Click" << std::endl;
+    }
+}
+
+void GamepadPressedCallback(GAMEPAD_KEY _key)
+{
+	if (_key == GAMEPAD_KEY::BUTTON_A)
+	{
+		std::cout << "A Pressed" << std::endl;
+	}
+}
+
+void GamepadAxisCallback(GAMEPAD_KEY _key, float _x, float _y)
+{
+    std::cout << "Axis value is " << _x << ", " << _y << std::endl;
+}
 
 int main() 
 {
@@ -41,6 +60,10 @@ int main()
 
     app.InitVulkan(); 
     app.LoadMesh(mesh);
+
+    InputManager::GetInstance()->SubscribeMouseEvent(KEY_STATE::PRESSED, MousePressedCallback);
+    InputManager::GetInstance()->SubscribeGamepadEvent(KEY_STATE::PRESSED, GamepadPressedCallback);
+    InputManager::GetInstance()->SubscribeGamepadAxisEvent(GamepadAxisCallback);
 
     while (!glfwWindowShouldClose(window))
     {

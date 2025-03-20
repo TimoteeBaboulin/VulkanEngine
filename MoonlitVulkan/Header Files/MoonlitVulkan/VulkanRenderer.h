@@ -17,7 +17,7 @@ public:
 	void HandleMouseInput(MOUSE_KEY _key, bool _keyDown) override;
 	void HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown) override;
 	void HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown) override;
-	void HandleGamepadAxis(GAMEPAD_KEY _key, float _value) override;
+	void HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float _y) override;
 };
 
 class VulkanRenderer

@@ -22,7 +22,17 @@ void Camera::Translate(glm::vec3 _vec)
 	ViewMatrix = glm::lookAt(Position, Position + Forward, Up);
 }
 
-glm::vec3 Camera::GetRightVector()
+glm::vec3 Camera::GetRightVector() const
 {
 	return glm::cross(Forward, Up);
+}
+
+glm::vec3 Camera::GetForwardVector() const
+{
+	return Forward;
+}
+
+glm::vec3 Camera::GetUpVector() const
+{
+	return Up;
 }

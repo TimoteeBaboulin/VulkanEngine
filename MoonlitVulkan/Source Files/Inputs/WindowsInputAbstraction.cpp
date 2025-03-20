@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <Xinput.h>
+#include <windowsx.h>
 
 #include <iostream>
 
@@ -75,33 +76,39 @@ std::map<int, KEYBOARD_KEY> WindowsInputAbstraction::m_keyMap =
 };
 std::map<int, GAMEPAD_KEY> WindowsInputAbstraction::m_gamepadKeyMap =
 {
-	{VK_PAD_DPAD_LEFT, GAMEPAD_KEY::DPAD_LEFT },
-	{VK_PAD_DPAD_RIGHT, GAMEPAD_KEY::DPAD_RIGHT },
-	{VK_PAD_DPAD_UP, GAMEPAD_KEY::DPAD_UP },
-	{VK_PAD_DPAD_DOWN, GAMEPAD_KEY::DPAD_DOWN },
-	{VK_PAD_START, GAMEPAD_KEY::BUTTON_START },
-	{VK_PAD_BACK, GAMEPAD_KEY::BUTTON_SELECT},
-	{VK_PAD_A, GAMEPAD_KEY::BUTTON_A},
-	{VK_PAD_B, GAMEPAD_KEY::BUTTON_B},
-	{VK_PAD_X, GAMEPAD_KEY::BUTTON_X},
-	{VK_PAD_Y, GAMEPAD_KEY::BUTTON_Y},
-	{VK_PAD_LSHOULDER, GAMEPAD_KEY::BUTTON_LB},
-	{VK_PAD_RSHOULDER, GAMEPAD_KEY::BUTTON_RB},
-	{VK_PAD_LTRIGGER, GAMEPAD_KEY::BUTTON_LT},
-	{VK_PAD_RTRIGGER, GAMEPAD_KEY::BUTTON_RT}
+	{VK_PAD_DPAD_LEFT		, GAMEPAD_KEY::DPAD_LEFT	},
+	{VK_PAD_DPAD_RIGHT		, GAMEPAD_KEY::DPAD_RIGHT	},
+	{VK_PAD_DPAD_UP			, GAMEPAD_KEY::DPAD_UP		},
+	{VK_PAD_DPAD_DOWN		, GAMEPAD_KEY::DPAD_DOWN	},
+	{VK_PAD_START			, GAMEPAD_KEY::BUTTON_START },
+	{VK_PAD_BACK			, GAMEPAD_KEY::BUTTON_SELECT},
+	{VK_PAD_A				, GAMEPAD_KEY::BUTTON_A		},
+	{VK_PAD_B				, GAMEPAD_KEY::BUTTON_B		},
+	{VK_PAD_X				, GAMEPAD_KEY::BUTTON_X		},
+	{VK_PAD_Y				, GAMEPAD_KEY::BUTTON_Y		},
+	{VK_PAD_LSHOULDER		, GAMEPAD_KEY::BUTTON_LB	},
+	{VK_PAD_RSHOULDER		, GAMEPAD_KEY::BUTTON_RB	},
+	{VK_PAD_LTRIGGER		, GAMEPAD_KEY::BUTTON_LT	},
+	{VK_PAD_RTRIGGER		, GAMEPAD_KEY::BUTTON_RT	},
+	{VK_PAD_LTHUMB_DOWN		, GAMEPAD_KEY::AXIS_LEFT	},
+	{VK_PAD_LTHUMB_UP		, GAMEPAD_KEY::AXIS_LEFT	},
+	{VK_PAD_LTHUMB_LEFT		, GAMEPAD_KEY::AXIS_LEFT	},
+	{VK_PAD_LTHUMB_RIGHT	, GAMEPAD_KEY::AXIS_LEFT	},
+	{VK_PAD_LTHUMB_DOWNLEFT	, GAMEPAD_KEY::AXIS_LEFT	},
+	{VK_PAD_LTHUMB_DOWNRIGHT, GAMEPAD_KEY::AXIS_LEFT	},
+	{VK_PAD_LTHUMB_UPLEFT	, GAMEPAD_KEY::AXIS_LEFT	},
+	{VK_PAD_LTHUMB_UPRIGHT	, GAMEPAD_KEY::AXIS_LEFT	},
+	{VK_PAD_RTHUMB_DOWN		, GAMEPAD_KEY::AXIS_RIGHT	},
+	{VK_PAD_RTHUMB_UP		, GAMEPAD_KEY::AXIS_RIGHT	},
+	{VK_PAD_RTHUMB_LEFT		, GAMEPAD_KEY::AXIS_RIGHT	},
+	{VK_PAD_RTHUMB_RIGHT	, GAMEPAD_KEY::AXIS_RIGHT	},
+	{VK_PAD_RTHUMB_DOWNLEFT	, GAMEPAD_KEY::AXIS_RIGHT	},
+	{VK_PAD_RTHUMB_DOWNRIGHT, GAMEPAD_KEY::AXIS_RIGHT	},
+	{VK_PAD_RTHUMB_UPLEFT	, GAMEPAD_KEY::AXIS_RIGHT	},
+	{VK_PAD_RTHUMB_UPRIGHT	, GAMEPAD_KEY::AXIS_RIGHT	},
 };
 
-
-LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam)
-{
-	if (nCode >= 0)
-	{
-		WindowsInputAbstraction::m_instance->OnMouseEvent(wParam, lParam);
-	}
-	return CallNextHookEx(NULL, nCode, wParam, lParam);
-}
-
-DWORD KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	wchar_t buffer[32];
 	switch (uMsg)
@@ -116,6 +123,33 @@ DWORD KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lP
 		WindowsInputAbstraction::m_instance->OnKeyboardInput(wParam, false);
 		break;
 	}
+	case WM_MOUSEMOVE:
+	{
+		WindowsInputAbstraction::m_instance->OnMouseMove(POINT{ GET_X_LPARAM(lParam) , GET_Y_LPARAM(lParam) });
+		break;
+	}
+	case WM_LBUTTONDOWN:
+	{
+		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::LEFT_CLICK, true);
+		break;
+	}
+	case WM_LBUTTONUP:
+	{
+		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::LEFT_CLICK, false);
+		break;
+	}
+	case WM_RBUTTONDOWN:
+	{
+		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::RIGHT_CLICK, true);
+		break;
+	}
+	case WM_RBUTTONUP:
+	{
+		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::RIGHT_CLICK, false);
+		break;
+	}
+	case WM_NCHITTEST:
+		return HTCLIENT;
 	default:
 		DefWindowProc(_handle, uMsg, wParam, lParam);
 		break;
@@ -132,47 +166,36 @@ void WindowsInputAbstraction::OnKeyboardInput(WPARAM _wParam, bool _keyDown)
 	}
 }
 
-void WindowsInputAbstraction::OnMouseEvent(WPARAM _wParam, LPARAM _lParam)
+void WindowsInputAbstraction::OnMouseMove(POINT _point)
 {
-	switch (_wParam)
+	int deltaX = 0;
+	int deltaY = 0;
+
+	ClientToScreen(m_windowHandle, &_point);
+
+	if (m_cursorLocked)
 	{
-	case WM_MOUSEMOVE:
-	case WM_NCMOUSEMOVE:
-	{
-		MSLLHOOKSTRUCT* pMouseStruct = (MSLLHOOKSTRUCT*)_lParam;
-		int deltaX;
-		int deltaY;
+		int x = (m_lockRect.left + m_lockRect.right) / 2;
+		int y = (m_lockRect.top + m_lockRect.bottom) / 2;
 
-		if (m_cursorLocked)
-		{
-			int x = (m_lockRect.left + m_lockRect.right) / 2;
-			int y = (m_lockRect.top + m_lockRect.bottom) / 2;
+		deltaX = _point.x - x;
+		deltaY = _point.y - y;
 
-			deltaX = pMouseStruct->pt.x - x;
-			deltaY = pMouseStruct->pt.y - y;
-
-			SetCursorPos(x, y);
-		}
-		else
-		{
-			if (m_mouseX != -1.f && m_mouseY != -1.f)
-			{
-				deltaX = pMouseStruct->pt.x - m_mouseX;
-				deltaY = pMouseStruct->pt.y - m_mouseY;
-			}
-		}
-
-		m_mouseX = pMouseStruct->pt.x;
-		m_mouseY = pMouseStruct->pt.y;
-
-		SendMouseMovement(deltaX, deltaY);
-
-		break;
+		SetCursorPos(x, y);
 	}
-	default:
-		break;
+	else
+	{
+		if (m_mouseX != -1.f && m_mouseY != -1.f)
+		{
+			deltaX = _point.x - m_mouseX;
+			deltaY = _point.y - m_mouseY;
+		}
 	}
 
+	m_mouseX = _point.x;
+	m_mouseY = _point.y;
+
+	SendMouseMovement(deltaX, deltaY);
 }
 
 WindowsInputAbstraction::WindowsInputAbstraction(HWND _windowHandle) : m_windowHandle(_windowHandle)
@@ -182,16 +205,17 @@ WindowsInputAbstraction::WindowsInputAbstraction(HWND _windowHandle) : m_windowH
 		throw new std::exception("There can only be one instance of WindowsInputAbstraction");
 	}
 	m_instance = this;
+	m_axisActive = new bool[3] { false, false, false };
 }
 
 void WindowsInputAbstraction::Init()
 {
-	SetWindowLongPtrA(m_windowHandle, -4, (LONG_PTR)KeyDownSubscribeCallback);
-	SetWindowsHookA(WH_MOUSE, MouseProc);
+	SetWindowLongPtrA(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)KeyDownSubscribeCallback);
 }
 
 void WindowsInputAbstraction::PollEvents()
 {
+	GetClientRect(m_windowHandle, &m_lockRect);
 	DWORD result(0);
 	XINPUT_STATE state;
 	for (DWORD gamepadIndex = 0; gamepadIndex < XUSER_MAX_COUNT; gamepadIndex++)
@@ -203,32 +227,68 @@ void WindowsInputAbstraction::PollEvents()
 			continue;
 		}
 
-		SendGamepadAxis(GAMEPAD_KEY::AXIS_LEFT_X, state.Gamepad.sThumbLX / 32767.f);
-		SendGamepadAxis(GAMEPAD_KEY::AXIS_LEFT_Y, state.Gamepad.sThumbLY / 32767.f);
-		SendGamepadAxis(GAMEPAD_KEY::AXIS_RIGHT_X, state.Gamepad.sThumbRX / 32767.f);
-		SendGamepadAxis(GAMEPAD_KEY::AXIS_RIGHT_Y, state.Gamepad.sThumbRY / 32767.f);
-
 		DWORD reserved(0);
 		XINPUT_KEYSTROKE keystroke;
 
 		result = XInputGetKeystroke(gamepadIndex, reserved, &keystroke);
 
-		if (result != ERROR_SUCCESS)
+		if (result == ERROR_SUCCESS)
 		{
-			continue;
+			auto key = m_gamepadKeyMap.find(keystroke.VirtualKey);
+			if (key != m_gamepadKeyMap.end())
+			{
+				if (key->second == GAMEPAD_KEY::AXIS_LEFT)
+				{
+					m_axisActive[0] = state.Gamepad.sThumbLX != 0 || state.Gamepad.sThumbLY != 0;
+				}
+
+				if (key->second == GAMEPAD_KEY::AXIS_RIGHT)
+				{
+					m_axisActive[1] = state.Gamepad.sThumbRX != 0 || state.Gamepad.sThumbRY != 0;
+				}
+				SendGamepadInput(key->second, keystroke.Flags == XINPUT_KEYSTROKE_KEYDOWN);
+			}
+			else
+			{
+				std::cout << "Gamepad input with code: " << keystroke.VirtualKey << std::endl;
+			}
 		}
 
-		auto key = m_gamepadKeyMap.find(keystroke.VirtualKey);
-		if (key != m_gamepadKeyMap.end())
+		if (m_axisActive[0])
 		{
-			SendGamepadInput(key->second, keystroke.Flags == XINPUT_KEYSTROKE_KEYDOWN);
+			int rawX = state.Gamepad.sThumbLX;
+			int rawY = state.Gamepad.sThumbLY;
+			if (rawX * rawX + rawY * rawY <= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE * XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+			{
+				rawX = 0;
+				rawY = 0;
+
+				m_axisActive[0] = false;
+			}
+
+			SendGamepadAxis(GAMEPAD_KEY::AXIS_LEFT, state.Gamepad.sThumbLX / 32767.f, state.Gamepad.sThumbLY / 32767.f);
+		}
+
+		if (m_axisActive[1])
+		{
+			int rawX = state.Gamepad.sThumbRX;
+			int rawY = state.Gamepad.sThumbRY;
+			if (rawX * rawX + rawY * rawY <= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE * XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+			{
+				rawX = 0;
+				rawY = 0;
+
+				m_axisActive[1] = false;
+			}
+
+			SendGamepadAxis(GAMEPAD_KEY::AXIS_RIGHT, state.Gamepad.sThumbRX / 32767.f, state.Gamepad.sThumbRY / 32767.f);
 		}
 	}
 }
 
 void WindowsInputAbstraction::LockCursor()
 {
-	if (!GetWindowRect(m_windowHandle, &m_lockRect))
+	if (!GetClientRect(m_windowHandle, &m_lockRect))
 	{
 		std::cout << "Couldn't lock the cursor because we couldn't get the screen rect" << std::endl;
 		return;

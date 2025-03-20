@@ -370,21 +370,20 @@ void CameraInputHandler::HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown)
 	}
 }
 
-void CameraInputHandler::HandleGamepadAxis(GAMEPAD_KEY _key, float _value)
+void CameraInputHandler::HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float _y)
 {
 	switch (_key)
 	{
-	case AXIS_LEFT_X:
-
+	case AXIS_RIGHT:
+		m_camera->Rotate(glm::vec3(0.0f, -1.0f, 0.0f), _x * 0.1f);
+		m_camera->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), _y * 0.1f);
 		break;
-	case AXIS_LEFT_Y:
+	case AXIS_LEFT:
+	{
+		glm::vec3 translation = m_camera->GetForwardVector() * _y + m_camera->GetRightVector() * _x;
+		m_camera->Translate(translation);
 		break;
-	case AXIS_RIGHT_X:
-		m_camera->Rotate(glm::vec3(0.0f, -1.0f, 0.0f), _value * 0.1f);
-		break;
-	case AXIS_RIGHT_Y:
-		m_camera->Rotate(glm::vec3(-1.0f, 0.0f, 0.0f), _value * 0.1f);
-		break;
+	}
 	default:
 		break;
 	}

@@ -9,7 +9,7 @@ protected:
 	void SendMouseInput(MOUSE_KEY _key, bool _keyDown);
 	void SendMouseMovement(float _x, float _y);
 	void SendGamepadInput(GAMEPAD_KEY _key, bool _keyDown);
-	void SendGamepadAxis(GAMEPAD_KEY _key, float _value);
+	void SendGamepadAxis(GAMEPAD_KEY _key, float _x, float _y);
 
 public:
 	virtual void Init() = 0;

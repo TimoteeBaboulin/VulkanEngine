@@ -21,7 +21,7 @@ void PlatformInputAbstraction::SendGamepadInput(GAMEPAD_KEY _key, bool _keyDown)
 	InputManager::m_instance->HandleGamepadInput(_key, _keyDown);
 }
 
-void PlatformInputAbstraction::SendGamepadAxis(GAMEPAD_KEY _key, float _value)
+void PlatformInputAbstraction::SendGamepadAxis(GAMEPAD_KEY _key, float _x, float _y)
 {
-	InputManager::m_instance->HandleGamepadAxis(_key, _value);
+	InputManager::m_instance->HandleGamepadAxis(_key, _x, _y);
 }

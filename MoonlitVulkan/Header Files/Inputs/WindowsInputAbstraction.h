@@ -8,7 +8,7 @@
 class WindowsInputAbstraction : public PlatformInputAbstraction
 {
 	friend LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam);
-	friend DWORD KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	friend LRESULT KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
 	static WindowsInputAbstraction* m_instance;
@@ -21,10 +21,12 @@ private:
 	float m_mouseX = -1.f;
 	float m_mouseY = -1.f;
 
+	bool* m_axisActive;
+
 	bool m_cursorLocked = false;
 
 	void OnKeyboardInput(WPARAM _wParam, bool _keyDown);
-	void OnMouseEvent(WPARAM _wParam, LPARAM _lParam);
+	void OnMouseMove(POINT _point);
 
 public:
 	WindowsInputAbstraction(HWND _windowHandle);

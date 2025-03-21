@@ -6,6 +6,8 @@
 #include "MoonlitVulkan/VulkanRenderer.h"
 #include "MoonlitVulkan/VulkanHelperFunctions.h"
 #include "MoonlitVulkan/VulkanEngine.h"
+#include "MoonlitVulkan/VulkanDeviceManager.h"
+
 #include "glm/gtc/matrix_transform.hpp"
 #include "common.h"
 
@@ -14,7 +16,7 @@
 
 #define GLM_FORCE_RADIANS
 
-VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers) : m_extent(_extent), m_frameBuffers(_frameBuffers)
+VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers) : m_extent(_extent), m_frameBuffers(_frameBuffers), m_baseMaterial(this, VulkanEngine::LogicalDevice)
 {
 	m_cameras.push_back(new Camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 
@@ -23,14 +25,28 @@ VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer
 	InputManager::GetInstance()->LockCursor();
 }
 
-void VulkanRenderer::Init(vk::DescriptorSetLayout _uboDescriptorLayout, vk::DescriptorSetLayout _shaderDescriptorLayout)
+void VulkanRenderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager)
 {
 	InitSyncs();
-	CreateCommandBuffers();
+
+	PickFormat(_deviceManager);
+	PickPresentMode(_deviceManager);
+	m_capabilities = _deviceManager->GetCapabilities();
+	_context->CreateSurfaceKHR(&m_surface);
+
+	CreateDescriptorSetLayouts();
+	CreatePipelineLayout();
 	CreateUniformBuffers();
+
 	CreateDescriptorPools();
-	CreateDescriptorSets(_uboDescriptorLayout);
-	m_shaderDescriptorLayout = _shaderDescriptorLayout;
+	CreateDescriptorSets();
+
+	CreateRenderPasses();
+
+	CreateCommandBuffers();
+	
+	
+	
 }
 
 void VulkanRenderer::Cleanup()
@@ -143,6 +159,64 @@ void VulkanRenderer::InitSyncs()
 	}
 }
 
+void VulkanRenderer::PickFormat(VulkanDeviceManager* _deviceManager)
+{
+	std::vector<vk::SurfaceFormatKHR> formats = _deviceManager->GetFormats();
+	m_format = vhf::GetFormat(formats);
+}
+
+void VulkanRenderer::PickPresentMode(VulkanDeviceManager* _deviceManager)
+{
+	std::vector<vk::PresentModeKHR> presentModes = _deviceManager->GetPresentModes();
+	m_presentMode = vhf::GetPresentMode(presentModes);
+}
+
+void VulkanRenderer::CreateDescriptorSetLayouts()
+{
+	vk::DescriptorSetLayoutBinding* bindings = new vk::DescriptorSetLayoutBinding[TEXTURE_DESCRIPTOR_COUNT];
+
+	vk::DescriptorSetLayoutBinding uboLayoutBinding;
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
+
+	vk::DescriptorSetLayoutCreateInfo createInfo;
+	createInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
+	createInfo.bindingCount = 1;
+	createInfo.pBindings = &uboLayoutBinding;
+
+	m_uboDescriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
+
+	for (int i = 0; i < TEXTURE_DESCRIPTOR_COUNT; i++)
+	{
+		vk::DescriptorSetLayoutBinding& textureLayoutBinding = bindings[i];
+		textureLayoutBinding.binding = i;
+		textureLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+		textureLayoutBinding.descriptorCount = 1;
+		textureLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+		textureLayoutBinding.pImmutableSamplers = nullptr;
+	}
+
+	createInfo.bindingCount = TEXTURE_DESCRIPTOR_COUNT;
+	createInfo.pBindings = bindings;
+
+	m_shaderDescriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
+}
+
+void VulkanRenderer::CreatePipelineLayout()
+{
+	//Layout
+	vk::DescriptorSetLayout* layouts = new vk::DescriptorSetLayout[2]{ m_uboDescriptorLayout, m_shaderDescriptorLayout };
+
+	vk::PipelineLayoutCreateInfo pipelineLayout{};
+	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
+	pipelineLayout.pSetLayouts = layouts;
+	pipelineLayout.setLayoutCount = 2;
+	m_pipelineLayout = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
+}
+
+
 void VulkanRenderer::CreateUniformBuffers()
 {
 	uint64_t bufferSize = sizeof(UniformBufferObject);
@@ -183,14 +257,14 @@ void VulkanRenderer::CreateDescriptorPools()
 	m_descriptorPools[0] = VulkanEngine::LogicalDevice.createDescriptorPool(poolInfo);
 }
 
-void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLayout)
+void VulkanRenderer::CreateDescriptorSets()
 {
 	m_descriptorSets.resize(1);
 	vk::DescriptorSetAllocateInfo allocInfo;
 	allocInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
 	allocInfo.descriptorPool = m_descriptorPools[0];
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &_descriptorLayout;
+	allocInfo.pSetLayouts = &m_uboDescriptorLayout;
 
 	m_descriptorSets = VulkanEngine::LogicalDevice.allocateDescriptorSets(allocInfo);
 
@@ -215,6 +289,168 @@ void VulkanRenderer::CreateDescriptorSets(vk::DescriptorSetLayout _descriptorLay
 	VulkanEngine::LogicalDevice.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
 }
 
+void VulkanRenderer::CreateRenderPasses()
+{
+#pragma region Color
+	vk::AttachmentDescription colorAttachment;
+	colorAttachment.format = m_format.format;
+	colorAttachment.samples = vk::SampleCountFlagBits::e1;
+	colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+	colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+	colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+	colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+	colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+	colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+
+	vk::AttachmentReference colorRef{};
+	colorRef.attachment = 1;
+
+#pragma endregion
+
+#pragma region Depth
+	colorRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+	vk::AttachmentDescription depthAttachment;
+	depthAttachment.format = vk::Format::eD32Sfloat;
+	depthAttachment.samples = vk::SampleCountFlagBits::e1;
+	depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+	depthAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+	depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eClear;
+	depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+	depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
+	depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+	vk::AttachmentReference depthRef;
+	depthRef.attachment = 0;
+	depthRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+#pragma endregion
+
+#pragma region Depth Subpass
+	vk::SubpassDescription depthSubpass;
+	depthSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	depthSubpass.colorAttachmentCount = 0;
+	depthSubpass.pDepthStencilAttachment = &depthRef;
+
+	vk::SubpassDependency depthSubDep;
+	depthSubDep.srcSubpass = vk::SubpassExternal;
+	depthSubDep.dstSubpass = 0;
+
+	depthSubDep.srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	depthSubDep.dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+
+	depthSubDep.srcAccessMask = vk::AccessFlagBits::eNone;
+	depthSubDep.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+#pragma endregion
+
+#pragma region MainSubpass
+	vk::SubpassDescription colorSubpass{};
+	colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	colorSubpass.colorAttachmentCount = 1;
+	colorSubpass.pColorAttachments = &colorRef;
+	colorSubpass.pDepthStencilAttachment = &depthRef;
+
+	vk::SubpassDependency dependency;
+	dependency.srcSubpass = 0;
+	dependency.dstSubpass = 1;
+
+	dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	dependency.srcAccessMask = vk::AccessFlagBits::eNone;
+	dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+#pragma endregion
+
+	std::vector <vk::AttachmentDescription> attachments = { depthAttachment, colorAttachment };
+	std::vector <vk::SubpassDescription> subpasses = { depthSubpass, colorSubpass };
+	std::vector <vk::SubpassDependency> dependencies = { depthSubDep, dependency };
+
+	vk::RenderPassCreateInfo renderpass{};
+	renderpass.sType = vk::StructureType::eRenderPassCreateInfo;
+	renderpass.attachmentCount = attachments.size();
+	renderpass.pAttachments = attachments.data();
+	renderpass.subpassCount = 2;
+	renderpass.pSubpasses = subpasses.data();
+	renderpass.dependencyCount = 2;
+	renderpass.pDependencies = dependencies.data();
+
+	m_mainRenderPass = VulkanEngine::LogicalDevice.createRenderPass(renderpass);
+}
+
+void VulkanRenderer::CreateCommandBuffers()
+{
+	m_commandBuffers.reserve(m_framesInFlight);
+
+	vk::CommandBufferAllocateInfo bufferInfo{};
+	bufferInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
+	bufferInfo.commandPool = VulkanEngine::MainCommandPool;
+	bufferInfo.commandBufferCount = m_framesInFlight;
+	bufferInfo.level = vk::CommandBufferLevel::ePrimary;
+
+	m_commandBuffers = VulkanEngine::LogicalDevice.allocateCommandBuffers(bufferInfo);
+}
+
+#pragma region Swapchain
+void VulkanRenderer::CreateSwapchain()
+{
+	unsigned int frameBufferCount;
+	if (m_capabilities.maxImageCount == 0 || m_capabilities.maxImageCount >= m_capabilities.minImageCount + 1)
+		frameBufferCount = m_capabilities.minImageCount + 1;
+	else
+		frameBufferCount = m_capabilities.minImageCount;
+
+	m_framesInFlight = frameBufferCount;
+
+	vk::SwapchainCreateInfoKHR createInfo{};
+	createInfo.sType = vk::StructureType::eSwapchainCreateInfoKHR;
+	createInfo.setSurface(m_surface);
+
+	createInfo.minImageCount = frameBufferCount;
+	createInfo.imageFormat = m_format.format;
+	createInfo.imageColorSpace = m_format.colorSpace;
+	createInfo.imageExtent = m_extent;
+	createInfo.imageArrayLayers = 1;
+	createInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+
+	uint32_t queueFamilyIndices[] = { VulkanEngine::FamilyIndices.graphicsFamily.value(), VulkanEngine::FamilyIndices.khrPresentFamily.value() };
+
+	if (VulkanEngine::FamilyIndices.graphicsFamily != VulkanEngine::FamilyIndices.khrPresentFamily)
+	{
+		createInfo.imageSharingMode = vk::SharingMode::eConcurrent;
+		createInfo.queueFamilyIndexCount = 2;
+		createInfo.pQueueFamilyIndices = queueFamilyIndices;
+	}
+	else
+	{
+		createInfo.imageSharingMode = vk::SharingMode::eExclusive;
+		createInfo.queueFamilyIndexCount = 0;
+		createInfo.pQueueFamilyIndices = nullptr;
+	}
+
+	createInfo.preTransform = m_capabilities.currentTransform;
+	createInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+	createInfo.presentMode = m_presentMode;
+	createInfo.clipped = VK_TRUE;
+	createInfo.oldSwapchain = nullptr;
+
+	m_extent = m_extent;
+	m_swapChain = VulkanEngine::LogicalDevice.createSwapchainKHR(createInfo);
+	m_images = VulkanEngine::LogicalDevice.getSwapchainImagesKHR(m_swapChain);
+}
+void VulkanRenderer::CreateImageViews()
+{
+	m_imageViews.resize(m_images.size());
+
+	int i = 0;
+
+	for (auto image : m_images)
+	{
+		m_imageViews[i] = vhf::CreateImageView(image, m_format.format, vk::ImageAspectFlagBits::eColor);
+		i++;
+	}
+}
+#pragma endregion
+
+
+
 void VulkanRenderer::UpdateUniformBuffer(void* _map, Camera* _camera)
 {
 	UniformBufferObject ubo;
@@ -236,7 +472,6 @@ void VulkanRenderer::BindDescriptorSets(vk::PipelineLayout& _layout, Mesh& _mesh
 {
 	
 }
-
 
 void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex, RenderInfo& _renderInfo, vk::RenderPass _renderPass)
 {
@@ -265,11 +500,6 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	renderPassInfo.clearValueCount = 2;
 	renderPassInfo.pClearValues = clearValues.data();
 
-	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.depthPipeline);
-	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _renderInfo.pipelineLayout, 0, 1, &m_descriptorSets[0], 0, nullptr);
-
-	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
-
 	vk::Viewport viewport;
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
@@ -284,6 +514,13 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	scissor.offset = vk::Offset2D{ 0,0 };
 	scissor.extent = m_extent;
 	_buffer.setScissor(0, scissor);
+
+	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.depthPipeline);
+	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _renderInfo.pipelineLayout, 0, 1, &m_descriptorSets[0], 0, nullptr);
+
+	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+
+	
 
 	for(auto& Mesh : m_meshes)
 	{
@@ -314,18 +551,6 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	_buffer.end();
 }
 
-void VulkanRenderer::CreateCommandBuffers()
-{
-	m_commandBuffers.reserve(m_framesInFlight);
-
-	vk::CommandBufferAllocateInfo bufferInfo{};
-	bufferInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
-	bufferInfo.commandPool = VulkanEngine::MainCommandPool;
-	bufferInfo.commandBufferCount = m_framesInFlight;
-	bufferInfo.level = vk::CommandBufferLevel::ePrimary;
-
-	m_commandBuffers = VulkanEngine::LogicalDevice.allocateCommandBuffers(bufferInfo);
-}
 
 void CameraInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
 {

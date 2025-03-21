@@ -11,6 +11,9 @@ public:
 	void Init(vk::Instance& _instance);
 	void Cleanup();
 
+	vk::SurfaceCapabilitiesKHR GetCapabilities() const { return m_swapChainSupportDetails.capabilities; }
+	std::vector<vk::PresentModeKHR> GetPresentModes() const { return m_swapChainSupportDetails.presentModes; }
+	std::vector<vk::SurfaceFormatKHR> GetFormats() const { return m_swapChainSupportDetails.formats; }
 	SwapChainSupportDetails GetSwapChainSupportDetails() const { return m_swapChainSupportDetails; }
 private:
 

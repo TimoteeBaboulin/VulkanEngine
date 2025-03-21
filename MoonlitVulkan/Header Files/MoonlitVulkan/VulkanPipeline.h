@@ -3,7 +3,7 @@
 #include "vulkan/vulkan.hpp"
 #include "common.h"
 
-constexpr int TEXTURE_DESCRIPTOR_COUNT = 16;
+
 
 class Mesh;
 
@@ -66,7 +66,7 @@ private:
 	void CreateImageViews();
 	void CreateDepthImage();
 	void CreateRenderPasses();
-	void CreatePipelineLayout();
+	
 	void CreateRenderPipeline();
 
 	void CreateFrameBuffers();

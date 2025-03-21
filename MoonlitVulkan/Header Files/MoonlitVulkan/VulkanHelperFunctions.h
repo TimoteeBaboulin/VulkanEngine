@@ -239,6 +239,37 @@ public:
 		VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
 		stagingMap = nullptr;
 	}
+
+	static vk::ShaderModule WrapShader(std::vector<char> _shaderBytes)
+	{
+		vk::ShaderModuleCreateInfo info{};
+		info.sType = vk::StructureType::eShaderModuleCreateInfo;
+		info.codeSize = _shaderBytes.size();
+		info.pCode = reinterpret_cast<const uint32_t*>(_shaderBytes.data());
+
+		return 	VulkanEngine::LogicalDevice.createShaderModule(info);
+	}
+
+	static vk::SurfaceFormatKHR GetFormat(std::vector<vk::SurfaceFormatKHR>& _format)
+	{
+		for (int i = 0; i < _format.size(); i++)
+		{
+			auto properties = VulkanEngine::PhysicalDevice.getFormatProperties(_format[i].format);
+			auto value = properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment;
+			if ((properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment) == vk::FormatFeatureFlagBits::eDepthStencilAttachment)
+				return _format[i];
+		}
+
+		return _format[0];
+	}
+
+	static vk::PresentModeKHR GetPresentMode(std::vector<vk::PresentModeKHR>& _modes)
+	{
+		if (std::find(_modes.begin(), _modes.end(), vk::PresentModeKHR::eMailbox) != _modes.end())
+			return vk::PresentModeKHR::eMailbox;
+
+		return vk::PresentModeKHR::eFifo;
+	}
 };
 
 typedef VulkanHelperFunctions vhf;

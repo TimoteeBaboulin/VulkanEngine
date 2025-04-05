@@ -11,12 +11,12 @@ VulkanPipeline::VulkanPipeline(VulkanPipelineInfo _info) : m_info(_info)
 void VulkanPipeline::Init(vk::Extent2D _extent)
 {
 	CreateSwapChain(_extent);
-	CreateImageViews();
+	/*CreateImageViews()*/;
 
 	CreateDepthImage();
-	CreateRenderPasses();
+	/*CreateRenderPasses();
 	CreateDescriptorSetLayout();
-	CreateRenderPipeline();
+	CreateRenderPipeline();*/
 
 	CreateFrameBuffers();
 }

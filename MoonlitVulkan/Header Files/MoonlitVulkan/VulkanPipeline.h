@@ -61,13 +61,13 @@ private:
 	vk::DescriptorSetLayout m_shaderDescriptorLayout;
 	vk::DescriptorSetLayout m_uboDescriptorLayout;
 
-	void CreateDescriptorSetLayout();
+	//void CreateDescriptorSetLayout();
 	void CreateSwapChain(vk::Extent2D _extent);
-	void CreateImageViews();
+	//void CreateImageViews();
 	void CreateDepthImage();
-	void CreateRenderPasses();
-	
-	void CreateRenderPipeline();
+	//void CreateRenderPasses();
+	//
+	//void CreateRenderPipeline();
 
 	void CreateFrameBuffers();
 

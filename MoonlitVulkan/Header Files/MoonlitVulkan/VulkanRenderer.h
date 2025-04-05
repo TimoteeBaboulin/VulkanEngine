@@ -35,14 +35,16 @@ public:
 
 	void LoadMesh(MeshData& _mesh);
 
-	void Render(vk::SwapchainKHR _swapchain, RenderInfo _renderInfo, vk::RenderPass _renderPass);
+	void Render(RenderInfo _renderInfo, vk::RenderPass _renderPass);
 
 	vk::PipelineLayout GetPipelineLayout() { return m_pipelineLayout; }
+	vk::RenderPass GetRenderPass() const { return m_mainRenderPass; }
 private:
 
 	CameraInputHandler* m_inputHandler;
 
-	Material m_baseMaterial;
+	Material* m_baseMaterial;
+	MaterialInstance* m_baseInstance;
 
 	vk::RenderPass m_mainRenderPass;
 	vk::PipelineLayout m_pipelineLayout;
@@ -62,6 +64,10 @@ private:
 	vk::SwapchainKHR m_swapChain;
 	std::vector<vk::Image> m_images;
 	std::vector<vk::ImageView> m_imageViews;
+
+	std::vector<vk::Image> m_depthImages;
+	std::vector<vk::ImageView> m_depthImageViews;
+	vk::DeviceMemory m_depthMemory;
 #pragma endregion
 
 #pragma region Buffers
@@ -104,9 +110,11 @@ private:
 #pragma region Swapchain
 	void CreateSwapchain();
 	void CreateImageViews();
+	void CreateDepthImage();
+	void CreateFrameBuffers();
 #pragma endregion
 
 	void UpdateUniformBuffer(void* _map, Camera* _camera);
 	void BindDescriptorSets(vk::PipelineLayout& _layout, Mesh& _mesh, vk::CommandBuffer& _cmdBuffer);
-	void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex, RenderInfo& _renderInfo, vk::RenderPass _renderPass);
+	void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex, RenderInfo& _renderInfo);
 };

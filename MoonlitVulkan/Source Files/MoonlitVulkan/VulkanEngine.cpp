@@ -111,7 +111,7 @@ void VulkanEngine::InitVulkan()
 	m_swapChain = m_vulkanPipeline->GetSwapChain();
 	
 	m_vulkanRenderer = new VulkanRenderer(extent, m_vulkanPipeline->GetFrameBuffers());
-	m_vulkanRenderer->Init(m_vulkanPipeline->GetDescriptorSetLayout(), m_vulkanPipeline->GetShaderDescriptorSetLayout());
+	m_vulkanRenderer->Init(m_context, m_deviceManager);
 }
 
 vk::PresentModeKHR VulkanEngine::GetPresentMode(std::vector<vk::PresentModeKHR>& _modes)
@@ -140,7 +140,7 @@ void VulkanEngine::CreateMainCommandPool()
 
 void VulkanEngine::Render()
 {
-	m_vulkanRenderer->Render(m_swapChain, m_vulkanPipeline->GetRenderInfo(), m_vulkanPipeline->GetRenderPass());
+	m_vulkanRenderer->Render(m_vulkanPipeline->GetRenderInfo(), m_vulkanPipeline->GetRenderPass());
 }
 
 void VulkanEngine::Cleanup()

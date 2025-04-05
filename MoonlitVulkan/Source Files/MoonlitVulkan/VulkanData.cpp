@@ -134,16 +134,28 @@ void Mesh::Load(vk::Device device, MeshData _data, vk::DescriptorSetLayout _layo
 		device.destroyBuffer(stagingBuffer);
 	}
 
-	m_materials.resize(1);
-	m_materials[0].AllocateSets(device, _layout, _pool, m_textureCount);
-	m_materials[0].UpdateSets(device, m_textureImageViews, m_textureSamplers);
+	//m_materials.resize(1);
+	//m_materials[0]->AllocateSets(device, _layout, _pool, m_textureCount);
+	//m_materials[0]->UpdateSets(device, m_textureImageViews, m_textureSamplers);
+}
+
+void Mesh::SetMaterials(MaterialInstance** _pInstances, size_t _instancesCount, vk::Device _device)
+{
+	m_materials.resize(_instancesCount);
+	
+	for (size_t i = 0; i < _instancesCount; i++)
+	{
+		m_materials[i] = _pInstances[i];
+		m_materials[i]->UpdateSets(_device, m_textureImageViews, m_textureSamplers);
+		
+	}
 }
 
 void Mesh::CleanUp(vk::Device _device)
 {
 	for (int i = 0; i < m_textureCount; i++)
 	{
-		m_materials[i].CleanUp(_device, m_descriptorPool);
+		m_materials[i]->CleanUp(_device, m_descriptorPool);
 
 		_device.destroySampler(m_textureSamplers[i]);
 		_device.destroyImageView(m_textureImageViews[i]);
@@ -159,22 +171,24 @@ void Mesh::CleanUp(vk::Device _device)
 
 void Mesh::BindSets(vk::CommandBuffer _buffer, vk::PipelineLayout _layout)
 {
-	m_materials[0].BindSets(_buffer, _layout);
+	m_materials[0]->BindSets(_buffer, _layout);
 }
 
 void Mesh::RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint)
 {
+	vk::DeviceSize offsets[] = { 0 };
+	
+
 	for (auto& material : m_materials)
 	{
-		material.RecordCommandBuffer(_buffer, _renderPass, _bindPoint);
-		vk::DeviceSize offsets[] = { 0 };
+		material->RecordCommandBuffer(_buffer, _renderPass, _bindPoint);
 		_buffer.bindVertexBuffers(0, m_vertexBuffer, offsets);
 		_buffer.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint32);
 		_buffer.drawIndexed(m_triangleCount * 3, 1, 0, 0, 0);
 	}
 }
 
-void MaterialInstance::AllocateSets(vk::Device _device, vk::DescriptorSetLayout _descriptorLayout, vk::DescriptorPool _descriptorPool, int _count)
+void MaterialInstance::AllocateSets(vk::Device _device, vk::DescriptorSetLayout* _pSetLayouts, vk::DescriptorPool _descriptorPool, int _count)
 {
 	m_descriptorSets = new vk::DescriptorSet[_count];
 	m_descriptorSetCount = _count;
@@ -183,7 +197,7 @@ void MaterialInstance::AllocateSets(vk::Device _device, vk::DescriptorSetLayout 
 	allocInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
 	allocInfo.descriptorPool = _descriptorPool;
 	allocInfo.descriptorSetCount = _count;
-	allocInfo.pSetLayouts = &_descriptorLayout;
+	allocInfo.pSetLayouts = _pSetLayouts;
 	
 	_device.allocateDescriptorSets(&allocInfo, m_descriptorSets);
 }
@@ -231,12 +245,13 @@ void MaterialInstance::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _rend
 	BindSets(_buffer, m_material.GetLayouts()[0]);
 }
 
-Material::Material(VulkanRenderer* _renderer, vk::Device _device)
+Material::Material(VulkanRenderer* _renderer, vk::Device _device, int _textureCount)
 {
 	m_pipelines.resize(2);
 	CreatePipelines(_renderer, _device);
 	m_layouts.resize(1);
 	m_layouts[0] = _renderer->GetPipelineLayout();
+	m_textureCount = _textureCount;
 }
 
 void Material::CreatePipelines(VulkanRenderer* _renderer, vk::Device _device)
@@ -247,24 +262,23 @@ void Material::CreatePipelines(VulkanRenderer* _renderer, vk::Device _device)
 #pragma region Stages
 	vk::PipelineShaderStageCreateInfo* shaderStages = new vk::PipelineShaderStageCreateInfo[2];
 
-	auto shaderBytes = readFile("Shaders/vert.spv");
-	vk::ShaderModule module = vhf::WrapShader(shaderBytes);
+	auto vertexShaderBytes = readFile("Shaders/vert.spv");
+	vk::ShaderModule module = vhf::WrapShader(vertexShaderBytes);
 	shaderStages[0].sType = vk::StructureType::ePipelineShaderStageCreateInfo;
 	shaderStages[0].stage = vk::ShaderStageFlagBits::eVertex;
 	shaderStages[0].module = module;
 	shaderStages[0].pName = "main";
+	
 
-	shaderBytes = readFile("Shaders/frag.spv");
-	module = vhf::WrapShader(shaderBytes);
+	auto fragmentShaderBytes = readFile("Shaders/frag.spv");
+	vk::ShaderModule fragModule = vhf::WrapShader(fragmentShaderBytes);
 	shaderStages[1].sType = vk::StructureType::ePipelineShaderStageCreateInfo;
 	shaderStages[1].stage = vk::ShaderStageFlagBits::eFragment;
-	shaderStages[1].module = module;
+	shaderStages[1].module = fragModule;
 	shaderStages[1].pName = "main";
 
 	pipelineInfo.stageCount = 2;
 	pipelineInfo.pStages = shaderStages;
-
-	_device.destroyShaderModule(module);
 #pragma endregion
 
 #pragma region Inputs
@@ -289,13 +303,14 @@ void Material::CreatePipelines(VulkanRenderer* _renderer, vk::Device _device)
 	
 	vertexAttributes[2].binding = 0;
 	vertexAttributes[2].format = vk::Format::eR32G32Sfloat;
-	vertexAttributes[0].location = 2;
-	vertexAttributes[0].offset = 24;
+	vertexAttributes[2].location = 2;
+	vertexAttributes[2].offset = 24;
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
 	vertexInputInfo.vertexBindingDescriptionCount = 1;
 	vertexInputInfo.vertexAttributeDescriptionCount = 3;
 	vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes;
+	vertexInputInfo.pVertexBindingDescriptions = vertexBinding;
 
 	pipelineInfo.pVertexInputState = &vertexInputInfo;
 #pragma endregion
@@ -396,7 +411,8 @@ void Material::CreatePipelines(VulkanRenderer* _renderer, vk::Device _device)
 #pragma region PipelineCreation
 	pipelineInfo.layout = _renderer->GetPipelineLayout();
 	pipelineInfo.subpass = 0;
-#pragma endregion
+
+	pipelineInfo.renderPass = _renderer->GetRenderPass();
 
 	m_pipelines[0] = _device.createGraphicsPipeline(nullptr, pipelineInfo).value;
 
@@ -404,6 +420,19 @@ void Material::CreatePipelines(VulkanRenderer* _renderer, vk::Device _device)
 	pipelineInfo.pDepthStencilState = &_depthStates[1];
 
 	m_pipelines[1] = _device.createGraphicsPipeline(nullptr, pipelineInfo).value;
+#pragma endregion
+
+	_device.destroyShaderModule(module);
+	_device.destroyShaderModule(fragModule);
+}
+
+MaterialInstance* Material::CreateInstance(vk::Device _device, vk::DescriptorSetLayout* _pSetLayouts, vk::DescriptorPool _pool, int _layoutCount)
+{
+	MaterialInstance* instance = new MaterialInstance(*this);
+
+	instance->AllocateSets(_device, _pSetLayouts, _pool, _layoutCount);
+
+	return instance;
 }
 
 void Material::RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint)

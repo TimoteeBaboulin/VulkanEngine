@@ -16,7 +16,7 @@
 
 #define GLM_FORCE_RADIANS
 
-VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers) : m_extent(_extent), m_frameBuffers(_frameBuffers), m_baseMaterial(this, VulkanEngine::LogicalDevice)
+VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers) : m_extent(_extent), m_frameBuffers(_frameBuffers)
 {
 	m_cameras.push_back(new Camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 
@@ -42,11 +42,15 @@ void VulkanRenderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceM
 	CreateDescriptorSets();
 
 	CreateRenderPasses();
+	CreateSwapchain();
+	CreateImageViews();
+	CreateDepthImage();
+	CreateFrameBuffers();
+
+	m_baseMaterial = new Material(this, VulkanEngine::LogicalDevice, 1);
+	m_baseInstance = m_baseMaterial->CreateInstance(VulkanEngine::LogicalDevice, &m_shaderDescriptorLayout, m_descriptorPools[0], 1);
 
 	CreateCommandBuffers();
-	
-	
-	
 }
 
 void VulkanRenderer::Cleanup()
@@ -91,10 +95,11 @@ void VulkanRenderer::LoadMesh(MeshData& _mesh)
 {
 	Mesh mesh;
 	mesh.Load(VulkanEngine::LogicalDevice, _mesh, m_shaderDescriptorLayout, m_descriptorPools[0]);
+	mesh.SetMaterials(&m_baseInstance, 1, VulkanEngine::LogicalDevice);
 	m_meshes.push_back(mesh);
 }
 
-void VulkanRenderer::Render(vk::SwapchainKHR _swapchain, RenderInfo _renderInfo, vk::RenderPass _renderPass)
+void VulkanRenderer::Render(RenderInfo _renderInfo, vk::RenderPass _renderPass)
 {
 
 	VulkanEngine::LogicalDevice.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
@@ -104,10 +109,10 @@ void VulkanRenderer::Render(vk::SwapchainKHR _swapchain, RenderInfo _renderInfo,
 
 	uint32_t index;
 
-	index = VulkanEngine::LogicalDevice.acquireNextImageKHR(_swapchain, std::numeric_limits<unsigned int>::max(), m_imageAvailable[m_currentFrame]).value;
+	index = VulkanEngine::LogicalDevice.acquireNextImageKHR(m_swapChain, std::numeric_limits<unsigned int>::max(), m_imageAvailable[m_currentFrame]).value;
 	vk::CommandBuffer& buffer = m_commandBuffers[m_currentFrame];
 	buffer.reset();
-	RecordCommandBuffer(buffer, index, _renderInfo, _renderPass);
+	RecordCommandBuffer(buffer, index, _renderInfo);
 
 	vk::Semaphore waitSemaphores[] = { m_imageAvailable[m_currentFrame]};
 	vk::Semaphore signalSemaphores[] = { m_renderFinished[m_currentFrame]};
@@ -124,7 +129,7 @@ void VulkanRenderer::Render(vk::SwapchainKHR _swapchain, RenderInfo _renderInfo,
 
 	VulkanEngine::GraphicsQueue.submit(submitInfo, m_waitForPreviousFrame[m_currentFrame]);
 
-	vk::SwapchainKHR swapChains[] = { _swapchain };
+	vk::SwapchainKHR swapChains[] = { m_swapChain };
 
 	vk::PresentInfoKHR presentInfo;
 	presentInfo.sType = vk::StructureType::ePresentInfoKHR;
@@ -447,6 +452,42 @@ void VulkanRenderer::CreateImageViews()
 		i++;
 	}
 }
+
+void VulkanRenderer::CreateDepthImage()
+{
+	vk::Format format = vk::Format::eD32Sfloat;
+	uint32_t queueFamilyIndices[] = { VulkanEngine::FamilyIndices.graphicsFamily.value(), VulkanEngine::FamilyIndices.khrPresentFamily.value() };
+
+	m_depthImages.resize(m_framesInFlight);
+	m_depthImageViews.resize(m_framesInFlight);
+
+	for (int i = 0; i < m_framesInFlight; i++)
+	{
+		vhf::CreateImage(m_extent, format, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_depthImages[i], m_depthMemory, vk::ImageLayout::eUndefined);
+		m_depthImageViews[i] = vhf::CreateImageView(m_depthImages[i], format, vk::ImageAspectFlagBits::eDepth);
+	}
+}
+
+void VulkanRenderer::CreateFrameBuffers()
+{
+	m_frameBuffers->reserve(m_imageViews.size());
+
+	for (size_t i = 0; i < m_imageViews.size(); i++)
+	{
+		//std::vector<ImageView>
+		std::vector<vk::ImageView> attachments = { m_depthImageViews[i], m_imageViews[i] };
+
+		vk::FramebufferCreateInfo createInfo{};
+		createInfo.sType = vk::StructureType::eFramebufferCreateInfo;
+		createInfo.renderPass = m_mainRenderPass;
+		createInfo.height = m_extent.height;
+		createInfo.width = m_extent.width;
+		createInfo.attachmentCount = 2;
+		createInfo.pAttachments = attachments.data();
+		createInfo.layers = 1;
+		m_frameBuffers->push_back(VulkanEngine::LogicalDevice.createFramebuffer(createInfo));
+	}
+}
 #pragma endregion
 
 
@@ -473,7 +514,7 @@ void VulkanRenderer::BindDescriptorSets(vk::PipelineLayout& _layout, Mesh& _mesh
 	
 }
 
-void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex, RenderInfo& _renderInfo, vk::RenderPass _renderPass)
+void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex, RenderInfo& _renderInfo)
 {
 	vk::CommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
@@ -493,7 +534,7 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 
 	vk::RenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
-	renderPassInfo.renderPass = _renderPass;
+	renderPassInfo.renderPass = m_mainRenderPass;
 	renderPassInfo.framebuffer = m_frameBuffers->at(m_currentFrame);
 	renderPassInfo.renderArea.offset = vk::Offset2D{ 0,0 };
 	renderPassInfo.renderArea.extent = m_extent;
@@ -515,36 +556,21 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	scissor.extent = m_extent;
 	_buffer.setScissor(0, scissor);
 
-	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.depthPipeline);
-	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _renderInfo.pipelineLayout, 0, 1, &m_descriptorSets[0], 0, nullptr);
-
+	//_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.depthPipeline);
+	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, 1, &m_descriptorSets[0], 0, nullptr);
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
-
-	
 
 	for(auto& Mesh : m_meshes)
 	{
-		vk::DeviceSize offsets[] = { 0 };
-
-		Mesh.BindSets(_buffer, _renderInfo.pipelineLayout);
-		_buffer.bindVertexBuffers(0, Mesh.m_vertexBuffer, offsets);
-		_buffer.bindIndexBuffer(Mesh.m_indexBuffer, 0, vk::IndexType::eUint32);
-		_buffer.drawIndexed(Mesh.m_triangleCount * 3, 1, 0, 0, 0);
+		Mesh.RecordCommandBuffer(_buffer, 0, vk::PipelineBindPoint::eGraphics);
 	}
 
 	_buffer.nextSubpass(vk::SubpassContents::eInline);
-	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.pipeline);
+	//_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.pipeline);
 
 	for (auto& Mesh : m_meshes)
 	{
-		vk::DeviceSize offsets[] = { 0 };
-
-		BindDescriptorSets(_renderInfo.pipelineLayout, Mesh, _buffer);
-
-		_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _renderInfo.pipelineLayout, 0, m_descriptorSets[0], nullptr);
-		_buffer.bindVertexBuffers(0, Mesh.m_vertexBuffer, offsets);
-		_buffer.bindIndexBuffer(Mesh.m_indexBuffer, 0, vk::IndexType::eUint32);
-		_buffer.drawIndexed(Mesh.m_triangleCount * 3, 1, 0, 0, 0);
+		Mesh.RecordCommandBuffer(_buffer, 1, vk::PipelineBindPoint::eGraphics);
 	}
 
 	_buffer.endRenderPass();

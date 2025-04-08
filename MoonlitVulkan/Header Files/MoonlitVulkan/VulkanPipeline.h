@@ -17,7 +17,7 @@ struct VulkanPipelineInfo
 class VulkanPipeline
 {
 public:
-	VulkanPipeline(VulkanPipelineInfo _info);
+	VulkanPipeline();
 	void Init(vk::Extent2D _extent);
 
 	void Cleanup();
@@ -30,12 +30,10 @@ public:
 	std::vector<vk::Framebuffer>* GetFrameBuffers() { return &m_frameBuffers; }
 	std::vector<vk::ImageView> GetImageViews() { return m_imageViews; }
 
-	RenderInfo GetRenderInfo();
+	//RenderInfo GetRenderInfo();
 
 	//void Load(MeshData& _mesh);
 private:
-	VulkanPipelineInfo m_info;
-
 	std::vector<Vertex> m_vertices;
 	std::vector<uint32_t> m_indices;
 
@@ -61,18 +59,11 @@ private:
 	vk::DescriptorSetLayout m_shaderDescriptorLayout;
 	vk::DescriptorSetLayout m_uboDescriptorLayout;
 
-	//void CreateDescriptorSetLayout();
-	void CreateSwapChain(vk::Extent2D _extent);
-	//void CreateImageViews();
 	void CreateDepthImage();
-	//void CreateRenderPasses();
-	//
-	//void CreateRenderPipeline();
-
 	void CreateFrameBuffers();
 
 	vk::ShaderModule WrapShader(std::vector<char> _shaderBytes);
 	vk::SurfaceFormatKHR GetFormat(std::vector<vk::SurfaceFormatKHR>& _format);
 	vk::PresentModeKHR GetPresentMode(std::vector<vk::PresentModeKHR>& _modes);
-	vk::Extent2D GetExtent(vk::SurfaceCapabilitiesKHR _capabilities);
+	//vk::Extent2D GetExtent(vk::SurfaceCapabilitiesKHR _capabilities);
 };

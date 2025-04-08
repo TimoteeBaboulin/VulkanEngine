@@ -7,8 +7,7 @@
 
 class WindowsInputAbstraction : public PlatformInputAbstraction
 {
-	friend LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam);
-	friend LRESULT KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	friend LRESULT WndProcCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
 	static WindowsInputAbstraction* m_instance;

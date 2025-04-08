@@ -10,6 +10,8 @@ protected:
 	void SendMouseMovement(float _x, float _y);
 	void SendGamepadInput(GAMEPAD_KEY _key, bool _keyDown);
 	void SendGamepadAxis(GAMEPAD_KEY _key, float _x, float _y);
+	void WindowResize(int _width, int _height);
+	void WindowClose();
 
 public:
 	virtual void Init() = 0;

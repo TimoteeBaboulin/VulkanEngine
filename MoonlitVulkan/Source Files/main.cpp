@@ -64,6 +64,12 @@ int main()
     InputManager::GetInstance()->SubscribeMouseEvent(KEY_STATE::PRESSED, MousePressedCallback);
     InputManager::GetInstance()->SubscribeGamepadEvent(KEY_STATE::PRESSED, GamepadPressedCallback);
     InputManager::GetInstance()->SubscribeGamepadAxisEvent(GamepadAxisCallback);
+	InputManager::GetInstance()->SubscribeKeyboardEvent(KEY_STATE::PRESSED, [window](KEYBOARD_KEY _key) {
+		if (_key == KEYBOARD_KEY::R)
+		{
+			glfwSetWindowSize(window, WindowWidth - 1, WindowHeight - 2);
+		}
+		});
 
     while (!glfwWindowShouldClose(window))
     {
@@ -120,7 +126,7 @@ MeshData GetMesh(aiMesh* _mesh)
 GLFWwindow* InitWindow(VulkanEngine& _app)
 {
     std::vector<std::pair<int, int>> hints;
-    hints = { {GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_FALSE} };
+    hints = { {GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_TRUE} };
     glfwInit();
     for (std::pair<int, int> pair : hints)
     {

@@ -73,7 +73,7 @@ void VulkanEngine::InitContext(ContextInfo& _info, const char** requiredExtensio
 //	m_instance.createDebugUtilsMessengerEXT(debugCreateInfo, nullptr, vk::DispatchLoaderDynamic({ *m_instance }));
 //#endif // !NDEBUG
 
-	m_context->CreateSurfaceKHR(&m_renderingSurface);
+	m_context->CreateSurfaceKHR();
 }
 
 vk::ApplicationInfo VulkanEngine::GetAppInfo()
@@ -92,7 +92,7 @@ vk::ApplicationInfo VulkanEngine::GetAppInfo()
 void VulkanEngine::InitVulkan()
 {
 	vk::Extent2D extent;
-	m_deviceManager = new VulkanDeviceManager(m_renderingSurface);
+	m_deviceManager = new VulkanDeviceManager(*m_context->GetSurface());
 	m_deviceManager->Init(m_instance);
 
 	GraphicsQueue = VulkanEngine::LogicalDevice.getQueue(FamilyIndices.graphicsFamily.value(), 0);
@@ -100,17 +100,17 @@ void VulkanEngine::InitVulkan()
 	CreateMainCommandPool();
 
 	SwapChainSupportDetails details = m_deviceManager->GetSwapChainSupportDetails();
-	VulkanPipelineInfo pipelineInfo = {
+	/*VulkanPipelineInfo pipelineInfo = {
 		.details = details,
 		.surface = m_renderingSurface
-	};
-	m_vulkanPipeline = new VulkanPipeline(pipelineInfo);
+	};*/
+	//m_vulkanPipeline = new VulkanPipeline(pipelineInfo);
 	extent = m_context->GetExtent(details.capabilities);
 
-	m_vulkanPipeline->Init(extent);
-	m_swapChain = m_vulkanPipeline->GetSwapChain();
+	//m_vulkanPipeline->Init(extent);
+	//m_swapChain = m_vulkanPipeline->GetSwapChain();
 	
-	m_vulkanRenderer = new VulkanRenderer(extent, m_vulkanPipeline->GetFrameBuffers());
+	m_vulkanRenderer = new VulkanRenderer(this, extent);
 	m_vulkanRenderer->Init(m_context, m_deviceManager);
 }
 
@@ -140,13 +140,14 @@ void VulkanEngine::CreateMainCommandPool()
 
 void VulkanEngine::Render()
 {
-	m_vulkanRenderer->Render(m_vulkanPipeline->GetRenderInfo(), m_vulkanPipeline->GetRenderPass());
+	m_vulkanRenderer->Render();
 }
 
 void VulkanEngine::Cleanup()
 {
 	VulkanEngine::LogicalDevice.destroySwapchainKHR(m_swapChain);
 	VulkanEngine::LogicalDevice.destroy();
-	m_instance.destroySurfaceKHR(m_renderingSurface);
+	//TODO: Destroy the surface in context
+	//m_instance.destroySurfaceKHR(m_renderingSurface);
 	m_instance.destroy();
 }

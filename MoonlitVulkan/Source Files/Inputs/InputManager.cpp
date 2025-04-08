@@ -304,6 +304,11 @@ void InputManager::SubscribeMouseEvent(KEY_STATE _state, MouseInputCallback _cal
 
 }
 
+void InputManager::SubscribeWindowEvent(WindowEventCallback _callback)
+{
+	m_windowEventCallbacks.push_back(_callback);
+}
+
 void InputManager::PollEvents()
 {
 	m_platformInput->PollEvents();
@@ -345,6 +350,26 @@ void InputManager::PollEvents()
 				callback(key.first);
 			}
 		}
+	}
+}
+
+void InputManager::WindowResize(int _width, int _height)
+{
+	int* size = new int[2];
+	size[0] = _width;
+	size[1] = _height;
+
+	for (auto& callback : m_windowEventCallbacks)
+	{
+		callback(WINDOW_EVENT::WINDOW_RESIZE, size);
+	}
+}
+
+void InputManager::WindowClose()
+{
+	for (auto& callback : m_windowEventCallbacks)
+	{
+		callback(WINDOW_EVENT::WINDOW_CLOSE, nullptr);
 	}
 }
 

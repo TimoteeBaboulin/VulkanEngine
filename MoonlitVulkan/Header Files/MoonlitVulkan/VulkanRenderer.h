@@ -9,6 +9,7 @@ class Camera;
 
 class VulkanContext;
 class VulkanDeviceManager;
+class VulkanEngine;
 
 constexpr int TEXTURE_DESCRIPTOR_COUNT = 16;
 
@@ -29,22 +30,23 @@ public:
 class VulkanRenderer
 {
 public:
-	VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers);
+	VulkanRenderer(VulkanEngine* _engine, vk::Extent2D _extent);
 	void Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager);
 	void Cleanup();
 
 	void LoadMesh(MeshData& _mesh);
 
-	void Render(RenderInfo _renderInfo, vk::RenderPass _renderPass);
+	void Render();
 
 	vk::PipelineLayout GetPipelineLayout() { return m_pipelineLayout; }
 	vk::RenderPass GetRenderPass() const { return m_mainRenderPass; }
 private:
+	VulkanEngine* m_engine;
 
 	CameraInputHandler* m_inputHandler;
 
-	Material* m_baseMaterial;
-	MaterialInstance* m_baseInstance;
+	Material* m_baseMaterial = nullptr;
+	MaterialInstance* m_baseInstance = nullptr;
 
 	vk::RenderPass m_mainRenderPass;
 	vk::PipelineLayout m_pipelineLayout;
@@ -53,6 +55,8 @@ private:
 	uint32_t m_currentFrame = 0;
 
 	std::vector<Camera*> m_cameras;
+
+	bool m_windowClosed = false;
 
 #pragma region SwapchainParameters
 	vk::Extent2D m_extent;
@@ -68,11 +72,13 @@ private:
 	std::vector<vk::Image> m_depthImages;
 	std::vector<vk::ImageView> m_depthImageViews;
 	vk::DeviceMemory m_depthMemory;
+
+	bool m_swapchainOutOfDate = false;
 #pragma endregion
 
 #pragma region Buffers
 	std::vector<vk::CommandBuffer> m_commandBuffers;
-	std::vector<vk::Framebuffer>* m_frameBuffers;
+	std::vector<vk::Framebuffer> m_frameBuffers;
 
 	std::vector<vk::Buffer> m_uniformBuffers;
 	std::vector<vk::DeviceMemory> m_uniformMemories;
@@ -112,9 +118,15 @@ private:
 	void CreateImageViews();
 	void CreateDepthImage();
 	void CreateFrameBuffers();
+
+	void RecreateSwapchain();
+	void CleanupSwapchain();
 #pragma endregion
 
+#pragma region Inputs
+	void HandleWindowEvents(WINDOW_EVENT _event, void* _data);
+#pragma endregion
 	void UpdateUniformBuffer(void* _map, Camera* _camera);
 	void BindDescriptorSets(vk::PipelineLayout& _layout, Mesh& _mesh, vk::CommandBuffer& _cmdBuffer);
-	void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex, RenderInfo& _renderInfo);
+	void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex);
 };

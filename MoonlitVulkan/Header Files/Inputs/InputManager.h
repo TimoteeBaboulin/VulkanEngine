@@ -17,6 +17,12 @@ public:
 	virtual void HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float _y) = 0;
 };
 
+enum struct WINDOW_EVENT : char
+{
+	WINDOW_RESIZE = 0,
+	WINDOW_CLOSE = 1
+};
+
 class PlatformInputAbstraction;
 
 typedef std::function<void(KEYBOARD_KEY)> KeyboardInputCallback;
@@ -24,7 +30,7 @@ typedef std::function<void(GAMEPAD_KEY)> GamepadInputCallback;
 typedef std::function<void(MOUSE_KEY)> MouseInputCallback;
 typedef std::function<void(GAMEPAD_KEY, float, float)> GamepadAxisInputCallback;
 typedef std::function<void(float, float)> AxisInputCallback;
-
+using WindowEventCallback = std::function<void(WINDOW_EVENT, void*)>;	
 
 class InputManager
 {
@@ -56,6 +62,7 @@ private:
 	std::map<KEYBOARD_KEY, KEY_STATE> m_keyboardKeyStates;
 	std::map<MOUSE_KEY, KEY_STATE> m_mouseKeyStates;
 	std::map<GAMEPAD_KEY, KEY_STATE> m_gamepadKeyStates;
+	std::vector<WindowEventCallback> m_windowEventCallbacks;
 
 	InputManager(void* _handle);
 
@@ -67,8 +74,11 @@ public:
 	void SubscribeGamepadEvent(KEY_STATE _state, GamepadInputCallback _callback);
 	void SubscribeGamepadAxisEvent(GamepadAxisInputCallback _callback);
 	void SubscribeMouseEvent(KEY_STATE _state, MouseInputCallback _callback);
+	void SubscribeWindowEvent(WindowEventCallback _callback);
 
 	void PollEvents();
+	void WindowResize(int _width, int _height);
+	void WindowClose();
 
 	void AddInputHandler(InputHandler* _handler);
 	void RemoveInputHandler(InputHandler* _handler);

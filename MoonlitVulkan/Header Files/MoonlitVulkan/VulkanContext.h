@@ -28,16 +28,20 @@ public:
 	void Cleanup();
 
 	vk::Instance CreateInstance(vk::ApplicationInfo _appInfo, const char** requiredExtensions, int extensionCount);
-	void CreateSurfaceKHR(vk::SurfaceKHR* _out);
+	void CreateSurfaceKHR();
 	/*bool ShouldClose() const;
 	void PollEvents() const;*/
 
+	vk::Extent2D GetSurfaceExtent(vk::PhysicalDevice physicalDevice);
 	vk::Extent2D GetExtent(vk::SurfaceCapabilitiesKHR _capabilities);
 	HWND GetWindow() const { return m_window; }
+	vk::SurfaceKHR* GetSurface() { return &m_surface; }
 
 private:
 	HWND m_window = nullptr;
 	vk::Instance m_instance;
 	vk::Extent2D m_extent;
 	std::string m_windowName;
+
+	vk::SurfaceKHR m_surface;
 };

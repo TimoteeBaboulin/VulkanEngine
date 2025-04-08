@@ -42,11 +42,10 @@ public:
 private:
 	VulkanContext* m_context = nullptr;
 	vk::Instance m_instance;
-	vk::SurfaceKHR m_renderingSurface;
 
 	VulkanDeviceManager* m_deviceManager = nullptr;
 
-	VulkanPipeline* m_vulkanPipeline = nullptr;
+	//VulkanPipeline* m_vulkanPipeline = nullptr;
 	vk::SwapchainKHR m_swapChain;
 
 	VulkanRenderer* m_vulkanRenderer = nullptr;

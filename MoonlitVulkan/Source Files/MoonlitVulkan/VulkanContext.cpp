@@ -92,14 +92,14 @@ vk::Instance VulkanContext::CreateInstance(vk::ApplicationInfo _appInfo, const c
 	return m_instance;
 }
 
-void VulkanContext::CreateSurfaceKHR(vk::SurfaceKHR* _out)
+void VulkanContext::CreateSurfaceKHR()
 {
 	vk::Win32SurfaceCreateInfoKHR surfaceCreate;
 	surfaceCreate.sType = vk::StructureType::eWin32SurfaceCreateInfoKHR;
 	surfaceCreate.hwnd = m_window;
 	surfaceCreate.hinstance = GetModuleHandle(nullptr);
 
-	*_out = m_instance.createWin32SurfaceKHR(surfaceCreate);
+	m_surface = m_instance.createWin32SurfaceKHR(surfaceCreate);
 }
 
 //bool VulkanContext::ShouldClose() const
@@ -111,6 +111,12 @@ void VulkanContext::CreateSurfaceKHR(vk::SurfaceKHR* _out)
 //{
 //	glfwPollEvents();
 //}
+
+vk::Extent2D VulkanContext::GetSurfaceExtent(vk::PhysicalDevice physicalDevice)
+{
+	vk::SurfaceCapabilitiesKHR capabilities = physicalDevice.getSurfaceCapabilitiesKHR(m_surface);
+	return GetExtent(capabilities);
+}
 
 vk::Extent2D VulkanContext::GetExtent(vk::SurfaceCapabilitiesKHR _capabilities)
 {

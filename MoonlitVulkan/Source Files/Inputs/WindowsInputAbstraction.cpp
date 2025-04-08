@@ -108,7 +108,7 @@ std::map<int, GAMEPAD_KEY> WindowsInputAbstraction::m_gamepadKeyMap =
 	{VK_PAD_RTHUMB_UPRIGHT	, GAMEPAD_KEY::AXIS_RIGHT	},
 };
 
-LRESULT KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT WndProcCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	wchar_t buffer[32];
 	switch (uMsg)
@@ -146,6 +146,12 @@ LRESULT KeyDownSubscribeCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_RBUTTONUP:
 	{
 		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::RIGHT_CLICK, false);
+		break;
+	}
+	case WM_CLOSE:
+	{
+		WindowsInputAbstraction::m_instance->WindowClose();
+		DestroyWindow(_handle);
 		break;
 	}
 	case WM_NCHITTEST:
@@ -210,7 +216,7 @@ WindowsInputAbstraction::WindowsInputAbstraction(HWND _windowHandle) : m_windowH
 
 void WindowsInputAbstraction::Init()
 {
-	SetWindowLongPtrA(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)KeyDownSubscribeCallback);
+	SetWindowLongPtrA(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)WndProcCallback);
 }
 
 void WindowsInputAbstraction::PollEvents()

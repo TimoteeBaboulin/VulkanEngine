@@ -7,6 +7,7 @@
 #include "MoonlitVulkan/VulkanHelperFunctions.h"
 #include "MoonlitVulkan/VulkanEngine.h"
 #include "MoonlitVulkan/VulkanDeviceManager.h"
+#include "MoonlitVulkan/VulkanContext.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "common.h"
@@ -16,13 +17,16 @@
 
 #define GLM_FORCE_RADIANS
 
-VulkanRenderer::VulkanRenderer(vk::Extent2D _extent, std::vector<vk::Framebuffer>* _frameBuffers) : m_extent(_extent), m_frameBuffers(_frameBuffers)
+VulkanRenderer::VulkanRenderer(VulkanEngine* _engine, vk::Extent2D _extent) : m_extent(_extent)
 {
 	m_cameras.push_back(new Camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 
 	m_inputHandler = new CameraInputHandler(m_cameras[0]);
 	InputManager::GetInstance()->AddInputHandler(m_inputHandler);
 	InputManager::GetInstance()->LockCursor();
+	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&VulkanRenderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
+	InputManager::GetInstance()->SubscribeWindowEvent(windowCallback);
+	m_engine = _engine;
 }
 
 void VulkanRenderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager)
@@ -32,7 +36,8 @@ void VulkanRenderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceM
 	PickFormat(_deviceManager);
 	PickPresentMode(_deviceManager);
 	m_capabilities = _deviceManager->GetCapabilities();
-	_context->CreateSurfaceKHR(&m_surface);
+	_context->CreateSurfaceKHR();
+	m_surface = *_context->GetSurface();
 
 	CreateDescriptorSetLayouts();
 	CreatePipelineLayout();
@@ -43,14 +48,12 @@ void VulkanRenderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceM
 
 	CreateRenderPasses();
 	CreateSwapchain();
-	CreateImageViews();
 	CreateDepthImage();
 	CreateFrameBuffers();
+	CreateCommandBuffers();
 
 	m_baseMaterial = new Material(this, VulkanEngine::LogicalDevice, 1);
 	m_baseInstance = m_baseMaterial->CreateInstance(VulkanEngine::LogicalDevice, &m_shaderDescriptorLayout, m_descriptorPools[0], 1);
-
-	CreateCommandBuffers();
 }
 
 void VulkanRenderer::Cleanup()
@@ -99,10 +102,21 @@ void VulkanRenderer::LoadMesh(MeshData& _mesh)
 	m_meshes.push_back(mesh);
 }
 
-void VulkanRenderer::Render(RenderInfo _renderInfo, vk::RenderPass _renderPass)
+void VulkanRenderer::Render()
 {
+	if (m_windowClosed)
+	{
+		return;
+	}
 
 	VulkanEngine::LogicalDevice.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
+
+	if (m_swapchainOutOfDate)
+	{
+		RecreateSwapchain();
+		m_swapchainOutOfDate = false;
+	}
+
 	VulkanEngine::LogicalDevice.resetFences(m_waitForPreviousFrame[m_currentFrame]);
 
 	UpdateUniformBuffer(m_uniformMaps[m_currentFrame], m_cameras[0]);
@@ -112,7 +126,7 @@ void VulkanRenderer::Render(RenderInfo _renderInfo, vk::RenderPass _renderPass)
 	index = VulkanEngine::LogicalDevice.acquireNextImageKHR(m_swapChain, std::numeric_limits<unsigned int>::max(), m_imageAvailable[m_currentFrame]).value;
 	vk::CommandBuffer& buffer = m_commandBuffers[m_currentFrame];
 	buffer.reset();
-	RecordCommandBuffer(buffer, index, _renderInfo);
+	RecordCommandBuffer(buffer, index);
 
 	vk::Semaphore waitSemaphores[] = { m_imageAvailable[m_currentFrame]};
 	vk::Semaphore signalSemaphores[] = { m_renderFinished[m_currentFrame]};
@@ -138,8 +152,14 @@ void VulkanRenderer::Render(RenderInfo _renderInfo, vk::RenderPass _renderPass)
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &index;
-	VulkanEngine::GraphicsQueue.presentKHR(presentInfo);
-
+	try
+	{
+		VulkanEngine::GraphicsQueue.presentKHR(presentInfo);
+	}
+	catch (vk::OutOfDateKHRError err)
+	{
+		m_swapchainOutOfDate = true;
+	}
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 }
 
@@ -439,7 +459,10 @@ void VulkanRenderer::CreateSwapchain()
 	m_extent = m_extent;
 	m_swapChain = VulkanEngine::LogicalDevice.createSwapchainKHR(createInfo);
 	m_images = VulkanEngine::LogicalDevice.getSwapchainImagesKHR(m_swapChain);
+
+	CreateImageViews();
 }
+
 void VulkanRenderer::CreateImageViews()
 {
 	m_imageViews.resize(m_images.size());
@@ -470,7 +493,7 @@ void VulkanRenderer::CreateDepthImage()
 
 void VulkanRenderer::CreateFrameBuffers()
 {
-	m_frameBuffers->reserve(m_imageViews.size());
+	m_frameBuffers.reserve(m_imageViews.size());
 
 	for (size_t i = 0; i < m_imageViews.size(); i++)
 	{
@@ -485,12 +508,62 @@ void VulkanRenderer::CreateFrameBuffers()
 		createInfo.attachmentCount = 2;
 		createInfo.pAttachments = attachments.data();
 		createInfo.layers = 1;
-		m_frameBuffers->push_back(VulkanEngine::LogicalDevice.createFramebuffer(createInfo));
+		m_frameBuffers.push_back(VulkanEngine::LogicalDevice.createFramebuffer(createInfo));
 	}
+}
+
+void VulkanRenderer::RecreateSwapchain()
+{
+	vk::PhysicalDevice& physDevice = VulkanEngine::PhysicalDevice;
+
+	CleanupSwapchain();
+
+	m_extent = m_engine->GetContext()->GetSurfaceExtent(physDevice);
+
+	CreateSwapchain();
+	CreateFrameBuffers();
+}
+
+void VulkanRenderer::CleanupSwapchain()
+{
+	vk::Device& device = VulkanEngine::LogicalDevice;
+
+	device.waitIdle();
+	for (int i = 0; i < m_framesInFlight; i++)
+	{
+		device.destroyFramebuffer(m_frameBuffers[i]);
+		device.destroyImageView(m_imageViews[i]);
+	}
+
+	device.destroySwapchainKHR(m_swapChain);
+	m_images.clear();
+	m_imageViews.clear();
+	m_frameBuffers.clear();
 }
 #pragma endregion
 
 
+
+void VulkanRenderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
+{
+	switch (_event)
+	{
+	case WINDOW_EVENT::WINDOW_RESIZE:
+	{
+		vk::Extent2D* extent = (vk::Extent2D*)_data;
+		m_extent = *extent;
+		m_swapchainOutOfDate = true;
+		break;
+	}
+	case WINDOW_EVENT::WINDOW_CLOSE:
+	{
+		m_windowClosed = true;
+		break;
+	}
+	default:
+		break;
+	}
+}
 
 void VulkanRenderer::UpdateUniformBuffer(void* _map, Camera* _camera)
 {
@@ -514,7 +587,7 @@ void VulkanRenderer::BindDescriptorSets(vk::PipelineLayout& _layout, Mesh& _mesh
 	
 }
 
-void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex, RenderInfo& _renderInfo)
+void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex)
 {
 	vk::CommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
@@ -535,7 +608,7 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	vk::RenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
 	renderPassInfo.renderPass = m_mainRenderPass;
-	renderPassInfo.framebuffer = m_frameBuffers->at(m_currentFrame);
+	renderPassInfo.framebuffer = m_frameBuffers.at(m_currentFrame);
 	renderPassInfo.renderArea.offset = vk::Offset2D{ 0,0 };
 	renderPassInfo.renderArea.extent = m_extent;
 	renderPassInfo.clearValueCount = 2;
@@ -554,9 +627,8 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	vk::Rect2D scissor;
 	scissor.offset = vk::Offset2D{ 0,0 };
 	scissor.extent = m_extent;
-	_buffer.setScissor(0, scissor);
 
-	//_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.depthPipeline);
+	_buffer.setScissor(0, scissor);
 	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, 1, &m_descriptorSets[0], 0, nullptr);
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
@@ -566,7 +638,6 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	}
 
 	_buffer.nextSubpass(vk::SubpassContents::eInline);
-	//_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _renderInfo.pipeline);
 
 	for (auto& Mesh : m_meshes)
 	{

@@ -1,0 +1,5 @@
+QMAKE_PRL_TARGET = Qt6QmlFormatd.lib
+QMAKE_PRL_CONFIG = static
+QMAKE_PRL_VERSION = 6.9.0
+QMAKE_PRL_LIBS = $$[QT_INSTALL_LIBS]/Qt6QmlDomd.lib $$[QT_INSTALL_LIBS]/Qt6QmlToolingSettingsd.lib $$[QT_INSTALL_LIBS]/Qt6QmlCompilerd.lib $$[QT_INSTALL_LIBS]/Qt6Qmld.lib $$[QT_INSTALL_LIBS]/Qt6Networkd.lib -lws2_32 -lshell32 $$[QT_INSTALL_LIBS]/Qt6QmlToolingSettingsd.lib $$[QT_INSTALL_LIBS]/Qt6Cored.lib -lmpr -luserenv
+QMAKE_PRL_LIBS_FOR_CMAKE = $$[QT_INSTALL_LIBS]/Qt6QmlDomd.lib;$$[QT_INSTALL_LIBS]/Qt6QmlToolingSettingsd.lib;$$[QT_INSTALL_LIBS]/Qt6QmlCompilerd.lib;$$[QT_INSTALL_LIBS]/Qt6Qmld.lib;$$[QT_INSTALL_LIBS]/Qt6Networkd.lib;-lws2_32;-lshell32;$$[QT_INSTALL_LIBS]/Qt6QmlToolingSettingsd.lib;$$[QT_INSTALL_LIBS]/Qt6Cored.lib;-lmpr;-luserenv

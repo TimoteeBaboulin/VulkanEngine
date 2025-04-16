@@ -1,0 +1,7 @@
+#ifndef QT_QTPROTOBUFQTGUITYPES_MODULE_H
+#define QT_QTPROTOBUFQTGUITYPES_MODULE_H
+#include <QtProtobufQtGuiTypes/QtProtobufQtGuiTypesDepends>
+#include "qtprotobufqtguitypesglobal.h"
+#include "qtprotobufqtguitypes.h"
+#include "qtprotobufqtguitypesversion.h"
+#endif

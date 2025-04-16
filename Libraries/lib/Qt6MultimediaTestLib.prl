@@ -1,0 +1,5 @@
+QMAKE_PRL_TARGET = Qt6MultimediaTestLib.lib
+QMAKE_PRL_CONFIG = static
+QMAKE_PRL_VERSION = 6.9.0
+QMAKE_PRL_LIBS = $$[QT_INSTALL_LIBS]/Qt6Multimedia.lib $$[QT_INSTALL_LIBS]/Qt6Gui.lib -ld3d11 -ldxgi -ldxguid -ld3d12 $$[QT_INSTALL_LIBS]/Qt6Network.lib -lws2_32 $$[QT_INSTALL_LIBS]/Qt6Test.lib $$[QT_INSTALL_LIBS]/Qt6Core.lib -lmpr -luserenv
+QMAKE_PRL_LIBS_FOR_CMAKE = $$[QT_INSTALL_LIBS]/Qt6Multimedia.lib;$$[QT_INSTALL_LIBS]/Qt6Gui.lib;-ld3d11;-ldxgi;-ldxguid;-ld3d12;$$[QT_INSTALL_LIBS]/Qt6Network.lib;-lws2_32;$$[QT_INSTALL_LIBS]/Qt6Test.lib;$$[QT_INSTALL_LIBS]/Qt6Core.lib;-lmpr;-luserenv

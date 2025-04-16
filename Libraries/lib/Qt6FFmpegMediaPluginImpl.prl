@@ -1,0 +1,5 @@
+QMAKE_PRL_TARGET = Qt6FFmpegMediaPluginImpl.lib
+QMAKE_PRL_CONFIG = static
+QMAKE_PRL_VERSION = 6.9.0
+QMAKE_PRL_LIBS = $$[QT_INSTALL_LIBS]/Qt6Multimedia.lib $$[QT_INSTALL_LIBS]/Qt6Gui.lib -ld3d11 -ldxgi -ldxguid -ld3d12 $$[QT_INSTALL_LIBS]/Qt6Network.lib $$[QT_INSTALL_LIBS]/Qt6Core.lib -lmpr -luserenv -lws2_32 -L"C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64" -lstrmiids -lamstrmid -ldmoguids -lUuid -lmsdmo -lOle32 -lOleAut32 -lMf -lmfuuid -lMfplat -lMfcore -lpropsys -lmfreadwrite -lDwmapi -lDxva2 -lwindowsapp -lavformat.lib -lavcodec.lib -lswresample.lib -lswscale.lib -lavutil.lib
+QMAKE_PRL_LIBS_FOR_CMAKE = $$[QT_INSTALL_LIBS]/Qt6Multimedia.lib;$$[QT_INSTALL_LIBS]/Qt6Gui.lib;-ld3d11;-ldxgi;-ldxguid;-ld3d12;$$[QT_INSTALL_LIBS]/Qt6Network.lib;$$[QT_INSTALL_LIBS]/Qt6Core.lib;-lmpr;-luserenv;-lws2_32;-L"C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64";-lstrmiids;-lamstrmid;-ldmoguids;-lUuid;-lmsdmo;-lOle32;-lOleAut32;-lMf;-lmfuuid;-lMfplat;-lMfcore;-lpropsys;-lmfreadwrite;-lDwmapi;-lDxva2;-lwindowsapp;-lavformat.lib;-lavcodec.lib;-lswresample.lib;-lswscale.lib;-lavutil.lib

@@ -1,0 +1,7 @@
+#ifndef QT_QTPROTOBUFWELLKNOWNTYPES_MODULE_H
+#define QT_QTPROTOBUFWELLKNOWNTYPES_MODULE_H
+#include <QtProtobufWellKnownTypes/QtProtobufWellKnownTypesDepends>
+#include "qtprotobufwellknowntypesglobal.h"
+#include "qprotobufanysupport.h"
+#include "qtprotobufwellknowntypesversion.h"
+#endif

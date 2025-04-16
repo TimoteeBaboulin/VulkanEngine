@@ -1,0 +1,5 @@
+#ifndef QT_QTFFMPEGMEDIAPLUGINIMPL_MODULE_H
+#define QT_QTFFMPEGMEDIAPLUGINIMPL_MODULE_H
+#include <QtFFmpegMediaPluginImpl/QtFFmpegMediaPluginImplDepends>
+#include "qtffmpegmediapluginimplversion.h"
+#endif

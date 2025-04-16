@@ -1,44 +1,36 @@
-#define GLFW_EXPOSE_NATIVE_WIN32
-#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 
-#include "Renderer/ContextManager.h"
-#include "Renderer/VulkanEngine.h"
-#include "GLFW/glfw3.h"
-#include "GLFW/glfw3native.h"
+#include "MoonlitVulkan/MoonlitVulkan.h"
 
+#include <QtCore/qapplicationstatic.h>
+#include <QtWidgets/qwidget.h>
+#include <QtWidgets/qapplication.h>
+#include <QtCore/qtimer.h>
 
+#include "MoonlitEngine.h"
 
 constexpr int WindowWidth = 1920;
 constexpr int WindowHeight = 1080;
 
-void falsemain()
+
+
+
+void main(int argc, char** argv)
 {
-	VulkanEngine engine;
-    std::vector<std::pair<int, int>> hints;
-    hints = { {GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_FALSE} };
-    glfwInit();
-    for (std::pair<int, int> pair : hints)
-    {
-        glfwWindowHint(pair.first, pair.second);
-    }
-    GLFWwindow* window = glfwCreateWindow(WindowWidth, WindowHeight, "Vulkan Engine", nullptr, nullptr);;
-    unsigned int extensionCount;
-    const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
+	MoonlitEngine engine;
+    QApplication* application = new QApplication(argc, argv);
+    QWidget* window = new QWidget();
+	window->resize(WindowWidth, WindowHeight);
+    window->show();
+    HWND winHandle = (HWND)window->effectiveWinId();
+    QTimer* timer = new QTimer(0);
+    timer->setSingleShot(false);
+    timer->moveToThread(application->thread());
 
-    ContextInfo context = {
-        .name = "Vulkan Engine",
-        .width = WindowWidth,
-        .height = WindowHeight,
-        .windowHandle = glfwGetWin32Window(window)
-    };
+	engine.SetWindowHandle(winHandle);
+	engine.Init(WindowWidth, WindowHeight, "Vulkan Engine");
+    engine.ConnectToQTimer(timer);
+    timer->start();
 
-    engine.InitContext(context, extensions, extensionCount);
-    engine.InitVulkan();
-
-    while (!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
-
-        engine.Render();
-    }
+    application->exec();
 }

@@ -121,7 +121,10 @@ static std::vector<char> readFile(const char* _filename)
 	stream.open(_filename, std::ios::ate | std::ios::binary);
 
 	if (!stream.is_open())
+	{
 		std::cout << "fuck" << std::endl;
+		return buffer;
+	}
 
 	buffer.resize((size_t)stream.tellg());
 	stream.seekg(0);

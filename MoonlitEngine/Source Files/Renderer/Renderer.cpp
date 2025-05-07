@@ -11,6 +11,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "common.h"
+#include "Mesh.h"
 
 #include "Renderer/VulkanData.h"
 #include "Camera.h"

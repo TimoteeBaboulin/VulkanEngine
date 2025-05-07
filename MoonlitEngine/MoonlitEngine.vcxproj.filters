@@ -25,6 +25,12 @@
     <Filter Include="Resources\Shaders">
       <UniqueIdentifier>{cc6aafa3-534b-4cbc-8784-a7a38d982602}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\ObjectBehaviours">
+      <UniqueIdentifier>{7a502c86-0e3e-4bd0-b589-d7bac85035f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\ObjectBehaviours">
+      <UniqueIdentifier>{b5d00d74-1de0-4e98-ac8e-9bd1ff2e9f0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="falsemain.cpp">
@@ -66,10 +72,40 @@
     <ClCompile Include="MoonlitEngine.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectComponent.cpp">
+      <Filter>Fichiers sources\ObjectBehaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectTransform.cpp">
+      <Filter>Fichiers sources\ObjectBehaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectTest.cpp">
+      <Filter>Fichiers sources\ObjectBehaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshRenderer.cpp">
+      <Filter>Fichiers sources\ObjectBehaviours</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MoonlitEngine.h">
       <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectBehaviour.h">
+      <Filter>Fichiers d%27en-tête\ObjectBehaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectTransform.h">
+      <Filter>Fichiers d%27en-tête\ObjectBehaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectTest.h">
+      <Filter>Fichiers d%27en-tête\ObjectBehaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshRenderer.h">
+      <Filter>Fichiers d%27en-tête\ObjectBehaviours</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

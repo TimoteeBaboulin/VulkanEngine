@@ -4,9 +4,10 @@
 #include <windows.h>
 #include "MoonlitVulkan/MoonlitVulkan.h"
 
+class GameObject;
+
 class MoonlitEngine : public QObject
 {
-	
 public:
 	MoonlitEngine();
 	~MoonlitEngine();
@@ -22,4 +23,6 @@ public:
 private:
 	HWND m_windowHandle;
 	VulkanEngine m_engine;
+
+	std::vector<GameObject> m_gameObjects;
 };

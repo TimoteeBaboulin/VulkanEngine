@@ -2,8 +2,8 @@
 #include <string>
 
 #include "vulkan/vulkan.hpp"
-#include "MoonlitVulkan/VulkanDeviceManager.h"
-#include "MoonlitVulkan/VulkanEngine.h"
+#include "Renderer/VulkanDeviceManager.h"
+#include "Renderer/VulkanEngine.h"
 
 VulkanDeviceManager::VulkanDeviceManager(vk::SurfaceKHR& _surface) : m_surface(_surface)
 {

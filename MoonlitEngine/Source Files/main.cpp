@@ -13,13 +13,14 @@
 #include <GLFW/glfw3native.h>
 
 #include <iostream>
-#include "MoonlitVulkan.h"
+#include "Inputs/InputManager.h"
 #include "assimp/scene.h"
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/mesh.h"
 
-#include "Inputs/InputManager.h"
+#include "Renderer/VulkanEngine.h"
+#include "Renderer/ContextManager.h"
 
 constexpr int WindowWidth = 1920;
 constexpr int WindowHeight = 1080;

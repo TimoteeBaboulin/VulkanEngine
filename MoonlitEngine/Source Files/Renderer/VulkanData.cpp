@@ -1,6 +1,6 @@
-#include "MoonlitVulkan/VulkanData.h"
-#include "MoonlitVulkan/VulkanHelperFunctions.h"
-#include "MoonlitVulkan/VulkanRenderer.h"
+#include "Renderer/VulkanData.h"
+#include "Renderer/VulkanHelperFunctions.h"
+#include "Renderer/Renderer.h"
 
 void Mesh::Load(vk::Device device, MeshData _data, vk::DescriptorSetLayout _layout, vk::DescriptorPool _pool)
 {

@@ -1,8 +1,8 @@
-#include "MoonlitVulkan/VulkanPipeline.h"
-#include "MoonlitVulkan/VulkanEngine.h"
-#include "MoonlitVulkan/VulkanHelperFunctions.h"
+#include "Renderer/VulkanPipeline.h"
+#include "Renderer/VulkanEngine.h"
+#include "Renderer/VulkanHelperFunctions.h"
 
-#include "MoonlitVulkan/VulkanData.h"
+#include "Renderer/VulkanData.h"
 
 VulkanPipeline::VulkanPipeline()
 {

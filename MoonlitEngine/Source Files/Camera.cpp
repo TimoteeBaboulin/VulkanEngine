@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "Inputs/InputManager.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/rotate_vector.hpp"

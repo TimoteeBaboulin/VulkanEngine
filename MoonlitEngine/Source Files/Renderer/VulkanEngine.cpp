@@ -1,4 +1,4 @@
-#include "MoonlitVulkan/VulkanEngine.h"
+#include "Renderer/VulkanEngine.h"
 
 #include <stdexcept>
 #include <vector>
@@ -6,10 +6,10 @@
 #include <iostream>
 #include <fstream>
 
-#include "MoonlitVulkan/VulkanContext.h"
-#include "MoonlitVulkan/VulkanDeviceManager.h"
-#include "MoonlitVulkan/VulkanPipeline.h"
-#include "MoonlitVulkan/VulkanRenderer.h"
+#include "Renderer/ContextManager.h"
+#include "Renderer/VulkanDeviceManager.h"
+#include "Renderer/VulkanPipeline.h"
+#include "Renderer/Renderer.h"
 #include "Inputs/InputManager.h"
 
 vk::Device VulkanEngine::LogicalDevice = nullptr;

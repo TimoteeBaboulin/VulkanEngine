@@ -3,16 +3,16 @@
 #include <Windows.h>
 #include <Xinput.h>
 
-#include "MoonlitVulkan/VulkanRenderer.h"
-#include "MoonlitVulkan/VulkanHelperFunctions.h"
-#include "MoonlitVulkan/VulkanEngine.h"
-#include "MoonlitVulkan/VulkanDeviceManager.h"
-#include "MoonlitVulkan/VulkanContext.h"
+#include "Renderer/Renderer.h"
+#include "Renderer/VulkanHelperFunctions.h"
+#include "Renderer/VulkanEngine.h"
+#include "Renderer/VulkanDeviceManager.h"
+#include "Renderer/ContextManager.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "common.h"
 
-#include "MoonlitVulkan/VulkanData.h"
+#include "Renderer/VulkanData.h"
 #include "Camera.h"
 
 #define GLM_FORCE_RADIANS

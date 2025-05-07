@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.296.0\Include;$(SolutionDir)Libraries/Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.309.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -146,7 +146,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.296.0\Include;$(SolutionDir)Libraries/Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.309.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -164,7 +164,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.296.0\Include;$(SolutionDir)Libraries/Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.309.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -184,7 +184,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.296.0\Include;$(SolutionDir)Libraries/Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.309.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -202,7 +202,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.296.0\Include;$(SolutionDir)Libraries/Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.309.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -218,7 +218,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.296.0\Include;$(SolutionDir)Libraries/Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.309.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -236,7 +236,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.296.0\Include;$(SolutionDir)Libraries/Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.309.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -256,7 +256,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.296.0\Include;$(SolutionDir)Libraries/Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.309.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -270,6 +270,40 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source Files\Camera.cpp" />
+    <ClCompile Include="Source Files\Inputs\InputManager.cpp" />
+    <ClCompile Include="Source Files\Inputs\PlatformInputAbstraction.cpp" />
+    <ClCompile Include="Source Files\Inputs\WindowsInputAbstraction.cpp" />
+    <ClCompile Include="Source Files\main.cpp" />
+    <ClCompile Include="Source Files\Renderer\ContextManager.cpp" />
+    <ClCompile Include="Source Files\Renderer\VulkanData.cpp" />
+    <ClCompile Include="Source Files\Renderer\VulkanDeviceManager.cpp" />
+    <ClCompile Include="Source Files\Renderer\VulkanEngine.cpp" />
+    <ClCompile Include="Source Files\Renderer\VulkanPipeline.cpp" />
+    <ClCompile Include="Source Files\Renderer\Renderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Header Files\Camera.h" />
+    <ClInclude Include="Header Files\common.h" />
+    <ClInclude Include="Header Files\Inputs\InputManager.h" />
+    <ClInclude Include="Header Files\Inputs\Inputs.h" />
+    <ClInclude Include="Header Files\Inputs\PlatformInputAbstraction.h" />
+    <ClInclude Include="Header Files\Inputs\WindowsInputAbstraction.h" />
+    <ClInclude Include="Header Files\MoonlitVulkan.h" />
+    <ClInclude Include="Header Files\MoonlitVulkanExport.h" />
+    <ClInclude Include="Header Files\Renderer\ContextManager.h" />
+    <ClInclude Include="Header Files\Renderer\VulkanData.h" />
+    <ClInclude Include="Header Files\Renderer\VulkanDeviceManager.h" />
+    <ClInclude Include="Header Files\Renderer\VulkanEngine.h" />
+    <ClInclude Include="Header Files\Renderer\VulkanHelperFunctions.h" />
+    <ClInclude Include="Header Files\Renderer\VulkanPipeline.h" />
+    <ClInclude Include="Header Files\Renderer\Renderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\frag.spv" />
+    <None Include="Resources\Shaders\shader.frag" />
+    <None Include="Resources\Shaders\shader.vert" />
+    <None Include="Resources\Shaders\vert.spv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

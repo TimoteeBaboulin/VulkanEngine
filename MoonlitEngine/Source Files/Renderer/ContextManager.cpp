@@ -1,5 +1,5 @@
-#include "MoonlitVulkan/VulkanContext.h"
-#include "MoonlitVulkan/VulkanEngine.h"
+#include "Renderer/ContextManager.h"
+#include "Renderer/VulkanEngine.h"
 
 #ifdef NDEBUG
 bool VulkanContext::ValidationLayersEnabled = false;

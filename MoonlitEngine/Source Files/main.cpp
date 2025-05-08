@@ -7,6 +7,8 @@
 #define WIN32_LEAN_AND_MEAN
 #define STB_IMAGE_IMPLEMENTATION
 
+#define NOMINMAX
+
 #include <vulkan/vulkan.hpp>
 
 #include <GLFW/glfw3.h>
@@ -54,9 +56,9 @@ void GamepadAxisCallback(GAMEPAD_KEY _key, float _x, float _y)
 int main() 
 {
     VulkanEngine app;
-    MeshData mesh = ImportMesh("Assets/Models/barstool.gltf");
+    MeshData mesh = ImportMesh("Meshes/barstool.gltf");
     mesh.textures.push_back(Image());
-    ImportImage("Assets/Textures/barstool_albedo.png", mesh.textures[0]);
+    ImportImage("Textures/barstool_albedo.png", mesh.textures[0]);
 	GLFWwindow* window = InitWindow(app);
 
     app.InitVulkan(); 

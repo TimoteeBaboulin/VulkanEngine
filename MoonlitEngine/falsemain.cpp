@@ -1,6 +1,8 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
+#define NOMINMAX
 
-#include "Renderer/MoonlitVulkan.h"
+#include "Renderer/ContextManager.h"
+#include "Renderer/VulkanEngine.h"
 #include "GLFW/glfw3.h"
 #include "GLFW/glfw3native.h"
 
@@ -9,7 +11,7 @@
 constexpr int WindowWidth = 1920;
 constexpr int WindowHeight = 1080;
 
-void main()
+void falsemain()
 {
 	VulkanEngine engine;
     std::vector<std::pair<int, int>> hints;

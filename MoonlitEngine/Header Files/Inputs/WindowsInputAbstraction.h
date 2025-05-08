@@ -13,7 +13,6 @@ private:
 	static WindowsInputAbstraction* m_instance;
 	static std::map<int, KEYBOARD_KEY> m_keyMap;
 	static std::map<int, GAMEPAD_KEY> m_gamepadKeyMap;
-	static std::map<GAMEPAD_KEY, int> m_gamepadAxisReverseMap;
 
 	HWND m_windowHandle;
 	RECT m_lockRect = { 0,0,0,0 };
@@ -24,20 +23,16 @@ private:
 	bool* m_axisActive;
 
 	bool m_cursorLocked = false;
-	bool** m_axisDown;
 
 	void OnKeyboardInput(WPARAM _wParam, bool _keyDown);
 	void OnMouseMove(POINT _point);
 
 public:
 	WindowsInputAbstraction(HWND _windowHandle);
-	~WindowsInputAbstraction();
 
 	void Init() override;
 	void PollEvents() override;
 
 	void LockCursor() override;
 	void UnlockCursor() override;
-
-	float GetGamepadAxisNormalized(GAMEPAD_KEY _axis) override;
 };

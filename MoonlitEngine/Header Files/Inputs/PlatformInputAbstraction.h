@@ -19,6 +19,4 @@ public:
 
 	virtual void LockCursor() = 0;
 	virtual void UnlockCursor() = 0;
-
-	virtual float GetGamepadAxisNormalized(GAMEPAD_KEY _axis) = 0;
 };

@@ -214,19 +214,6 @@ WindowsInputAbstraction::WindowsInputAbstraction(HWND _windowHandle) : m_windowH
 	m_axisActive = new bool[3] { false, false, false };
 }
 
-WindowsInputAbstraction::~WindowsInputAbstraction()
-{
-	delete m_leftThumbAxisXDown;
-	delete m_leftThumbAxisYDown;
-	delete m_rightThumbAxisXDown;
-	delete m_rightThumbAxisYDown;
-
-	m_leftThumbAxisXDown = nullptr;
-	m_leftThumbAxisYDown = nullptr;
-	m_rightThumbAxisXDown = nullptr;
-	m_rightThumbAxisYDown = nullptr;
-}
-
 void WindowsInputAbstraction::Init()
 {
 	SetWindowLongPtrA(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)WndProcCallback);
@@ -320,9 +307,4 @@ void WindowsInputAbstraction::UnlockCursor()
 {
 	ClipCursor(nullptr);
 	m_cursorLocked = false;
-}
-
-float WindowsInputAbstraction::GetGamepadAxisNormalized(GAMEPAD_KEY _axis)
-{
-	
 }

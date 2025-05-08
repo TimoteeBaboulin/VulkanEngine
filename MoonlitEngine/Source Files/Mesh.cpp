@@ -1,5 +1,5 @@
 #include "Mesh.h"
-#include "MoonlitVulkan/VulkanHelperFunctions.h"
+#include "Renderer/VulkanHelperFunctions.h"
 
 void Mesh::Load(vk::Device device, MeshData _data, vk::DescriptorSetLayout _layout, vk::DescriptorPool _pool)
 {
@@ -186,4 +186,9 @@ void Mesh::RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::P
 		_buffer.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint32);
 		_buffer.drawIndexed(m_triangleCount * 3, 1, 0, 0, 0);
 	}
+}
+
+bool operator==(const MeshInstance& _a, const MeshInstance& _b)
+{
+	return _a.m_material == _b.m_material && _a.m_mesh == _b.m_mesh && _a.m_materialInstance == _b.m_materialInstance;
 }

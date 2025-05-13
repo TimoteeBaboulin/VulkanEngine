@@ -398,3 +398,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+Libraries/lib/Qt6BundledPhysX.lib
+Libraries/lib/Qt6BundledPhysXd.lib
+Libraries/lib/Qt6QmlDom.lib
+Libraries/lib/Qt6QmlDomd.lib
+Libraries/lib/Qt6QmlLS.lib
+Libraries/lib/Qt6QmlLSd.lib

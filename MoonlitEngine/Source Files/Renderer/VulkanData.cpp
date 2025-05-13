@@ -59,7 +59,7 @@ void MaterialInstance::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _rend
 	BindSets(_buffer, m_material.GetLayouts()[0]);
 }
 
-Material::Material(VulkanRenderer* _renderer, vk::Device _device, int _textureCount)
+Material::Material(Renderer* _renderer, vk::Device _device, int _textureCount)
 {
 	m_pipelines.resize(2);
 	CreatePipelines(_renderer, _device);
@@ -68,7 +68,7 @@ Material::Material(VulkanRenderer* _renderer, vk::Device _device, int _textureCo
 	m_textureCount = _textureCount;
 }
 
-void Material::CreatePipelines(VulkanRenderer* _renderer, vk::Device _device)
+void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 {
 	vk::GraphicsPipelineCreateInfo pipelineInfo;
 	pipelineInfo.sType = vk::StructureType::eGraphicsPipelineCreateInfo;

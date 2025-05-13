@@ -28,9 +28,9 @@ vk::Queue VulkanEngine::KHRPresentQueue;
 //	Cleanup();
 //}
 
-void VulkanEngine::LoadMesh(MeshData& _mesh)
+void VulkanEngine::LoadMesh(std::string _name)
 {
-	m_vulkanRenderer->LoadMesh(_mesh);
+	m_vulkanRenderer->LoadMesh(_name);
 }
 
 //VKAPI_ATTR VkBool32 VKAPI_CALL debug_utils_messenger_callback(
@@ -110,7 +110,7 @@ void VulkanEngine::InitVulkan()
 	//m_vulkanPipeline->Init(extent);
 	//m_swapChain = m_vulkanPipeline->GetSwapChain();
 	
-	m_vulkanRenderer = new VulkanRenderer(this, extent);
+	m_vulkanRenderer = new Renderer(this, extent);
 	m_vulkanRenderer->Init(m_context, m_deviceManager);
 }
 

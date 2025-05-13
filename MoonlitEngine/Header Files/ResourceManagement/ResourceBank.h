@@ -8,24 +8,24 @@
 constexpr int ResourceBankDefaultSize = 10;
 
 template <class T>
+struct ResourcePair
+{
+	std::string Name;
+	T Resource;
+};
+
+template <class T>
 class ResourceBank
 {
 public:
-	ResourceBank();
-	T* Get(std::string _name);
-	virtual bool Load(std::string _filepath) = 0;
-	virtual bool Exist(std::string _name);
-
-protected:
 	static ResourceBank<T>* Instance;
 
-	template <class T>
-	struct ResourcePair
-	{
-		std::string Name;
-		T Resource;
-	};
+	ResourceBank();
+	T* Get(std::string _name);
+	virtual bool TryLoad(std::string _filepath) = 0;
+	bool Exist(std::string _name);
 
+protected:
 	std::vector<ResourcePair<T>> m_resources;
 };
 

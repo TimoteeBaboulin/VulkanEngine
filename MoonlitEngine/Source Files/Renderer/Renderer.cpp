@@ -16,21 +16,24 @@
 #include "Renderer/VulkanData.h"
 #include "Camera.h"
 
+#include "ResourceManagement/MeshBank.h"
+
 #define GLM_FORCE_RADIANS
 
-VulkanRenderer::VulkanRenderer(VulkanEngine* _engine, vk::Extent2D _extent) : m_extent(_extent)
+Renderer::Renderer(VulkanEngine* _engine, vk::Extent2D _extent) : m_extent(_extent)
 {
 	m_cameras.push_back(new Camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 
 	m_inputHandler = new CameraInputHandler(m_cameras[0]);
 	InputManager::GetInstance()->AddInputHandler(m_inputHandler);
 	InputManager::GetInstance()->LockCursor();
-	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&VulkanRenderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
+	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&Renderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
 	InputManager::GetInstance()->SubscribeWindowEvent(windowCallback);
 	m_engine = _engine;
+	m_drawBuffers.push_back(DrawBuffer());
 }
 
-void VulkanRenderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager)
+void Renderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager)
 {
 	InitSyncs();
 
@@ -53,18 +56,111 @@ void VulkanRenderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceM
 	CreateFrameBuffers();
 	CreateCommandBuffers();
 
-	m_baseMaterial = new Material(this, VulkanEngine::LogicalDevice, 1);
-	m_baseInstance = m_baseMaterial->CreateInstance(VulkanEngine::LogicalDevice, &m_shaderDescriptorLayout, m_descriptorPools[0], 1);
+	vk::Device device = VulkanEngine::LogicalDevice;
+
+	m_baseMaterial = new Material(this, device, 1);
+	m_baseInstance = m_baseMaterial->CreateInstance(device, &m_shaderDescriptorLayout, m_descriptorPools[0], 1);
+	m_baseInstance->AllocateSets(device, &m_shaderDescriptorLayout, m_descriptorPools[0], 1);
+
+	Image texture;
+	ImportImage("Textures/barstool_albedo.png", texture);
+
+	vk::Buffer stagingBuffer;
+	vk::DeviceMemory stagingMemory;
+	vk::DeviceMemory imageMemory;
+	size_t memorySize = texture.width * texture.height * 4;
+	vk::Extent2D extent = { texture.width, texture.height };
+
+	//Create staging buffer
+	BufferCreateInfo staging = {
+		.buffer = stagingBuffer,
+		.memory = stagingMemory,
+		.usage = vk::BufferUsageFlagBits::eTransferSrc,
+		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+		.size = memorySize
+	};
+
+	vhf::CreateBuffer(staging);
+	void* map = device.mapMemory(stagingMemory, 0, memorySize);
+	memcpy(map, texture.pixels, memorySize);
+
+	std::vector<vk::Image> images(1);
+
+	//Create Image
+	vhf::CreateImage(extent, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
+		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal,
+		images[0], imageMemory, vk::ImageLayout::eUndefined);
+
+	TransitionInfo transInfo =
+	{
+		.srcAccessFlags = vk::AccessFlagBits::eNone,
+		.dstAccessFlags = vk::AccessFlagBits::eTransferWrite,
+		.srcStage = vk::PipelineStageFlagBits::eTopOfPipe,
+		.dstStage = vk::PipelineStageFlagBits::eTransfer
+	};
+	vhf::TransitionImageLayout(images[0], vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eTransferDstOptimal, transInfo);
+
+	//Copy staging buffer to image
+	vhf::CopyBufferToImage(stagingBuffer, images[0], extent);
+
+	//Prepare for shader read
+	transInfo =
+	{
+		.srcAccessFlags = vk::AccessFlagBits::eTransferWrite,
+		.dstAccessFlags = vk::AccessFlagBits::eShaderRead,
+		.srcStage = vk::PipelineStageFlagBits::eTransfer,
+		.dstStage = vk::PipelineStageFlagBits::eFragmentShader
+	};
+
+	vhf::TransitionImageLayout(images[0], vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eTransferDstOptimal,
+		vk::ImageLayout::eShaderReadOnlyOptimal, transInfo);
+
+	std::vector<vk::ImageView> imageViews(1); 
+	imageViews[0] = vhf::CreateImageView(images[0], vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
+
+	std::vector<vk::Sampler> samplers(1);
+
+	//Create sampler
+	vk::SamplerCreateInfo info;
+	info.sType = vk::StructureType::eSamplerCreateInfo;
+	info.magFilter = vk::Filter::eLinear;
+	info.minFilter = vk::Filter::eLinear;
+
+	info.addressModeU = vk::SamplerAddressMode::eRepeat;
+	info.addressModeV = vk::SamplerAddressMode::eRepeat;
+	info.addressModeW = vk::SamplerAddressMode::eRepeat;
+
+	info.anisotropyEnable = false;
+	info.maxAnisotropy = 4;
+	info.borderColor = vk::BorderColor::eIntOpaqueBlack;
+	info.unnormalizedCoordinates = false;
+
+	info.compareEnable = false;
+	info.compareOp = vk::CompareOp::eAlways;
+
+	info.mipmapMode = vk::SamplerMipmapMode::eLinear;
+	info.mipLodBias = 0.0f;
+	info.minLod = 0.0f;
+	info.maxLod = 0.0f;
+
+	samplers[0] = VulkanEngine::LogicalDevice.createSampler(info);
+
+	//Free staging buffer
+	device.unmapMemory(stagingMemory);
+	device.destroyBuffer(stagingBuffer);
+
+	m_baseInstance->UpdateSets(device, imageViews, samplers);
 }
 
-void VulkanRenderer::Cleanup()
+void Renderer::Cleanup()
 {
 	vk::Device& device = VulkanEngine::LogicalDevice;
 
-	for (int i = 0; i < m_meshes.size(); i++)
+	/*for (int i = 0; i < m_meshes.size(); i++)
 	{
 		m_meshes[i].CleanUp(device);
-	}
+	}*/
 
 	device.freeCommandBuffers(VulkanEngine::MainCommandPool, m_commandBuffers);
 	device.destroyCommandPool(VulkanEngine::MainCommandPool);
@@ -91,19 +187,23 @@ void VulkanRenderer::Cleanup()
 		device.destroySemaphore(m_renderFinished[i]);
 		device.destroyFence(m_waitForPreviousFrame[i]);
 	}
-	
-	device.freeDescriptorSets(m_descriptorPools[0], m_descriptorSets);	
+
+	device.freeDescriptorSets(m_descriptorPools[0], m_descriptorSets);
 }
 
-void VulkanRenderer::LoadMesh(MeshData& _mesh)
+void Renderer::LoadMesh(std::string name)
 {
-	Mesh mesh;
+	MeshData* mesh = MeshBank::Instance->Get(name);
+	m_drawBuffers[0].TryAddMesh(*mesh);
+	m_drawBuffers[0].GenerateBuffers();
+
+	/*Mesh mesh;
 	mesh.Load(VulkanEngine::LogicalDevice, _mesh, m_shaderDescriptorLayout, m_descriptorPools[0]);
 	mesh.SetMaterials(&m_baseInstance, 1, VulkanEngine::LogicalDevice);
-	m_meshes.push_back(mesh);
+	m_meshes.push_back(mesh);*/
 }
 
-void VulkanRenderer::Render()
+void Renderer::Render()
 {
 	if (m_windowClosed)
 	{
@@ -129,8 +229,8 @@ void VulkanRenderer::Render()
 	buffer.reset();
 	RecordCommandBuffer(buffer, index);
 
-	vk::Semaphore waitSemaphores[] = { m_imageAvailable[m_currentFrame]};
-	vk::Semaphore signalSemaphores[] = { m_renderFinished[m_currentFrame]};
+	vk::Semaphore waitSemaphores[] = { m_imageAvailable[m_currentFrame] };
+	vk::Semaphore signalSemaphores[] = { m_renderFinished[m_currentFrame] };
 	vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 	vk::SubmitInfo submitInfo;
 	submitInfo.sType = vk::StructureType::eSubmitInfo;
@@ -164,7 +264,7 @@ void VulkanRenderer::Render()
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 }
 
-void VulkanRenderer::InitSyncs()
+void Renderer::InitSyncs()
 {
 	m_imageAvailable.resize(m_framesInFlight);
 	m_renderFinished.resize(m_framesInFlight);
@@ -185,19 +285,19 @@ void VulkanRenderer::InitSyncs()
 	}
 }
 
-void VulkanRenderer::PickFormat(VulkanDeviceManager* _deviceManager)
+void Renderer::PickFormat(VulkanDeviceManager* _deviceManager)
 {
 	std::vector<vk::SurfaceFormatKHR> formats = _deviceManager->GetFormats();
 	m_format = vhf::GetFormat(formats);
 }
 
-void VulkanRenderer::PickPresentMode(VulkanDeviceManager* _deviceManager)
+void Renderer::PickPresentMode(VulkanDeviceManager* _deviceManager)
 {
 	std::vector<vk::PresentModeKHR> presentModes = _deviceManager->GetPresentModes();
 	m_presentMode = vhf::GetPresentMode(presentModes);
 }
 
-void VulkanRenderer::CreateDescriptorSetLayouts()
+void Renderer::CreateDescriptorSetLayouts()
 {
 	vk::DescriptorSetLayoutBinding* bindings = new vk::DescriptorSetLayoutBinding[TEXTURE_DESCRIPTOR_COUNT];
 
@@ -230,7 +330,7 @@ void VulkanRenderer::CreateDescriptorSetLayouts()
 	m_shaderDescriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
 }
 
-void VulkanRenderer::CreatePipelineLayout()
+void Renderer::CreatePipelineLayout()
 {
 	//Layout
 	vk::DescriptorSetLayout* layouts = new vk::DescriptorSetLayout[2]{ m_uboDescriptorLayout, m_shaderDescriptorLayout };
@@ -243,7 +343,7 @@ void VulkanRenderer::CreatePipelineLayout()
 }
 
 
-void VulkanRenderer::CreateUniformBuffers()
+void Renderer::CreateUniformBuffers()
 {
 	uint64_t bufferSize = sizeof(UniformBufferObject);
 
@@ -253,7 +353,7 @@ void VulkanRenderer::CreateUniformBuffers()
 
 	for (int i = 0; i < m_framesInFlight; i++)
 	{
-		VertexBufferInfo info = {
+		BufferCreateInfo info = {
 		.buffer = m_uniformBuffers[i],
 		.memory = m_uniformMemories[i],
 		.usage = vk::BufferUsageFlagBits::eUniformBuffer,
@@ -264,10 +364,10 @@ void VulkanRenderer::CreateUniformBuffers()
 		vhf::CreateBuffer(info);
 		m_uniformMaps[i] = VulkanEngine::LogicalDevice.mapMemory(m_uniformMemories[i], 0, bufferSize);
 	}
-	
+
 }
 
-void VulkanRenderer::CreateDescriptorPools()
+void Renderer::CreateDescriptorPools()
 {
 	m_descriptorPools.resize(1);
 	vk::DescriptorPoolSize size;
@@ -283,7 +383,7 @@ void VulkanRenderer::CreateDescriptorPools()
 	m_descriptorPools[0] = VulkanEngine::LogicalDevice.createDescriptorPool(poolInfo);
 }
 
-void VulkanRenderer::CreateDescriptorSets()
+void Renderer::CreateDescriptorSets()
 {
 	m_descriptorSets.resize(1);
 	vk::DescriptorSetAllocateInfo allocInfo;
@@ -315,7 +415,7 @@ void VulkanRenderer::CreateDescriptorSets()
 	VulkanEngine::LogicalDevice.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
 }
 
-void VulkanRenderer::CreateRenderPasses()
+void Renderer::CreateRenderPasses()
 {
 #pragma region Color
 	vk::AttachmentDescription colorAttachment;
@@ -401,7 +501,7 @@ void VulkanRenderer::CreateRenderPasses()
 	m_mainRenderPass = VulkanEngine::LogicalDevice.createRenderPass(renderpass);
 }
 
-void VulkanRenderer::CreateCommandBuffers()
+void Renderer::CreateCommandBuffers()
 {
 	m_commandBuffers.reserve(m_framesInFlight);
 
@@ -415,7 +515,7 @@ void VulkanRenderer::CreateCommandBuffers()
 }
 
 #pragma region Swapchain
-void VulkanRenderer::CreateSwapchain()
+void Renderer::CreateSwapchain()
 {
 	unsigned int frameBufferCount;
 	if (m_capabilities.maxImageCount == 0 || m_capabilities.maxImageCount >= m_capabilities.minImageCount + 1)
@@ -464,7 +564,7 @@ void VulkanRenderer::CreateSwapchain()
 	CreateImageViews();
 }
 
-void VulkanRenderer::CreateImageViews()
+void Renderer::CreateImageViews()
 {
 	m_imageViews.resize(m_images.size());
 
@@ -477,7 +577,7 @@ void VulkanRenderer::CreateImageViews()
 	}
 }
 
-void VulkanRenderer::CreateDepthImage()
+void Renderer::CreateDepthImage()
 {
 	vk::Format format = vk::Format::eD32Sfloat;
 	uint32_t queueFamilyIndices[] = { VulkanEngine::FamilyIndices.graphicsFamily.value(), VulkanEngine::FamilyIndices.khrPresentFamily.value() };
@@ -492,7 +592,7 @@ void VulkanRenderer::CreateDepthImage()
 	}
 }
 
-void VulkanRenderer::CreateFrameBuffers()
+void Renderer::CreateFrameBuffers()
 {
 	m_frameBuffers.reserve(m_imageViews.size());
 
@@ -513,7 +613,7 @@ void VulkanRenderer::CreateFrameBuffers()
 	}
 }
 
-void VulkanRenderer::RecreateSwapchain()
+void Renderer::RecreateSwapchain()
 {
 	vk::PhysicalDevice& physDevice = VulkanEngine::PhysicalDevice;
 
@@ -525,7 +625,7 @@ void VulkanRenderer::RecreateSwapchain()
 	CreateFrameBuffers();
 }
 
-void VulkanRenderer::CleanupSwapchain()
+void Renderer::CleanupSwapchain()
 {
 	vk::Device& device = VulkanEngine::LogicalDevice;
 
@@ -545,7 +645,7 @@ void VulkanRenderer::CleanupSwapchain()
 
 
 
-void VulkanRenderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
+void Renderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
 {
 	switch (_event)
 	{
@@ -566,7 +666,7 @@ void VulkanRenderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
 	}
 }
 
-void VulkanRenderer::UpdateUniformBuffer(void* _map, Camera* _camera)
+void Renderer::UpdateUniformBuffer(void* _map, Camera* _camera)
 {
 	UniformBufferObject ubo;
 
@@ -583,12 +683,7 @@ void VulkanRenderer::UpdateUniformBuffer(void* _map, Camera* _camera)
 	memcpy(_map, &ubo, sizeof(UniformBufferObject));
 }
 
-void VulkanRenderer::BindDescriptorSets(vk::PipelineLayout& _layout, Mesh& _mesh, vk::CommandBuffer& _cmdBuffer)
-{
-	
-}
-
-void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex)
+void Renderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex)
 {
 	vk::CommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
@@ -596,10 +691,10 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 
 	vk::ClearValue value;
 	value.color = vk::ClearColorValue();
-	value.color.float32.at(0) = 0.0f ;
+	value.color.float32.at(0) = 0.0f;
 	value.color.float32.at(1) = 0.25f;
 	value.color.float32.at(2) = 0.25f;
-	value.color.float32.at(3) = 1.0f ;
+	value.color.float32.at(3) = 1.0f;
 
 	vk::ClearValue depthClearValue;
 	depthClearValue.depthStencil = 1.0f;
@@ -633,17 +728,33 @@ void VulkanRenderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageI
 	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, 1, &m_descriptorSets[0], 0, nullptr);
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-	for(auto& Mesh : m_meshes)
+	m_baseInstance->BindSets(_buffer, m_pipelineLayout);
+
+	m_baseInstance->RecordCommandBuffer(_buffer, 0, vk::PipelineBindPoint::eGraphics);
+
+	for (auto& drawBuffer : m_drawBuffers)
 	{
-		Mesh.RecordCommandBuffer(_buffer, 0, vk::PipelineBindPoint::eGraphics);
+		drawBuffer.RenderBuffer(_buffer);
 	}
+
+	//for(auto& Mesh : m_meshes)
+	//{
+	//	Mesh.RecordCommandBuffer(_buffer, 0, vk::PipelineBindPoint::eGraphics);
+	//}
 
 	_buffer.nextSubpass(vk::SubpassContents::eInline);
 
-	for (auto& Mesh : m_meshes)
+	m_baseInstance->RecordCommandBuffer(_buffer, 1, vk::PipelineBindPoint::eGraphics);
+
+	for (auto& drawBuffer : m_drawBuffers)
 	{
-		Mesh.RecordCommandBuffer(_buffer, 1, vk::PipelineBindPoint::eGraphics);
+		drawBuffer.RenderBuffer(_buffer);
 	}
+
+	//for (auto& Mesh : m_meshes)
+	//{
+	//	Mesh.RecordCommandBuffer(_buffer, 1, vk::PipelineBindPoint::eGraphics);
+	//}
 
 	_buffer.endRenderPass();
 	_buffer.end();
@@ -678,7 +789,7 @@ void CameraInputHandler::HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown)
 
 void CameraInputHandler::HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown)
 {
-	
+
 
 	switch (_key)
 	{

@@ -1,6 +1,6 @@
 #include "MeshRenderer.h"
 
-MeshRenderer::MeshRenderer(Mesh& _mesh)
+MeshRenderer::MeshRenderer(Mesh& _mesh) : m_mesh(_mesh)
 {
-	if (m_owner)
+	
 }

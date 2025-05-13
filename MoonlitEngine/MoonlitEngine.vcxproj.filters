@@ -25,17 +25,11 @@
     <Filter Include="Resources\Shaders">
       <UniqueIdentifier>{cc6aafa3-534b-4cbc-8784-a7a38d982602}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Fichiers d%27en-tête\ObjectBehaviours">
-      <UniqueIdentifier>{7a502c86-0e3e-4bd0-b589-d7bac85035f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Fichiers sources\ObjectBehaviours">
-      <UniqueIdentifier>{b5d00d74-1de0-4e98-ac8e-9bd1ff2e9f0d}</UniqueIdentifier>
+    <Filter Include="Header Files\Interfaces">
+      <UniqueIdentifier>{a342e472-2043-40a6-b89e-d82a0f8e8ba1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="falsemain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,44 +63,72 @@
     <ClCompile Include="Source Files\Renderer\Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="MoonlitEngine.cpp">
-      <Filter>Fichiers sources</Filter>
+    <ClCompile Include="Source Files\falsemain.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Fichiers sources</Filter>
+    <ClCompile Include="Source Files\GameObject.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectComponent.cpp">
-      <Filter>Fichiers sources\ObjectBehaviours</Filter>
+    <ClCompile Include="Source Files\Mesh.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectTransform.cpp">
-      <Filter>Fichiers sources\ObjectBehaviours</Filter>
+    <ClCompile Include="Source Files\MeshRenderer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectTest.cpp">
-      <Filter>Fichiers sources\ObjectBehaviours</Filter>
+    <ClCompile Include="Source Files\MoonlitEngine.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MeshRenderer.cpp">
-      <Filter>Fichiers sources\ObjectBehaviours</Filter>
+    <ClCompile Include="Source Files\ObjectComponent.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\ObjectTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ObjectTransform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Renderer\MeshInstanceManager.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp" />
+    <ClCompile Include="Source Files\Renderer\DrawBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MoonlitEngine.h">
-      <Filter>Fichiers d%27en-tête</Filter>
+    <ClInclude Include="Header Files\GameObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Fichiers d%27en-tête</Filter>
+    <ClInclude Include="Header Files\Mesh.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectBehaviour.h">
-      <Filter>Fichiers d%27en-tête\ObjectBehaviours</Filter>
+    <ClInclude Include="Header Files\MeshRenderer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectTransform.h">
-      <Filter>Fichiers d%27en-tête\ObjectBehaviours</Filter>
+    <ClInclude Include="Header Files\MoonlitEngine.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectTest.h">
-      <Filter>Fichiers d%27en-tête\ObjectBehaviours</Filter>
+    <ClInclude Include="Header Files\ObjectBehaviour.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MeshRenderer.h">
-      <Filter>Fichiers d%27en-tête\ObjectBehaviours</Filter>
+    <ClInclude Include="Header Files\ObjectTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\ObjectTransform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ResourceManagement\ResourceBank.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ResourceManagement\ResourceManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Interfaces\ISingleton.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Renderer\MeshInstanceManager.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ResourceManagement\MeshBank.h" />
+    <ClInclude Include="Header Files\Renderer\DrawBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Inputs\InputManager.h">

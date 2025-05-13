@@ -4,6 +4,7 @@
 #include "Inputs/InputManager.h"
 #include "common.h"
 #include "VulkanData.h"
+#include "DrawBuffer.h"
 
 class Camera;
 
@@ -27,14 +28,14 @@ public:
 	void HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float _y) override;
 };
 
-class VulkanRenderer
+class Renderer
 {
 public:
-	VulkanRenderer(VulkanEngine* _engine, vk::Extent2D _extent);
+	Renderer(VulkanEngine* _engine, vk::Extent2D _extent);
 	void Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager);
 	void Cleanup();
 
-	void LoadMesh(MeshData& _mesh);
+	void LoadMesh(std::string name);
 
 	void Render();
 
@@ -57,6 +58,8 @@ private:
 	std::vector<Camera*> m_cameras;
 
 	bool m_windowClosed = false;
+
+	std::vector<DrawBuffer> m_drawBuffers;
 
 #pragma region SwapchainParameters
 	vk::Extent2D m_extent;
@@ -91,7 +94,7 @@ private:
 	std::vector<vk::Fence> m_waitForPreviousFrame;
 #pragma endregion
 
-	std::vector<Mesh> m_meshes;
+	//std::vector<Mesh> m_meshes;
 
 	std::vector<vk::DescriptorPool> m_descriptorPools;
 	std::vector<vk::DescriptorSet> m_descriptorSets;
@@ -127,6 +130,5 @@ private:
 	void HandleWindowEvents(WINDOW_EVENT _event, void* _data);
 #pragma endregion
 	void UpdateUniformBuffer(void* _map, Camera* _camera);
-	void BindDescriptorSets(vk::PipelineLayout& _layout, Mesh& _mesh, vk::CommandBuffer& _cmdBuffer);
 	void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex);
 };

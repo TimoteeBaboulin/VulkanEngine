@@ -14,7 +14,6 @@
 #include "vulkan/vulkan.hpp"
 
 typedef uint32_t MeshCountType;
-class Mesh;
 
 struct QueueFamilyIndices
 {
@@ -75,7 +74,7 @@ struct MeshData
 	int vertexCount = 0;
 	Vertex* vertices = nullptr;
 	int triangleCount = 0;
-	int* indices = nullptr;
+	uint8_t* indices = nullptr;
 
 	std::vector<Image> textures;
 };
@@ -89,7 +88,7 @@ struct TransitionInfo
 	vk::PipelineStageFlags dstStage;
 };
 
-struct VertexBufferInfo
+struct BufferCreateInfo
 {
 	vk::Buffer& buffer;
 	vk::DeviceMemory& memory;

@@ -191,7 +191,7 @@ public:
 		EndSingleUseCommandBuffer(commandBuffer, VulkanEngine::GraphicsQueue, VulkanEngine::LogicalDevice, VulkanEngine::MainCommandPool);
 	}
 
-	static void CreateBuffer(VertexBufferInfo _info)
+	static void CreateBuffer(BufferCreateInfo _info)
 	{
 		vk::BufferCreateInfo bufferInfo;
 		bufferInfo.sType = vk::StructureType::eBufferCreateInfo;
@@ -212,12 +212,12 @@ public:
 		VulkanEngine::LogicalDevice.bindBufferMemory(_info.buffer, _info.memory, 0);
 	}
 
-	static void CreateBufferWithStaging(VertexBufferInfo _info, void* _data)
+	static void CreateBufferWithStaging(BufferCreateInfo _info, void* _data)
 	{
 		vk::Buffer stagingBuffer;
 		vk::DeviceMemory stagingMemory;
 
-		VertexBufferInfo stagingBufferInfo =
+		BufferCreateInfo stagingBufferInfo =
 		{
 			.buffer = stagingBuffer,
 			.memory = stagingMemory,

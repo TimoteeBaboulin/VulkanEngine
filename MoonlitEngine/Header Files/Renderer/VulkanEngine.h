@@ -12,7 +12,7 @@ constexpr uint32_t HEIGHT = 600;
 
 class VulkanContext;
 class VulkanDeviceManager;
-class VulkanRenderer;
+class Renderer;
 class VulkanPipeline;
 
 class MOONLIT_API VulkanEngine
@@ -25,7 +25,7 @@ public:
 	//void MainLoop();
 	void Render();
 
-	void LoadMesh(MeshData& _mesh);
+	void LoadMesh(std::string _name);
 
 	VulkanContext* GetContext() const { return m_context; }
 	HWND GetWindow() const { return m_context->GetWindow(); }
@@ -48,7 +48,7 @@ private:
 	//VulkanPipeline* m_vulkanPipeline = nullptr;
 	vk::SwapchainKHR m_swapChain;
 
-	VulkanRenderer* m_vulkanRenderer = nullptr;
+	Renderer* m_vulkanRenderer = nullptr;
 	
 	vk::ApplicationInfo GetAppInfo();
 

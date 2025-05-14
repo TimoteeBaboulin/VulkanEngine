@@ -23,7 +23,7 @@ MeshData GetMesh(aiMesh* _mesh)
         mesh.vertices[i].uvY = _mesh->mTextureCoords[0][i].y;
     }
     mesh.triangleCount = _mesh->mNumFaces;
-    mesh.indices = new uint8_t[mesh.triangleCount * 3];
+    mesh.indices = new uint16_t[mesh.triangleCount * 3];
 
     for (int i = 0; i < mesh.triangleCount; i++)
     {

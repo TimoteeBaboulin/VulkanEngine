@@ -4,7 +4,7 @@
 DrawBuffer::DrawBuffer()
 {
 	m_vertexData = new Vertex[MaxVertexCount];
-	m_indexData = new uint8_t[MaxIndexCount];
+	m_indexData = new uint16_t[MaxIndexCount];
 
 	m_buffersGenerated = false;
 	m_dirty = false;
@@ -31,10 +31,10 @@ bool DrawBuffer::TryAddMesh(MeshData _mesh)
 		throw new std::exception("Not enough place in DrawBuffer");
 
 	Vertex* vertexBuffer = m_vertexData + m_currentVertex;
-	uint8_t* indexBuffer = m_indexData + m_currentIndex;
+	uint16_t* indexBuffer = m_indexData + m_currentIndex;
 	
 	memcpy(vertexBuffer, _mesh.vertices, sizeof(Vertex) * vertexCount);
-	memcpy(indexBuffer, _mesh.indices, 8 * 3 * _mesh.triangleCount);
+	memcpy(indexBuffer, _mesh.indices, 16 * 3 * _mesh.triangleCount);
 
 	m_currentVertex += vertexCount;
 	m_currentIndex += _mesh.triangleCount * 3;
@@ -67,12 +67,15 @@ void DrawBuffer::GenerateBuffers()
 
 	vhf::CreateBufferWithStaging(info, m_vertexData);
 
-	info.buffer = m_indexBuffer;
-	info.memory = m_indexMemory;
-	info.usage = vk::BufferUsageFlagBits::eIndexBuffer;
-	info.size = 8 * m_currentIndex;
+	BufferCreateInfo indexInfo =
+	{
+		.buffer = m_indexBuffer,
+		.memory = m_indexMemory,
+		.usage = vk::BufferUsageFlagBits::eIndexBuffer,
+		.size = (uint64_t) 32 * m_currentIndex
+	};
 
-	vhf::CreateBufferWithStaging(info, m_indexData);
+	vhf::CreateBufferWithStaging(indexInfo, m_indexData);
 
 	m_buffersGenerated = true;
 	m_dirty = false;
@@ -85,7 +88,7 @@ void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd)
 
 	vk::DeviceSize offsets[] = { 0 };
 	_cmd.bindVertexBuffers(0, m_vertexBuffer, offsets);
-	_cmd.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint8);
+	_cmd.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint16);
 
 	_cmd.drawIndexed(m_currentIndex, 1, 0, 0, 0);
 }

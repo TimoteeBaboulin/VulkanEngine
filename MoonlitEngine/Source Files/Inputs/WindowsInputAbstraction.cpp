@@ -226,6 +226,7 @@ void WindowsInputAbstraction::PollEvents()
 	XINPUT_STATE state;
 	for (DWORD gamepadIndex = 0; gamepadIndex < XUSER_MAX_COUNT; gamepadIndex++)
 	{
+
 		result = XInputGetState(gamepadIndex, &state);
 
 		if (result != ERROR_SUCCESS)

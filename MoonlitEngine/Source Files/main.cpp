@@ -105,7 +105,14 @@ GLFWwindow* InitWindow(VulkanEngine& _app)
     }
     GLFWwindow* window = glfwCreateWindow(WindowWidth, WindowHeight, "Vulkan Engine", nullptr, nullptr);;
     unsigned int extensionCount;
-    const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
+    
+    const char** extensionsBuffer = glfwGetRequiredInstanceExtensions(&extensionCount);
+    std::vector<const char*> extensions;
+    for (int i = 0; i < extensionCount; i++)
+    {
+        extensions.push_back(extensionsBuffer[i]);
+    }
+
 
     HWND winHandle = glfwGetWin32Window(window);
 
@@ -116,6 +123,6 @@ GLFWwindow* InitWindow(VulkanEngine& _app)
         .windowHandle = winHandle
     };
 
-    _app.InitContext(context, extensions, extensionCount);
+    _app.InitContext(context, extensions.data(), extensionCount);
     return window;
 }

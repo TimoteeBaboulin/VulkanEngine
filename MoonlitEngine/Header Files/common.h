@@ -74,7 +74,7 @@ struct MeshData
 	int vertexCount = 0;
 	Vertex* vertices = nullptr;
 	int triangleCount = 0;
-	uint8_t* indices = nullptr;
+	uint16_t* indices = nullptr;
 
 	std::vector<Image> textures;
 };

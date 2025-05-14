@@ -4,7 +4,7 @@
 
 //This should make the vertex and index buffer sizes be 32 mb
 constexpr int MaxVertexCount = 100000;
-constexpr int MaxIndexCount = 400000;
+constexpr int MaxIndexCount = 100000;
 
 class DrawBuffer
 {
@@ -20,7 +20,7 @@ public:
 
 private:
 	Vertex* m_vertexData;
-	uint8_t * m_indexData;
+	uint16_t* m_indexData;
 
 	int m_currentVertex;
 	int m_currentIndex;

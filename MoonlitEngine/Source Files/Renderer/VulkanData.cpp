@@ -83,15 +83,8 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 	shaderStages[0].module = module;
 	shaderStages[0].pName = "main";
 	
+	pipelineInfo.stageCount = 1;
 
-	auto fragmentShaderBytes = readFile("Shaders/frag.spv");
-	vk::ShaderModule fragModule = vhf::WrapShader(fragmentShaderBytes);
-	shaderStages[1].sType = vk::StructureType::ePipelineShaderStageCreateInfo;
-	shaderStages[1].stage = vk::ShaderStageFlagBits::eFragment;
-	shaderStages[1].module = fragModule;
-	shaderStages[1].pName = "main";
-
-	pipelineInfo.stageCount = 2;
 	pipelineInfo.pStages = shaderStages;
 #pragma endregion
 
@@ -229,6 +222,15 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 	pipelineInfo.renderPass = _renderer->GetRenderPass();
 
 	m_pipelines[0] = _device.createGraphicsPipeline(nullptr, pipelineInfo).value;
+
+	auto fragmentShaderBytes = readFile("Shaders/frag.spv");
+	vk::ShaderModule fragModule = vhf::WrapShader(fragmentShaderBytes);
+	shaderStages[1].sType = vk::StructureType::ePipelineShaderStageCreateInfo;
+	shaderStages[1].stage = vk::ShaderStageFlagBits::eFragment;
+	shaderStages[1].module = fragModule;
+	shaderStages[1].pName = "main";
+
+	pipelineInfo.stageCount = 2;
 
 	pipelineInfo.subpass = 1;
 	pipelineInfo.pDepthStencilState = &_depthStates[1];

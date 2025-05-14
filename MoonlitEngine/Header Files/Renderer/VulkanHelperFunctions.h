@@ -37,7 +37,7 @@ public:
 		allocInfo.commandBufferCount = 1;
 
 		vk::CommandBuffer commandBuffer;
-		_device.allocateCommandBuffers(&allocInfo, &commandBuffer);
+		vk::Result result = _device.allocateCommandBuffers(&allocInfo, &commandBuffer);
 
 		vk::CommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
@@ -141,13 +141,14 @@ public:
 		alloc.level = vk::CommandBufferLevel::ePrimary;
 		alloc.commandPool = VulkanEngine::MainCommandPool;
 
-		vk::CommandBuffer command = VulkanEngine::LogicalDevice.allocateCommandBuffers(alloc)[0];
+		//vk::CommandBuffer command = VulkanEngine::LogicalDevice.allocateCommandBuffers(alloc)[0];
+		vk::CommandBuffer command = BeginSingleUseCommand(VulkanEngine::MainCommandPool, VulkanEngine::LogicalDevice);
 
-		vk::CommandBufferBeginInfo begin;
+		/*vk::CommandBufferBeginInfo begin;
 		begin.sType = vk::StructureType::eCommandBufferBeginInfo;
-		begin.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+		begin.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;*/
 
-		command.begin(begin);
+		//command.begin(begin);
 
 		vk::BufferCopy buffCopy;
 		buffCopy.srcOffset = 0;

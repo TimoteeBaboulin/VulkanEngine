@@ -52,8 +52,8 @@ void DrawBuffer::GenerateBuffers()
 	if (m_buffersGenerated)
 	{
 		vk::Device device = VulkanEngine::LogicalDevice;
-		device.freeMemory(m_vertexMemory);
-		device.freeMemory(m_indexMemory);
+		//device.freeMemory(m_vertexMemory);
+		//device.freeMemory(m_indexMemory);
 	}
 
 	BufferCreateInfo info =
@@ -80,6 +80,9 @@ void DrawBuffer::GenerateBuffers()
 
 void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd)
 {
+	if (!m_buffersGenerated || m_dirty)
+		return;
+
 	vk::DeviceSize offsets[] = { 0 };
 	_cmd.bindVertexBuffers(0, m_vertexBuffer, offsets);
 	_cmd.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint8);

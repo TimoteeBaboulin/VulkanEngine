@@ -370,14 +370,17 @@ void Renderer::CreateUniformBuffers()
 void Renderer::CreateDescriptorPools()
 {
 	m_descriptorPools.resize(1);
-	vk::DescriptorPoolSize size;
+	vk::DescriptorPoolSize* sizes = new vk::DescriptorPoolSize[2];
 	vk::DescriptorPoolCreateInfo poolInfo;
-	size.type = vk::DescriptorType::eUniformBuffer;
-	size.descriptorCount = 10;
+	sizes[0].type = vk::DescriptorType::eUniformBuffer;
+	sizes[0].descriptorCount = 10;
+
+	sizes[1].type = vk::DescriptorType::eCombinedImageSampler;
+	sizes[1].descriptorCount = 16;
 
 	poolInfo.sType = vk::StructureType::eDescriptorPoolCreateInfo;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &size;
+	poolInfo.poolSizeCount = 2;
+	poolInfo.pPoolSizes = sizes;
 	poolInfo.maxSets = 16;
 
 	m_descriptorPools[0] = VulkanEngine::LogicalDevice.createDescriptorPool(poolInfo);

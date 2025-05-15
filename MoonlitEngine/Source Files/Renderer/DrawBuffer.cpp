@@ -5,39 +5,70 @@ DrawBuffer::DrawBuffer()
 {
 	m_vertexData = new Vertex[MaxVertexCount];
 	m_indexData = new uint16_t[MaxIndexCount];
+	m_modelData = new glm::mat4x4[MaxModelCount];
 
 	m_buffersGenerated = false;
 	m_dirty = false;
 
-	m_currentVertex = 0;
-	m_currentIndex = 0;
+	m_vertexCount = 0;
+	m_indexCount = 0;
+	m_instanceCount = 0;
 }
 
 int DrawBuffer::RemainingVertexPlaces()
 {
-	return (MaxVertexCount - m_currentVertex);
+	return (MaxVertexCount - m_vertexCount);
 }
 
 bool DrawBuffer::MeshCanFit(MeshData _mesh)
 {
-	return (_mesh.vertexCount + m_currentVertex <= MaxVertexCount) && (_mesh.triangleCount * 3 + m_currentIndex <= MaxIndexCount);
+	return (_mesh.vertexCount + m_vertexCount <= MaxVertexCount) && (_mesh.triangleCount * 3 + m_indexCount <= MaxIndexCount);
 }
 
-bool DrawBuffer::TryAddMesh(MeshData _mesh)
+bool DrawBuffer::TryAddMesh(MeshData* _mesh, glm::mat4x4 _modelMatrice)
 {
-	int vertexCount = _mesh.vertexCount;
+	int vertexCount = _mesh->vertexCount;
 
-	if (!MeshCanFit(_mesh))
+	if (!MeshCanFit(*_mesh))
 		throw new std::exception("Not enough place in DrawBuffer");
 
-	Vertex* vertexBuffer = m_vertexData + m_currentVertex;
-	uint16_t* indexBuffer = m_indexData + m_currentIndex;
-	
-	memcpy(vertexBuffer, _mesh.vertices, sizeof(Vertex) * vertexCount);
-	memcpy(indexBuffer, _mesh.indices, 16 * 3 * _mesh.triangleCount);
+	auto it = std::find(m_meshes.begin(), m_meshes.end(), _mesh);
+	int index = m_meshes.size();
+	if (it == m_meshes.end())
+	{
+		Vertex* vertexBuffer = m_vertexData + m_vertexCount;
+		uint16_t* indexBuffer = m_indexData + m_indexCount;
 
-	m_currentVertex += vertexCount;
-	m_currentIndex += _mesh.triangleCount * 3;
+		int indexCount = 3 * _mesh->triangleCount;
+
+		memcpy(vertexBuffer, _mesh->vertices, sizeof(Vertex) * vertexCount);
+
+		for (int i = 0; i < indexCount; i++)
+		{
+			indexBuffer[i] = _mesh->indices[i] + m_indexCount;
+		}
+		//memcpy(indexBuffer, _mesh->indices, 16 * 3 * _mesh->triangleCount);
+
+		m_vertexCount += vertexCount;
+		m_indexCount += _mesh->triangleCount * 3;
+
+		m_meshes.push_back(_mesh);
+
+		m_modelMatrices.push_back(std::vector<glm::mat4x4>());
+		m_meshInstanceCount.push_back(0);
+	}
+	else
+	{
+		index = std::distance(m_meshes.begin(), it);
+	}
+
+	 
+
+	m_modelMatrices[index].push_back(_modelMatrice);
+	m_meshInstanceCount[index]++;
+	m_instanceCount++;
+
+	GenerateModelMatriceBuffer();
 
 	m_dirty = true;
 
@@ -52,8 +83,10 @@ void DrawBuffer::GenerateBuffers()
 	if (m_buffersGenerated)
 	{
 		vk::Device device = VulkanEngine::LogicalDevice;
-		//device.freeMemory(m_vertexMemory);
-		//device.freeMemory(m_indexMemory);
+
+		device.freeMemory(m_vertexMemory);
+		device.freeMemory(m_indexMemory);
+		device.freeMemory(m_modelMatriceMemory);
 	}
 
 	BufferCreateInfo info =
@@ -62,7 +95,7 @@ void DrawBuffer::GenerateBuffers()
 		.memory = m_vertexMemory,
 		.usage = vk::BufferUsageFlagBits::eVertexBuffer,
 		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
-		.size = sizeof(Vertex) * m_currentVertex
+		.size = sizeof(Vertex) * m_vertexCount
 	};
 
 	vhf::CreateBufferWithStaging(info, m_vertexData);
@@ -72,10 +105,20 @@ void DrawBuffer::GenerateBuffers()
 		.buffer = m_indexBuffer,
 		.memory = m_indexMemory,
 		.usage = vk::BufferUsageFlagBits::eIndexBuffer,
-		.size = (uint64_t) sizeof(uint16_t) * m_currentIndex
+		.size = (uint64_t) sizeof(uint16_t) * m_indexCount
 	};
 
 	vhf::CreateBufferWithStaging(indexInfo, m_indexData);
+
+	BufferCreateInfo modelBufferInfo =
+	{
+		.buffer = m_modelMatriceBuffer,
+		.memory = m_modelMatriceMemory,
+		.usage = vk::BufferUsageFlagBits::eVertexBuffer,
+		.size = (uint64_t)64 * m_instanceCount
+	};
+
+	vhf::CreateBufferWithStaging(modelBufferInfo, m_modelData);
 
 	m_buffersGenerated = true;
 	m_dirty = false;
@@ -88,8 +131,38 @@ void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd)
 
 	vk::DeviceSize offsets[] = { 0 };
 	_cmd.bindVertexBuffers(0, m_vertexBuffer, offsets);
+	_cmd.bindVertexBuffers(1, m_modelMatriceBuffer, offsets);
 	_cmd.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint16);
 
-	_cmd.drawIndexed(m_currentIndex, 1, 0, 0, 0);
+	int currIndex = 0;
+	int currInstance = 0;
+
+	for (int i = 0; i < m_meshes.size(); i++)
+	{
+		int instanceCount = m_meshInstanceCount[i];
+		int indexCount = m_meshes[i]->triangleCount * 3;
+
+		_cmd.drawIndexed(indexCount, instanceCount, currIndex, 0, currInstance);
+
+		currInstance += instanceCount;
+		currIndex += indexCount;
+	}
+
+	
+}
+
+void DrawBuffer::GenerateModelMatriceBuffer()
+{
+	int index = 0;
+
+	for (auto meshIt = m_modelMatrices.begin(); meshIt != m_modelMatrices.end(); meshIt++)
+	{
+		for (auto it = (*meshIt).begin(); it != (*meshIt).end(); it++)
+		{
+			m_modelData[index] = (*it);
+
+			index++;
+		}
+	}
 }
 

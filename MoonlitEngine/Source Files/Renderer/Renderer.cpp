@@ -10,6 +10,7 @@
 #include "Renderer/ContextManager.h"
 
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/transform.hpp"
 #include "common.h"
 #include "Mesh.h"
 
@@ -194,7 +195,21 @@ void Renderer::Cleanup()
 void Renderer::LoadMesh(std::string name)
 {
 	MeshData* mesh = MeshBank::Instance->Get(name);
-	m_drawBuffers[0].TryAddMesh(*mesh);
+
+	glm::mat4x4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+	glm::mat4x4 rotate = glm::rotate(0.0f, glm::vec3(0, 1, 0));
+	glm::mat4x4 translate = glm::translate(glm::vec3(0, 0, 0));
+
+	glm::mat4x4 model = translate * rotate * scale;
+
+	m_drawBuffers[0].TryAddMesh(mesh, model);
+
+	rotate = glm::rotate(45.0f, glm::vec3(0, 1, 0));
+
+	//model = translate * rotate * scale;
+
+	//m_drawBuffers[0].TryAddMesh(mesh, model);
+
 	m_drawBuffers[0].GenerateBuffers();
 
 	/*Mesh mesh;

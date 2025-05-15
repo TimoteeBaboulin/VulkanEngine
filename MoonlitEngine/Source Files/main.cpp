@@ -63,9 +63,11 @@ int main()
 	GLFWwindow* window = InitWindow(app);
 
     MeshBank::Instance->TryLoad("Meshes/barstool.gltf");
+    MeshBank::Instance->TryLoad("Meshes/Sniper_Final.fbx");
 
     app.InitVulkan(); 
     app.LoadMesh("barstool");
+    app.LoadMesh("Sniper_Final");
 
     MeshInstanceManager* manager = MeshInstanceManager::Get();
 

@@ -91,12 +91,16 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 #pragma region Inputs
 
 #pragma region Vertex
-	vk::VertexInputBindingDescription* vertexBinding = new vk::VertexInputBindingDescription;
+	vk::VertexInputBindingDescription* vertexBinding = new vk::VertexInputBindingDescription[2];
 	vertexBinding[0].binding = 0;
 	vertexBinding[0].stride = 32;
 	vertexBinding[0].inputRate = vk::VertexInputRate::eVertex;
 
-	vk::VertexInputAttributeDescription* vertexAttributes = new vk::VertexInputAttributeDescription[3];
+	vertexBinding[1].binding = 1;
+	vertexBinding[1].stride = 64;
+	vertexBinding[1].inputRate = vk::VertexInputRate::eInstance;
+
+	vk::VertexInputAttributeDescription* vertexAttributes = new vk::VertexInputAttributeDescription[7];
 
 	vertexAttributes[0].binding = 0;
 	vertexAttributes[0].format = vk::Format::eR32G32B32Sfloat;
@@ -113,9 +117,29 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 	vertexAttributes[2].location = 2;
 	vertexAttributes[2].offset = 24;
 
+	vertexAttributes[3].binding = 1;
+	vertexAttributes[3].format = vk::Format::eR32G32B32A32Sfloat;
+	vertexAttributes[3].location = 3;
+	vertexAttributes[3].offset = 0;
+
+	vertexAttributes[4].binding = 1;
+	vertexAttributes[4].format = vk::Format::eR32G32B32A32Sfloat;
+	vertexAttributes[4].location = 4;
+	vertexAttributes[4].offset = 16;
+
+	vertexAttributes[5].binding = 1;
+	vertexAttributes[5].format = vk::Format::eR32G32B32A32Sfloat;
+	vertexAttributes[5].location = 5;
+	vertexAttributes[5].offset = 32;
+
+	vertexAttributes[6].binding = 1;
+	vertexAttributes[6].format = vk::Format::eR32G32B32A32Sfloat;
+	vertexAttributes[6].location = 6;
+	vertexAttributes[6].offset = 48;
+
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
-	vertexInputInfo.vertexBindingDescriptionCount = 1;
-	vertexInputInfo.vertexAttributeDescriptionCount = 3;
+	vertexInputInfo.vertexBindingDescriptionCount = 2;
+	vertexInputInfo.vertexAttributeDescriptionCount = 7;
 	vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes;
 	vertexInputInfo.pVertexBindingDescriptions = vertexBinding;
 

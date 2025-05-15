@@ -45,7 +45,7 @@ bool DrawBuffer::TryAddMesh(MeshData* _mesh, glm::mat4x4 _modelMatrice)
 
 		for (int i = 0; i < indexCount; i++)
 		{
-			indexBuffer[i] = _mesh->indices[i] + m_indexCount;
+			indexBuffer[i] = _mesh->indices[i] + m_vertexCount;
 		}
 		//memcpy(indexBuffer, _mesh->indices, 16 * 3 * _mesh->triangleCount);
 
@@ -61,8 +61,6 @@ bool DrawBuffer::TryAddMesh(MeshData* _mesh, glm::mat4x4 _modelMatrice)
 	{
 		index = std::distance(m_meshes.begin(), it);
 	}
-
-	 
 
 	m_modelMatrices[index].push_back(_modelMatrice);
 	m_meshInstanceCount[index]++;
@@ -142,13 +140,11 @@ void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd)
 		int instanceCount = m_meshInstanceCount[i];
 		int indexCount = m_meshes[i]->triangleCount * 3;
 
-		_cmd.drawIndexed(indexCount, instanceCount, currIndex, 0, currInstance);
+		_cmd.drawIndexed(indexCount, 1, currIndex, 0, currInstance);
 
 		currInstance += instanceCount;
 		currIndex += indexCount;
 	}
-
-	
 }
 
 void DrawBuffer::GenerateModelMatriceBuffer()

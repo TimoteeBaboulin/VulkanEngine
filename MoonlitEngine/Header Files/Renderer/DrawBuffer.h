@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+#include "VulkanData.h"
+
 //This should make the vertex and index buffer sizes be 32 mb
 constexpr int MaxVertexCount = 100000;
 constexpr int MaxModelCount = 500;
@@ -17,7 +19,7 @@ public:
 	bool TryAddMesh(MeshData* _mesh, glm::mat4x4 _modelMatrice);
 
 	void GenerateBuffers();
-	void RenderBuffer(vk::CommandBuffer _cmd);
+	void RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet);
 
 private:
 	Vertex* m_vertexData;
@@ -28,7 +30,7 @@ private:
 	int m_indexCount;
 	int m_instanceCount;
 
-	std::vector<MeshData*> m_meshes;
+	std::vector<std::pair<MeshData*, MaterialInstance*>> m_meshes;
 	std::vector<std::vector<glm::mat4x4>> m_modelMatrices;
 	std::vector<int> m_meshInstanceCount;
 

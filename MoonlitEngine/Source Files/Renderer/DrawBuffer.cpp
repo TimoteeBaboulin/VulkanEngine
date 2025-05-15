@@ -122,7 +122,7 @@ void DrawBuffer::GenerateBuffers()
 	m_dirty = false;
 }
 
-void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd)
+void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet)
 {
 	if (!m_buffersGenerated || m_dirty)
 		return;

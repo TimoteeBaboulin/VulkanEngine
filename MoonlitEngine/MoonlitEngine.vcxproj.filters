@@ -90,8 +90,12 @@
     <ClCompile Include="Source Files\Renderer\MeshInstanceManager.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp" />
-    <ClCompile Include="Source Files\Renderer\DrawBuffer.cpp" />
+    <ClCompile Include="Source Files\Renderer\DrawBuffer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\GameObject.h">
@@ -127,8 +131,12 @@
     <ClInclude Include="Header Files\Renderer\MeshInstanceManager.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ResourceManagement\MeshBank.h" />
-    <ClInclude Include="Header Files\Renderer\DrawBuffer.h" />
+    <ClInclude Include="Header Files\Renderer\DrawBuffer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ResourceManagement\MeshBank.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Inputs\InputManager.h">

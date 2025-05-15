@@ -41,6 +41,7 @@ public:
 
 	vk::PipelineLayout GetPipelineLayout() { return m_pipelineLayout; }
 	vk::RenderPass GetRenderPass() const { return m_mainRenderPass; }
+	vk::DescriptorSetLayout GetUboSetLayout() { return m_uboDescriptorLayout; }
 private:
 	VulkanEngine* m_engine;
 

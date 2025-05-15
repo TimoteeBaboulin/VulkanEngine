@@ -16,7 +16,7 @@ void MaterialInstance::AllocateSets(vk::Device _device, vk::DescriptorSetLayout*
 	_device.allocateDescriptorSets(&allocInfo, m_descriptorSets);
 }
 
-void MaterialInstance::UpdateSets(vk::Device _device, std::vector<vk::ImageView> _views, std::vector<vk::Sampler> _samplers)
+void MaterialInstance::UpdateSets(vk::Device _device, vk::ImageView* _views, vk::Sampler* _samplers)
 {
 	std::vector<vk::WriteDescriptorSet> writeSets;
 	writeSets.reserve(m_descriptorSetCount);
@@ -53,19 +53,18 @@ void MaterialInstance::CleanUp(vk::Device _device, vk::DescriptorPool _pool)
 	_device.freeDescriptorSets(_pool, m_descriptorSetCount, m_descriptorSets);
 }
 
-void MaterialInstance::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint)
+void MaterialInstance::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet)
 {
-	m_material.RecordCommandBuffer(_buffer, _renderPass, _bindPoint);
+	m_material.RecordCommandBuffer(_buffer, _renderPass, _bindPoint, _uboSet);
 	BindSets(_buffer, m_material.GetLayouts()[0]);
 }
 
 Material::Material(Renderer* _renderer, vk::Device _device, int _textureCount)
 {
+	m_textureCount = _textureCount;
+	CreatePipelineLayouts(*_renderer, _device);
 	m_pipelines.resize(2);
 	CreatePipelines(_renderer, _device);
-	m_layouts.resize(1);
-	m_layouts[0] = _renderer->GetPipelineLayout();
-	m_textureCount = _textureCount;
 }
 
 void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
@@ -240,7 +239,7 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 #pragma endregion
 
 #pragma region PipelineCreation
-	pipelineInfo.layout = _renderer->GetPipelineLayout();
+	pipelineInfo.layout = m_layouts[0];
 	pipelineInfo.subpass = 0;
 
 	pipelineInfo.renderPass = _renderer->GetRenderPass();
@@ -266,16 +265,51 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 	_device.destroyShaderModule(fragModule);
 }
 
-MaterialInstance* Material::CreateInstance(vk::Device _device, vk::DescriptorSetLayout* _pSetLayouts, vk::DescriptorPool _pool, int _layoutCount)
+void Material::CreatePipelineLayouts(Renderer& _renderer, vk::Device& _device)
+{
+	m_layouts.resize(1);
+
+	vk::DescriptorSetLayout* layouts = new vk::DescriptorSetLayout[2];
+	layouts[0] = _renderer.GetUboSetLayout();
+
+	vk::DescriptorSetLayoutBinding* textureBindings = new vk::DescriptorSetLayoutBinding[m_textureCount];
+
+	for (int i = 0; i < m_textureCount; i++)
+	{
+		vk::DescriptorSetLayoutBinding& textureLayoutBinding = textureBindings[i];
+		textureLayoutBinding.binding = i;
+		textureLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+		textureLayoutBinding.descriptorCount = 1;
+		textureLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+		textureLayoutBinding.pImmutableSamplers = nullptr;
+	}
+
+	vk::DescriptorSetLayoutCreateInfo setLayoutCreateInfo;
+	setLayoutCreateInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
+	setLayoutCreateInfo.bindingCount = m_textureCount;
+	setLayoutCreateInfo.pBindings = textureBindings;
+
+	layouts[1] = _device.createDescriptorSetLayout(setLayoutCreateInfo);
+
+	vk::PipelineLayoutCreateInfo pipelineLayout{};
+	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
+	pipelineLayout.pSetLayouts = layouts;
+	pipelineLayout.setLayoutCount = 2;
+	m_layouts[0] = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
+}
+
+MaterialInstance* Material::CreateInstance(vk::Device _device, vk::DescriptorSetLayout* _pSetLayouts, vk::DescriptorPool _pool, int _layoutCount, vk::ImageView* _views, vk::Sampler* _samplers)
 {
 	MaterialInstance* instance = new MaterialInstance(*this);
 
 	instance->AllocateSets(_device, _pSetLayouts, _pool, _layoutCount);
+	instance->UpdateSets(_device, _views, _samplers);
 
 	return instance;
 }
 
-void Material::RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint)
+void Material::RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet)
 {
 	_buffer.bindPipeline(_bindPoint, m_pipelines[_renderPass]);
+	_buffer.bindDescriptorSets(_bindPoint, m_layouts[0], 0, 1, _uboSet, 0, nullptr);
 }

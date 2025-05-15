@@ -14,10 +14,10 @@ public:
 	Material(Renderer* _renderer, vk::Device _device, int _textureCount);
 	//Material(VulkanRenderer* _renderer, vk::Pipeline& _defaultDepthPipeline);
 	virtual std::vector<vk::PipelineLayout> GetLayouts() { return m_layouts; };
-	virtual void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint);
+	virtual void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet);
 
 
-	virtual MaterialInstance* CreateInstance(vk::Device _device, vk::DescriptorSetLayout* _pSetLayouts, vk::DescriptorPool _pool, int _layoutCount);
+	virtual MaterialInstance* CreateInstance(vk::Device _device, vk::DescriptorSetLayout* _pSetLayouts, vk::DescriptorPool _pool, int _layoutCount, vk::ImageView* _views, vk::Sampler* _samplers);
 private:
 	int m_textureCount;
 
@@ -25,6 +25,7 @@ private:
 	std::vector<vk::PipelineLayout> m_layouts;
 
 	virtual void CreatePipelines(Renderer* _renderer, vk::Device _device);
+	virtual void CreatePipelineLayouts(Renderer& _renderer, vk::Device& _device);
 };
 
 class MaterialInstance
@@ -33,13 +34,13 @@ private:
 	Material& m_material;
 
 public:
-	MaterialInstance(Material& _material) : m_material(_material) {};
+	MaterialInstance(Material& _material) : m_material(_material), m_descriptorSets(nullptr), m_descriptorSetCount(){};
 	void AllocateSets(vk::Device _device, vk::DescriptorSetLayout* _pSetLayouts, vk::DescriptorPool _descriptorPool, int _count);
-	void UpdateSets(vk::Device _device, std::vector<vk::ImageView> _views, std::vector<vk::Sampler> _samplers);
+	void UpdateSets(vk::Device _device, vk::ImageView* _views, vk::Sampler* _samplers);
 
 	void BindSets(vk::CommandBuffer _buffer, vk::PipelineLayout _layout);
 	void CleanUp(vk::Device _device, vk::DescriptorPool _pool);
-	void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint);
+	void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet);
 
 	vk::DescriptorSet* m_descriptorSets;
 	int m_descriptorSetCount;

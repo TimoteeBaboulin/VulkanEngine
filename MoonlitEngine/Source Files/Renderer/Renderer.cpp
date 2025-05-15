@@ -743,7 +743,6 @@ void Renderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex)
 	scissor.extent = m_extent;
 
 	_buffer.setScissor(0, scissor);
-	_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, 1, &m_descriptorSets[0], 0, nullptr);
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
 	m_baseInstance->BindSets(_buffer, m_pipelineLayout);

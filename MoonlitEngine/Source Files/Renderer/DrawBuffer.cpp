@@ -72,7 +72,7 @@ void DrawBuffer::GenerateBuffers()
 		.buffer = m_indexBuffer,
 		.memory = m_indexMemory,
 		.usage = vk::BufferUsageFlagBits::eIndexBuffer,
-		.size = (uint64_t) 32 * m_currentIndex
+		.size = (uint64_t) sizeof(uint16_t) * m_currentIndex
 	};
 
 	vhf::CreateBufferWithStaging(indexInfo, m_indexData);

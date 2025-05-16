@@ -39,7 +39,6 @@ public:
 
 	void Render();
 
-	vk::PipelineLayout GetPipelineLayout() { return m_pipelineLayout; }
 	vk::RenderPass GetRenderPass() const { return m_mainRenderPass; }
 	vk::DescriptorSetLayout GetUboSetLayout() { return m_uboDescriptorLayout; }
 private:
@@ -54,7 +53,6 @@ private:
 	MaterialInstance* m_secondBaseInstance = nullptr;
 
 	vk::RenderPass m_mainRenderPass;
-	vk::PipelineLayout m_pipelineLayout;
 
 	uint32_t m_framesInFlight = 3;
 	uint32_t m_currentFrame = 0;
@@ -64,6 +62,14 @@ private:
 	bool m_windowClosed = false;
 
 	std::vector<DrawBuffer> m_drawBuffers;
+
+#pragma region Debug
+#ifdef RENDER_DEBUG_INFORMATION_QUERY
+	vk::QueryPool m_timestampQueryPool;
+
+	void InitQueryPool();
+#endif
+#pragma endregion
 
 #pragma region SwapchainParameters
 	vk::Extent2D m_extent;
@@ -98,12 +104,9 @@ private:
 	std::vector<vk::Fence> m_waitForPreviousFrame;
 #pragma endregion
 
-	//std::vector<Mesh> m_meshes;
-
 	std::vector<vk::DescriptorPool> m_descriptorPools;
-	std::vector<vk::DescriptorSet> m_descriptorSets;
 
-	vk::DescriptorSetLayout m_shaderDescriptorLayout;
+	vk::DescriptorSet m_uboDescriptorSet;
 	vk::DescriptorSetLayout m_uboDescriptorLayout;
 
 	void InitSyncs();
@@ -111,8 +114,6 @@ private:
 	void PickFormat(VulkanDeviceManager* _deviceManager);
 	void PickPresentMode(VulkanDeviceManager* _deviceManager);
 	void CreateDescriptorSetLayouts();
-	void CreatePipelineLayout();
-
 
 	void CreateUniformBuffers();
 	void CreateDescriptorPools();

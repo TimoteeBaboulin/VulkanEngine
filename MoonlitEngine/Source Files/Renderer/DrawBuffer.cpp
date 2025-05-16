@@ -143,7 +143,7 @@ void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet
 		int instanceCount = m_meshInstanceCount[i];
 		int indexCount = m_meshes[i].first->triangleCount * 3;
 
-		_cmd.drawIndexed(indexCount, 1, currIndex, 0, currInstance);
+		_cmd.drawIndexed(indexCount, instanceCount, currIndex, 0, currInstance);
 
 		currInstance += instanceCount;
 		currIndex += indexCount;

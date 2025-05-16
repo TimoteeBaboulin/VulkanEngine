@@ -22,7 +22,7 @@ private:
 	QueueFamilyIndices m_familyIndices;
 	SwapChainSupportDetails m_swapChainSupportDetails;
 
-	const std::vector<const char*> m_extensionNames = { VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+	const std::vector<const char*> m_extensionNames = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME};
 
 	void PickPhysicalDevice(vk::Instance& _instance);
 	bool CheckDeviceCompatibility(vk::PhysicalDevice& _device);

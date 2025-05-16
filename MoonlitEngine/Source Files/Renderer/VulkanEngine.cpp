@@ -19,6 +19,7 @@ QueueFamilyIndices VulkanEngine::FamilyIndices;
 
 vk::Queue VulkanEngine::GraphicsQueue;
 vk::Queue VulkanEngine::KHRPresentQueue;
+float VulkanEngine::TimeStampPeriods;
 
 //void VulkanEngine::Run()
 //{

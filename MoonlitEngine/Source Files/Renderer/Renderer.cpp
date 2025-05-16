@@ -46,7 +46,6 @@ void Renderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager
 	m_surface = *_context->GetSurface();
 
 	CreateDescriptorSetLayouts();
-	CreatePipelineLayout();
 	CreateUniformBuffers();
 
 	CreateDescriptorPools();
@@ -57,6 +56,10 @@ void Renderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager
 	CreateDepthImage();
 	CreateFrameBuffers();
 	CreateCommandBuffers();
+
+#ifdef RENDER_DEBUG_INFORMATION_QUERY
+	InitQueryPool();
+#endif
 
 	vk::Device device = VulkanEngine::LogicalDevice;
 
@@ -75,11 +78,6 @@ void Renderer::Cleanup()
 {
 	vk::Device& device = VulkanEngine::LogicalDevice;
 
-	/*for (int i = 0; i < m_meshes.size(); i++)
-	{
-		m_meshes[i].CleanUp(device);
-	}*/
-
 	device.freeCommandBuffers(VulkanEngine::MainCommandPool, m_commandBuffers);
 	device.destroyCommandPool(VulkanEngine::MainCommandPool);
 
@@ -87,11 +85,6 @@ void Renderer::Cleanup()
 	{
 		device.unmapMemory(m_uniformMemories[i]);
 		device.destroyBuffer(m_uniformBuffers[i]);
-	}
-
-	for (int i = 0; i < m_descriptorSets.size(); i++)
-	{
-		device.freeDescriptorSets(m_descriptorPools[i], (uint32_t)m_descriptorSets.size(), m_descriptorSets.data());
 	}
 
 	for (int i = 0; i < m_descriptorPools.size(); i++)
@@ -106,7 +99,7 @@ void Renderer::Cleanup()
 		device.destroyFence(m_waitForPreviousFrame[i]);
 	}
 
-	device.freeDescriptorSets(m_descriptorPools[0], m_descriptorSets);
+	device.freeDescriptorSets(m_descriptorPools[0], 1, &m_uboDescriptorSet);
 }
 
 void Renderer::LoadMesh(std::string name)
@@ -120,27 +113,28 @@ void Renderer::LoadMesh(std::string name)
 	glm::mat4x4 model = translate * rotate * scale;
 	if (!test)
 	{
-		m_drawBuffers[0].TryAddMesh(std::pair<MeshData*, MaterialInstance*>(mesh, m_baseInstance), model);
+		for (int i = -5; i < 6; i++)
+		{
+			translate = glm::translate(glm::vec3(i, i, i));
+
+			glm::mat4x4 model = translate * rotate * scale;
+			m_drawBuffers[0].TryAddMesh(std::pair<MeshData*, MaterialInstance*>(mesh, m_baseInstance), model);
+		}
+		
 	}
 	else
 	{
-		m_drawBuffers[0].TryAddMesh(std::pair<MeshData*, MaterialInstance*>(mesh, m_secondBaseInstance), model);
+		for (int i = -5; i < 6; i++)
+		{
+			translate = glm::translate(glm::vec3(i, 0, 0));
+
+			glm::mat4x4 model = translate * rotate * scale;
+			m_drawBuffers[0].TryAddMesh(std::pair<MeshData*, MaterialInstance*>(mesh, m_secondBaseInstance), model);
+		}
 	}
-	
 	test = !test;
 
-	rotate = glm::rotate(45.0f, glm::vec3(0, 1, 0));
-
-	//model = translate * rotate * scale;
-
-	//m_drawBuffers[0].TryAddMesh(mesh, model);
-
 	m_drawBuffers[0].GenerateBuffers();
-
-	/*Mesh mesh;
-	mesh.Load(VulkanEngine::LogicalDevice, _mesh, m_shaderDescriptorLayout, m_descriptorPools[0]);
-	mesh.SetMaterials(&m_baseInstance, 1, VulkanEngine::LogicalDevice);
-	m_meshes.push_back(mesh);*/
 }
 
 void Renderer::Render()
@@ -184,6 +178,15 @@ void Renderer::Render()
 
 	VulkanEngine::GraphicsQueue.submit(submitInfo, m_waitForPreviousFrame[m_currentFrame]);
 
+#ifdef RENDER_DEBUG_INFORMATION_QUERY
+	uint64_t* timestamps = new uint64_t[2];
+	VulkanEngine::LogicalDevice.getQueryPoolResults(m_timestampQueryPool, 0, 2, 2 * sizeof(uint64_t), timestamps, sizeof(uint64_t), vk::QueryResultFlagBits::e64 | vk::QueryResultFlagBits::eWait);
+
+	float delta_in_ms = float(timestamps[1] - timestamps[0]) * VulkanEngine::TimeStampPeriods / 1000000.0f;
+	std::cout << "Rendering " << m_drawBuffers[0].GetTriangleCount() << " triangles" << std::endl;
+	std::cout << "Frame time: " << delta_in_ms << std::endl;
+#endif
+
 	vk::SwapchainKHR swapChains[] = { m_swapChain };
 
 	vk::PresentInfoKHR presentInfo;
@@ -203,6 +206,20 @@ void Renderer::Render()
 	}
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 }
+
+#ifdef RENDER_DEBUG_INFORMATION_QUERY
+void Renderer::InitQueryPool()
+{
+	vk::Device device = VulkanEngine::LogicalDevice;
+
+	vk::QueryPoolCreateInfo createInfo;
+	createInfo.sType = vk::StructureType::eQueryPoolCreateInfo;
+	createInfo.queryType = vk::QueryType::eTimestamp;
+	createInfo.queryCount = 2;
+	
+	m_timestampQueryPool = device.createQueryPool(createInfo);
+}
+#endif
 
 void Renderer::InitSyncs()
 {
@@ -253,35 +270,7 @@ void Renderer::CreateDescriptorSetLayouts()
 	createInfo.pBindings = &uboLayoutBinding;
 
 	m_uboDescriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
-
-	for (int i = 0; i < TEXTURE_DESCRIPTOR_COUNT; i++)
-	{
-		vk::DescriptorSetLayoutBinding& textureLayoutBinding = bindings[i];
-		textureLayoutBinding.binding = i;
-		textureLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-		textureLayoutBinding.descriptorCount = 1;
-		textureLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-		textureLayoutBinding.pImmutableSamplers = nullptr;
-	}
-
-	createInfo.bindingCount = TEXTURE_DESCRIPTOR_COUNT;
-	createInfo.pBindings = bindings;
-
-	m_shaderDescriptorLayout = VulkanEngine::LogicalDevice.createDescriptorSetLayout(createInfo);
 }
-
-void Renderer::CreatePipelineLayout()
-{
-	//Layout
-	vk::DescriptorSetLayout* layouts = new vk::DescriptorSetLayout[2]{ m_uboDescriptorLayout, m_shaderDescriptorLayout };
-
-	vk::PipelineLayoutCreateInfo pipelineLayout{};
-	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
-	pipelineLayout.pSetLayouts = layouts;
-	pipelineLayout.setLayoutCount = 2;
-	m_pipelineLayout = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
-}
-
 
 void Renderer::CreateUniformBuffers()
 {
@@ -304,7 +293,6 @@ void Renderer::CreateUniformBuffers()
 		vhf::CreateBuffer(info);
 		m_uniformMaps[i] = VulkanEngine::LogicalDevice.mapMemory(m_uniformMemories[i], 0, bufferSize);
 	}
-
 }
 
 void Renderer::CreateDescriptorPools()
@@ -328,14 +316,14 @@ void Renderer::CreateDescriptorPools()
 
 void Renderer::CreateDescriptorSets()
 {
-	m_descriptorSets.resize(1);
 	vk::DescriptorSetAllocateInfo allocInfo;
 	allocInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
 	allocInfo.descriptorPool = m_descriptorPools[0];
 	allocInfo.descriptorSetCount = 1;
 	allocInfo.pSetLayouts = &m_uboDescriptorLayout;
 
-	m_descriptorSets = VulkanEngine::LogicalDevice.allocateDescriptorSets(allocInfo);
+	std::vector<vk::DescriptorSet> sets = VulkanEngine::LogicalDevice.allocateDescriptorSets(allocInfo);
+	m_uboDescriptorSet = sets[0];
 
 	std::vector<vk::WriteDescriptorSet> writeSets;
 
@@ -346,7 +334,7 @@ void Renderer::CreateDescriptorSets()
 
 	vk::WriteDescriptorSet writeSet;
 	writeSet.sType = vk::StructureType::eWriteDescriptorSet;
-	writeSet.dstSet = m_descriptorSets[0];
+	writeSet.dstSet = m_uboDescriptorSet;
 	writeSet.dstBinding = 0;
 	writeSet.dstArrayElement = 0;
 	writeSet.descriptorCount = 1;
@@ -586,8 +574,6 @@ void Renderer::CleanupSwapchain()
 }
 #pragma endregion
 
-
-
 void Renderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
 {
 	switch (_event)
@@ -632,6 +618,10 @@ void Renderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex)
 	beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
 	_buffer.begin(beginInfo);
 
+#ifdef RENDER_DEBUG_INFORMATION_QUERY
+	_buffer.resetQueryPool(m_timestampQueryPool, 0, 2);
+#endif
+
 	vk::ClearValue value;
 	value.color = vk::ClearColorValue();
 	value.color.float32.at(0) = 0.0f;
@@ -670,32 +660,31 @@ void Renderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex)
 	_buffer.setScissor(0, scissor);
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
+#ifdef RENDER_DEBUG_INFORMATION_QUERY
+	_buffer.writeTimestamp(vk::PipelineStageFlagBits::eTopOfPipe, m_timestampQueryPool, 0);
+#endif
+
 	for (auto& drawBuffer : m_drawBuffers)
 	{
-		drawBuffer.RenderBuffer(_buffer, &m_descriptorSets[0], 0);
+		drawBuffer.RenderBuffer(_buffer, &m_uboDescriptorSet, 0);
 	}
-
-	//for(auto& Mesh : m_meshes)
-	//{
-	//	Mesh.RecordCommandBuffer(_buffer, 0, vk::PipelineBindPoint::eGraphics);
-	//}
 
 	_buffer.nextSubpass(vk::SubpassContents::eInline);
 
 	for (auto& drawBuffer : m_drawBuffers)
 	{
-		drawBuffer.RenderBuffer(_buffer, &m_descriptorSets[0], 1);
+		drawBuffer.RenderBuffer(_buffer, &m_uboDescriptorSet, 1);
 	}
 
-	//for (auto& Mesh : m_meshes)
-	//{
-	//	Mesh.RecordCommandBuffer(_buffer, 1, vk::PipelineBindPoint::eGraphics);
-	//}
-
 	_buffer.endRenderPass();
+
+#ifdef RENDER_DEBUG_INFORMATION_QUERY
+	
+	_buffer.writeTimestamp(vk::PipelineStageFlagBits::eBottomOfPipe, m_timestampQueryPool, 1);
+#endif
+	
 	_buffer.end();
 }
-
 
 void CameraInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
 {

@@ -12,6 +12,9 @@ VulkanDeviceManager::VulkanDeviceManager(vk::SurfaceKHR& _surface) : m_surface(_
 void VulkanDeviceManager::Init(vk::Instance& _instance) 
 {
 	PickPhysicalDevice(_instance);
+
+	VulkanEngine::TimeStampPeriods = VulkanEngine::PhysicalDevice.getProperties().limits.timestampPeriod;
+
 	CreateLogicalDevice();
 	VulkanEngine::FamilyIndices = m_familyIndices;
 }

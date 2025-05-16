@@ -21,6 +21,21 @@ public:
 	void GenerateBuffers();
 	void RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass);
 
+	uint32_t GetVertexCount() const { return m_vertexCount; }
+	uint32_t GetTriangleCount() const 
+	{ 
+		int triangleCount = 0;
+		int index = 0;
+
+		for (auto it = m_meshes.begin(); it != m_meshes.end(); it++)
+		{
+			triangleCount += (*it).first->triangleCount * m_meshInstanceCount[index];
+
+			index++;
+		}
+
+		return triangleCount;
+	}
 private:
 	Vertex* m_vertexData;
 	glm::mat4x4* m_modelData;

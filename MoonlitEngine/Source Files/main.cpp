@@ -114,7 +114,7 @@ GLFWwindow* InitWindow(VulkanEngine& _app)
     {
         extensions.push_back(extensionsBuffer[i]);
     }
-
+    extensions.push_back(VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME);
 
     HWND winHandle = glfwGetWin32Window(window);
 

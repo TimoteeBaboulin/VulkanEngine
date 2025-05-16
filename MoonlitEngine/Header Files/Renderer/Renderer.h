@@ -45,10 +45,13 @@ public:
 private:
 	VulkanEngine* m_engine;
 
+	bool test = false;
+
 	CameraInputHandler* m_inputHandler;
 
 	Material* m_baseMaterial = nullptr;
 	MaterialInstance* m_baseInstance = nullptr;
+	MaterialInstance* m_secondBaseInstance = nullptr;
 
 	vk::RenderPass m_mainRenderPass;
 	vk::PipelineLayout m_pipelineLayout;

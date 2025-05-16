@@ -25,34 +25,35 @@ bool DrawBuffer::MeshCanFit(MeshData _mesh)
 	return (_mesh.vertexCount + m_vertexCount <= MaxVertexCount) && (_mesh.triangleCount * 3 + m_indexCount <= MaxIndexCount);
 }
 
-bool DrawBuffer::TryAddMesh(MeshData* _mesh, glm::mat4x4 _modelMatrice)
+bool DrawBuffer::TryAddMesh(std::pair <MeshData*, MaterialInstance*> _meshInstance, glm::mat4x4 _modelMatrice)
 {
-	int vertexCount = _mesh->vertexCount;
+	MeshData* mesh = _meshInstance.first;
+	int vertexCount = mesh->vertexCount;
 
-	if (!MeshCanFit(*_mesh))
+	if (!MeshCanFit(*mesh))
 		throw new std::exception("Not enough place in DrawBuffer");
 
-	auto it = std::find(m_meshes.begin(), m_meshes.end(), _mesh);
+	auto it = std::find(m_meshes.begin(), m_meshes.end(), _meshInstance);
 	int index = m_meshes.size();
 	if (it == m_meshes.end())
 	{
 		Vertex* vertexBuffer = m_vertexData + m_vertexCount;
 		uint16_t* indexBuffer = m_indexData + m_indexCount;
 
-		int indexCount = 3 * _mesh->triangleCount;
+		int indexCount = 3 * mesh->triangleCount;
 
-		memcpy(vertexBuffer, _mesh->vertices, sizeof(Vertex) * vertexCount);
+		memcpy(vertexBuffer, mesh->vertices, sizeof(Vertex) * vertexCount);
 
 		for (int i = 0; i < indexCount; i++)
 		{
-			indexBuffer[i] = _mesh->indices[i] + m_vertexCount;
+			indexBuffer[i] = mesh->indices[i] + m_vertexCount;
 		}
 		//memcpy(indexBuffer, _mesh->indices, 16 * 3 * _mesh->triangleCount);
 
 		m_vertexCount += vertexCount;
-		m_indexCount += _mesh->triangleCount * 3;
+		m_indexCount += mesh->triangleCount * 3;
 
-		m_meshes.push_back(_mesh);
+		m_meshes.push_back(_meshInstance);
 
 		m_modelMatrices.push_back(std::vector<glm::mat4x4>());
 		m_meshInstanceCount.push_back(0);
@@ -122,7 +123,7 @@ void DrawBuffer::GenerateBuffers()
 	m_dirty = false;
 }
 
-void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet)
+void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass)
 {
 	if (!m_buffersGenerated || m_dirty)
 		return;
@@ -137,8 +138,10 @@ void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet
 
 	for (int i = 0; i < m_meshes.size(); i++)
 	{
+		m_meshes[i].second->RecordCommandBuffer(_cmd, _currentPass, vk::PipelineBindPoint::eGraphics, _uboSet);
+
 		int instanceCount = m_meshInstanceCount[i];
-		int indexCount = m_meshes[i]->triangleCount * 3;
+		int indexCount = m_meshes[i].first->triangleCount * 3;
 
 		_cmd.drawIndexed(indexCount, 1, currIndex, 0, currInstance);
 

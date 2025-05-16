@@ -18,6 +18,7 @@
 #include "Camera.h"
 
 #include "ResourceManagement/MeshBank.h"
+#include "ResourceManagement/TextureBank.h"
 
 #define GLM_FORCE_RADIANS
 
@@ -59,99 +60,15 @@ void Renderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager
 
 	vk::Device device = VulkanEngine::LogicalDevice;
 
+	TextureBank::Instance->TryLoad("Textures/barstool_albedo.png");
+	TextureBank::Instance->TryLoad("Textures/sniper_albedo.png");
+
+	TextureData* barstoolTex = TextureBank::Instance->Get("barstool_albedo");
+	TextureData* sniperTex = TextureBank::Instance->Get("sniper_albedo");
+
 	m_baseMaterial = new Material(this, device, 1);
-	m_baseInstance = m_baseMaterial->CreateInstance(device, &m_shaderDescriptorLayout, m_descriptorPools[0], 1);
-	m_baseInstance->AllocateSets(device, &m_shaderDescriptorLayout, m_descriptorPools[0], 1);
-
-	Image texture;
-	ImportImage("Textures/barstool_albedo.png", texture);
-
-	vk::Buffer stagingBuffer;
-	vk::DeviceMemory stagingMemory;
-	vk::DeviceMemory imageMemory;
-	size_t memorySize = texture.width * texture.height * 4;
-	vk::Extent2D extent = { texture.width, texture.height };
-
-	//Create staging buffer
-	BufferCreateInfo staging = {
-		.buffer = stagingBuffer,
-		.memory = stagingMemory,
-		.usage = vk::BufferUsageFlagBits::eTransferSrc,
-		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-		.size = memorySize
-	};
-
-	vhf::CreateBuffer(staging);
-	void* map = device.mapMemory(stagingMemory, 0, memorySize);
-	memcpy(map, texture.pixels, memorySize);
-
-	std::vector<vk::Image> images(1);
-
-	//Create Image
-	vhf::CreateImage(extent, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
-		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal,
-		images[0], imageMemory, vk::ImageLayout::eUndefined);
-
-	TransitionInfo transInfo =
-	{
-		.srcAccessFlags = vk::AccessFlagBits::eNone,
-		.dstAccessFlags = vk::AccessFlagBits::eTransferWrite,
-		.srcStage = vk::PipelineStageFlagBits::eTopOfPipe,
-		.dstStage = vk::PipelineStageFlagBits::eTransfer
-	};
-	vhf::TransitionImageLayout(images[0], vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eTransferDstOptimal, transInfo);
-
-	//Copy staging buffer to image
-	vhf::CopyBufferToImage(stagingBuffer, images[0], extent);
-
-	//Prepare for shader read
-	transInfo =
-	{
-		.srcAccessFlags = vk::AccessFlagBits::eTransferWrite,
-		.dstAccessFlags = vk::AccessFlagBits::eShaderRead,
-		.srcStage = vk::PipelineStageFlagBits::eTransfer,
-		.dstStage = vk::PipelineStageFlagBits::eFragmentShader
-	};
-
-	vhf::TransitionImageLayout(images[0], vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eTransferDstOptimal,
-		vk::ImageLayout::eShaderReadOnlyOptimal, transInfo);
-
-	std::vector<vk::ImageView> imageViews(1); 
-	imageViews[0] = vhf::CreateImageView(images[0], vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
-
-	std::vector<vk::Sampler> samplers(1);
-
-	//Create sampler
-	vk::SamplerCreateInfo info;
-	info.sType = vk::StructureType::eSamplerCreateInfo;
-	info.magFilter = vk::Filter::eLinear;
-	info.minFilter = vk::Filter::eLinear;
-
-	info.addressModeU = vk::SamplerAddressMode::eRepeat;
-	info.addressModeV = vk::SamplerAddressMode::eRepeat;
-	info.addressModeW = vk::SamplerAddressMode::eRepeat;
-
-	info.anisotropyEnable = false;
-	info.maxAnisotropy = 4;
-	info.borderColor = vk::BorderColor::eIntOpaqueBlack;
-	info.unnormalizedCoordinates = false;
-
-	info.compareEnable = false;
-	info.compareOp = vk::CompareOp::eAlways;
-
-	info.mipmapMode = vk::SamplerMipmapMode::eLinear;
-	info.mipLodBias = 0.0f;
-	info.minLod = 0.0f;
-	info.maxLod = 0.0f;
-
-	samplers[0] = VulkanEngine::LogicalDevice.createSampler(info);
-
-	//Free staging buffer
-	device.unmapMemory(stagingMemory);
-	device.destroyBuffer(stagingBuffer);
-
-	m_baseInstance->UpdateSets(device, imageViews, samplers);
+	m_baseInstance = m_baseMaterial->CreateInstance(device, m_descriptorPools[0], &barstoolTex->m_imageView, &barstoolTex->m_sampler);
+	m_secondBaseInstance = m_baseMaterial->CreateInstance(device, m_descriptorPools[0], &sniperTex->m_imageView, &sniperTex->m_sampler);
 }
 
 void Renderer::Cleanup()
@@ -201,8 +118,16 @@ void Renderer::LoadMesh(std::string name)
 	glm::mat4x4 translate = glm::translate(glm::vec3(0, 0, 0));
 
 	glm::mat4x4 model = translate * rotate * scale;
-
-	m_drawBuffers[0].TryAddMesh(mesh, model);
+	if (!test)
+	{
+		m_drawBuffers[0].TryAddMesh(std::pair<MeshData*, MaterialInstance*>(mesh, m_baseInstance), model);
+	}
+	else
+	{
+		m_drawBuffers[0].TryAddMesh(std::pair<MeshData*, MaterialInstance*>(mesh, m_secondBaseInstance), model);
+	}
+	
+	test = !test;
 
 	rotate = glm::rotate(45.0f, glm::vec3(0, 1, 0));
 
@@ -745,13 +670,9 @@ void Renderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex)
 	_buffer.setScissor(0, scissor);
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-	m_baseInstance->BindSets(_buffer, m_pipelineLayout);
-
-	m_baseInstance->RecordCommandBuffer(_buffer, 0, vk::PipelineBindPoint::eGraphics);
-
 	for (auto& drawBuffer : m_drawBuffers)
 	{
-		drawBuffer.RenderBuffer(_buffer);
+		drawBuffer.RenderBuffer(_buffer, &m_descriptorSets[0], 0);
 	}
 
 	//for(auto& Mesh : m_meshes)
@@ -761,11 +682,9 @@ void Renderer::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex)
 
 	_buffer.nextSubpass(vk::SubpassContents::eInline);
 
-	m_baseInstance->RecordCommandBuffer(_buffer, 1, vk::PipelineBindPoint::eGraphics);
-
 	for (auto& drawBuffer : m_drawBuffers)
 	{
-		drawBuffer.RenderBuffer(_buffer);
+		drawBuffer.RenderBuffer(_buffer, &m_descriptorSets[0], 1);
 	}
 
 	//for (auto& Mesh : m_meshes)

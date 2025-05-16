@@ -381,6 +381,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\ResourceManagement\TextureBank.cpp" />
     <ClCompile Include="Source Files\Renderer\DrawBuffer.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp" />
     <ClCompile Include="Source Files\Renderer\MeshInstanceManager.cpp" />
@@ -433,6 +434,8 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\ResourceManagement\MeshBank.h" />
     <ClInclude Include="Header Files\ResourceManagement\ResourceBank.h" />
     <ClInclude Include="Header Files\ResourceManagement\ResourceManager.h" />
+    <ClInclude Include="Header Files\ResourceManagement\TextureBank.h" />
+    <ClInclude Include="Header Files\ResourceManagement\TextureData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\frag.spv" />

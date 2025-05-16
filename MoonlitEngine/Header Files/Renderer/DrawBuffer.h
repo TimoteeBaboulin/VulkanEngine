@@ -16,10 +16,10 @@ public:
 
 	int RemainingVertexPlaces();
 	bool MeshCanFit(MeshData _mesh);
-	bool TryAddMesh(MeshData* _mesh, glm::mat4x4 _modelMatrice);
+	bool TryAddMesh(std::pair <MeshData*, MaterialInstance*> _meshInstance, glm::mat4x4 _modelMatrice);
 
 	void GenerateBuffers();
-	void RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet);
+	void RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass);
 
 private:
 	Vertex* m_vertexData;

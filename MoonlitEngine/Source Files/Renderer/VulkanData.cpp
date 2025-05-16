@@ -239,7 +239,7 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 #pragma endregion
 
 #pragma region PipelineCreation
-	pipelineInfo.layout = m_layouts[0];
+	pipelineInfo.layout = m_pipelineLayouts[0];
 	pipelineInfo.subpass = 0;
 
 	pipelineInfo.renderPass = _renderer->GetRenderPass();
@@ -267,10 +267,10 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 
 void Material::CreatePipelineLayouts(Renderer& _renderer, vk::Device& _device)
 {
-	m_layouts.resize(1);
+	m_pipelineLayouts.resize(1);
 
-	vk::DescriptorSetLayout* layouts = new vk::DescriptorSetLayout[2];
-	layouts[0] = _renderer.GetUboSetLayout();
+	m_setLayouts.resize(2);
+	m_setLayouts[0] = _renderer.GetUboSetLayout();
 
 	vk::DescriptorSetLayoutBinding* textureBindings = new vk::DescriptorSetLayoutBinding[m_textureCount];
 
@@ -289,20 +289,20 @@ void Material::CreatePipelineLayouts(Renderer& _renderer, vk::Device& _device)
 	setLayoutCreateInfo.bindingCount = m_textureCount;
 	setLayoutCreateInfo.pBindings = textureBindings;
 
-	layouts[1] = _device.createDescriptorSetLayout(setLayoutCreateInfo);
+	m_setLayouts[1] = _device.createDescriptorSetLayout(setLayoutCreateInfo);
 
 	vk::PipelineLayoutCreateInfo pipelineLayout{};
 	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
-	pipelineLayout.pSetLayouts = layouts;
+	pipelineLayout.pSetLayouts = m_setLayouts.data();
 	pipelineLayout.setLayoutCount = 2;
-	m_layouts[0] = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
+	m_pipelineLayouts[0] = VulkanEngine::LogicalDevice.createPipelineLayout(pipelineLayout);
 }
 
-MaterialInstance* Material::CreateInstance(vk::Device _device, vk::DescriptorSetLayout* _pSetLayouts, vk::DescriptorPool _pool, int _layoutCount, vk::ImageView* _views, vk::Sampler* _samplers)
+MaterialInstance* Material::CreateInstance(vk::Device _device, vk::DescriptorPool _pool, vk::ImageView* _views, vk::Sampler* _samplers)
 {
 	MaterialInstance* instance = new MaterialInstance(*this);
 
-	instance->AllocateSets(_device, _pSetLayouts, _pool, _layoutCount);
+	instance->AllocateSets(_device, m_setLayouts.data() + 1, _pool, m_textureCount);
 	instance->UpdateSets(_device, _views, _samplers);
 
 	return instance;
@@ -311,5 +311,5 @@ MaterialInstance* Material::CreateInstance(vk::Device _device, vk::DescriptorSet
 void Material::RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet)
 {
 	_buffer.bindPipeline(_bindPoint, m_pipelines[_renderPass]);
-	_buffer.bindDescriptorSets(_bindPoint, m_layouts[0], 0, 1, _uboSet, 0, nullptr);
+	_buffer.bindDescriptorSets(_bindPoint, m_pipelineLayouts[0], 0, 1, _uboSet, 0, nullptr);
 }

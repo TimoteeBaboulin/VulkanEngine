@@ -96,6 +96,7 @@
     <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\ResourceManagement\TextureBank.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\GameObject.h">
@@ -137,6 +138,8 @@
     <ClInclude Include="Header Files\ResourceManagement\MeshBank.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\ResourceManagement\TextureData.h" />
+    <ClInclude Include="Header Files\ResourceManagement\TextureBank.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Inputs\InputManager.h">

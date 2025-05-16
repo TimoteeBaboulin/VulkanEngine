@@ -13,16 +13,17 @@ class Material
 public:
 	Material(Renderer* _renderer, vk::Device _device, int _textureCount);
 	//Material(VulkanRenderer* _renderer, vk::Pipeline& _defaultDepthPipeline);
-	virtual std::vector<vk::PipelineLayout> GetLayouts() { return m_layouts; };
+	virtual std::vector<vk::PipelineLayout> GetLayouts() { return m_pipelineLayouts; };
 	virtual void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet);
 
 
-	virtual MaterialInstance* CreateInstance(vk::Device _device, vk::DescriptorSetLayout* _pSetLayouts, vk::DescriptorPool _pool, int _layoutCount, vk::ImageView* _views, vk::Sampler* _samplers);
+	virtual MaterialInstance* CreateInstance(vk::Device _device, vk::DescriptorPool _pool, vk::ImageView* _views, vk::Sampler* _samplers);
 private:
 	int m_textureCount;
 
 	std::vector<vk::Pipeline> m_pipelines;
-	std::vector<vk::PipelineLayout> m_layouts;
+	std::vector<vk::PipelineLayout> m_pipelineLayouts;
+	std::vector<vk::DescriptorSetLayout> m_setLayouts;
 
 	virtual void CreatePipelines(Renderer* _renderer, vk::Device _device);
 	virtual void CreatePipelineLayouts(Renderer& _renderer, vk::Device& _device);

@@ -43,6 +43,8 @@ public:
 	void CleanUp(vk::Device _device, vk::DescriptorPool _pool);
 	void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet);
 
+	Material& GetMaterial() const { return m_material; }
+
 	vk::DescriptorSet* m_descriptorSets;
 	int m_descriptorSetCount;
 };

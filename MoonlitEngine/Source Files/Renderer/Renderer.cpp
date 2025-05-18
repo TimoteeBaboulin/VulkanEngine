@@ -180,7 +180,14 @@ void Renderer::Render()
 
 #ifdef RENDER_DEBUG_INFORMATION_QUERY
 	uint64_t* timestamps = new uint64_t[2];
-	VulkanEngine::LogicalDevice.getQueryPoolResults(m_timestampQueryPool, 0, 2, 2 * sizeof(uint64_t), timestamps, sizeof(uint64_t), vk::QueryResultFlagBits::e64 | vk::QueryResultFlagBits::eWait);
+	VulkanEngine::LogicalDevice.getQueryPoolResults(
+		m_timestampQueryPool, 
+		0, 
+		2, 
+		2 * sizeof(uint64_t), 
+		timestamps, 
+		sizeof(uint64_t), 
+		vk::QueryResultFlagBits::e64 | vk::QueryResultFlagBits::eWait);
 
 	float delta_in_ms = float(timestamps[1] - timestamps[0]) * VulkanEngine::TimeStampPeriods / 1000000.0f;
 	std::cout << "Rendering " << m_drawBuffers[0].GetTriangleCount() << " triangles" << std::endl;

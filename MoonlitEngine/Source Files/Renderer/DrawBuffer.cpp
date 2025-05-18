@@ -119,6 +119,43 @@ void DrawBuffer::GenerateBuffers()
 
 	vhf::CreateBufferWithStaging(modelBufferInfo, m_modelData);
 
+	vk::Device device = VulkanEngine::LogicalDevice;
+
+	int drawCount = m_meshes.size();
+	uint64_t bufferSize = drawCount * sizeof(vk::DrawIndexedIndirectCommand);
+
+	BufferCreateInfo info = BufferCreateInfo{
+		.buffer = m_drawCommandBuffer,
+		.memory = m_drawCommandMemory,
+		.usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eIndirectBuffer,
+		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
+		.size = bufferSize
+	};
+
+	int currIndex = 0;
+	int currInstance = 0;
+
+	m_drawCommands.resize(drawCount);
+
+	for (int i = 0; i < drawCount; i++)
+	{
+		int instanceCount = m_meshInstanceCount[i];
+		int indexCount = m_meshes[i].first->triangleCount * 3;
+
+		m_drawCommands[i].firstIndex = currIndex;
+		m_drawCommands[i].firstInstance = currInstance;
+		m_drawCommands[i].indexCount = indexCount;
+		m_drawCommands[i].instanceCount = instanceCount;
+		m_drawCommands[i].vertexOffset = 0;
+
+		//_cmd.drawIndexed(indexCount, instanceCount, currIndex, 0, currInstance);
+
+		currInstance += instanceCount;
+		currIndex += indexCount;
+	}
+
+	vhf::CreateBufferWithStaging(info, m_drawCommands.data());
+
 	m_buffersGenerated = true;
 	m_dirty = false;
 }
@@ -129,6 +166,7 @@ void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet
 		return;
 
 	vk::DeviceSize offsets[] = { 0 };
+
 	_cmd.bindVertexBuffers(0, m_vertexBuffer, offsets);
 	_cmd.bindVertexBuffers(1, m_modelMatriceBuffer, offsets);
 	_cmd.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint16);
@@ -148,6 +186,25 @@ void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet
 		currInstance += instanceCount;
 		currIndex += indexCount;
 	}
+}
+
+void DrawBuffer::RenderBufferIndirect(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass)
+{
+	if (!m_buffersGenerated || m_dirty)
+		return;
+
+	vk::DeviceSize offsets[] = { 0 };
+
+	_cmd.bindVertexBuffers(0, m_vertexBuffer, offsets);
+	_cmd.bindVertexBuffers(1, m_modelMatriceBuffer, offsets);
+	_cmd.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint16);
+
+	for (int i = 0; i < m_meshes.size(); i++)
+	{
+		m_meshes[i].second->RecordCommandBuffer(_cmd, _currentPass, vk::PipelineBindPoint::eGraphics, _uboSet);
+	}
+
+	_cmd.drawIndexedIndirect(m_drawCommandBuffer, 0, m_meshes.size(), sizeof(vk::DrawIndexedIndirectCommand));
 }
 
 void DrawBuffer::GenerateModelMatriceBuffer()

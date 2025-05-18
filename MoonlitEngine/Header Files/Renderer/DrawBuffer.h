@@ -20,6 +20,7 @@ public:
 
 	void GenerateBuffers();
 	void RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass);
+	void RenderBufferIndirect(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass);
 
 	uint32_t GetVertexCount() const { return m_vertexCount; }
 	uint32_t GetTriangleCount() const 
@@ -49,6 +50,8 @@ private:
 	std::vector<std::vector<glm::mat4x4>> m_modelMatrices;
 	std::vector<int> m_meshInstanceCount;
 
+	std::vector<vk::DrawIndexedIndirectCommand> m_drawCommands;
+
 	bool m_buffersGenerated;
 	bool m_dirty;
 
@@ -56,9 +59,13 @@ private:
 	vk::Buffer m_modelMatriceBuffer;
 	vk::Buffer m_indexBuffer;
 
+	vk::Buffer m_drawCommandBuffer;
+
 	vk::DeviceMemory m_vertexMemory;
 	vk::DeviceMemory m_indexMemory;
 	vk::DeviceMemory m_modelMatriceMemory;
+
+	vk::DeviceMemory m_drawCommandMemory;
 
 	void GenerateModelMatriceBuffer();
 };

@@ -55,8 +55,8 @@ void MaterialInstance::CleanUp(vk::Device _device, vk::DescriptorPool _pool)
 
 void MaterialInstance::RecordCommandBuffer(vk::CommandBuffer& _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet)
 {
-	m_material.RecordCommandBuffer(_buffer, _renderPass, _bindPoint, _uboSet);
-	BindSets(_buffer, m_material.GetLayouts()[0]);
+	//m_material.RecordCommandBuffer(_buffer, _renderPass, _bindPoint, _uboSet);
+	//BindSets(_buffer, m_material.GetLayouts()[0]);
 }
 
 Material::Material(Renderer* _renderer, vk::Device _device, int _textureCount)
@@ -96,10 +96,10 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 	vertexBinding[0].inputRate = vk::VertexInputRate::eVertex;
 
 	vertexBinding[1].binding = 1;
-	vertexBinding[1].stride = 64;
+	vertexBinding[1].stride = 64 + 4 * m_textureCount;
 	vertexBinding[1].inputRate = vk::VertexInputRate::eInstance;
 
-	vk::VertexInputAttributeDescription* vertexAttributes = new vk::VertexInputAttributeDescription[7];
+	vk::VertexInputAttributeDescription* vertexAttributes = new vk::VertexInputAttributeDescription[7 + m_textureCount];
 
 	vertexAttributes[0].binding = 0;
 	vertexAttributes[0].format = vk::Format::eR32G32B32Sfloat;
@@ -136,9 +136,21 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 	vertexAttributes[6].location = 6;
 	vertexAttributes[6].offset = 48;
 
+	int offset = 64;
+
+	for (size_t index = 7; index < 7 + m_textureCount; index++)
+	{
+		vertexAttributes[index].binding = 1;
+		vertexAttributes[index].format = vk::Format::eR32Sint;
+		vertexAttributes[index].location = index;
+		vertexAttributes[index].offset = offset;
+
+		offset += 4;
+	}
+
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
 	vertexInputInfo.vertexBindingDescriptionCount = 2;
-	vertexInputInfo.vertexAttributeDescriptionCount = 7;
+	vertexInputInfo.vertexAttributeDescriptionCount = 7 + m_textureCount;
 	vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes;
 	vertexInputInfo.pVertexBindingDescriptions = vertexBinding;
 
@@ -272,22 +284,28 @@ void Material::CreatePipelineLayouts(Renderer& _renderer, vk::Device& _device)
 	m_setLayouts.resize(2);
 	m_setLayouts[0] = _renderer.GetUboSetLayout();
 
-	vk::DescriptorSetLayoutBinding* textureBindings = new vk::DescriptorSetLayoutBinding[m_textureCount];
+	//vk::DescriptorSetLayoutBinding* textureBindings = new vk::DescriptorSetLayoutBinding[m_textureCount];
 
-	for (int i = 0; i < m_textureCount; i++)
-	{
-		vk::DescriptorSetLayoutBinding& textureLayoutBinding = textureBindings[i];
-		textureLayoutBinding.binding = i;
-		textureLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-		textureLayoutBinding.descriptorCount = 1;
-		textureLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-		textureLayoutBinding.pImmutableSamplers = nullptr;
-	}
+	vk::DescriptorSetLayoutBinding textureLayoutBinding;
+	textureLayoutBinding.binding = 0;
+	textureLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+	textureLayoutBinding.descriptorCount = TextureArrayCount;
+	textureLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+	textureLayoutBinding.pImmutableSamplers = nullptr;
 
 	vk::DescriptorSetLayoutCreateInfo setLayoutCreateInfo;
 	setLayoutCreateInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
-	setLayoutCreateInfo.bindingCount = m_textureCount;
-	setLayoutCreateInfo.pBindings = textureBindings;
+	setLayoutCreateInfo.bindingCount = 1;
+	setLayoutCreateInfo.pBindings = &textureLayoutBinding;
+
+	const vk::DescriptorBindingFlags flags = vk::DescriptorBindingFlagBits::ePartiallyBound;
+
+	vk::DescriptorSetLayoutBindingFlagsCreateInfo flagsCreateInfo = vk::DescriptorSetLayoutBindingFlagsCreateInfo();
+	flagsCreateInfo.sType = vk::StructureType::eDescriptorSetLayoutBindingFlagsCreateInfo;
+	flagsCreateInfo.bindingCount = 1;
+	flagsCreateInfo.pBindingFlags = &flags;
+
+	setLayoutCreateInfo.pNext = &flagsCreateInfo;
 
 	m_setLayouts[1] = _device.createDescriptorSetLayout(setLayoutCreateInfo);
 
@@ -308,8 +326,8 @@ MaterialInstance* Material::CreateInstance(vk::Device _device, vk::DescriptorPoo
 	return instance;
 }
 
-void Material::RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet)
+void Material::RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint)
 {
 	_buffer.bindPipeline(_bindPoint, m_pipelines[_renderPass]);
-	_buffer.bindDescriptorSets(_bindPoint, m_pipelineLayouts[0], 0, 1, _uboSet, 0, nullptr);
+	//_buffer.bindDescriptorSets(_bindPoint, m_pipelineLayouts[0], 0, 1, _uboSet, 0, nullptr);
 }

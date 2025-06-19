@@ -49,8 +49,8 @@ private:
 	CameraInputHandler* m_inputHandler;
 
 	Material* m_baseMaterial = nullptr;
-	MaterialInstance* m_baseInstance = nullptr;
-	MaterialInstance* m_secondBaseInstance = nullptr;
+	//MaterialInstance* m_baseInstance = nullptr;
+	//MaterialInstance* m_secondBaseInstance = nullptr;
 
 	vk::RenderPass m_mainRenderPass;
 

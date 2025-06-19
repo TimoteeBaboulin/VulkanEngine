@@ -114,7 +114,6 @@ GLFWwindow* InitWindow(VulkanEngine& _app)
     {
         extensions.push_back(extensionsBuffer[i]);
     }
-    extensions.push_back(VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME);
 
     HWND winHandle = glfwGetWin32Window(window);
 
@@ -125,6 +124,6 @@ GLFWwindow* InitWindow(VulkanEngine& _app)
         .windowHandle = winHandle
     };
 
-    _app.InitContext(context, extensions.data(), extensionCount);
+    _app.InitContext(context, extensions.data(), extensions.size());
     return window;
 }

@@ -59,7 +59,7 @@ bool MeshBank::TryLoad(std::string _filepath)
 
     m_resources.push_back(ResourcePair<MeshData>{
         name,
-        GetMesh(scene->mMeshes[0])
+        std::make_shared<MeshData>(&GetMesh(scene->mMeshes[0]))
     });
 
     return false;

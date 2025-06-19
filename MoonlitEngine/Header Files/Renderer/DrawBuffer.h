@@ -3,6 +3,7 @@
 #include "common.h"
 
 #include "VulkanData.h"
+#include "ResourceManagement/TextureData.h"
 
 //This should make the vertex and index buffer sizes be 32 mb
 constexpr int MaxVertexCount = 100000;
@@ -12,11 +13,11 @@ constexpr int MaxIndexCount = 1600000;
 class DrawBuffer
 {
 public:
-	DrawBuffer();
+	DrawBuffer(Material* _material);
 
 	int RemainingVertexPlaces();
 	bool MeshCanFit(MeshData _mesh);
-	bool TryAddMesh(std::pair <MeshData*, MaterialInstance*> _meshInstance, glm::mat4x4 _modelMatrice);
+	bool TryAddMesh(MeshData* _meshData, glm::mat4x4 _modelMatrice, std::vector<TextureData*> m_textures);
 
 	void GenerateBuffers();
 	void RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass);
@@ -30,7 +31,7 @@ public:
 
 		for (auto it = m_meshes.begin(); it != m_meshes.end(); it++)
 		{
-			triangleCount += (*it).first->triangleCount * m_meshInstanceCount[index];
+			triangleCount += (*it)->triangleCount * m_meshInstanceCount[index];
 
 			index++;
 		}
@@ -39,20 +40,27 @@ public:
 	}
 private:
 	Vertex* m_vertexData;
-	glm::mat4x4* m_modelData;
 	uint16_t* m_indexData;
+
+	glm::mat4x4* m_modelData;
+
+	Material* m_material;
 
 	int m_vertexCount;
 	int m_indexCount;
 	int m_instanceCount;
 
-	std::vector<std::pair<MeshData*, MaterialInstance*>> m_meshes;
+	std::vector<MeshData*> m_meshes;
 	std::vector<std::vector<glm::mat4x4>> m_modelMatrices;
 	std::vector<int> m_meshInstanceCount;
 
 	std::vector<vk::DrawIndexedIndirectCommand> m_drawCommands;
 
+	std::vector<TextureData*> m_textures;
+	std::vector<int> m_textureIndexes;
+
 	bool m_buffersGenerated;
+	bool m_texturesDirty;
 	bool m_dirty;
 
 	vk::Buffer m_vertexBuffer;
@@ -67,5 +75,9 @@ private:
 
 	vk::DeviceMemory m_drawCommandMemory;
 
+	std::vector<vk::DescriptorSet> m_descriptorSets;
+	vk::DescriptorPool m_descriptorPool;
+
 	void GenerateModelMatriceBuffer();
+	void UpdateTextures();
 };

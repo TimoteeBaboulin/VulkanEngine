@@ -3,6 +3,7 @@
 #include "vulkan/vulkan.hpp"
 #include "common.h"
 
+constexpr int TextureArrayCount = 32;
 
 class MaterialInstance;
 class Renderer;
@@ -14,10 +15,12 @@ public:
 	Material(Renderer* _renderer, vk::Device _device, int _textureCount);
 	//Material(VulkanRenderer* _renderer, vk::Pipeline& _defaultDepthPipeline);
 	virtual std::vector<vk::PipelineLayout> GetLayouts() { return m_pipelineLayouts; };
-	virtual void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint, vk::DescriptorSet* _uboSet);
-
+	virtual void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint);
 
 	virtual MaterialInstance* CreateInstance(vk::Device _device, vk::DescriptorPool _pool, vk::ImageView* _views, vk::Sampler* _samplers);
+
+	int GetTextureCount() const { return m_textureCount; }
+	const vk::DescriptorSetLayout* GetDescriptorSetLayouts() const { return m_setLayouts.data(); }
 private:
 	int m_textureCount;
 

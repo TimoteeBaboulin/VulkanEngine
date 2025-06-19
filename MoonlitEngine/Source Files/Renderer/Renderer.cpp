@@ -32,7 +32,7 @@ Renderer::Renderer(VulkanEngine* _engine, vk::Extent2D _extent) : m_extent(_exte
 	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&Renderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
 	InputManager::GetInstance()->SubscribeWindowEvent(windowCallback);
 	m_engine = _engine;
-	m_drawBuffers.push_back(DrawBuffer());
+	
 }
 
 void Renderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager)
@@ -63,15 +63,8 @@ void Renderer::Init(VulkanContext* _context, VulkanDeviceManager* _deviceManager
 
 	vk::Device device = VulkanEngine::LogicalDevice;
 
-	TextureBank::Instance->TryLoad("Textures/barstool_albedo.png");
-	TextureBank::Instance->TryLoad("Textures/sniper_albedo.png");
-
-	TextureData* barstoolTex = TextureBank::Instance->Get("barstool_albedo");
-	TextureData* sniperTex = TextureBank::Instance->Get("sniper_albedo");
-
 	m_baseMaterial = new Material(this, device, 1);
-	m_baseInstance = m_baseMaterial->CreateInstance(device, m_descriptorPools[0], &barstoolTex->m_imageView, &barstoolTex->m_sampler);
-	m_secondBaseInstance = m_baseMaterial->CreateInstance(device, m_descriptorPools[0], &sniperTex->m_imageView, &sniperTex->m_sampler);
+	m_drawBuffers.push_back(DrawBuffer(m_baseMaterial));
 }
 
 void Renderer::Cleanup()
@@ -104,13 +97,20 @@ void Renderer::Cleanup()
 
 void Renderer::LoadMesh(std::string name)
 {
-	MeshData* mesh = MeshBank::Instance->Get(name);
+	MeshData* mesh = MeshBank::Instance->Get(name).get();
 
 	glm::mat4x4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
 	glm::mat4x4 rotate = glm::rotate(0.0f, glm::vec3(0, 1, 0));
 	glm::mat4x4 translate = glm::translate(glm::vec3(0, 0, 0));
 
 	glm::mat4x4 model = translate * rotate * scale;
+
+	std::vector<TextureData*> m_textures;
+	m_textures.push_back(TextureBank::Instance->Get("barstool_albedo").get());
+
+	std::vector<TextureData*> secondaryTextures;
+	secondaryTextures.push_back(TextureBank::Instance->Get("sniper_albedo").get());
+
 	if (!test)
 	{
 		for (int i = -5; i < 6; i++)
@@ -118,7 +118,7 @@ void Renderer::LoadMesh(std::string name)
 			translate = glm::translate(glm::vec3(i, i, i));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			m_drawBuffers[0].TryAddMesh(std::pair<MeshData*, MaterialInstance*>(mesh, m_baseInstance), model);
+			m_drawBuffers[0].TryAddMesh(mesh, model, m_textures);
 		}
 		
 	}
@@ -129,7 +129,7 @@ void Renderer::LoadMesh(std::string name)
 			translate = glm::translate(glm::vec3(i, 0, 0));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			m_drawBuffers[0].TryAddMesh(std::pair<MeshData*, MaterialInstance*>(mesh, m_secondBaseInstance), model);
+			m_drawBuffers[0].TryAddMesh(mesh, model, secondaryTextures);
 		}
 	}
 	test = !test;

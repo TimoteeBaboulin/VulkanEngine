@@ -127,6 +127,11 @@ void VulkanDeviceManager::CreateLogicalDevice()
 
 	vk::PhysicalDeviceFeatures targetedFeatures{};
 	targetedFeatures.geometryShader = true;
+	
+	vk::PhysicalDeviceDescriptorIndexingFeatures indexingFeatures;
+	indexingFeatures.sType = vk::StructureType::ePhysicalDeviceDescriptorIndexingFeatures;
+	indexingFeatures.descriptorBindingPartiallyBound = true;
+	indexingFeatures.shaderSampledImageArrayNonUniformIndexing = true;
 
 	vk::DeviceCreateInfo createInfo{};
 	createInfo.sType = vk::StructureType::eDeviceCreateInfo,
@@ -135,6 +140,7 @@ void VulkanDeviceManager::CreateLogicalDevice()
 	createInfo.pEnabledFeatures = &targetedFeatures;
 	createInfo.enabledExtensionCount = (uint32_t) m_extensionNames.size();
 	createInfo.ppEnabledExtensionNames = m_extensionNames.data();
+	createInfo.pNext = indexingFeatures;
 
 	VulkanEngine::LogicalDevice = VulkanEngine::PhysicalDevice.createDevice(createInfo);
 }

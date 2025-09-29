@@ -13,6 +13,22 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="EditorDebug|Win32">
+      <Configuration>EditorDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="EditorDebug|x64">
+      <Configuration>EditorDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="EditorRelease|Win32">
+      <Configuration>EditorRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="EditorRelease|x64">
+      <Configuration>EditorRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="ReleaseDLL|Win32">
       <Configuration>ReleaseDLL</Configuration>
       <Platform>Win32</Platform>
@@ -48,6 +64,12 @@
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -74,6 +96,12 @@
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -94,12 +122,23 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
+    <PlatformToolset>v143</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
+    <PlatformToolset>v143</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="PropertySheets">
@@ -112,6 +151,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'" Label="PropertySheets">
@@ -127,6 +169,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|Win32'">
+    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)</OutDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
@@ -139,6 +184,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">
+    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)</OutDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
@@ -148,6 +196,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
+    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
+    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -156,13 +210,13 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;%(AdditionalLibraryDirectories);C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -175,6 +229,38 @@
 xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLM_ENABLE_EXPERIMENTAL;RENDER_DEBUG_INFORMATION_QUERY;EDITOR_BUILD;ENGINE_DLL_EXPORT</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerOutput>All</AssemblerOutput>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;%(AdditionalLibraryDirectories);C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
+xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -183,13 +269,13 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;%(AdditionalLibraryDirectories);C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>MoonlitVulkan.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib</AdditionalDependencies>
+      <AdditionalDependencies>MoonlitVulkan.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -212,7 +298,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -220,7 +306,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;%(AdditionalLibraryDirectories);C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -243,7 +329,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -251,7 +337,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;%(AdditionalLibraryDirectories);C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>MoonlitVulkan.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib</AdditionalDependencies>
+      <AdditionalDependencies>MoonlitVulkan.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -272,13 +358,13 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -291,6 +377,37 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
 xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLM_ENABLE_EXPERIMENTAL;RENDER_DEBUG_INFORMATION_QUERY;EDITOR_BUILD;ENGINE_DLL_EXPORT</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
+xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -299,13 +416,13 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>MoonlitVulkan.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib</AdditionalDependencies>
+      <AdditionalDependencies>MoonlitVulkan.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -328,7 +445,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -336,7 +453,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -359,7 +476,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -367,7 +484,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>MoonlitVulkan.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib</AdditionalDependencies>
+      <AdditionalDependencies>MoonlitVulkan.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -380,11 +497,34 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
 xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>EDITOR_BUILD;ENGINE_DLL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
+xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>EDITOR_BUILD;ENGINE_DLL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
+xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Renderer\RenderTarget.cpp" />
+    <ClCompile Include="Source Files\ResourceManagement\FileHelper.cpp" />
+    <ClCompile Include="Source Files\ResourceManagement\ImageHelper.cpp" />
+    <ClCompile Include="Source Files\MoonlitEngine.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\TextureBank.cpp" />
     <ClCompile Include="Source Files\Renderer\DrawBuffer.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp" />
-    <ClCompile Include="Source Files\Renderer\MeshInstanceManager.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\falsemain.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
@@ -394,27 +534,28 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClCompile Include="Source Files\main.cpp" />
     <ClCompile Include="Source Files\Mesh.cpp" />
     <ClCompile Include="Source Files\MeshRenderer.cpp" />
-    <ClCompile Include="Source Files\MoonlitEngine.cpp" />
     <ClCompile Include="Source Files\ObjectComponent.cpp" />
     <ClCompile Include="Source Files\ObjectTest.cpp" />
     <ClCompile Include="Source Files\ObjectTransform.cpp" />
-    <ClCompile Include="Source Files\Renderer\ContextManager.cpp" />
-    <ClCompile Include="Source Files\Renderer\VulkanData.cpp" />
-    <ClCompile Include="Source Files\Renderer\VulkanDeviceManager.cpp" />
-    <ClCompile Include="Source Files\Renderer\VulkanEngine.cpp" />
-    <ClCompile Include="Source Files\Renderer\VulkanPipeline.cpp" />
+    <ClCompile Include="Source Files\Renderer\RendererContext.cpp" />
+    <ClCompile Include="Source Files\Renderer\Material.cpp" />
+    <ClCompile Include="Source Files\Renderer\RendererDeviceManager.cpp" />
     <ClCompile Include="Source Files\Renderer\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\common.h" />
+    <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
+    <ClInclude Include="Header Files\Renderer\RenderTarget.h" />
+    <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
+    <ClInclude Include="Header Files\ResourceManagement\ImageHelper.h" />
+    <ClInclude Include="Header Files\MoonlitExport.h" />
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\Inputs\InputManager.h" />
     <ClInclude Include="Header Files\Inputs\Inputs.h" />
     <ClInclude Include="Header Files\Inputs\PlatformInputAbstraction.h" />
     <ClInclude Include="Header Files\Inputs\WindowsInputAbstraction.h" />
     <ClInclude Include="Header Files\Interfaces\ISingleton.h" />
-    <ClInclude Include="Header Files\Mesh.h" />
     <ClInclude Include="Header Files\MeshRenderer.h" />
     <ClInclude Include="Header Files\MoonlitEngine.h" />
     <ClInclude Include="Header Files\MoonlitVulkan.h" />
@@ -422,14 +563,12 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\ObjectBehaviour.h" />
     <ClInclude Include="Header Files\ObjectTest.h" />
     <ClInclude Include="Header Files\ObjectTransform.h" />
-    <ClInclude Include="Header Files\Renderer\ContextManager.h" />
+    <ClInclude Include="Header Files\Renderer\RendererContext.h" />
     <ClInclude Include="Header Files\Renderer\DrawBuffer.h" />
-    <ClInclude Include="Header Files\Renderer\MeshInstanceManager.h" />
-    <ClInclude Include="Header Files\Renderer\VulkanData.h" />
-    <ClInclude Include="Header Files\Renderer\VulkanDeviceManager.h" />
-    <ClInclude Include="Header Files\Renderer\VulkanEngine.h" />
+    <ClInclude Include="Header Files\Renderer\TextureHandler.h" />
+    <ClInclude Include="Header Files\Renderer\Material.h" />
+    <ClInclude Include="Header Files\Renderer\RendererDeviceManager.h" />
     <ClInclude Include="Header Files\Renderer\VulkanHelperFunctions.h" />
-    <ClInclude Include="Header Files\Renderer\VulkanPipeline.h" />
     <ClInclude Include="Header Files\Renderer\Renderer.h" />
     <ClInclude Include="Header Files\ResourceManagement\MeshBank.h" />
     <ClInclude Include="Header Files\ResourceManagement\ResourceBank.h" />
@@ -438,6 +577,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\ResourceManagement\TextureData.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Shaders\BaseMaterial.slang" />
     <None Include="Resources\Shaders\frag.spv" />
     <None Include="Resources\Shaders\shader.frag" />
     <None Include="Resources\Shaders\shader.vert" />

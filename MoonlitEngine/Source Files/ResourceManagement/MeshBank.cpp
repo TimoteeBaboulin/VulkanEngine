@@ -7,7 +7,7 @@
 #include "assimp/mesh.h"
 #include "assimp/scene.h"
 
-ResourceBank<MeshData>* MeshBank::Instance = new MeshBank();
+//ResourceBank<MeshData>* MeshBank::Instance = new MeshBank();
 
 MeshData GetMesh(aiMesh* _mesh)
 {
@@ -57,9 +57,12 @@ bool MeshBank::TryLoad(std::string _filepath)
         throw new std::runtime_error(errorMessage);
     }
 
+    std::shared_ptr<MeshData> meshPtr = std::make_shared<MeshData>();
+    *meshPtr = GetMesh(scene->mMeshes[0]);
+
     m_resources.push_back(ResourcePair<MeshData>{
         name,
-        std::make_shared<MeshData>(&GetMesh(scene->mMeshes[0]))
+        meshPtr
     });
 
     return false;

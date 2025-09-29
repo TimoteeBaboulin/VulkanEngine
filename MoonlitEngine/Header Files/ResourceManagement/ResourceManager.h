@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
+#include "MoonlitExport.h"
 
-class ResourceManager
+class MOONLIT_API ResourceManager
 {
 public:
 	bool TryLoadResource(std::string _path);

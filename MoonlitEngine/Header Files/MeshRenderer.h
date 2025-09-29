@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ObjectBehaviour.h"
-#include "Mesh.h"
 
 #include <filesystem>
 

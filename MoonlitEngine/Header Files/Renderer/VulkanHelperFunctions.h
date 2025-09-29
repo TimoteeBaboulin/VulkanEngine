@@ -7,7 +7,7 @@
 
 #include <cstdint>
 #include "vulkan/vulkan.hpp"
-#include "VulkanEngine.h"
+#include "../common.h"
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -64,7 +64,7 @@ public:
 	}
 
 
-	static void CreateImage(vk::Extent2D _extent, vk::Format _format, vk::ImageTiling _tiling, vk::ImageUsageFlags _features, vk::MemoryPropertyFlags _properties, vk::Image& _image, vk::DeviceMemory& _memory, vk::ImageLayout _defaultLayout)
+	static void CreateImage(vk::Device _device, vk::PhysicalDevice _physicalDevice, vk::Extent2D _extent, vk::Format _format, vk::ImageTiling _tiling, vk::ImageUsageFlags _features, vk::MemoryPropertyFlags _properties, vk::Image& _image, vk::DeviceMemory& _memory, vk::ImageLayout _defaultLayout)
 	{
 		vk::ImageCreateInfo info;
 		info.sType = vk::StructureType::eImageCreateInfo;
@@ -79,20 +79,20 @@ public:
 		info.samples = vk::SampleCountFlagBits::e1;
 		info.sharingMode = vk::SharingMode::eExclusive;
 
-		_image = VulkanEngine::LogicalDevice.createImage(info);
+		_image = _device.createImage(info);
 
-		vk::MemoryRequirements memReqs = VulkanEngine::LogicalDevice.getImageMemoryRequirements(_image);
+		vk::MemoryRequirements memReqs = _device.getImageMemoryRequirements(_image);
 
 		vk::MemoryAllocateInfo allocInfo;
 		allocInfo.sType = vk::StructureType::eMemoryAllocateInfo;
 		allocInfo.allocationSize = memReqs.size;
-		allocInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memReqs.memoryTypeBits, _properties, VulkanEngine::PhysicalDevice);
+		allocInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memReqs.memoryTypeBits, _properties, _physicalDevice);
 
-		_memory = VulkanEngine::LogicalDevice.allocateMemory(allocInfo);
-		VulkanEngine::LogicalDevice.bindImageMemory(_image, _memory, 0);
+		_memory = _device.allocateMemory(allocInfo);
+		_device.bindImageMemory(_image, _memory, 0);
 	}
 
-	static vk::ImageView CreateImageView(vk::Image& _image, vk::Format _format, vk::ImageAspectFlags _aspect)
+	static vk::ImageView CreateImageView(vk::Device _device, vk::Image& _image, vk::Format _format, vk::ImageAspectFlags _aspect)
 	{
 		vk::ImageViewCreateInfo info;
 		info.sType = vk::StructureType::eImageViewCreateInfo;
@@ -105,12 +105,12 @@ public:
 		info.subresourceRange.layerCount = 1;
 		info.viewType = vk::ImageViewType::e2D;
 
-		return VulkanEngine::LogicalDevice.createImageView(info);
+		return _device.createImageView(info);
 	}
 
-	static void TransitionImageLayout(vk::Image& _image, vk::Format _format, vk::ImageAspectFlags _aspect, vk::ImageLayout _src, vk::ImageLayout _dst, TransitionInfo _transition)
+	static void TransitionImageLayout(vk::Device _device, vk::CommandPool _commandPool, vk::Queue _graphicsQueue, vk::Image& _image, vk::Format _format, vk::ImageAspectFlags _aspect, vk::ImageLayout _src, vk::ImageLayout _dst, TransitionInfo _transition)
 	{
-		vk::CommandBuffer buffer = BeginSingleUseCommand(VulkanEngine::MainCommandPool, VulkanEngine::LogicalDevice);
+		vk::CommandBuffer buffer = BeginSingleUseCommand(_commandPool, _device);
 		
 		vk::ImageMemoryBarrier barrier;
 		barrier.sType = vk::StructureType::eImageMemoryBarrier;
@@ -130,19 +130,19 @@ public:
 
 		buffer.pipelineBarrier(_transition.srcStage, _transition.dstStage, vk::DependencyFlagBits::eByRegion, std::vector<vk::MemoryBarrier>(), std::vector<vk::BufferMemoryBarrier>(), std::vector<vk::ImageMemoryBarrier>{barrier});
 
-		EndSingleUseCommandBuffer(buffer, VulkanEngine::GraphicsQueue, VulkanEngine::LogicalDevice, VulkanEngine::MainCommandPool);
+		EndSingleUseCommandBuffer(buffer, _graphicsQueue, _device, _commandPool);
 	}
 
-	static void CopyBufferToBuffer(vk::Buffer& _src, vk::Buffer& _dst, uint64_t _size, vk::Queue _queue)
+	static void CopyBufferToBuffer(vk::Device _device, vk::CommandPool _commandPool, vk::Buffer& _src, vk::Buffer& _dst, uint64_t _size, vk::Queue _queue)
 	{
 		vk::CommandBufferAllocateInfo alloc;
 		alloc.sType = vk::StructureType::eCommandBufferAllocateInfo;
 		alloc.commandBufferCount = 1;
 		alloc.level = vk::CommandBufferLevel::ePrimary;
-		alloc.commandPool = VulkanEngine::MainCommandPool;
+		alloc.commandPool = _commandPool;
 
 		//vk::CommandBuffer command = VulkanEngine::LogicalDevice.allocateCommandBuffers(alloc)[0];
-		vk::CommandBuffer command = BeginSingleUseCommand(VulkanEngine::MainCommandPool, VulkanEngine::LogicalDevice);
+		vk::CommandBuffer command = BeginSingleUseCommand(_commandPool, _device);
 
 		/*vk::CommandBufferBeginInfo begin;
 		begin.sType = vk::StructureType::eCommandBufferBeginInfo;
@@ -167,12 +167,12 @@ public:
 		_queue.submit(submit);
 		_queue.waitIdle();
 
-		VulkanEngine::LogicalDevice.freeCommandBuffers(VulkanEngine::MainCommandPool, command);
+		_device.freeCommandBuffers(_commandPool, command);
 	}
 
-	static void CopyBufferToImage(vk::Buffer& _src, vk::Image& _dst, vk::Extent2D _size)
+	static void CopyBufferToImage(vk::Device _device, vk::CommandPool _commandPool, vk::Queue _queue, vk::Buffer& _src, vk::Image& _dst, vk::Extent2D _size)
 	{
-		vk::CommandBuffer commandBuffer = BeginSingleUseCommand(VulkanEngine::MainCommandPool, VulkanEngine::LogicalDevice);
+		vk::CommandBuffer commandBuffer = BeginSingleUseCommand(_commandPool, _device);
 
 		vk::BufferImageCopy copyCommand;
 		copyCommand.bufferOffset = 0;
@@ -189,10 +189,10 @@ public:
 
 		commandBuffer.copyBufferToImage(_src, _dst, vk::ImageLayout::eTransferDstOptimal, copyCommand);
 
-		EndSingleUseCommandBuffer(commandBuffer, VulkanEngine::GraphicsQueue, VulkanEngine::LogicalDevice, VulkanEngine::MainCommandPool);
+		EndSingleUseCommandBuffer(commandBuffer, _queue, _device, _commandPool);
 	}
 
-	static void CreateBuffer(BufferCreateInfo _info)
+	static void CreateBuffer(vk::Device _device, vk::PhysicalDevice _physDevice, BufferCreateInfo _info)
 	{
 		vk::BufferCreateInfo bufferInfo;
 		bufferInfo.sType = vk::StructureType::eBufferCreateInfo;
@@ -200,20 +200,20 @@ public:
 		bufferInfo.usage = _info.usage;
 		bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
-		_info.buffer = VulkanEngine::LogicalDevice.createBuffer(bufferInfo);
+		_info.buffer = _device.createBuffer(bufferInfo);
 
 		vk::MemoryRequirements memoryReqs;
-		memoryReqs = VulkanEngine::LogicalDevice.getBufferMemoryRequirements(_info.buffer);
+		memoryReqs = _device.getBufferMemoryRequirements(_info.buffer);
 
 		vk::MemoryAllocateInfo memoryInfo;
 		memoryInfo.sType = vk::StructureType::eMemoryAllocateInfo;
 		memoryInfo.allocationSize = memoryReqs.size > 0 ? memoryReqs.size : vk::WholeSize;
-		memoryInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memoryReqs.memoryTypeBits, _info.properties, VulkanEngine::PhysicalDevice);
-		_info.memory = VulkanEngine::LogicalDevice.allocateMemory(memoryInfo);
-		VulkanEngine::LogicalDevice.bindBufferMemory(_info.buffer, _info.memory, 0);
+		memoryInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memoryReqs.memoryTypeBits, _info.properties, _physDevice);
+		_info.memory = _device.allocateMemory(memoryInfo);
+		_device.bindBufferMemory(_info.buffer, _info.memory, 0);
 	}
 
-	static void CreateBufferWithStaging(BufferCreateInfo _info, void* _data)
+	static void CreateBufferWithStaging(vk::Device _device, vk::PhysicalDevice _physDevice, vk::CommandPool _commandPool, vk::Queue _graphicsQueue, BufferCreateInfo _info, void* _data)
 	{
 		vk::Buffer stagingBuffer;
 		vk::DeviceMemory stagingMemory;
@@ -227,35 +227,35 @@ public:
 			.size = _info.size
 		};
 
-		CreateBuffer(stagingBufferInfo);
-		void* stagingMap = VulkanEngine::LogicalDevice.mapMemory(stagingBufferInfo.memory, 0, _info.size);
+		CreateBuffer(_device, _physDevice, stagingBufferInfo);
+		void* stagingMap = _device.mapMemory(stagingBufferInfo.memory, 0, _info.size);
 		memcpy(stagingMap, _data, _info.size);
 
 		_info.usage |= vk::BufferUsageFlagBits::eTransferDst;
-		CreateBuffer(_info);
-		CopyBufferToBuffer(stagingBuffer, _info.buffer, _info.size, VulkanEngine::GraphicsQueue);
+		CreateBuffer(_device, _physDevice, _info);
+		CopyBufferToBuffer(_device, _commandPool, stagingBuffer, _info.buffer, _info.size, _graphicsQueue);
 
-		VulkanEngine::LogicalDevice.unmapMemory(stagingMemory);
-		VulkanEngine::LogicalDevice.freeMemory(stagingMemory);
-		VulkanEngine::LogicalDevice.destroyBuffer(stagingBuffer);
+		_device.unmapMemory(stagingMemory);
+		_device.freeMemory(stagingMemory);
+		_device.destroyBuffer(stagingBuffer);
 		stagingMap = nullptr;
 	}
 
-	static vk::ShaderModule WrapShader(std::vector<char> _shaderBytes)
+	static vk::ShaderModule WrapShader(vk::Device _device, void* _shaderBytes, size_t _shaderCodeSize)
 	{
 		vk::ShaderModuleCreateInfo info{};
 		info.sType = vk::StructureType::eShaderModuleCreateInfo;
-		info.codeSize = _shaderBytes.size();
-		info.pCode = reinterpret_cast<const uint32_t*>(_shaderBytes.data());
+		info.codeSize = _shaderCodeSize;
+		info.pCode = reinterpret_cast<const uint32_t*>(_shaderBytes);
 
-		return 	VulkanEngine::LogicalDevice.createShaderModule(info);
+		return 	_device.createShaderModule(info);
 	}
 
-	static vk::SurfaceFormatKHR GetFormat(std::vector<vk::SurfaceFormatKHR>& _format)
+	static vk::SurfaceFormatKHR GetFormat(vk::PhysicalDevice _physDevice, std::vector<vk::SurfaceFormatKHR>& _format)
 	{
 		for (int i = 0; i < _format.size(); i++)
 		{
-			auto properties = VulkanEngine::PhysicalDevice.getFormatProperties(_format[i].format);
+			auto properties = _physDevice.getFormatProperties(_format[i].format);
 			auto value = properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment;
 			if ((properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment) == vk::FormatFeatureFlagBits::eDepthStencilAttachment)
 				return _format[i];

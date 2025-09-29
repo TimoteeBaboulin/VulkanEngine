@@ -1,7 +1,7 @@
+#pragma once
+
 #ifndef COMMON_H
 #define COMMON_H
-
-
 
 #include <optional>
 #include <iostream>
@@ -9,9 +9,10 @@
 #include <vector>
 
 #include "glm/glm.hpp"
-#include "stb_image.h"
 
 #include "vulkan/vulkan.hpp"
+
+#include "MoonlitExport.h"
 
 typedef uint32_t MeshCountType;
 
@@ -41,12 +42,11 @@ struct RenderInfo
 };
 
 struct UniformBufferObject {
-	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
 };
 
-struct Vertex
+MOONLIT_API struct Vertex
 {
 	float x = 0.0f;
 	float y = 0.0f;
@@ -60,16 +60,16 @@ struct Vertex
 	float uvY = 0.0f;
 };
 
-struct Image
+MOONLIT_API struct Image
 {
-	stbi_uc* pixels;
+	unsigned char* pixels;
 
 	uint32_t width;
 	uint32_t height;
 	int channels;
 };
 
-struct MeshData
+MOONLIT_API struct MeshData
 {
 	int vertexCount = 0;
 	Vertex* vertices = nullptr;
@@ -98,40 +98,5 @@ struct BufferCreateInfo
 
 	uint64_t size;
 };
-
-static void ImportImage(std::string _path, Image& _image)
-{
-	stbi_info(_path.c_str(), (int*)&_image.width, (int*)&_image.height, &_image.channels);
-
-	int width = _image.width;
-	int height = _image.height;
-	_image.pixels = stbi_load(_path.c_str(), &width, &height, &_image.channels, STBI_rgb_alpha);
-
-	if (_image.pixels == nullptr)
-	{
-		throw std::runtime_error("Failed to load image");
-	}
-}
-
-static std::vector<char> readFile(const char* _filename)
-{
-	std::vector<char> buffer;
-	std::ifstream stream;
-	stream.open(_filename, std::ios::ate | std::ios::binary);
-
-	if (!stream.is_open())
-	{
-		std::cout << "fuck" << std::endl;
-		return buffer;
-	}
-
-	buffer.resize((size_t)stream.tellg());
-	stream.seekg(0);
-	stream.read(buffer.data(), buffer.size());
-
-	stream.close();
-
-	return buffer;
-}
 
 #endif

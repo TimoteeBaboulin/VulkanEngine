@@ -11,37 +11,39 @@ template <class T>
 struct ResourcePair
 {
 	std::string Name;
-	T Resource;
+	std::shared_ptr<T> Resource;
 };
 
 template <class T>
 class ResourceBank
 {
 public:
-	static ResourceBank<T>* Instance;
+	static inline ResourceBank<T>* Instance;
 
 	ResourceBank();
-	T* Get(std::string _name);
+	std::shared_ptr<T> Get(std::string _name);
 	virtual bool TryLoad(std::string _filepath) = 0;
 	bool Exist(std::string _name);
+	void TryUnloadUnusedResources();
 
 protected:
 	std::vector<ResourcePair<T>> m_resources;
 };
 
 template<class T>
-inline ResourceBank<T>::ResourceBank() : m_resources(ResourceBankDefaultSize)
+inline ResourceBank<T>::ResourceBank() : m_resources()
 {
+	m_resources.reserve(ResourceBankDefaultSize);
 }
 
 template<class T>
-inline T* ResourceBank<T>::Get(std::string _name)
+inline std::shared_ptr<T> ResourceBank<T>::Get(std::string _name)
 {
 	for (auto it = m_resources.begin(); it != m_resources.end(); it++)
 	{
 		if ((*it).Name == _name)
 		{
-			return &(*it).Resource;
+			return (*it).Resource;
 		}
 	}
 
@@ -57,4 +59,16 @@ inline bool ResourceBank<T>::Exist(std::string _name)
 			return true;
 	}
 	return false;
+}
+
+template<class T>
+inline void ResourceBank<T>::TryUnloadUnusedResources()
+{
+	for (auto it = m_resources.begin(); it != m_resources.end(); it++)
+	{
+		if ((*it).Resource.use_count() == 1)
+		{
+			//std::cout << "Should remove this resource" << std::endl;
+		}
+	}
 }

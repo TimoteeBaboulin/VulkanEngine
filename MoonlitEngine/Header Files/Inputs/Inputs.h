@@ -1,5 +1,11 @@
 #pragma once
 
+struct ScreenSize
+{
+	int width;
+	int height;
+};
+
 enum KEYBOARD_KEY : int
 {
 	A,

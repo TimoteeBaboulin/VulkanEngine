@@ -1,14 +1,15 @@
 #define GLFW_INCLUDE_VULKAN
 #define GLFW_EXPOSE_NATIVE_WIN32
-#define VK_USE_PLATFORM_WIN32_KHR
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
+#define VK_USE_PLATFORM_WIN32_KHR
 
 #define WIN32_LEAN_AND_MEAN
-#define STB_IMAGE_IMPLEMENTATION
 
 #define NOMINMAX
+
+#ifndef EDITOR_BUILD
 
 #include <vulkan/vulkan.hpp>
 
@@ -22,16 +23,20 @@
 #include "assimp/postprocess.h"
 #include "assimp/mesh.h"
 
-#include "Renderer/VulkanEngine.h"
-#include "Renderer/ContextManager.h"
-#include "Renderer/MeshInstanceManager.h"
+#include "Renderer/Renderer.h"
+#include "Engine/MoonlitEngine.h"
 
 #include "ResourceManagement/MeshBank.h"
+
+#include "QtWidgets/qapplication.h"
+#include "QtWidgets/qwidget.h"
+#include "QtCore/qtimer.h"
+#include "ResourceManagement/TextureBank.h"
 
 constexpr int WindowWidth = 1920;
 constexpr int WindowHeight = 1080;
 
-GLFWwindow* InitWindow(VulkanEngine& _app);
+GLFWwindow* InitWindow(Renderer& _app);
 void ImportImage(std::string _path, Image& _image);
 
 void MousePressedCallback(MOUSE_KEY _key)
@@ -55,48 +60,33 @@ void GamepadAxisCallback(GAMEPAD_KEY _key, float _x, float _y)
     std::cout << "Axis value is " << _x << ", " << _y << std::endl;
 }
 
-int main() 
+int main(int argc, char** argv) 
 {
-    VulkanEngine app;
-    Image texture;
-    ImportImage("Textures/barstool_albedo.png", texture);
-	GLFWwindow* window = InitWindow(app);
+    QApplication* application = new QApplication(argc, argv);
+    QWidget* window = new QWidget();
+    window->resize(WindowWidth, WindowHeight);
+    window->show();
+    
+    HWND winHandle = (HWND)window->effectiveWinId();
 
-    MeshBank::Instance->TryLoad("Meshes/barstool.gltf");
-    MeshBank::Instance->TryLoad("Meshes/Sniper_Final.fbx");
+    MoonlitEngine engine(winHandle);
+    QTimer* timer = new QTimer(0);
+    timer->setSingleShot(false);
+    std::function<void (void)> updateFunction = std::bind(&MoonlitEngine::Update, &engine);
+	timer->connect(timer, &QTimer::timeout, updateFunction);
+    //timer->setParent(application);
+    timer->start();
 
-    app.InitVulkan(); 
-    app.LoadMesh("barstool");
-    app.LoadMesh("Sniper_Final");
-
-    MeshInstanceManager* manager = MeshInstanceManager::Get();
+    engine.Init();
 
     InputManager::GetInstance()->SubscribeMouseEvent(KEY_STATE::PRESSED, MousePressedCallback);
     InputManager::GetInstance()->SubscribeGamepadEvent(KEY_STATE::PRESSED, GamepadPressedCallback);
     InputManager::GetInstance()->SubscribeGamepadAxisEvent(GamepadAxisCallback);
-	InputManager::GetInstance()->SubscribeKeyboardEvent(KEY_STATE::PRESSED, [window](KEYBOARD_KEY _key) {
-		if (_key == KEYBOARD_KEY::R)
-		{
-			glfwSetWindowSize(window, WindowWidth - 1, WindowHeight - 2);
-		}
-		});
 
-    while (!glfwWindowShouldClose(window))
-    {
-        InputManager::GetInstance()->PollEvents();
-
-        if (!glfwWindowShouldClose(window))
-        {
-            app.Render();
-        }
-        
-        glfwPollEvents();
-    }
-
-    return EXIT_SUCCESS;
+    return application->exec();
 }
 
-GLFWwindow* InitWindow(VulkanEngine& _app)
+GLFWwindow* InitWindow(Renderer& _app)
 {
     std::vector<std::pair<int, int>> hints;
     hints = { {GLFW_CLIENT_API, GLFW_NO_API}, {GLFW_RESIZABLE, GLFW_TRUE} };
@@ -116,7 +106,7 @@ GLFWwindow* InitWindow(VulkanEngine& _app)
     }
 
     HWND winHandle = glfwGetWin32Window(window);
-
+    InputManager::InitManager(winHandle);
     ContextInfo context = {
         .name = "Vulkan Engine",
         .width = WindowWidth,
@@ -124,6 +114,7 @@ GLFWwindow* InitWindow(VulkanEngine& _app)
         .windowHandle = winHandle
     };
 
-    _app.InitContext(context, extensions.data(), extensions.size());
+    _app.Init(context, extensions);
     return window;
 }
+#endif // !EDITOR_BUILD

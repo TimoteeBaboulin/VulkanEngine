@@ -273,6 +273,6 @@ public:
 	}
 };
 
-typedef VulkanHelperFunctions vhf;
+using vhf = VulkanHelperFunctions;
 
 #endif

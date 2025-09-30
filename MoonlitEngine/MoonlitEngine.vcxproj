@@ -518,6 +518,7 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Renderer\BufferDeviceLink.cpp" />
     <ClCompile Include="Source Files\Renderer\RenderTarget.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\FileHelper.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ImageHelper.cpp" />
@@ -546,6 +547,7 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\common.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
+    <ClInclude Include="Header Files\Renderer\BufferDeviceLink.h" />
     <ClInclude Include="Header Files\Renderer\RenderTarget.h" />
     <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
     <ClInclude Include="Header Files\ResourceManagement\ImageHelper.h" />

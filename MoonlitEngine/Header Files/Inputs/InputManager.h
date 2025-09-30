@@ -25,11 +25,11 @@ enum struct WINDOW_EVENT : char
 
 class PlatformInputAbstraction;
 
-typedef std::function<void(KEYBOARD_KEY)> KeyboardInputCallback;
-typedef std::function<void(GAMEPAD_KEY)> GamepadInputCallback;
-typedef std::function<void(MOUSE_KEY)> MouseInputCallback;
-typedef std::function<void(GAMEPAD_KEY, float, float)> GamepadAxisInputCallback;
-typedef std::function<void(float, float)> AxisInputCallback;
+using KeyboardInputCallback = std::function<void(KEYBOARD_KEY)>;
+using GamepadInputCallback = std::function<void(GAMEPAD_KEY)>;
+using MouseInputCallback = std::function<void(MOUSE_KEY)>;
+using GamepadAxisInputCallback = std::function<void(GAMEPAD_KEY, float, float)>;
+using AxisInputCallback = std::function<void(float, float)>;
 using WindowEventCallback = std::function<void(WINDOW_EVENT, void*)>;	
 
 class InputManager

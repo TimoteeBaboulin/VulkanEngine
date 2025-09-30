@@ -84,7 +84,6 @@ private:
 	vk::CommandBuffer* m_commandBuffers = nullptr;
 	vk::CommandPool m_commandPool;
 
-
 #pragma region Surface Methods
 	void CalculateExtent();
 	void CreateSurfaceKHR();

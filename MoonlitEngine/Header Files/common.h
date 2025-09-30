@@ -14,7 +14,7 @@
 
 #include "MoonlitExport.h"
 
-typedef uint32_t MeshCountType;
+using MeshCountType = uint32_t;
 
 struct QueueFamilyIndices
 {

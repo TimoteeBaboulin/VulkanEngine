@@ -20,7 +20,8 @@ class BufferDeviceLink
 public:
 	BufferDeviceLink(vk::Device _device, vk::PhysicalDevice _physDevice, RendererDeviceManager& _deviceManager);
 	~BufferDeviceLink();
-	DrawBufferResources const GetBufferResources();
+	DrawBufferResources& const GetBufferResources() { return m_drawResources; };
+	vk::Device const GetDevice() { return m_device; }
 private:
 	DrawBufferResources m_drawResources;
 	vk::Device m_device;

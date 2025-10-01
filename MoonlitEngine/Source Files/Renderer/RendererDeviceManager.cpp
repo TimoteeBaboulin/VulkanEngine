@@ -12,10 +12,8 @@
 
 // Default target is necessary to get the present queue
 // TODO: Find a way to not require a default target
-RendererDeviceManager::RendererDeviceManager(RenderTarget* _defaultTarget)
+RendererDeviceManager::RendererDeviceManager()
 {
-	m_renderTargets.resize(16, nullptr);
-	m_renderTargets[0] = _defaultTarget;
 }
 
 void RendererDeviceManager::Init(vk::Instance& _instance)
@@ -32,11 +30,19 @@ void RendererDeviceManager::Cleanup()
 	m_device.destroy();
 }
 
-bool RendererDeviceManager::TryAddRenderTarget(RenderTarget* _target)
+bool RendererDeviceManager::TryAddRenderTarget(RenderTarget* _target, DeviceData& _deviceData)
 {
 	if (m_targetCount >= 16)
 	{
 		return false;
+	}
+
+	auto targetIterator = std::find(m_renderTargets.begin(), m_renderTargets.end(), nullptr);
+	(*targetIterator) = _target;
+
+	for (int index = 0; index < m_devices.size(); index++)
+	{
+		if (Check)
 	}
 
 	for (int i = 0; i < m_renderTargets.size(); i++)
@@ -45,6 +51,8 @@ bool RendererDeviceManager::TryAddRenderTarget(RenderTarget* _target)
 		{
 			m_renderTargets[i] = _target;
 			m_targetCount++;
+
+
 			return true;
 		}
 	}
@@ -92,21 +100,19 @@ void RendererDeviceManager::PickPhysicalDevice(vk::Instance& _instance)
 		throw new std::runtime_error("Couldn't find a suitable graphics card");
 }
 
-bool RendererDeviceManager::CheckDeviceCompatibility(vk::PhysicalDevice& _device)
+bool RendererDeviceManager::CheckDeviceCompatibility(vk::PhysicalDevice& _device, vk::SurfaceCapabilitiesKHR _surface)
 {
 	vk::PhysicalDeviceProperties properties = _device.getProperties();
 	vk::PhysicalDeviceFeatures features = _device.getFeatures();
 
-	vk::SurfaceKHR defaultSurfaceKHR = m_renderTargets[0]->GetSurfaceKHR();
-
-	m_familyIndices = GetQueueFamilies(_device, defaultSurfaceKHR);
+	m_familyIndices = GetQueueFamilies(_device, _surface);
 	bool haveExtensions = CheckDeviceExtensions(_device);
 	
 
 	bool swapChainAdequate = false;
 	if (haveExtensions) {
 
-		m_swapChainSupportDetails = QuerySwapChainSupportDetails(defaultSurfaceKHR, _device);
+		m_swapChainSupportDetails = QuerySwapChainSupportDetails(_surface, _device);
 		swapChainAdequate = !m_swapChainSupportDetails.formats.empty() && !m_swapChainSupportDetails.presentModes.empty();
 	}
 

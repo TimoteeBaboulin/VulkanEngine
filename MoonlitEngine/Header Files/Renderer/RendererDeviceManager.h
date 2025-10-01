@@ -9,12 +9,23 @@ struct RenderQueues
 	vk::Queue presentQueue;
 };
 
+struct DeviceData
+{
+	vk::Device Device;
+	vk::PhysicalDevice PhysicalDevice;
+
+	QueueFamilyIndices QueueIndices;
+	vk::Queue Queues;
+	SwapChainSupportDetails m_swapChainSupportDetails;
+	float m_timeStampPeriods;
+};
+
 class RenderTarget;
 //TODO: Find a way to check for present queue support without using a RenderTarget
 class RendererDeviceManager
 {
 public:
-	RendererDeviceManager(RenderTarget* _defaultTarget);
+	RendererDeviceManager();
 	//RendererDeviceManager(vk::SurfaceKHR& _surface);
 
 	void Init(vk::Instance& _instance);
@@ -35,17 +46,8 @@ public:
 
 private:
 	size_t m_targetCount = 0;
-	//vk::SurfaceKHR& m_surface;
-
-	vk::Device m_device;
-	vk::PhysicalDevice m_physicalDevice;
-
+	std::vector<DeviceData> m_devices;
 	std::vector<RenderTarget*> m_renderTargets;
-
-	float m_timeStampPeriods;
-
-	QueueFamilyIndices m_familyIndices;
-	SwapChainSupportDetails m_swapChainSupportDetails;
 
 	const std::vector<const char*> m_extensionNames = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME};
 

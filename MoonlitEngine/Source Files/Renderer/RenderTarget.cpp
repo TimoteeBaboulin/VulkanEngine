@@ -21,6 +21,7 @@ void RenderTarget::LinkDeviceManager(RendererDeviceManager* _deviceManager)
 	m_deviceManager = _deviceManager;
 
 	m_device = _deviceManager->GetDevice();
+	m_physDevice = _deviceManager->GetPhysicalDevice();
 	m_queues = _deviceManager->GetRenderQueues(this);
 
 	SwapChainSupportDetails swapChainSupport = m_deviceManager->QuerySwapChainSupportDetails(m_surfaceKHR, m_deviceManager->GetPhysicalDevice());

@@ -27,6 +27,9 @@ public:
 	vk::Format GetFormat() const { return m_format.format; }
 	vk::SurfaceKHR GetSurfaceKHR() const { return m_surfaceKHR; }
 	vk::CommandPool GetCommandPool() const { return m_commandPool; }
+
+	vk::Device GetDevice() const { return m_device; }
+	vk::PhysicalDevice GetPhysicalDevice() const { return m_physDevice; }
 #pragma endregion //Getters
 
 private:
@@ -39,6 +42,7 @@ private:
 
 	vk::Instance m_instance;
 	vk::Device m_device;
+	vk::PhysicalDevice m_physDevice;
 
 	RendererDeviceManager* m_deviceManager = nullptr;
 	Camera* m_camera = nullptr;

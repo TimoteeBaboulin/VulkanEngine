@@ -145,7 +145,7 @@ void Renderer::LoadMesh(std::string name)
 	}
 	test = !test;
 
-	m_drawBuffers[0].GenerateBuffers();
+	m_drawBuffers[0].UpdateBuffers();
 }
 
 void Renderer::Render()

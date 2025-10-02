@@ -5,60 +5,74 @@
 #include "Renderer/RendererDeviceManager.h"
 #include "Renderer/RenderTarget.h"
 
-//RendererDeviceManager::RendererDeviceManager(vk::SurfaceKHR& _surface) : m_surface(_surface)
-//{
-//	m_renderTargets.resize(16, nullptr);
-//}
-
-// Default target is necessary to get the present queue
-// TODO: Find a way to not require a default target
-RendererDeviceManager::RendererDeviceManager()
+RendererDeviceManager::RendererDeviceManager(vk::Instance _instance)
 {
+	m_vulkanInstance = _instance;
 }
 
-void RendererDeviceManager::Init(vk::Instance& _instance)
+RendererDeviceManager::~RendererDeviceManager()
 {
-	PickPhysicalDevice(_instance);
-
-	m_timeStampPeriods = m_physicalDevice.getProperties().limits.timestampPeriod;
-
-	CreateLogicalDevice();
+	Cleanup();
 }
 
 void RendererDeviceManager::Cleanup()
 {
-	m_device.destroy();
+	//TODO: Add cleanup code
 }
 
-bool RendererDeviceManager::TryAddRenderTarget(RenderTarget* _target, DeviceData& _deviceData)
+DeviceData RendererDeviceManager::AddTarget(RenderTarget* _target)
 {
-	if (m_targetCount >= 16)
-	{
-		return false;
-	}
+	DeviceData data;
+	vk::SurfaceKHR surface = _target->GetSurfaceKHR();
 
-	auto targetIterator = std::find(m_renderTargets.begin(), m_renderTargets.end(), nullptr);
-	(*targetIterator) = _target;
-
-	for (int index = 0; index < m_devices.size(); index++)
+	for (auto deviceDataIt = m_devices.begin(); deviceDataIt != m_devices.end(); deviceDataIt++)
 	{
-		if (Check)
-	}
-
-	for (int i = 0; i < m_renderTargets.size(); i++)
-	{
-		if (m_renderTargets[i] == nullptr)
+		if (CheckDeviceCompatibility((*deviceDataIt).PhysicalDevice, surface , data))
 		{
-			m_renderTargets[i] = _target;
-			m_targetCount++;
+			data = (*deviceDataIt);
 
-
-			return true;
+			//TODO: Create a new device based on the physical device
+			return;
 		}
 	}
 
-	return false;
+	data = PickPhysicalDevice(surface);
+
+
+
+	return DeviceData();
 }
+
+
+//bool RendererDeviceManager::TryAddRenderTarget(RenderTarget* _target, DeviceData& _deviceData)
+//{
+//	if (m_targetCount >= 16)
+//	{
+//		return false;
+//	}
+//
+//	auto targetIterator = std::find(m_renderTargets.begin(), m_renderTargets.end(), nullptr);
+//	(*targetIterator) = _target;
+//
+//	for (int index = 0; index < m_devices.size(); index++)
+//	{
+//		if (Check)
+//	}
+//
+//	for (int i = 0; i < m_renderTargets.size(); i++)
+//	{
+//		if (m_renderTargets[i] == nullptr)
+//		{
+//			m_renderTargets[i] = _target;
+//			m_targetCount++;
+//
+//
+//			return true;
+//		}
+//	}
+//
+//	return false;
+//}
 
 RenderQueues RendererDeviceManager::GetRenderQueues(RenderTarget* _target) const
 {
@@ -80,43 +94,51 @@ RenderQueues RendererDeviceManager::GetRenderQueues(RenderTarget* _target) const
 	return queues;
 }
 
-void RendererDeviceManager::PickPhysicalDevice(vk::Instance& _instance)
+DeviceData RendererDeviceManager::PickPhysicalDevice(vk::SurfaceKHR _surface)
 {
-	std::vector<vk::PhysicalDevice> physDevices = _instance.enumeratePhysicalDevices();
+	//List every physical devices on the target computer
+	std::vector<vk::PhysicalDevice> physDevices = m_vulkanInstance.enumeratePhysicalDevices();
 
 	if (physDevices.size() == 0)
 		throw new std::runtime_error("Failed to find graphics card with Vulkan support");
 
+	DeviceData data;
+
 	for (int i = 0; i < physDevices.size(); i++)
 	{
-		if (CheckDeviceCompatibility(physDevices[i]))
+		//CheckDeviceCompatibility will take care of updating the swapchain support details
+		//And the queue family indices field
+		if (CheckDeviceCompatibility(physDevices[i], _surface, data))
 		{
-			m_physicalDevice = physDevices[i];
-			break;
+			data.PhysicalDevice = physDevices[i];
+			return data;
 		}
 	}
 
-	if (m_physicalDevice == nullptr)
-		throw new std::runtime_error("Couldn't find a suitable graphics card");
+	throw new std::runtime_error("Couldn't find a suitable graphics card");
 }
 
-bool RendererDeviceManager::CheckDeviceCompatibility(vk::PhysicalDevice& _device, vk::SurfaceCapabilitiesKHR _surface)
+bool RendererDeviceManager::CheckDeviceCompatibility(vk::PhysicalDevice& _device, vk::SurfaceKHR& _surface, DeviceData& _deviceData)
 {
 	vk::PhysicalDeviceProperties properties = _device.getProperties();
 	vk::PhysicalDeviceFeatures features = _device.getFeatures();
+	vk::SurfaceCapabilitiesKHR surfaceCapabilities = _device.getSurfaceCapabilitiesKHR(_surface);
 
-	m_familyIndices = GetQueueFamilies(_device, _surface);
+	QueueFamilyIndices familyIndices = GetQueueFamilies(_device, _surface);
+	SwapChainSupportDetails swapChainSupportDetails;
 	bool haveExtensions = CheckDeviceExtensions(_device);
 	
-
 	bool swapChainAdequate = false;
 	if (haveExtensions) {
 
-		m_swapChainSupportDetails = QuerySwapChainSupportDetails(_surface, _device);
-		swapChainAdequate = !m_swapChainSupportDetails.formats.empty() && !m_swapChainSupportDetails.presentModes.empty();
+		swapChainSupportDetails = QuerySwapChainSupportDetails(_surface, _device);
+		swapChainAdequate = !swapChainSupportDetails.formats.empty() && !swapChainSupportDetails.presentModes.empty();
 	}
 
-	return m_familyIndices.IsComplete() && haveExtensions && swapChainAdequate;
+	_deviceData.QueueIndices = familyIndices;
+	_deviceData.SwapChainSupportDetails = swapChainSupportDetails;
+
+	return familyIndices.IsComplete() && haveExtensions && swapChainAdequate;
 }
 
 bool RendererDeviceManager::CheckDeviceExtensions(vk::PhysicalDevice& _device)
@@ -168,24 +190,27 @@ SwapChainSupportDetails RendererDeviceManager::QuerySwapChainSupportDetails(vk::
 	return details;
 }
 
-void RendererDeviceManager::CreateLogicalDevice()
+void RendererDeviceManager::CreateLogicalDevice(DeviceData& _data)
 {
+	vk::Device device;
 	float* queuePriority = new float[16];
 	for (int i = 0; i < 16; i++)
 	{
 		queuePriority[i] = 1.0f;
 	}
 	std::vector<vk::DeviceQueueCreateInfo> queueInfos;
-	std::set<unsigned int> familyIndices{ m_familyIndices.graphicsFamily.value(), m_familyIndices.khrPresentFamily.value() };
+	std::set<unsigned int> familyIndices{ _data.QueueIndices.graphicsFamily.value(), _data.QueueIndices.khrPresentFamily.value() };
 
-	for (auto indice : familyIndices)
+	//Create a single queue of each family (One graphical queue, one KHRPresentQueue for exemple)
+	//Since every render target uses its own Device, 
+	for (auto index : familyIndices)
 	{
 		queueInfos.push_back(vk::DeviceQueueCreateInfo{});
 		auto it = queueInfos.end();
 		it--;
 		(*it).sType = vk::StructureType::eDeviceQueueCreateInfo;
-		(*it).queueFamilyIndex = m_familyIndices.graphicsFamily.value();
-		(*it).queueCount = 16;
+		(*it).queueFamilyIndex = index;
+		(*it).queueCount = 1;
 		(*it).pQueuePriorities = queuePriority;
 	}
 
@@ -206,5 +231,5 @@ void RendererDeviceManager::CreateLogicalDevice()
 	createInfo.ppEnabledExtensionNames = m_extensionNames.data();
 	createInfo.pNext = indexingFeatures;
 
-	m_device = m_physicalDevice.createDevice(createInfo);
+	_data.Device = _data.PhysicalDevice.createDevice(createInfo);
 }

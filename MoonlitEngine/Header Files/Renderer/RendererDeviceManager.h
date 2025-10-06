@@ -21,7 +21,7 @@ struct DeviceData
 };
 
 class RenderTarget;
-//TODO: Find a way to check for present queue support without using a RenderTarget
+
 class RendererDeviceManager
 {
 public:
@@ -30,18 +30,10 @@ public:
 
 	DeviceData AddTarget(RenderTarget* _target);
 	void RemoveTarget(RenderTarget* _target);
-	
-	DeviceData GetDataFromTarget(RenderTarget* _target);
 
 	SwapChainSupportDetails QuerySwapChainSupportDetails(vk::SurfaceKHR& _surface, vk::PhysicalDevice _device);
 
 #pragma region Getters
-	vk::Device GetDevice() const { return m_device; }
-	vk::PhysicalDevice GetPhysicalDevice() const { return m_physicalDevice; }
-	QueueFamilyIndices GetQueueFamilyIndices() const { return m_familyIndices; }
-	float GetTimeStampPeriods() const { return m_timeStampPeriods; }
-	RenderQueues GetRenderQueues(RenderTarget* _target) const;
-	vk::Queue GetDefaultQueue() const { return m_device.getQueue(m_familyIndices.graphicsFamily.value(), 0); }
 #pragma endregion //Getters
 
 private:

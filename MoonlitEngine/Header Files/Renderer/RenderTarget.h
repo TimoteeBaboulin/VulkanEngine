@@ -11,13 +11,15 @@
 class RendererContext;
 class DrawBuffer;
 
+// TODO: Since render targets each have their own logical device, they are not device agnostic.
+// TODO: Material Instantiation should be made either here or in another abstraction layer
 class RenderTarget
 {
 public:
 	RenderTarget(int _framesInFlight, HWND _targetWindow, 
-		vk::Instance _instance, Camera* _camera);
+		vk::Instance _instance, Camera* _camera,
+		RendererDeviceManager* _deviceManager);
 
-	void LinkDeviceManager(RendererDeviceManager* _deviceManager);
 	void Init(vk::DescriptorSetLayout _uboLayout,
 		vk::RenderPass _renderPass);
 	void SetRenderPass(vk::RenderPass _renderPass);
@@ -28,8 +30,9 @@ public:
 	vk::SurfaceKHR GetSurfaceKHR() const { return m_surfaceKHR; }
 	vk::CommandPool GetCommandPool() const { return m_commandPool; }
 
-	vk::Device GetDevice() const { return m_device; }
-	vk::PhysicalDevice GetPhysicalDevice() const { return m_physDevice; }
+	vk::Device GetDevice() const { return m_deviceData.Device; }
+	vk::PhysicalDevice GetPhysicalDevice() const { return m_deviceData.PhysicalDevice; }
+	DeviceData GetDeviceData() const { return m_deviceData; }
 #pragma endregion //Getters
 
 private:
@@ -38,11 +41,8 @@ private:
 
 	HWND m_targetWindow = nullptr;
 
-	RenderQueues m_queues;
-
 	vk::Instance m_instance;
-	vk::Device m_device;
-	vk::PhysicalDevice m_physDevice;
+	DeviceData m_deviceData;
 
 	RendererDeviceManager* m_deviceManager = nullptr;
 	Camera* m_camera = nullptr;

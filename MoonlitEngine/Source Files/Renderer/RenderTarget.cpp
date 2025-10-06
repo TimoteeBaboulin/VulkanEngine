@@ -5,27 +5,21 @@
 #include "Renderer/DrawBuffer.h"
 
 RenderTarget::RenderTarget(int _framesInFlight, HWND _surface,
-	vk::Instance _instance, Camera* _camera) : m_instance(_instance), m_camera(_camera)
+	vk::Instance _instance, Camera* _camera,
+	RendererDeviceManager* _deviceManager) : m_instance(_instance), m_camera(_camera)
 {
 	m_targetWindow = _surface;
 	m_framesInFlight = _framesInFlight;
+	m_deviceManager = _deviceManager;
+	m_deviceData = _deviceManager->AddTarget(this);
+
+	SwapChainSupportDetails swapChainSupport = m_deviceData.SwapChainSupportDetails;
+	m_format = vhf::GetFormat(m_deviceData.PhysicalDevice, swapChainSupport.formats);
 
 	//This is called before Init to allow the DeviceManager to get
 	//The present queue
 	//TODO: Find a way to allow for device manager to get the present queue without needing a render target
 	CreateSurfaceKHR();
-}
-
-void RenderTarget::LinkDeviceManager(RendererDeviceManager* _deviceManager)
-{
-	m_deviceManager = _deviceManager;
-
-	m_device = _deviceManager->GetDevice();
-	m_physDevice = _deviceManager->GetPhysicalDevice();
-	m_queues = _deviceManager->GetRenderQueues(this);
-
-	SwapChainSupportDetails swapChainSupport = m_deviceManager->QuerySwapChainSupportDetails(m_surfaceKHR, m_deviceManager->GetPhysicalDevice());
-	m_format = vhf::GetFormat(m_deviceManager->GetPhysicalDevice(), swapChainSupport.formats);
 }
 
 void RenderTarget::Init(vk::DescriptorSetLayout _uboLayout,
@@ -63,7 +57,7 @@ void RenderTarget::CalculateExtent()
 	m_extent.width = static_cast<uint32_t>(windowRect.right - windowRect.left);
 	m_extent.height = static_cast<uint32_t>(windowRect.bottom - windowRect.top);
 
-	m_capabilities = m_deviceManager->GetPhysicalDevice().getSurfaceCapabilitiesKHR(m_surfaceKHR);
+	m_capabilities = m_deviceData.PhysicalDevice.getSurfaceCapabilitiesKHR(m_surfaceKHR);
 
 	if (m_capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 	{
@@ -92,7 +86,7 @@ void RenderTarget::CreateSwapChainResources()
 
 void RenderTarget::CreateSwapChain()
 {
-	SwapChainSupportDetails swapChainSupport = m_deviceManager->QuerySwapChainSupportDetails(m_surfaceKHR, m_deviceManager->GetPhysicalDevice());
+	SwapChainSupportDetails swapChainSupport = m_deviceManager->QuerySwapChainSupportDetails(m_surfaceKHR, m_deviceData.PhysicalDevice);
 
 	if (m_capabilities.maxImageCount != 0)
 	{
@@ -116,7 +110,7 @@ void RenderTarget::CreateSwapChain()
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
 
-	QueueFamilyIndices queueFamilyIndices = m_deviceManager->GetQueueFamilyIndices();
+	QueueFamilyIndices queueFamilyIndices = m_deviceData.QueueIndices;
 
 	createInfo.imageSharingMode = vk::SharingMode::eExclusive;
 	createInfo.queueFamilyIndexCount = 1;
@@ -128,8 +122,8 @@ void RenderTarget::CreateSwapChain()
 	createInfo.clipped = VK_TRUE;
 	createInfo.oldSwapchain = nullptr;
 
-	m_swapChain = m_device.createSwapchainKHR(createInfo);
-	m_swapChainImages = m_device.getSwapchainImagesKHR(m_swapChain);
+	m_swapChain = m_deviceData.Device.createSwapchainKHR(createInfo);
+	m_swapChainImages = m_deviceData.Device.getSwapchainImagesKHR(m_swapChain);
 }
 
 void RenderTarget::CreateImageViews()
@@ -137,23 +131,23 @@ void RenderTarget::CreateImageViews()
 	m_swapChainImageViews = new vk::ImageView[m_framesInFlight];
 	for (int i = 0; i < m_framesInFlight; ++i)
 	{
-		m_swapChainImageViews[i] = vhf::CreateImageView(m_device, m_swapChainImages[i], m_format.format, vk::ImageAspectFlagBits::eColor);
+		m_swapChainImageViews[i] = vhf::CreateImageView(m_deviceData.Device, m_swapChainImages[i], m_format.format, vk::ImageAspectFlagBits::eColor);
 	}
 }
 
 void RenderTarget::CreateDepthResources()
 {
 	vk::Format depthFormat = vk::Format::eD32Sfloat;
-	uint32_t queueFamilyIndex = m_deviceManager->GetQueueFamilyIndices().graphicsFamily.value();
+	uint32_t queueFamilyIndex = m_deviceData.QueueIndices.graphicsFamily.value();
 
 	m_swapChainDepthImages = new vk::Image[m_framesInFlight];
 	m_swapChainDepthImageViews = new vk::ImageView[m_framesInFlight];
 
 	for (int i = 0; i < m_framesInFlight; ++i)
 	{
-		vhf::CreateImage(m_device, m_deviceManager->GetPhysicalDevice(), m_extent, depthFormat, vk::ImageTiling::eOptimal,
+		vhf::CreateImage(m_deviceData.Device, m_deviceData.PhysicalDevice, m_extent, depthFormat, vk::ImageTiling::eOptimal,
 			vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_swapChainDepthImages[i], m_swapChainDepthMemory, vk::ImageLayout::eUndefined);
-		m_swapChainDepthImageViews[i] = vhf::CreateImageView(m_device, m_swapChainDepthImages[i], depthFormat, vk::ImageAspectFlagBits::eDepth);
+		m_swapChainDepthImageViews[i] = vhf::CreateImageView(m_deviceData.Device, m_swapChainDepthImages[i], depthFormat, vk::ImageAspectFlagBits::eDepth);
 	}
 }
 
@@ -172,7 +166,7 @@ void RenderTarget::CreateFrameBuffers()
 		framebufferInfo.layers = 1;
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
-		m_swapChainFramebuffers[i] = m_device.createFramebuffer(framebufferInfo);
+		m_swapChainFramebuffers[i] = m_deviceData.Device.createFramebuffer(framebufferInfo);
 	}
 }
 
@@ -187,16 +181,17 @@ void RenderTarget::RecreateSwapChain()
 
 void RenderTarget::DestroySwapChain()
 {
-	m_device.waitIdle();
+	vk::Device device = m_deviceData.Device;
+	device.waitIdle();
 
-	m_device.destroySwapchainKHR(m_swapChain);
+	device.destroySwapchainKHR(m_swapChain);
 	for (int i = 0; i < m_framesInFlight; ++i)
 	{
 		//m_device.destroyImageView(m_swapChainImageViews[i]);
 		//m_device.destroyImage(m_swapChainImages[i]);
-		m_device.destroyImageView(m_swapChainDepthImageViews[i]);
-		m_device.destroyImage(m_swapChainDepthImages[i]);
-		m_device.destroyFramebuffer(m_swapChainFramebuffers[i]);
+		device.destroyImageView(m_swapChainDepthImageViews[i]);
+		device.destroyImage(m_swapChainDepthImages[i]);
+		device.destroyFramebuffer(m_swapChainFramebuffers[i]);
 	}
 
 	m_swapChainImages.clear();
@@ -219,9 +214,9 @@ void RenderTarget::CreateSyncObjects()
 		vk::FenceCreateInfo fenceInfo;
 		fenceInfo.sType = vk::StructureType::eFenceCreateInfo;
 		fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
-		m_imageAvailableSemaphores[i] = m_device.createSemaphore(semaphoreInfo);
-		m_renderFinishedSemaphores[i] = m_device.createSemaphore(semaphoreInfo);
-		m_waitForPreviousFrame[i] = m_device.createFence(fenceInfo);
+		m_imageAvailableSemaphores[i] = m_deviceData.Device.createSemaphore(semaphoreInfo);
+		m_renderFinishedSemaphores[i] = m_deviceData.Device.createSemaphore(semaphoreInfo);
+		m_waitForPreviousFrame[i] = m_deviceData.Device.createFence(fenceInfo);
 	}
 }
 
@@ -229,9 +224,9 @@ void RenderTarget::CreateCommandPool()
 {
 	vk::CommandPoolCreateInfo poolInfo;
 	poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
-	poolInfo.queueFamilyIndex = m_deviceManager->GetQueueFamilyIndices().graphicsFamily.value();
+	poolInfo.queueFamilyIndex = m_deviceData.QueueIndices.graphicsFamily.value();
 	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-	m_commandPool = m_device.createCommandPool(poolInfo);
+	m_commandPool = m_deviceData.Device.createCommandPool(poolInfo);
 }
 
 void RenderTarget::CreateCommandBuffers()
@@ -243,7 +238,7 @@ void RenderTarget::CreateCommandBuffers()
 	allocInfo.commandPool = m_commandPool;
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
 	allocInfo.commandBufferCount = m_framesInFlight;
-	auto result = m_device.allocateCommandBuffers(allocInfo);
+	auto result = m_deviceData.Device.allocateCommandBuffers(allocInfo);
 	vk::CommandBuffer* commandBuffers = result.data();
 	for (int i = 0; i < m_framesInFlight; ++i)
 	{
@@ -267,8 +262,8 @@ void RenderTarget::CreateUniformBuffers()
 			.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
 			.size = bufferSize
 		};
-		vhf::CreateBuffer(m_device, m_deviceManager->GetPhysicalDevice(), bufferInfo);
-		m_uniformBuffersMaps[i] = m_device.mapMemory(m_uniformBuffersMemory[i], 0, bufferSize);
+		vhf::CreateBuffer(m_deviceData.Device, m_deviceData.PhysicalDevice, bufferInfo);
+		m_uniformBuffersMaps[i] = m_deviceData.Device.mapMemory(m_uniformBuffersMemory[i], 0, bufferSize);
 	}
 }
 
@@ -311,7 +306,7 @@ void RenderTarget::CreateDescriptorPool()
 	poolInfo.poolSizeCount = 1;
 	poolInfo.pPoolSizes = &poolSize;
 
-	m_descriptorPool = m_device.createDescriptorPool(poolInfo);
+	m_descriptorPool = m_deviceData.Device.createDescriptorPool(poolInfo);
 }
 
 void RenderTarget::CreateDescriptorSets()
@@ -328,7 +323,7 @@ void RenderTarget::CreateDescriptorSets()
 	allocInfo.descriptorSetCount = m_framesInFlight;
 	allocInfo.pSetLayouts = setLayouts.data();
 
-	m_descriptorSets = m_device.allocateDescriptorSets(allocInfo);
+	m_descriptorSets = m_deviceData.Device.allocateDescriptorSets(allocInfo);
 
 	std::vector<vk::WriteDescriptorSet> writeSets;
 	std::vector<vk::DescriptorBufferInfo> bufferInfos;
@@ -349,14 +344,14 @@ void RenderTarget::CreateDescriptorSets()
 		writeSets[i].pBufferInfo = &bufferInfos.data()[i];
 	}
 
-	m_device.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
+	m_deviceData.Device.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
 }
 
 void RenderTarget::Render(std::vector<DrawBuffer> _drawBuffers)
 {
-	m_device.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
+	m_deviceData.Device.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
 
-	m_device.resetFences(m_waitForPreviousFrame[m_currentFrame]);
+	m_deviceData.Device.resetFences(m_waitForPreviousFrame[m_currentFrame]);
 
 	UpdateUniformBuffer();
 
@@ -369,7 +364,7 @@ void RenderTarget::Render(std::vector<DrawBuffer> _drawBuffers)
 	vk::Semaphore* waitSemaphore = &m_imageAvailableSemaphores[m_currentFrame];
 	
 
-	index = m_device.acquireNextImageKHR(m_swapChain, std::numeric_limits<uint64_t>::max(), *waitSemaphore).value;
+	index = m_deviceData.Device.acquireNextImageKHR(m_swapChain, std::numeric_limits<uint64_t>::max(), *waitSemaphore).value;
 	
 	vk::Semaphore* signalSemaphore = &m_renderFinishedSemaphores[index];
 
@@ -390,7 +385,7 @@ void RenderTarget::Render(std::vector<DrawBuffer> _drawBuffers)
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphore;
 
-	auto result = m_queues.graphicsQueue.submit(1, &submitInfo, m_waitForPreviousFrame[m_currentFrame]);
+	auto result = m_deviceData.Queues.submit(1, &submitInfo, m_waitForPreviousFrame[m_currentFrame]);
 
 	vk::SwapchainKHR* swapChain = &m_swapChain;
 

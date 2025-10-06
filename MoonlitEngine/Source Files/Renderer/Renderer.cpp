@@ -46,7 +46,7 @@ void Renderer::InitContext(ContextInfo& _info, std::vector<const char*> required
 	vk::ApplicationInfo appInfo = GetAppInfo(_info.name);
 	m_instance = m_context.CreateInstance(appInfo, requiredExtensions.data(), requiredExtensions.size());
 
-	
+	m_deviceManager = new RendererDeviceManager(m_instance);
 
 	//Generate the default render target and set up the device manager and render pass
 	//TODO: Clean up this code, it is a bit messy

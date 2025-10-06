@@ -20,27 +20,63 @@ void RendererDeviceManager::Cleanup()
 	//TODO: Add cleanup code
 }
 
+/// <summary>
+/// This is used to add a target and automatically pick a fitting physical device and create a new logical device
+/// </summary>
 DeviceData RendererDeviceManager::AddTarget(RenderTarget* _target)
 {
 	DeviceData data;
 	vk::SurfaceKHR surface = _target->GetSurfaceKHR();
+	bool foundMatchingPhysicalDevice = false;
 
+	// Check if a physical device already exist that can handle the surface
 	for (auto deviceDataIt = m_devices.begin(); deviceDataIt != m_devices.end(); deviceDataIt++)
 	{
 		if (CheckDeviceCompatibility((*deviceDataIt).PhysicalDevice, surface , data))
 		{
 			data = (*deviceDataIt);
 
-			//TODO: Create a new device based on the physical device
-			return;
+			foundMatchingPhysicalDevice = true;
+			
+			break;
 		}
 	}
 
-	data = PickPhysicalDevice(surface);
+	// Need to pick a new physical device for the surface
+	if (!foundMatchingPhysicalDevice)
+	{
+		data = PickPhysicalDevice(surface);
+		m_physicalDevices.push_back(data.PhysicalDevice);
+	}
+	
+	//TODO: Create the queues as well
+	CreateLogicalDevice(data);
 
+	return data;
+}
 
+void RendererDeviceManager::RemoveTarget(RenderTarget* _target)
+{
+	DeviceData data = _target->GetDeviceData();
 
-	return DeviceData();
+	for (auto it = m_devices.begin(); it != m_devices.end(); it++)
+	{
+		if ((*it).Device == data.Device)
+		{
+			m_devices.erase(it);
+			break;
+		}
+	}
+
+	for (auto it = m_renderTargets.begin(); it != m_renderTargets.end(); it++)
+	{
+		if ((*it) == _target)
+		{
+			m_renderTargets.erase(it);
+			m_targetCount--;
+			break;
+		}
+	}
 }
 
 
@@ -74,26 +110,30 @@ DeviceData RendererDeviceManager::AddTarget(RenderTarget* _target)
 //	return false;
 //}
 
-RenderQueues RendererDeviceManager::GetRenderQueues(RenderTarget* _target) const
-{
-	int index = 0;
+//RenderQueues RendererDeviceManager::GetRenderQueues(RenderTarget* _target) const
+//{
+//	int index = 0;
+//
+//	for (int i = 0; i < m_renderTargets.size(); i++)
+//	{
+//		if (m_renderTargets[i] == _target)
+//		{
+//			index = i;
+//			break;
+//		}
+//	}
+//
+//	RenderQueues queues;
+//	queues.graphicsQueue = m_device.getQueue(m_familyIndices.graphicsFamily.value(), index);
+//	queues.presentQueue = m_device.getQueue(m_familyIndices.khrPresentFamily.value(), index);
+//
+//	return queues;
+//}
 
-	for (int i = 0; i < m_renderTargets.size(); i++)
-	{
-		if (m_renderTargets[i] == _target)
-		{
-			index = i;
-			break;
-		}
-	}
-
-	RenderQueues queues;
-	queues.graphicsQueue = m_device.getQueue(m_familyIndices.graphicsFamily.value(), index);
-	queues.presentQueue = m_device.getQueue(m_familyIndices.khrPresentFamily.value(), index);
-
-	return queues;
-}
-
+/// <summary>
+/// Method used to pick a new physical device for use by a new surface
+/// </summary>
+/// <returns> Returns a DeviceData struct with Swapchain support details, physical device and queue family indices</returns>
 DeviceData RendererDeviceManager::PickPhysicalDevice(vk::SurfaceKHR _surface)
 {
 	//List every physical devices on the target computer

@@ -79,6 +79,13 @@ MOONLIT_API struct MeshData
 	std::vector<Image> textures;
 };
 
+struct MeshInstance
+{
+	MeshData& MeshData;
+	std::vector<std::shared_ptr<Image>> Textures;
+	glm::mat4x4 Model;
+};
+
 struct TransitionInfo
 {
 	vk::AccessFlags srcAccessFlags;

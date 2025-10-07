@@ -6,12 +6,13 @@
 
 #include "ResourceManagement/FileHelper.h"
 
-Material::Material(Renderer* _renderer, vk::Device _device, int _textureCount)
+Material::Material(vk::Device _device, int _textureCount, 
+	vk::RenderPass _renderPass, vk::DescriptorSetLayout _uboLayout)
 {
 	m_textureCount = _textureCount;
-	CreatePipelineLayouts(*_renderer, _device);
+	CreatePipelineLayouts(_device, _uboLayout);
 	m_pipelines.resize(2);
-	CreatePipelines(_renderer, _device);
+	CreatePipelines(_device, _renderPass);
 }
 
 struct ShaderCode
@@ -19,7 +20,9 @@ struct ShaderCode
 	void* code;
 	size_t size;
 };
-
+/// <summary>
+/// Function used to load a slang module and compile the shaders inside it to SPIR-V
+/// </summary>
 ShaderCode* GetModules(const char* filepath)
 {
 	Slang::ComPtr<slang::IGlobalSession> globalSession;
@@ -96,13 +99,12 @@ ShaderCode* GetModules(const char* filepath)
 	return shaderCodes;
 }
 
-void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
+void Material::CreatePipelines(vk::Device _device, vk::RenderPass _renderPass)
 {
 	vk::GraphicsPipelineCreateInfo pipelineInfo;
 	pipelineInfo.sType = vk::StructureType::eGraphicsPipelineCreateInfo;
 
 	ShaderCode* shaderCodes = GetModules("Shaders/BaseMaterial.slang");
-
 
 #pragma region Stages
 	vk::PipelineShaderStageCreateInfo* shaderStages = new vk::PipelineShaderStageCreateInfo[2];
@@ -286,7 +288,7 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 	pipelineInfo.layout = m_pipelineLayouts[0];
 	pipelineInfo.subpass = 0;
 
-	pipelineInfo.renderPass = _renderer->GetRenderPass();
+	pipelineInfo.renderPass = _renderPass;
 
 	m_pipelines[0] = _device.createGraphicsPipeline(nullptr, pipelineInfo).value;
 
@@ -309,12 +311,12 @@ void Material::CreatePipelines(Renderer* _renderer, vk::Device _device)
 	_device.destroyShaderModule(fragModule);
 }
 
-void Material::CreatePipelineLayouts(Renderer& _renderer, vk::Device& _device)
+void Material::CreatePipelineLayouts(vk::Device& _device, vk::DescriptorSetLayout _uboLayout)
 {
 	m_pipelineLayouts.resize(1);
 
 	m_setLayouts.resize(2);
-	m_setLayouts[0] = _renderer.GetUboDescriptorSetLayout();
+	m_setLayouts[0] = _uboLayout;
 
 	//vk::DescriptorSetLayoutBinding* textureBindings = new vk::DescriptorSetLayoutBinding[m_textureCount];
 

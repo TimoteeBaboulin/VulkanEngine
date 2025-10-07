@@ -44,12 +44,7 @@ public:
 	void Render();
 
 	//Getters
-	vk::RenderPass GetRenderPass() const { return m_mainRenderPass; }
-	vk::Device GetDevice() const { return m_device; }
-	vk::PhysicalDevice GetPhysicalDevice() const { return m_physicalDevice; }
-	vk::Queue GetGraphicsQueue() const { return m_deviceManager->GetDefaultQueue(); }
 	vk::CommandPool GetMainCommandPool() const { return m_mainCommandPool; }
-	vk::DescriptorSetLayout GetUboDescriptorSetLayout() const { return m_uboDescriptorSetLayout; }
 private:
 	RendererContext m_context;
 	RendererDeviceManager* m_deviceManager;
@@ -57,18 +52,12 @@ private:
 	std::vector<RenderTarget*> m_renderTargets;
 
 	vk::Instance m_instance;
-	vk::Device m_device;
-	vk::PhysicalDevice m_physicalDevice;
 
 	float m_timeStampPeriods;
 
 	bool test = false;
 
 	CameraInputHandler* m_inputHandler;
-
-	Material* m_baseMaterial = nullptr;
-
-	vk::RenderPass m_mainRenderPass;
 
 	uint32_t m_framesInFlight = 3;
 	uint32_t m_currentFrame = 0;
@@ -78,9 +67,7 @@ private:
 	bool m_windowClosed = false;
 
 	std::vector<DrawBuffer> m_drawBuffers;
-
 	vk::CommandPool m_mainCommandPool;
-	vk::DescriptorSetLayout m_uboDescriptorSetLayout;
 
 #pragma region Debug
 #ifdef RENDER_DEBUG_INFORMATION_QUERY
@@ -94,19 +81,15 @@ private:
 	bool m_swapchainOutOfDate = false;
 #pragma endregion
 
-#pragma region Buffers
-
-#pragma endregion
-
 	void InitContext(ContextInfo& _info, std::vector<const char*> requiredExtensions);
 	void InitVulkan();
 	void InitRenderer();
 
-	void CreateRenderPasses(vk::Format _format);
+	//void CreateRenderPasses(vk::Format _format);
 
 #pragma region Inputs
 	void HandleWindowEvents(WINDOW_EVENT _event, void* _data);
 #pragma endregion
-	void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex);
-	void CreateUboDescriptorSetLayout();
+	//void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex);
+	//void CreateUboDescriptorSetLayout();
 };

@@ -11,22 +11,26 @@ RenderTarget::RenderTarget(int _framesInFlight, HWND _surface,
 	m_targetWindow = _surface;
 	m_framesInFlight = _framesInFlight;
 	m_deviceManager = _deviceManager;
+
+	//The device manager need the surface to pick a physical device
+	//So we can only link after creating the surface
+	CreateSurfaceKHR();
 	m_deviceData = _deviceManager->AddTarget(this);
 
+	//Get the format as its gonna be used in the renderpass
 	SwapChainSupportDetails swapChainSupport = m_deviceData.SwapChainSupportDetails;
 	m_format = vhf::GetFormat(m_deviceData.PhysicalDevice, swapChainSupport.formats);
 
-	//This is called before Init to allow the DeviceManager to get
-	//The present queue
-	//TODO: Find a way to allow for device manager to get the present queue without needing a render target
-	CreateSurfaceKHR();
+	Init();
 }
 
-void RenderTarget::Init(vk::DescriptorSetLayout _uboLayout,
-	vk::RenderPass _renderPass)
-{
-	m_renderPass = _renderPass;
-	m_uboDescriptorSetLayout = _uboLayout;
+void RenderTarget::Init()
+{	
+	//Create the renderpass before the material as the material needs the renderpass
+	CreateRenderPass();
+	CreateDescriptorSetLayout();
+
+	m_defaultMaterial = new Material(m_deviceData.Device, 1, m_renderPass, m_uboDescriptorSetLayout);
 	
 	//Need the format to create the render pass in the renderer
 	//TODO: Remove this dependency
@@ -38,7 +42,6 @@ void RenderTarget::Init(vk::DescriptorSetLayout _uboLayout,
 	CreateUniformBuffers();
 
 	CreateDescriptorPool();
-	//CreateDescriptorSetLayout();
 	CreateDescriptorSets();
 
 	CreateSyncObjects();
@@ -220,6 +223,85 @@ void RenderTarget::CreateSyncObjects()
 	}
 }
 
+void RenderTarget::CreateRenderPass()
+{
+#pragma region Attachments
+	std::vector<vk::AttachmentDescription> attachments;
+	attachments.resize(2);
+	
+	// Depth Attachment
+	attachments[0].format = vk::Format::eD32Sfloat;
+	attachments[0].samples = vk::SampleCountFlagBits::e1;
+	attachments[0].loadOp = vk::AttachmentLoadOp::eClear;
+	attachments[0].storeOp = vk::AttachmentStoreOp::eDontCare;
+	attachments[0].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+	attachments[0].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+	attachments[0].initialLayout = vk::ImageLayout::eUndefined;
+	attachments[0].finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+	// Color Attachment
+	attachments[1].format = m_format.format;
+	attachments[1].samples = vk::SampleCountFlagBits::e1;
+	attachments[1].loadOp = vk::AttachmentLoadOp::eClear;
+	attachments[1].storeOp = vk::AttachmentStoreOp::eStore;
+	attachments[1].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+	attachments[1].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+	attachments[1].initialLayout = vk::ImageLayout::eUndefined;
+	attachments[1].finalLayout = vk::ImageLayout::ePresentSrcKHR;
+
+	vk::AttachmentReference* attachmentRefs = new vk::AttachmentReference[2];
+	attachmentRefs[0].attachment = 0;
+	attachmentRefs[0].layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+	attachmentRefs[1].attachment = 1;
+	attachmentRefs[1].layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+#pragma endregion //Attachments
+
+#pragma region Subpasses
+	std::vector<vk::SubpassDescription> subpasses;
+	std::vector<vk::SubpassDependency> subpassDependencies;
+	subpasses.resize(2);
+	subpassDependencies.resize(2);
+
+	// Depth Subpass
+	subpasses[0].pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	subpasses[0].colorAttachmentCount = 0;
+	subpasses[0].pDepthStencilAttachment = &attachmentRefs[0];
+
+	subpassDependencies[0].srcSubpass = vk::SubpassExternal;
+	subpassDependencies[0].dstSubpass = 0;
+	subpassDependencies[0].srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	subpassDependencies[0].dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	subpassDependencies[0].srcAccessMask = vk::AccessFlagBits::eNone;
+	subpassDependencies[0].dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+	// Color Subpass
+	subpasses[1].pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	subpasses[1].colorAttachmentCount = 1;
+	subpasses[1].pColorAttachments = &attachmentRefs[1];
+	subpasses[1].pDepthStencilAttachment = &attachmentRefs[0];
+
+	subpassDependencies[1].srcSubpass = 0;
+	subpassDependencies[1].dstSubpass = 1;
+	subpassDependencies[1].srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	subpassDependencies[1].dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	subpassDependencies[1].srcAccessMask = vk::AccessFlagBits::eNone;
+	subpassDependencies[1].dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+#pragma endregion //Subpasses
+
+	vk::RenderPassCreateInfo renderPassInfo;
+	renderPassInfo.sType = vk::StructureType::eRenderPassCreateInfo;
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	renderPassInfo.pAttachments = attachments.data();
+	renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+	renderPassInfo.pSubpasses = subpasses.data();
+	renderPassInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
+	renderPassInfo.pDependencies = subpassDependencies.data();
+
+	m_renderPass = m_deviceData.Device.createRenderPass(renderPassInfo);
+}
+
 void RenderTarget::CreateCommandPool()
 {
 	vk::CommandPoolCreateInfo poolInfo;
@@ -278,21 +360,21 @@ void RenderTarget::UpdateUniformBuffer()
 	memcpy(m_uniformBuffersMaps[m_currentFrame], &ubo, sizeof(UniformBufferObject));
 }
 
-//void RenderTarget::CreateDescriptorSetLayout()
-//{
-//	vk::DescriptorSetLayoutBinding uboLayoutBinding;
-//	uboLayoutBinding.binding = 0;
-//	uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
-//	uboLayoutBinding.descriptorCount = 1;
-//	uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
-//
-//	vk::DescriptorSetLayoutCreateInfo createInfo;
-//	createInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
-//	createInfo.bindingCount = 1;
-//	createInfo.pBindings = &uboLayoutBinding;
-//
-//	m_uboDescriptorSetLayout = m_device.createDescriptorSetLayout(createInfo);
-//}
+void RenderTarget::CreateDescriptorSetLayout()
+{
+	vk::DescriptorSetLayoutBinding uboLayoutBinding;
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
+
+	vk::DescriptorSetLayoutCreateInfo layoutInfo;
+	layoutInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
+	layoutInfo.bindingCount = 1;
+	layoutInfo.pBindings = &uboLayoutBinding;
+
+	m_uboDescriptorSetLayout = m_deviceData.Device.createDescriptorSetLayout(layoutInfo);
+}
 
 void RenderTarget::CreateDescriptorPool()
 {
@@ -385,7 +467,7 @@ void RenderTarget::Render(std::vector<DrawBuffer> _drawBuffers)
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphore;
 
-	auto result = m_deviceData.Queues.submit(1, &submitInfo, m_waitForPreviousFrame[m_currentFrame]);
+	auto result = m_deviceData.Queues.graphicsQueue.submit(1, &submitInfo, m_waitForPreviousFrame[m_currentFrame]);
 
 	vk::SwapchainKHR* swapChain = &m_swapChain;
 
@@ -401,12 +483,12 @@ void RenderTarget::Render(std::vector<DrawBuffer> _drawBuffers)
 
 	try
 	{
-		m_queues.presentQueue.presentKHR(presentInfo);
+		m_deviceData.Queues.presentQueue.presentKHR(presentInfo);
 	}
 	catch (vk::OutOfDateKHRError e)
 	{
-		m_queues.presentQueue.waitIdle();
-		m_queues.graphicsQueue.waitIdle();
+		m_deviceData.Queues.presentQueue.waitIdle();
+		m_deviceData.Queues.graphicsQueue.waitIdle();
 		RecreateSwapChain();
 	}
 

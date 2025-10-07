@@ -10,6 +10,7 @@
 
 class RendererContext;
 class DrawBuffer;
+class Material;
 
 // TODO: Since render targets each have their own logical device, they are not device agnostic.
 // TODO: Material Instantiation should be made either here or in another abstraction layer
@@ -20,8 +21,7 @@ public:
 		vk::Instance _instance, Camera* _camera,
 		RendererDeviceManager* _deviceManager);
 
-	void Init(vk::DescriptorSetLayout _uboLayout,
-		vk::RenderPass _renderPass);
+	void Init();
 	void SetRenderPass(vk::RenderPass _renderPass);
 	void Render(std::vector<DrawBuffer> _drawBuffers);
 
@@ -40,9 +40,12 @@ private:
 	int m_currentFrame = 0;
 
 	HWND m_targetWindow = nullptr;
+	Material* m_defaultMaterial = nullptr;
 
 	vk::Instance m_instance;
 	DeviceData m_deviceData;
+
+	vk::RenderPass m_renderPass = nullptr;
 
 	RendererDeviceManager* m_deviceManager = nullptr;
 	Camera* m_camera = nullptr;
@@ -107,12 +110,14 @@ private:
 	void CreateUniformBuffers();
 	void UpdateUniformBuffer();
 
-	//void CreateDescriptorSetLayout();
+	void CreateDescriptorSetLayout();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets();
 #pragma endregion //Uniform Buffers Methods
 
 	void CreateSyncObjects();
+
+	void CreateRenderPass();
 
 	void CreateCommandPool();
 	void CreateCommandBuffers();

@@ -180,6 +180,42 @@ void DrawBuffer::UpdateBuffers()
 	}
 }
 
+void DrawBuffer::RenderBuffer(RenderTarget& _target)
+{
+	if (!m_buffersGenerated || m_dirty)
+	{
+		for (int i = 0; i < m_linkedDevices.size(); i++)
+		{
+			UpdateBuffers(i);
+		}
+	}
+
+	vk::DeviceSize offsets[] = { 0 };
+
+	_cmd.bindVertexBuffers(0, m_vertexBuffer, offsets);
+	_cmd.bindVertexBuffers(1, m_modelMatriceBuffer, offsets);
+	_cmd.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint16);
+
+	m_material->RecordCommandBuffer(_cmd, _currentPass, vk::PipelineBindPoint::eGraphics);
+
+	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_material->GetLayouts()[0], 0, 1, _uboSet, 0, nullptr);
+	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_material->GetLayouts()[0], 1, 1, m_descriptorSets.data(), 0, nullptr);
+
+	int currIndex = 0;
+	int currInstance = 0;
+
+	for (int i = 0; i < m_meshes.size(); i++)
+	{
+		int instanceCount = m_meshInstanceCount[i];
+		int indexCount = m_meshes[i]->triangleCount * 3;
+
+		_cmd.drawIndexed(indexCount, instanceCount, currIndex, 0, currInstance);
+
+		currInstance += instanceCount;
+		currIndex += indexCount;
+	}
+}
+
 //void DrawBuffer::UpdateTextures(int _deviceIndex)
 //{
 //	if (!m_texturesDirty)
@@ -309,7 +345,7 @@ void DrawBuffer::UpdateEntries()
 				{instance.Model}
 				});
 
-			return;
+			continue;
 		}
 
 		(*meshEntryIt).ModelMatrices.push_back(instance.Model);

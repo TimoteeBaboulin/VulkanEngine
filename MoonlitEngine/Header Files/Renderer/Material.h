@@ -11,7 +11,8 @@ class Material;
 class Material
 {
 public:
-	Material(Renderer* _renderer, vk::Device _device, int _textureCount);
+	Material(vk::Device _device, int _textureCount,
+		vk::RenderPass _renderPass, vk::DescriptorSetLayout _uboLayout);
 	virtual std::vector<vk::PipelineLayout> GetLayouts() { return m_pipelineLayouts; };
 	virtual void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint);
 
@@ -24,6 +25,6 @@ private:
 	std::vector<vk::PipelineLayout> m_pipelineLayouts;
 	std::vector<vk::DescriptorSetLayout> m_setLayouts;
 
-	virtual void CreatePipelines(Renderer* _renderer, vk::Device _device);
-	virtual void CreatePipelineLayouts(Renderer& _renderer, vk::Device& _device);
+	virtual void CreatePipelines(vk::Device _device, vk::RenderPass _renderPass);
+	virtual void CreatePipelineLayouts(vk::Device& _device, vk::DescriptorSetLayout _uboLayout);
 };

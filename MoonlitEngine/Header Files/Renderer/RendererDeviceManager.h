@@ -15,7 +15,7 @@ struct DeviceData
 	vk::PhysicalDevice PhysicalDevice;
 
 	QueueFamilyIndices QueueIndices;
-	vk::Queue Queues;
+	RenderQueues Queues;
 	SwapChainSupportDetails SwapChainSupportDetails;
 	float TimeStampPeriods;
 };

@@ -12,13 +12,6 @@ constexpr int MaxVertexCount = 100000;
 constexpr int MaxModelCount = 500;
 constexpr int MaxIndexCount = 1600000;
 
-struct MeshInstance
-{
-	MeshData& MeshData;
-	std::vector<std::shared_ptr<Image>> Textures;
-	glm::mat4x4 Model;
-};
-
 struct MeshEntry
 {
 	MeshData* Data;
@@ -49,7 +42,7 @@ public:
 	//bool TryAddMesh(MeshData* _meshData, glm::mat4x4 _modelMatrice, std::vector<std::shared_ptr<Image>> m_textures);
 
 	void UpdateBuffers();
-	void RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass);
+	void RenderBuffer(RenderTarget& _target);
 	//void RenderBufferIndirect(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass);
 
 	uint32_t GetVertexCount() const { return m_vertexCount; }

@@ -51,6 +51,8 @@ DeviceData RendererDeviceManager::AddTarget(RenderTarget* _target)
 	
 	//TODO: Create the queues as well
 	CreateLogicalDevice(data);
+	data.Queues.graphicsQueue = data.Device.getQueue(data.QueueIndices.graphicsFamily.value(), 0);
+	data.Queues.presentQueue = data.Device.getQueue(data.QueueIndices.khrPresentFamily.value(), 0);
 
 	return data;
 }

@@ -18,10 +18,14 @@ struct DrawBufferResources
 class BufferDeviceLink
 {
 public:
-	BufferDeviceLink(vk::Device _device, vk::PhysicalDevice _physDevice, RendererDeviceManager& _deviceManager);
+	BufferDeviceLink(DeviceData _deviceData);
 	~BufferDeviceLink();
 	DrawBufferResources& const GetBufferResources() { return m_drawResources; };
 	vk::Device const GetDevice() { return m_device; }
+
+	void Render();
+	void GenerateBuffers(Vertex* _vertexData, uint32_t _vertexCount, );
+
 private:
 	DrawBufferResources m_drawResources;
 	vk::Device m_device;

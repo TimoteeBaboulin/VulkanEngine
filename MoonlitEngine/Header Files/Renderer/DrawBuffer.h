@@ -31,7 +31,7 @@ class DrawBuffer
 {
 public:
 	//DrawBuffer(Material* _material, Renderer& _renderer);
-	DrawBuffer();
+	DrawBuffer(Material* _material);
 	bool TryAddMesh(MeshInstance* _instance);
 	void RemoveMesh(MeshInstance* _instance);
 
@@ -42,7 +42,7 @@ public:
 	//bool TryAddMesh(MeshData* _meshData, glm::mat4x4 _modelMatrice, std::vector<std::shared_ptr<Image>> m_textures);
 
 	void UpdateBuffers();
-	void RenderBuffer(RenderTarget& _target);
+	void RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, int _renderPass);
 	//void RenderBufferIndirect(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass);
 
 	uint32_t GetVertexCount() const { return m_vertexCount; }
@@ -78,6 +78,7 @@ private:
 	int m_indexCount;
 	int m_instanceCount;
 
+	//Mesh Entries
 	std::vector<MeshEntry> m_meshes;
 
 	//std::vector<MeshData*> m_meshes;
@@ -87,6 +88,7 @@ private:
 	//Textures
 	std::vector<std::shared_ptr<Image>> m_images;
 	
+	Material* m_material;
 
 	//Dirty tracking booleans
 	bool m_buffersGenerated;
@@ -97,6 +99,7 @@ private:
 
 	void CountVertexData();
 	void UpdateEntries();
+	std::vector<BufferDeviceLink>::iterator FindDeviceLink(RenderTarget& _target);
 
 	//void UpdateTextures();
 	//TextureData GetTextureData(Image _image);

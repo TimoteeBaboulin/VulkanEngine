@@ -1,80 +1,125 @@
 #include "Renderer/BufferDeviceLink.h"
 #include "Renderer/RendererDeviceManager.h"
+#include "Renderer/VulkanHelperFunctions.h"
+#include "Renderer/MaterialInstance.h"
+#include "Renderer/DrawBuffer.h"
+#include "Renderer/MaterialInstance.h"
 
-BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData)
+BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _materialInstance)
 {
-	m_device = _deviceData.Device;
-	m_physDevice = _deviceData.PhysicalDevice;
+	m_deviceData = _deviceData;
+	m_material = _materialInstance;
 
 	vk::CommandPoolCreateInfo poolInfo;
 	poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
 	poolInfo.queueFamilyIndex = _deviceData.QueueIndices.graphicsFamily.value();
 	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-	m_commandPool = m_device.createCommandPool(poolInfo);
+	m_commandPool = m_deviceData.Device.createCommandPool(poolInfo);
 
 	vk::CommandBufferAllocateInfo allocInfo;
 	allocInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
 	allocInfo.commandPool = m_commandPool;
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
 	allocInfo.commandBufferCount = 1;
-	auto result = m_device.allocateCommandBuffers(allocInfo);
+	auto result = m_deviceData.Device.allocateCommandBuffers(allocInfo);
 	m_commandBuffer = result.at(0);
 }
 
 BufferDeviceLink::~BufferDeviceLink()
 {
 	//TODO: Destroy the command pool and every resource generated on the device
+	ClearBuffers();
 }
 
-void BufferDeviceLink::AddMesh(MeshInstance* _meshInstance)
+void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,
+	std::vector<MeshEntry>& _meshEntries, vk::DescriptorSet* _uboSet)
 {
-	int vertexCount = _meshInstance->MeshData.vertexCount;
+	vk::DeviceSize offsets[] = { 0 };
 
-//	if (!MeshCanFit(*_meshInstance))
-//		throw new std::exception("Not enough place in DrawBuffer");
-//
-//	AddTextures(_textures);
-//
-//	//Add the mesh to the buffer
-//	auto it = std::find(m_meshes.begin(), m_meshes.end(), _meshInstance);
-//	int index = m_meshes.size();
-//	if (it == m_meshes.end())
-//	{
-//		//If it doesn't exist already we have to add the vertex and index datas
-//		Vertex* vertexBuffer = m_vertexData + m_vertexCount;
-//		uint16_t* indexBuffer = m_indexData + m_indexCount;
-//
-//		int indexCount = 3 * _meshInstance->triangleCount;
-//
-//		memcpy(vertexBuffer, _meshInstance->vertices, sizeof(Vertex) * vertexCount);
-//
-//		for (int i = 0; i < indexCount; i++)
-//		{
-//			indexBuffer[i] = _meshInstance->indices[i] + m_vertexCount;
-//		}
-//		//memcpy(indexBuffer, _mesh->indices, 16 * 3 * _mesh->triangleCount);
-//
-//		m_vertexCount += vertexCount;
-//		m_indexCount += _meshInstance->triangleCount * 3;
-//
-//		m_meshes.push_back(_meshInstance);
-//
-//		m_modelMatrices.push_back(std::vector<glm::mat4x4>());
-//		m_meshInstanceCount.push_back(0);
-//	}
-//	else
-//	{
-//		index = std::distance(m_meshes.begin(), it);
-//	}
-//
-//	m_modelMatrices[index].push_back(_modelMatrice);
-//	m_meshInstanceCount[index]++;
-//	m_instanceCount++;
-//
-//	GenerateModelMatriceBuffer();
-//
-//	m_dirty = true;
-//
-//	return true;
+	_cmd.bindVertexBuffers(0, m_drawResources.vertexBuffer, offsets);
+	_cmd.bindVertexBuffers(1, m_drawResources.modelMatrixBuffer, offsets);
+	_cmd.bindIndexBuffer(m_drawResources.indexBuffer, 0, vk::IndexType::eUint16);
+
+	m_material->RecordCommandBuffer(_cmd, _renderPass, vk::PipelineBindPoint::eGraphics);
+
+	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_material->GetLayouts()[0], 0, 1, _uboSet, 0, nullptr);
+	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_material->GetLayouts()[0], 1, 1, m_descriptorSets.data(), 0, nullptr);
+
+	int currIndex = 0;
+	int currInstance = 0;
+
+	for (int i = 0; i < _meshEntries.size(); i++)
+	{
+		int instanceCount = _meshEntries[i].ModelMatrices.size();
+		int indexCount = _meshEntries[i].Data->triangleCount * 3;
+
+		_cmd.drawIndexed(indexCount, instanceCount, currIndex, 0, currInstance);
+
+		currInstance += instanceCount;
+		currIndex += indexCount;
+	}
 }
 
+void BufferDeviceLink::GenerateBuffers(Vertex* _vertexData, uint32_t _vertexCount,
+	uint16_t* _indexData, uint32_t _indexCount, 
+	glm::mat4x4* _modelData, uint32_t _modelCount)
+{
+	if (m_resourcesGenerated)
+	{
+		ClearBuffers();
+	}
+
+	//Create the buffers
+	BufferCreateInfo vertexBufferInfo
+	{
+		.buffer = m_drawResources.vertexBuffer,
+		.memory = m_drawResources.vertexBufferMemory,
+		.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
+		.sharingMode = vk::SharingMode::eExclusive,
+		.size = sizeof(Vertex) * _vertexCount
+	};
+	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+		m_deviceData.Queues.graphicsQueue, vertexBufferInfo, _vertexData);
+
+	BufferCreateInfo indexBufferInfo
+	{
+		.buffer = m_drawResources.indexBuffer,
+		.memory = m_drawResources.indexBufferMemory,
+		.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
+		.sharingMode = vk::SharingMode::eExclusive,
+		.size = sizeof(uint16_t) * _indexCount
+	};
+	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+		m_deviceData.Queues.graphicsQueue, indexBufferInfo, _indexData);
+
+	BufferCreateInfo modelMatrixBufferInfo
+	{
+		.buffer = m_drawResources.modelMatrixBuffer,
+		.memory = m_drawResources.modelMatrixBufferMemory,
+		.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
+		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
+		.sharingMode = vk::SharingMode::eExclusive,
+		.size = sizeof(glm::mat4x4) * _modelCount
+	};
+	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, _modelData);
+
+	IsDirty = false;
+}
+
+void BufferDeviceLink::ClearBuffers()
+{
+	vk::Device device = m_deviceData.Device;
+
+	//Free the memory
+	device.freeMemory(m_drawResources.vertexBufferMemory);
+	device.freeMemory(m_drawResources.indexBufferMemory);
+	device.freeMemory(m_drawResources.modelMatrixBufferMemory);
+
+	//Destroy the buffers
+	device.destroyBuffer(m_drawResources.vertexBuffer);
+	device.destroyBuffer(m_drawResources.indexBuffer);
+	device.destroyBuffer(m_drawResources.modelMatrixBuffer);
+}

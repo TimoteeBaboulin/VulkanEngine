@@ -92,7 +92,10 @@
     <ClCompile Include="Source Files\ResourceManagement\ImageHelper.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\FileHelper.cpp" />
     <ClCompile Include="Source Files\Renderer\RenderTarget.cpp" />
-    <ClCompile Include="Source Files\Renderer\BufferDeviceLink.cpp" />
+    <ClCompile Include="Source Files\Renderer\BufferDeviceLink.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Renderer\MaterialInstance.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\GameObject.h">
@@ -137,6 +140,7 @@
     <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
     <ClInclude Include="Header Files\Renderer\RenderTarget.h" />
     <ClInclude Include="Header Files\Renderer\BufferDeviceLink.h" />
+    <ClInclude Include="Header Files\Renderer\MaterialInstance.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Inputs\InputManager.h">

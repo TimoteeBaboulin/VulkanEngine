@@ -33,6 +33,8 @@ public:
 	vk::Device GetDevice() const { return m_deviceData.Device; }
 	vk::PhysicalDevice GetPhysicalDevice() const { return m_deviceData.PhysicalDevice; }
 	DeviceData GetDeviceData() const { return m_deviceData; }
+	vk::DescriptorSetLayout GetUBODescriptorSetLayout() const { return m_uboDescriptorSetLayout; }
+	vk::RenderPass GetRenderPass() const { return m_renderPass; }
 #pragma endregion //Getters
 
 private:

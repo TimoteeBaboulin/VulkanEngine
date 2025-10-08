@@ -102,6 +102,7 @@ struct BufferCreateInfo
 
 	vk::BufferUsageFlags usage;
 	vk::MemoryPropertyFlags properties;
+	vk::SharingMode sharingMode = vk::SharingMode::eExclusive;
 
 	uint64_t size;
 };

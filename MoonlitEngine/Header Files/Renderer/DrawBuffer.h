@@ -16,6 +16,7 @@ struct MeshEntry
 {
 	MeshData* Data;
 	std::vector<glm::mat4x4> ModelMatrices;
+	std::vector<int> TextureIndexes;
 };
 
 class BufferDeviceLink;
@@ -64,6 +65,7 @@ private:
 	std::vector<MeshInstance*> m_meshInstances;
 	std::vector<std::shared_ptr<Image>> m_textures;
 	std::vector<BufferDeviceLink> m_deviceLinks;
+	std::vector<std::shared_ptr<Image>> m_textureList;
 
 	//vk::DescriptorPool m_descriptorPool;
 	//Material* m_material;
@@ -99,6 +101,12 @@ private:
 
 	void CountVertexData();
 	void UpdateEntries();
+
+	/// <summary>
+	/// Function meant to add textures that aren't already there to the textureArray
+	/// It returns the indexes of the textures in the texture array, whether they were added or not
+	/// </summary>
+	std::vector<int> AddTextures(std::vector<std::shared_ptr<Image>>& _images);
 	std::vector<BufferDeviceLink>::iterator FindDeviceLink(RenderTarget& _target);
 
 	//void UpdateTextures();

@@ -59,6 +59,34 @@ bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
 		(*dit).IsDirty = true;
 	}
 
+	//Need to check whether there is already a mesh entry for this mesh data
+	bool entryFound = false;
+	auto it = m_meshes.end();
+
+	for (auto entIt = m_meshes.begin(); entIt != m_meshes.end(); entIt++)
+	{
+		if ((*entIt).Data == &_instance->MeshData)
+		{
+			(*entIt).ModelMatrices.push_back(_instance->Model);
+			entryFound = true;
+			it = entIt;
+			break;
+		}
+	}
+
+	if (!entryFound)
+	{
+		m_meshes.push_back(MeshEntry{
+			&_instance->MeshData,
+			{_instance->Model}
+			});
+
+		it = m_meshes.end() - 1;
+	}
+
+	std::vector<int> textureIndexes = AddTextures(_instance->Textures);
+	(*it).TextureIndexes.insert((*it).TextureIndexes.end(), textureIndexes.begin(), textureIndexes.end());
+
 	UpdateEntries();
 
 	return true;
@@ -233,7 +261,8 @@ void DrawBuffer::CountVertexData()
 
 void DrawBuffer::UpdateEntries()
 {
-	m_meshes.clear();
+	//TODO: Optimize this function to not clear everything and re-add everything
+	//m_meshes.clear();
 
 	for (int index = 0; index < m_meshInstances.size(); index++)
 	{
@@ -264,6 +293,30 @@ void DrawBuffer::UpdateEntries()
 
 		(*meshEntryIt).ModelMatrices.push_back(instance.Model);
 	}
+}
+
+std::vector<int> DrawBuffer::AddTextures(std::vector<std::shared_ptr<Image>>& _images)
+{
+	std::vector<int> textureIndexes;
+
+	for (size_t i = 0; i < _images.size(); i++)
+	{
+		auto imageIt = std::find(m_images.begin(), m_images.end(), _images[i]);
+		int index = -1;
+		if (imageIt == m_images.end())
+		{
+			//TODO: Add a check that we aren't exceeding the material's texture array size
+			index = m_textureList.size();
+			m_textureList.push_back(_images[i]);
+		}
+		else
+		{
+			index = std::distance(m_images.begin(), imageIt);
+			textureIndexes.push_back(index);
+		}
+	}
+
+	return textureIndexes;
 }
 
 std::vector<BufferDeviceLink>::iterator DrawBuffer::FindDeviceLink(RenderTarget& _target)

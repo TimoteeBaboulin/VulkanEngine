@@ -3,33 +3,6 @@
 #include "Renderer/BufferDeviceLink.h"
 #include "Renderer/RenderTarget.h"
 
-//DrawBuffer::DrawBuffer(Material* _material, Renderer& _renderer) : m_material(_material)
-//{
-//	m_vertexData = new Vertex[MaxVertexCount];
-//	m_indexData = new uint16_t[MaxIndexCount];
-//	m_modelData = new glm::mat4x4[MaxModelCount];
-//
-//	m_dirty = false;
-//
-//	m_vertexCount = 0;
-//	m_indexCount = 0;
-//	m_instanceCount = 0;
-//	
-//	//Create a descriptor pool that can keep as many textures as our array size and up to 10 uniform buffers (camera data)
-//	vk::DescriptorPoolSize* sizes = new vk::DescriptorPoolSize[1];
-//	vk::DescriptorPoolCreateInfo poolInfo;
-//
-//	sizes[0].type = vk::DescriptorType::eCombinedImageSampler;
-//	sizes[0].descriptorCount = TextureArrayCount;
-//
-//	poolInfo.sType = vk::StructureType::eDescriptorPoolCreateInfo;
-//	poolInfo.poolSizeCount = 1;
-//	poolInfo.pPoolSizes = sizes;
-//	poolInfo.maxSets = 32;
-//
-//	m_descriptorPool = m_device.createDescriptorPool(poolInfo);
-//}
-
 DrawBuffer::DrawBuffer(Material* _material)
 {
 	m_material = _material;
@@ -37,6 +10,10 @@ DrawBuffer::DrawBuffer(Material* _material)
 	m_vertexData = new Vertex[MaxVertexCount];
 	m_indexData = new uint16_t[MaxIndexCount];
 	m_modelData = new glm::mat4x4[MaxModelCount];
+
+	//TODO: This assumes each mesh instance has up to 4 textures
+	//TODO: Update this when material can read the texture requirements of the shader
+	m_textureIndices = new int[MaxModelCount * 4];
 
 	m_vertexCount = 0;
 	m_indexCount = 0;
@@ -87,7 +64,14 @@ bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
 	std::vector<int> textureIndexes = AddTextures(_instance->Textures);
 	(*it).TextureIndexes.insert((*it).TextureIndexes.end(), textureIndexes.begin(), textureIndexes.end());
 
-	UpdateEntries();
+	// This has been commented since update entries clears everything and re-adds everything
+	// We are adding things dynamically to avoid unneeded overhead
+	// UpdateEntries should be optimized to only take care of the changed data
+	// Currently it is only used when removing a mesh instance as there is no easy way
+	// To update the buffers by only removing the instance
+	//UpdateEntries();
+
+	UpdateBuffers();
 
 	return true;
 }
@@ -104,6 +88,7 @@ void DrawBuffer::RemoveMesh(MeshInstance* _instance)
 	}
 
 	UpdateEntries();
+	UpdateBuffers();
 }
 
 void DrawBuffer::LinkTarget(RenderTarget& _renderTarget)
@@ -115,10 +100,11 @@ void DrawBuffer::LinkTarget(RenderTarget& _renderTarget)
 		return;
 	}
 
-	m_deviceLinks.push_back(BufferDeviceLink(_renderTarget.GetDeviceData()));
+	m_deviceLinks.push_back(BufferDeviceLink(_renderTarget.GetDeviceData(), m_material->CreateInstance(_renderTarget)));
 	m_deviceLinks.back().GenerateBuffers(m_vertexData, m_vertexCount,
 		m_indexData, m_indexCount,
-		m_modelData, m_instanceCount);
+		m_modelData, m_instanceCount, m_textureIndices);
+	m_deviceLinks.back().GenerateTextures(m_textureList);
 }
 
 void DrawBuffer::UpdateBuffers()
@@ -128,6 +114,7 @@ void DrawBuffer::UpdateBuffers()
 	Vertex* vertexDataPtr = m_vertexData;
 	uint16_t* indexDataPtr = m_indexData;
 	glm::mat4x4* modelDataPtr = m_modelData;
+	int* textureIndexPtr = m_textureIndices;
 
 	//Go over all the entries as they are meant to give an easy way to write the data as it comes
 	for (auto it = m_meshes.begin(); it != m_meshes.end(); it++)
@@ -144,52 +131,38 @@ void DrawBuffer::UpdateBuffers()
 			*modelDataPtr = (*mit);
 			modelDataPtr++;
 		}
+
+		memcpy(textureIndexPtr, (*it).TextureIndexes.data(), sizeof(int) * (*it).TextureIndexes.size());
+		textureIndexPtr = textureIndexPtr + (*it).TextureIndexes.size();
 	}
 }
 
 void DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, int _renderPass)
 {
+	if (m_meshes.size() == 0)
+	{
+		//std::cout << "No meshes to render\n";
+		return;
+	}
+
 	auto it = FindDeviceLink(_target);
+
+	if (it == m_deviceLinks.end())
+	{
+		return;
+	}
+
 	if ((*it).IsDirty)
 	{
 		(*it).GenerateBuffers(m_vertexData, m_vertexCount,
 			m_indexData, m_indexCount,
-			m_modelData, m_instanceCount);
+			m_modelData, m_instanceCount, m_textureIndices);
+		(*it).GenerateTextures(m_textureList);
 	}
+
+	(*it).Render(_cmd, _renderPass, m_meshes, _target.GetDescriptorSet());
 }
 
-//void DrawBuffer::UpdateTextures(int _deviceIndex)
-//{
-//	if (!m_texturesDirty)
-//		return;
-//
-//	if (_deviceIndex >= m_linkedDevices.size())
-//		throw new std::exception("Device index out of range");
-//
-//	size_t textureCount = m_textures.size();
-//	vk::WriteDescriptorSet* writeSets = new vk::WriteDescriptorSet[textureCount];
-//	vk::DescriptorImageInfo* imageInfos = new vk::DescriptorImageInfo[textureCount];
-//
-//	for (int i = 0; i < textureCount; i++)
-//	{
-//		imageInfos[i].imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-//		imageInfos[i].imageView = m_textures[i].m_imageView;
-//		imageInfos[i].sampler = m_textures[i].m_sampler;
-//
-//		writeSets[i].sType = vk::StructureType::eWriteDescriptorSet;
-//		writeSets[i].dstSet = m_descriptorSets[0];
-//		writeSets[i].dstBinding = 0;
-//		writeSets[i].dstArrayElement = i;
-//		writeSets[i].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-//		writeSets[i].descriptorCount = 1;
-//		writeSets[i].pImageInfo = &imageInfos[i];
-//	}
-//
-//	m_device.updateDescriptorSets(textureCount, writeSets, 0, nullptr);
-//
-//	m_texturesDirty = false;
-//}
-//
 //void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass)
 //{
 //	if (!m_buffersGenerated || m_dirty)
@@ -301,17 +274,18 @@ std::vector<int> DrawBuffer::AddTextures(std::vector<std::shared_ptr<Image>>& _i
 
 	for (size_t i = 0; i < _images.size(); i++)
 	{
-		auto imageIt = std::find(m_images.begin(), m_images.end(), _images[i]);
+		auto imageIt = std::find(m_textureList.begin(), m_textureList.end(), _images[i]);
 		int index = -1;
-		if (imageIt == m_images.end())
+		if (imageIt == m_textureList.end())
 		{
 			//TODO: Add a check that we aren't exceeding the material's texture array size
 			index = m_textureList.size();
 			m_textureList.push_back(_images[i]);
+			textureIndexes.push_back(index);
 		}
 		else
 		{
-			index = std::distance(m_images.begin(), imageIt);
+			index = std::distance(m_textureList.begin(), imageIt);
 			textureIndexes.push_back(index);
 		}
 	}
@@ -332,95 +306,6 @@ std::vector<BufferDeviceLink>::iterator DrawBuffer::FindDeviceLink(RenderTarget&
 	return m_deviceLinks.end();
 }
 
-//TextureData DrawBuffer::GetTextureData(Image _image)
-//{
-//	vk::Buffer stagingBuffer;
-//	vk::DeviceMemory stagingMemory;
-//	vk::DeviceMemory imageMemory;
-//	size_t memorySize = _image.width * _image.height * 4;
-//	vk::Extent2D extent = { _image.width, _image.height };
-//
-//	TextureData texData;
-//
-//	//Create staging buffer
-//	BufferCreateInfo staging = {
-//		.buffer = stagingBuffer,
-//		.memory = stagingMemory,
-//		.usage = vk::BufferUsageFlagBits::eTransferSrc,
-//		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-//		.size = memorySize
-//	};
-//
-//	vhf::CreateBuffer(m_device, m_physicalDevice, staging);
-//	void* map = m_device.mapMemory(stagingMemory, 0, memorySize);
-//	memcpy(map, _image.pixels, memorySize);
-//
-//	//Create Image
-//	vhf::CreateImage(m_device, m_physicalDevice, extent, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
-//		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal,
-//		texData.m_image, imageMemory, vk::ImageLayout::eUndefined);
-//
-//	TransitionInfo transInfo =
-//	{
-//		.srcAccessFlags = vk::AccessFlagBits::eNone,
-//		.dstAccessFlags = vk::AccessFlagBits::eTransferWrite,
-//		.srcStage = vk::PipelineStageFlagBits::eTopOfPipe,
-//		.dstStage = vk::PipelineStageFlagBits::eTransfer
-//	};
-//	vhf::TransitionImageLayout(m_device, m_mainCommandPool, m_graphicsQueue, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined,
-//		vk::ImageLayout::eTransferDstOptimal, transInfo);
-//
-//	//Copy staging buffer to image
-//	vhf::CopyBufferToImage(m_device, m_mainCommandPool, m_graphicsQueue, stagingBuffer, texData.m_image, extent);
-//
-//	//Prepare for shader read
-//	transInfo =
-//	{
-//		.srcAccessFlags = vk::AccessFlagBits::eTransferWrite,
-//		.dstAccessFlags = vk::AccessFlagBits::eShaderRead,
-//		.srcStage = vk::PipelineStageFlagBits::eTransfer,
-//		.dstStage = vk::PipelineStageFlagBits::eFragmentShader
-//	};
-//
-//	vhf::TransitionImageLayout(m_device, m_mainCommandPool, m_graphicsQueue, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eTransferDstOptimal,
-//		vk::ImageLayout::eShaderReadOnlyOptimal, transInfo);
-//
-//	//std::vector<vk::ImageView> imageViews(1);
-//	texData.m_imageView = vhf::CreateImageView(m_device, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
-//
-//	//std::vector<vk::Sampler> samplers(1);
-//
-//	//Create sampler
-//	vk::SamplerCreateInfo info;
-//	info.sType = vk::StructureType::eSamplerCreateInfo;
-//	info.magFilter = vk::Filter::eLinear;
-//	info.minFilter = vk::Filter::eLinear;
-//
-//	info.addressModeU = vk::SamplerAddressMode::eRepeat;
-//	info.addressModeV = vk::SamplerAddressMode::eRepeat;
-//	info.addressModeW = vk::SamplerAddressMode::eRepeat;
-//
-//	info.anisotropyEnable = false;
-//	info.maxAnisotropy = 4;
-//	info.borderColor = vk::BorderColor::eIntOpaqueBlack;
-//	info.unnormalizedCoordinates = false;
-//
-//	info.compareEnable = false;
-//	info.compareOp = vk::CompareOp::eAlways;
-//
-//	info.mipmapMode = vk::SamplerMipmapMode::eLinear;
-//	info.mipLodBias = 0.0f;
-//	info.minLod = 0.0f;
-//	info.maxLod = 0.0f;
-//
-//	texData.m_sampler = m_device.createSampler(info);
-//
-//	//Free staging buffer
-//	m_device.unmapMemory(stagingMemory);
-//	m_device.destroyBuffer(stagingBuffer);
-//
-//	return texData;
-//}
 //
 //void DrawBuffer::AddTextures(std::vector<std::shared_ptr<Image>> _images)
 //{
@@ -443,37 +328,3 @@ std::vector<BufferDeviceLink>::iterator DrawBuffer::FindDeviceLink(RenderTarget&
 //		}
 //	}
 //}
-//
-//void DrawBuffer::AddDevice(vk::Device _device, vk::PhysicalDevice _physDevice)
-//{
-//	m_linkedDevices.push_back(_device);
-//	m_linkedPhysicalDevices.push_back(_physDevice);
-//	m_commandPools.push_back(vk::CommandPool());
-//
-//	UpdateBuffers(m_linkedDevices.size() - 1);
-//}
-//
-//void DrawBuffer::GenerateCommandPool(int _deviceIndex)
-//{
-//	vk::CommandPoolCreateInfo poolInfo;
-//	poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
-//	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-//
-//}
-//
-//void DrawBuffer::GenerateDeviceResources(int _deviceIndex)
-//{
-//	m_deviceResources.push_back(DeviceDrawResources());
-//	DeviceDrawResources& resources = m_deviceResources.back();
-//
-//	vk::Device device = m_linkedDevices[_deviceIndex];
-//
-//	vk::DescriptorSetAllocateInfo allocInfo;
-//	allocInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
-//	allocInfo.descriptorPool = m_descriptorPool;
-//	allocInfo.descriptorSetCount = 1;
-//	allocInfo.pSetLayouts = &m_material->GetDescriptorSetLayouts()[1];
-//
-//	resources.descriptorSets = device.allocateDescriptorSets(allocInfo);
-//}
-

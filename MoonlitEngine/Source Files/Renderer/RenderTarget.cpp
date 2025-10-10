@@ -30,7 +30,7 @@ void RenderTarget::Init()
 	CreateRenderPass();
 	CreateDescriptorSetLayout();
 
-	m_defaultMaterial = new Material(m_deviceData.Device, 1, m_renderPass, m_uboDescriptorSetLayout);
+	m_defaultMaterial = new Material("Resources/Shaders/BaseMaterial.slang");
 	
 	//Need the format to create the render pass in the renderer
 	//TODO: Remove this dependency
@@ -429,13 +429,15 @@ void RenderTarget::CreateDescriptorSets()
 	m_deviceData.Device.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
 }
 
-void RenderTarget::Render(std::vector<DrawBuffer> _drawBuffers)
+void RenderTarget::Render(std::vector<DrawBuffer>& _drawBuffers)
 {
 	m_deviceData.Device.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
 
 	m_deviceData.Device.resetFences(m_waitForPreviousFrame[m_currentFrame]);
 
 	UpdateUniformBuffer();
+
+	std::cout << "Post UpdateUniformBuffer\n";
 
 	uint32_t index;
 	//Might be an artifact from the old code
@@ -452,8 +454,11 @@ void RenderTarget::Render(std::vector<DrawBuffer> _drawBuffers)
 
 	vk::CommandBuffer& buffer = m_commandBuffers[m_currentFrame];
 	buffer.reset();
+	//std::cout << "Pre RecordCommandBuffer\n";
+
 	RecordCommandBuffer(buffer, _drawBuffers);
 
+	//std::cout << "Post RecordCommandBuffer\n";
 	
 	vk::PipelineStageFlags* waitStages = new vk::PipelineStageFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 
@@ -502,7 +507,7 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 	_buffer.begin(beginInfo);
 
 	vk::ClearValue clearValues[2];
-	clearValues[0].depthStencil = vk::ClearDepthStencilValue(1.0f, 1.0f);
+	clearValues[0].depthStencil = vk::ClearDepthStencilValue(1, 1);
 	clearValues[1].color = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.25f, 0.25f, 1.0f});
 
 	vk::RenderPassBeginInfo renderPassInfo;
@@ -531,17 +536,21 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 	_buffer.setScissor(0, scissor);
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
+	//std::cout << "Pre DrawBuffer.Render" << std::endl;
+
 	for (auto& drawBuffer : _drawBuffers)
 	{
-		drawBuffer.RenderBuffer(_buffer, &m_descriptorSets[m_currentFrame], 0);
+		drawBuffer.RenderBuffer(*this, _buffer, 0);
 	}
 
 	_buffer.nextSubpass(vk::SubpassContents::eInline);
 
 	for (auto& drawBuffer : _drawBuffers)
 	{
-		drawBuffer.RenderBuffer(_buffer, &m_descriptorSets[m_currentFrame], 1);
+		drawBuffer.RenderBuffer(*this, _buffer, 1);
 	}
+
+	//std::cout << "Post DrawBuffer.Render" << std::endl;
 
 	_buffer.endRenderPass();
 

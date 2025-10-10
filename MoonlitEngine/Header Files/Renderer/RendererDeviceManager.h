@@ -1,24 +1,6 @@
 #pragma once
 
 #include "common.h"
-#include "vulkan/vulkan.hpp"
-
-struct RenderQueues
-{
-	vk::Queue graphicsQueue;
-	vk::Queue presentQueue;
-};
-
-struct DeviceData
-{
-	vk::Device Device;
-	vk::PhysicalDevice PhysicalDevice;
-
-	QueueFamilyIndices QueueIndices;
-	RenderQueues Queues;
-	SwapChainSupportDetails SwapChainSupportDetails;
-	float TimeStampPeriods;
-};
 
 class RenderTarget;
 

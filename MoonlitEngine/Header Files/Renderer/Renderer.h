@@ -1,13 +1,9 @@
 #pragma once
-
-#include "vulkan/vulkan.hpp"
-#include "Inputs/InputManager.h"
-#include "common.h"
-#include "Material.h"
 #include "DrawBuffer.h"
+#include "Inputs/InputManager.h"
 
-#include "RendererContext.h"
 #include "Renderer/RendererDeviceManager.h"
+#include "RendererContext.h"
 
 class Camera;
 

@@ -1,6 +1,7 @@
 #include "Inputs/WindowsInputAbstraction.h"
 
 #include <Windows.h>
+#undef MemoryBarrier
 #include <Xinput.h>
 #include <windowsx.h>
 

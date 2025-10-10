@@ -32,10 +32,10 @@ void MoonlitEngine::Init()
 	MeshBank::Initialize();
 	TextureBank::Initialize();
 
-	MeshBank::Instance->TryLoad("Meshes/barstool.gltf");
-	MeshBank::Instance->TryLoad("Meshes/Sniper_Final.fbx");
+	MeshBank::Instance->TryLoad("Resources/Meshes/barstool.gltf");
+	MeshBank::Instance->TryLoad("Resources/Meshes/Sniper_Final.fbx");
 
-	TextureBank::Instance->TryLoad("Textures/barstool_albedo.png");
+	TextureBank::Instance->TryLoad("Resources/Textures/barstool_albedo.png");
 
 	m_renderer.LoadMesh("barstool");
 }

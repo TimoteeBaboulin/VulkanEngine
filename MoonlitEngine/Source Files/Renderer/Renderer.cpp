@@ -1,15 +1,6 @@
-#include <chrono>
-#include <random>
-#include <Windows.h>
-#include <Xinput.h>
-
 #include "Renderer/Renderer.h"
-#include "Renderer/VulkanHelperFunctions.h"
 #include "Renderer/RendererDeviceManager.h"
 #include "Renderer/RendererContext.h"
-
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/transform.hpp"
 #include "common.h"
 
 #include "Renderer/Material.h"
@@ -18,7 +9,8 @@
 #include "ResourceManagement/MeshBank.h"
 #include "ResourceManagement/TextureBank.h"
 #include "Renderer/RenderTarget.h"
-#include "BufferDeviceLink.h"
+
+#include "glm/gtx/transform.hpp"
 
 #define GLM_FORCE_RADIANS
 
@@ -51,9 +43,6 @@ void Renderer::InitContext(ContextInfo& _info, std::vector<const char*> required
 	m_deviceManager = new RendererDeviceManager(m_instance);
 	m_renderTargets.push_back(new RenderTarget(3, _info.windowHandle, m_instance, m_cameras[0], m_deviceManager));
 
-	CreateRenderPasses(m_renderTargets[0]->GetFormat());
-	m_renderTargets[0]->Init(m_uboDescriptorSetLayout, m_mainRenderPass);
-	m_renderTargets[0]->SetRenderPass(m_mainRenderPass);
 	m_mainCommandPool = m_renderTargets[0]->GetCommandPool();
 
 	m_inputHandler = new CameraInputHandler(m_cameras[0]);
@@ -65,11 +54,8 @@ void Renderer::InitContext(ContextInfo& _info, std::vector<const char*> required
 
 void Renderer::InitVulkan()
 {
-	vk::Extent2D extent;
-	m_device = m_deviceManager->GetDevice();
-	m_physicalDevice = m_deviceManager->GetPhysicalDevice();
-
-	m_timeStampPeriods = m_deviceManager->GetTimeStampPeriods();
+	//TODO: Repare this
+	//m_timeStampPeriods = m_deviceManager->GetTimeStampPeriods();
 }
 
 void Renderer::InitRenderer()
@@ -79,11 +65,9 @@ void Renderer::InitRenderer()
 	InitQueryPool();
 #endif
 
-	std::cout << "Creating Base Material..." << std::endl;
-	m_baseMaterial = new Material(this, m_device, 1);
-	std::cout << "Base Material created successfully!" << std::endl;
-
-	m_drawBuffers.push_back(DrawBuffer(m_baseMaterial, *this));
+	Material* defaultMaterial = new Material("Resources/Shaders/BaseMaterial.slang");
+	m_drawBuffers.push_back(DrawBuffer(defaultMaterial));
+	m_drawBuffers[0].LinkTarget(*m_renderTargets[0]);
 }
 
 void Renderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensions)
@@ -117,6 +101,8 @@ void Renderer::LoadMesh(std::string name)
 	std::vector<std::shared_ptr<Image>> secondaryTextures;
 	secondaryTextures.push_back(TextureBank::Instance->Get("sniper_albedo"));
 
+	
+
 	if (!test)
 	{
 		for (int i = -5; i < 6; i++)
@@ -124,7 +110,9 @@ void Renderer::LoadMesh(std::string name)
 			translate = glm::translate(glm::vec3(i, i, i));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			m_drawBuffers[0].TryAddMesh(mesh, model, m_textures);
+			MeshInstance* instance = new MeshInstance{ *mesh, m_textures, model };
+
+			m_drawBuffers[0].TryAddMesh(instance);
 		}
 		
 	}
@@ -135,7 +123,9 @@ void Renderer::LoadMesh(std::string name)
 			translate = glm::translate(glm::vec3(i, 0, 0));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			m_drawBuffers[0].TryAddMesh(mesh, model, secondaryTextures);
+			MeshInstance* instance = new MeshInstance{ *mesh, m_textures, model };
+
+			m_drawBuffers[0].TryAddMesh(instance);
 		}
 	}
 	test = !test;
@@ -145,10 +135,13 @@ void Renderer::LoadMesh(std::string name)
 
 void Renderer::Render()
 {
+	std::cout << "Rendering frame " << m_currentFrame << std::endl;
 	for (auto& renderTarget : m_renderTargets)
 	{
 		renderTarget->Render(m_drawBuffers);
 	}
+
+	std::cout << "Frame rendered" << std::endl;
 
 // Those have not been added to the render target layer yet
 // TODO: Add them to the render target layer
@@ -191,7 +184,7 @@ void Renderer::InitQueryPool()
 	createInfo.queryType = vk::QueryType::eTimestamp;
 	createInfo.queryCount = 2;
 	
-	m_timestampQueryPool = m_device.createQueryPool(createInfo);
+	//m_timestampQueryPool = m_device.createQueryPool(createInfo);
 }
 #endif
 

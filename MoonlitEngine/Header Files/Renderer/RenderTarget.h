@@ -1,10 +1,10 @@
 #pragma once
 
 #define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan/vulkan.hpp>
 #include <Windows.h>
+#undef MemoryBarrier
 #include <vector>
-
+#include <vulkan/vulkan.hpp>
 #include "RendererDeviceManager.h"
 #include "Camera.h"
 
@@ -23,7 +23,7 @@ public:
 
 	void Init();
 	void SetRenderPass(vk::RenderPass _renderPass);
-	void Render(std::vector<DrawBuffer> _drawBuffers);
+	void Render(std::vector<DrawBuffer>& _drawBuffers);
 
 #pragma region Getters
 	vk::Format GetFormat() const { return m_format.format; }
@@ -34,6 +34,7 @@ public:
 	vk::PhysicalDevice GetPhysicalDevice() const { return m_deviceData.PhysicalDevice; }
 	DeviceData GetDeviceData() const { return m_deviceData; }
 	vk::DescriptorSetLayout GetUBODescriptorSetLayout() const { return m_uboDescriptorSetLayout; }
+	vk::DescriptorSet* GetDescriptorSet() { return &m_descriptorSets[0]; }
 	vk::RenderPass GetRenderPass() const { return m_renderPass; }
 #pragma endregion //Getters
 
@@ -46,8 +47,6 @@ private:
 
 	vk::Instance m_instance;
 	DeviceData m_deviceData;
-
-	vk::RenderPass m_renderPass = nullptr;
 
 	RendererDeviceManager* m_deviceManager = nullptr;
 	Camera* m_camera = nullptr;

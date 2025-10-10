@@ -7,9 +7,13 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#define NOMINMAX
 
 #ifndef EDITOR_BUILD
+
+#include "Windows.h"
+
+#undef MemoryBarrier
+#undef max
 
 #include <vulkan/vulkan.hpp>
 
@@ -18,6 +22,8 @@
 
 #include <iostream>
 #include "Inputs/InputManager.h"
+
+#include <algorithm>
 #include "assimp/scene.h"
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"

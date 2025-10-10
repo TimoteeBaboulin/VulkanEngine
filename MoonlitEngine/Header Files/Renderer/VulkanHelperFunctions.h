@@ -2,11 +2,7 @@
 #ifndef VULKAN_HELPER_FUNCTIONS_H
 #define VULKAN_HELPER_FUNCTIONS_H
 
-//#define VK_USE_PLATFORM_WIN32_KHR
-
-
 #include <cstdint>
-#include "vulkan/vulkan.hpp"
 #include "../common.h"
 
 #define WIN32_LEAN_AND_MEAN
@@ -62,7 +58,6 @@ public:
 
 		_device.freeCommandBuffers(_commandPool, 1, &_buffer);
 	}
-
 
 	static void CreateImage(vk::Device _device, vk::PhysicalDevice _physicalDevice, vk::Extent2D _extent, vk::Format _format, vk::ImageTiling _tiling, vk::ImageUsageFlags _features, vk::MemoryPropertyFlags _properties, vk::Image& _image, vk::DeviceMemory& _memory, vk::ImageLayout _defaultLayout)
 	{
@@ -124,11 +119,14 @@ public:
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
-
 		barrier.srcAccessMask = _transition.srcAccessFlags;
 		barrier.dstAccessMask = _transition.dstAccessFlags;
 
-		buffer.pipelineBarrier(_transition.srcStage, _transition.dstStage, vk::DependencyFlagBits::eByRegion, std::vector<vk::MemoryBarrier>(), std::vector<vk::BufferMemoryBarrier>(), std::vector<vk::ImageMemoryBarrier>{barrier});
+		std::vector<vk::ImageMemoryBarrier> imageBarriers = { barrier };
+		std::vector<vk::MemoryBarrier> memBarriers;
+		std::vector<vk::BufferMemoryBarrier> bufferBarriers;
+
+		buffer.pipelineBarrier(_transition.srcStage, _transition.dstStage, vk::DependencyFlagBits::eByRegion, memBarriers, bufferBarriers, imageBarriers);
 
 		EndSingleUseCommandBuffer(buffer, _graphicsQueue, _device, _commandPool);
 	}
@@ -231,7 +229,7 @@ public:
 		void* stagingMap = _device.mapMemory(stagingBufferInfo.memory, 0, _info.size);
 		memcpy(stagingMap, _data, _info.size);
 
-		_info.usage |= vk::BufferUsageFlagBits::eTransferDst;
+		//_info.usage |= vk::BufferUsageFlagBits::eTransferDst;
 		CreateBuffer(_device, _physDevice, _info);
 		CopyBufferToBuffer(_device, _commandPool, stagingBuffer, _info.buffer, _info.size, _graphicsQueue);
 

@@ -10,10 +10,14 @@
 
 #include "glm/glm.hpp"
 
+
+#define VK_USE_PLATFORM_WIN32_KHR
+#undef MemoryBarrier
 #include "vulkan/vulkan.hpp"
 
 #include "MoonlitExport.h"
 
+//TODO: Clean up this file and remove unused stuff
 using MeshCountType = uint32_t;
 
 struct QueueFamilyIndices
@@ -77,6 +81,23 @@ MOONLIT_API struct MeshData
 	uint16_t* indices = nullptr;
 
 	std::vector<Image> textures;
+};
+
+struct RenderQueues
+{
+	vk::Queue graphicsQueue;
+	vk::Queue presentQueue;
+};
+
+struct DeviceData
+{
+	vk::Device Device;
+	vk::PhysicalDevice PhysicalDevice;
+
+	QueueFamilyIndices QueueIndices;
+	RenderQueues Queues;
+	SwapChainSupportDetails SwapChainSupportDetails;
+	float TimeStampPeriods;
 };
 
 struct MeshInstance

@@ -39,8 +39,8 @@
 #include "QtCore/qtimer.h"
 #include "ResourceManagement/TextureBank.h"
 
-constexpr int WindowWidth = 1920;
-constexpr int WindowHeight = 1080;
+constexpr int WindowWidth = 960;
+constexpr int WindowHeight = 540;
 
 GLFWwindow* InitWindow(Renderer& _app);
 void ImportImage(std::string _path, Image& _image);

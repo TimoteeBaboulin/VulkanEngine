@@ -30,7 +30,7 @@ void RenderTarget::Init()
 	CreateRenderPass();
 	CreateDescriptorSetLayout();
 
-	m_defaultMaterial = new Material("Resources/Shaders/BaseMaterial.slang");
+	m_defaultMaterial = new Material("Shaders/BaseMaterial.slang");
 	
 	//Need the format to create the render pass in the renderer
 	//TODO: Remove this dependency

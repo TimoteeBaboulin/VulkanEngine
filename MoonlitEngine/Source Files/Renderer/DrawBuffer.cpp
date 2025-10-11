@@ -163,58 +163,6 @@ void DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, in
 	(*it).Render(_cmd, _renderPass, m_meshes, _target.GetDescriptorSet());
 }
 
-//void DrawBuffer::RenderBuffer(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass)
-//{
-//	if (!m_buffersGenerated || m_dirty)
-//	{
-//		for (int i = 0; i < m_linkedDevices.size(); i++)
-//		{
-//			UpdateBuffers(i);
-//		}
-//	}
-//
-//	vk::DeviceSize offsets[] = { 0 };
-//
-//	_cmd.bindVertexBuffers(0, m_vertexBuffer, offsets);
-//	_cmd.bindVertexBuffers(1, m_modelMatriceBuffer, offsets);
-//	_cmd.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint16);
-//
-//	m_material->RecordCommandBuffer(_cmd, _currentPass, vk::PipelineBindPoint::eGraphics);
-//
-//	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_material->GetLayouts()[0], 0, 1, _uboSet, 0, nullptr);
-//	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_material->GetLayouts()[0], 1, 1, m_descriptorSets.data(), 0, nullptr);
-//
-//	int currIndex = 0;
-//	int currInstance = 0;
-//
-//	for (int i = 0; i < m_meshes.size(); i++)
-//	{
-//		int instanceCount = m_meshInstanceCount[i];
-//		int indexCount = m_meshes[i]->triangleCount * 3;
-//
-//		_cmd.drawIndexed(indexCount, instanceCount, currIndex, 0, currInstance);
-//
-//		currInstance += instanceCount;
-//		currIndex += indexCount;
-//	}
-//}
-
-//void DrawBuffer::RenderBufferIndirect(vk::CommandBuffer _cmd, vk::DescriptorSet* _uboSet, int _currentPass)
-//{
-//	if (!m_buffersGenerated || m_dirty)
-//		return;
-//
-//	vk::DeviceSize offsets[] = { 0 };
-//
-//	_cmd.bindVertexBuffers(0, m_vertexBuffer, offsets);
-//	_cmd.bindVertexBuffers(1, m_modelMatriceBuffer, offsets);
-//	_cmd.bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint16);
-//
-//	m_material->RecordCommandBuffer(_cmd, _currentPass, vk::PipelineBindPoint::eGraphics);
-//
-//	_cmd.drawIndexedIndirect(m_drawCommandBuffer, 0, m_meshes.size(), sizeof(vk::DrawIndexedIndirectCommand));
-//}
-
 void DrawBuffer::CountVertexData()
 {
 	m_vertexCount = 0;
@@ -305,26 +253,3 @@ std::vector<BufferDeviceLink>::iterator DrawBuffer::FindDeviceLink(RenderTarget&
 
 	return m_deviceLinks.end();
 }
-
-//
-//void DrawBuffer::AddTextures(std::vector<std::shared_ptr<Image>> _images)
-//{
-//	for (auto it = _images.begin(); it != _images.end(); it++)
-//	{
-//		auto imageIt = std::find(m_images.begin(), m_images.end(), (*it));
-//		if (imageIt == m_images.end())
-//		{
-//			//Need to add a new texture to the list
-//			m_textureIndexes.push_back(m_textures.size());
-//			m_images.push_back(*it);
-//			m_textures.push_back(GetTextureData(*(*it).get()));
-//
-//			m_texturesDirty = true;
-//		}
-//		else
-//		{
-//			//Texture alread exists
-//			m_textureIndexes.push_back(std::distance(m_images.begin(), imageIt));
-//		}
-//	}
-//}

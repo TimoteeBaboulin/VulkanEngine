@@ -65,7 +65,7 @@ void Renderer::InitRenderer()
 	InitQueryPool();
 #endif
 
-	Material* defaultMaterial = new Material("Resources/Shaders/BaseMaterial.slang");
+	Material* defaultMaterial = new Material("Shaders/BaseMaterial.slang");
 	m_drawBuffers.push_back(DrawBuffer(defaultMaterial));
 	m_drawBuffers[0].LinkTarget(*m_renderTargets[0]);
 }

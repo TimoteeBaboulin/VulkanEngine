@@ -28,12 +28,10 @@ void PlatformInputAbstraction::SendGamepadAxis(GAMEPAD_KEY _key, float _x, float
 
 void PlatformInputAbstraction::WindowResize(int _width, int _height)
 {
-	//TODO: Send window resize event to input manager
 	InputManager::m_instance->WindowResize(_width, _height);
 }
 
 void PlatformInputAbstraction::WindowClose()
 {
 	InputManager::m_instance->WindowClose();
-	//TODO: Send window close event to input manager
 }

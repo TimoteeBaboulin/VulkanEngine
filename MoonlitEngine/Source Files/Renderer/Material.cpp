@@ -99,7 +99,7 @@ Material::~Material()
 
 MaterialInstance* Material::CreateInstance(RenderTarget& _target)
 {
-	MaterialInstance* instance = new MaterialInstance(_target, m_shaderCode);
+	MaterialInstance* instance = new MaterialInstance(_target, m_shaderCode, this);
 	m_instances.push_back(instance);
 
 	return instance;

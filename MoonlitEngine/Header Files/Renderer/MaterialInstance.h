@@ -6,17 +6,17 @@
 constexpr int TextureArrayCount = 32;
 
 class RenderTarget;
+class Material;
 
 struct ShaderCode;
 
-//TODO: Add the base material pointer to be able to read layout data
 /// <summary>
 /// Represents an instance of a material, with a specific device in mind
 /// </summary>
 class MaterialInstance
 {
 public:
-	MaterialInstance(RenderTarget& _target, ShaderCode* _shaderCodes);
+	MaterialInstance(RenderTarget& _target, ShaderCode* _shaderCodes, Material* _material);
 	std::vector<vk::PipelineLayout> GetLayouts() { return m_pipelineLayouts; };
 	void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint);
 
@@ -29,6 +29,7 @@ private:
 
 	RenderTarget& m_target;
 	ShaderCode* m_shaderCodes;
+	Material* m_baseMaterial;
 	DeviceData m_deviceData;
 
 	std::vector<vk::Pipeline> m_pipelines;

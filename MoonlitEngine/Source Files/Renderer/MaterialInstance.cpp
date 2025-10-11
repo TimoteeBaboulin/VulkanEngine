@@ -3,7 +3,8 @@
 #include "Renderer/Material.h"
 #include "Renderer/VulkanHelperFunctions.h"
 
-MaterialInstance::MaterialInstance(RenderTarget& _target, ShaderCode* _shaderCodes) : m_target(_target), m_shaderCodes(_shaderCodes)
+MaterialInstance::MaterialInstance(RenderTarget& _target, ShaderCode* _shaderCodes, Material* _material) 
+	: m_target(_target), m_shaderCodes(_shaderCodes), m_baseMaterial(_material)
 {
 	m_deviceData = m_target.GetDeviceData();
 	//TODO: Handle multiple textures

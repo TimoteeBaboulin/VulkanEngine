@@ -36,8 +36,11 @@ BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _ma
 
 BufferDeviceLink::~BufferDeviceLink()
 {
-	//TODO: Destroy the command pool and every resource generated on the device
+	//TODO: See why I can't destroy the command pool here
 	ClearBuffers();
+	ClearTextures();
+	m_deviceData.Device.freeCommandBuffers(m_commandPool, m_commandBuffer);
+	//m_deviceData.Device.destroyCommandPool(m_commandPool);
 }
 
 void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,
@@ -168,6 +171,16 @@ void BufferDeviceLink::ClearBuffers()
 	device.destroyBuffer(m_drawResources.vertexBuffer);
 	device.destroyBuffer(m_drawResources.indexBuffer);
 	device.destroyBuffer(m_drawResources.modelMatrixBuffer);
+}
+
+void BufferDeviceLink::ClearTextures()
+{
+	for (auto it = m_drawResources.textures.begin(); it != m_drawResources.textures.end(); it++)
+	{
+		m_deviceData.Device.destroyImageView((*it).m_imageView);
+		m_deviceData.Device.destroyImage((*it).m_image);
+		m_deviceData.Device.destroySampler((*it).m_sampler);
+	}
 }
 
 TextureData BufferDeviceLink::GetTextureData(Image& _image)

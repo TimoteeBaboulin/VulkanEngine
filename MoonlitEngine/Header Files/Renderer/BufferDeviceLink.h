@@ -60,6 +60,7 @@ private:
 	bool m_resourcesGenerated = false;
 
 	void ClearBuffers();
+	void ClearTextures();
 	TextureData GetTextureData(Image& _image);
 	void UpdateTextures();
 };

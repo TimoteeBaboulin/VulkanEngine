@@ -176,7 +176,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s</Command>
+      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -244,7 +245,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s</Command>
+      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -284,7 +286,8 @@
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s</Command>
+      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
@@ -301,7 +304,8 @@
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s</Command>
+      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

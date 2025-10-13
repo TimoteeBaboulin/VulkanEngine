@@ -7,6 +7,67 @@
 #include "ResourceManagement/FileHelper.h"
 #include "Renderer/MaterialInstance.h"
 
+
+ShaderResource GetShaderResource(slang::VariableReflection* _var)
+{
+	ShaderResource resource;
+
+	auto type = _var->getType();
+	auto name = _var->getName();
+
+	resource.Name = name;
+
+	slang::TypeReflection::Kind elementKind;
+	slang::TypeReflection* elementType;
+
+	if (type->isArray())
+	{
+		resource.IsArray = true;
+		resource.ArraySize = type->getTotalArrayElementCount();
+		elementKind = type->getElementType()->getKind();
+		elementType = type->getElementType();
+	}
+	else
+	{
+		resource.IsArray = false;
+		resource.ArraySize = 0;
+		elementKind = type->getKind();
+		elementType = type;
+	}
+
+	switch (elementKind)
+	{
+	case slang::TypeReflection::Kind::Resource:
+		//TODO: Currently the engine expects any resource to be generic
+		//TODO: Handle non-generic resources
+
+		switch (elementType->getResourceShape())
+		{
+		case SlangResourceShape::SLANG_TEXTURE_2D:
+			resource.Type = ResourceType::Texture;
+			break;
+		default:
+			break;
+		}
+		break;
+		case slang::TypeReflection::Kind::TextureBuffer:
+			resource.Type = ResourceType::Texture;
+			break;
+	default:
+		break;
+	}
+
+
+	//Check if it's a resource type
+	if (type->getKind() == slang::TypeReflection::Kind::)
+	{
+		auto resType = type->asResourceType();
+		auto resShape = resType->getResourceShape();
+		auto resAccess = resType->getResourceAccess();
+		auto resElementType = resType->getElementType();
+	}
+}
+
 /// <summary>
 /// Function used to load a slang module and compile the shaders inside it to SPIR-V
 /// </summary>
@@ -48,7 +109,38 @@ ShaderCode* GetModules(const char* filepath)
 	Slang::ComPtr<slang::IEntryPoint> vertEntryPoint;
 	Slang::ComPtr<slang::IEntryPoint> fragEntryPoint;
 
+	//Reflect to find all functions in the module
+	slang::DeclReflection* moduleRefPtr = module->getModuleReflection();
+	auto funcList = moduleRefPtr->getChildrenOfKind<slang::DeclReflection::Kind::Func>();
+
+	std::vector<Slang::ComPtr<slang::IEntryPoint>> entryPoints;
+	ShaderData shaderData;
+
+	for (auto it = funcList.begin(); it != funcList.end(); ++it)
+	{
+		//Check if they are entry points
+		auto funcRefPtr = (*it)->asFunction();
+		Slang::ComPtr<slang::IEntryPoint> entryPoint;
+		if (module->findEntryPointByName(funcRefPtr->getName(), entryPoint.writeRef()))
+		{
+			entryPoints.push_back(entryPoint);
+			shaderData.EntryPoints.push_back(ShaderFunction());
+			ShaderFunction& currEntryPoint = shaderData.EntryPoints.back();
+
+			//TODO: Find all the parameters to allow material to automatically
+			//TODO: Create the sets and their layouts
+			unsigned int paramCount = funcRefPtr->getParameterCount();
+
+			for (auto index = 0; index < paramCount; index++)
+			{
+				auto param = funcRefPtr->getParameterByIndex(index);
+				ShaderResource resource = GetShaderResource(param);
+			}
+		}
+	}
+
 	module->findEntryPointByName("vertexMain", vertEntryPoint.writeRef());
+	slang::FunctionReflection* vertFuncRef = vertEntryPoint.get()->getFunctionReflection();
 
 	module->findEntryPointByName("fragmentMain", fragEntryPoint.writeRef());
 

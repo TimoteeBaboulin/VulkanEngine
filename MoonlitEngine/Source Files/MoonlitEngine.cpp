@@ -15,11 +15,8 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 	// Initialize the renderer
 	m_renderer = Renderer();
 	ContextInfo contextInfo;
-	contextInfo.windowHandle = (HWND)_handle;
 	RECT screenSize;
 	GetClientRect((HWND)_handle, &screenSize);
-	contextInfo.width = screenSize.right - screenSize.left;
-	contextInfo.height = screenSize.bottom - screenSize.top;
 	contextInfo.name = "Moonlit Engine";
 	m_renderer.Init(contextInfo, {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_win32_surface"});
 
@@ -27,6 +24,7 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 	std::cout << "Initialized Moonlit Engine!" << std::endl;
 #endif
 }
+
 void MoonlitEngine::Init()
 {
 	MeshBank::Initialize();

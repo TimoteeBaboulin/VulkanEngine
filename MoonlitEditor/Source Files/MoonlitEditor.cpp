@@ -23,16 +23,24 @@ MoonlitEditor::MoonlitEditor()
 
 	//Create the main window
 	m_mainWindow = new EditorMainWindow(DefaultEditorWidth, DefaultEditorHeight);
+	HWND mainHandle = (HWND)m_mainWindow->effectiveWinId();
 
 	//By default, the main window already has a scene view docked to the left
 	m_editorWindows.push_back(new SceneViewWindow(this, nullptr));
 	SceneViewWindow* sceneView = static_cast<SceneViewWindow*>(m_editorWindows.back());
-	m_mainWindow->addDockWidget(Qt::LeftDockWidgetArea, sceneView);
+	m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, sceneView);
+
+	//m_editorWindows.push_back(new SceneViewWindow(this, nullptr));
+	//SceneViewWindow* newSceneView = static_cast<SceneViewWindow*>(m_editorWindows.back());
+	//m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, newSceneView);
 
 	//Create the engine now since it needs the window handle of the scene view
 	//TODO: Make the engine surface handling more flexible and update the editor accordingly
-	m_engine = new MoonlitEngine((void*)sceneView->GetWindowHandle());
+	m_engine = new MoonlitEngine((void*)mainHandle);
 	m_engine->Init();
+
+	
+
 	m_updateCallback = std::bind(&MoonlitEngine::Update, m_engine);
 
 	m_updateTimer = new QTimer(m_mainWindow);

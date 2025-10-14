@@ -11,10 +11,6 @@
 struct ContextInfo
 {
 		const char* name;
-		uint32_t width;
-		uint32_t height;
-
-		HWND windowHandle;
 };
 
 class MOONLIT_API RendererContext

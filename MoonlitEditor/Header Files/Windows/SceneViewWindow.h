@@ -13,9 +13,12 @@ public:
 	//GETTERS
 	HWND GetWindowHandle() const { return m_windowHandle; };
 private:
+	QWidget* m_containerWidget = nullptr;
 	HWND m_windowHandle = nullptr;
 	MoonlitEngine* m_engine = nullptr;
 
 	QTimer* m_updateTimer = nullptr;
 	std::function<void()> m_updateCallback = nullptr;
+
+	void SetQtData();
 };

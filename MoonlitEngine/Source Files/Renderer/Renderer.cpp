@@ -41,13 +41,12 @@ void Renderer::InitContext(ContextInfo& _info, std::vector<const char*> required
 
 	//TODO: Clean up this code, it is a bit messy
 	m_deviceManager = new RendererDeviceManager(m_instance);
-	m_renderTargets.push_back(new RenderTarget(3, _info.windowHandle, m_instance, m_cameras[0], m_deviceManager));
 
 	m_mainCommandPool = m_renderTargets[0]->GetCommandPool();
 
 	m_inputHandler = new CameraInputHandler(m_cameras[0]);
 	InputManager::GetInstance()->AddInputHandler(m_inputHandler);
-	InputManager::GetInstance()->LockCursor();
+	//InputManager::GetInstance()->LockCursor();
 	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&Renderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
 	InputManager::GetInstance()->SubscribeWindowEvent(windowCallback);
 }
@@ -79,6 +78,11 @@ void Renderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensi
 
 void Renderer::Cleanup()
 {
+}
+
+void Renderer::AddRenderTarget(void* _handle, Camera* _camera)
+{
+	m_renderTargets.push_back(new RenderTarget(3, (HWND)_handle, m_instance, _camera, m_deviceManager));
 }
 
 void Renderer::LoadMesh(std::string name)
@@ -389,12 +393,21 @@ void Renderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
 
 void CameraInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
 {
+	if (!m_mouseHeld) return;
 	m_camera->Rotate(glm::vec3(0.0f, -1.0f, 0.0f), _deltaX * 0.01f);
 	m_camera->Rotate(glm::vec3(-1.0f, 0.0f, 0.0f), _deltaY * 0.01f);
 }
 
 void CameraInputHandler::HandleMouseInput(MOUSE_KEY _key, bool _keyDown)
 {
+	switch (_key)
+	{
+	case MOUSE_KEY::LEFT_CLICK:
+		m_mouseHeld = _keyDown;
+		break;
+	default:
+		break;
+	}
 }
 
 void CameraInputHandler::HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown)

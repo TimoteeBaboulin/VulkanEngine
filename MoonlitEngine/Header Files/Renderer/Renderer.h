@@ -5,7 +5,7 @@
 #include "Renderer/RendererDeviceManager.h"
 #include "RendererContext.h"
 
-class Camera;
+struct Camera;
 
 class RendererContext;
 class VulkanEngine;
@@ -43,7 +43,7 @@ public:
 	void Render();
 
 	//Getters
-	vk::CommandPool GetMainCommandPool() const { return m_mainCommandPool; }
+	//vk::CommandPool GetMainCommandPool() const { return m_mainCommandPool; }
 private:
 	RendererContext m_context;
 	RendererDeviceManager* m_deviceManager;
@@ -66,7 +66,7 @@ private:
 	bool m_windowClosed = false;
 
 	std::vector<DrawBuffer> m_drawBuffers;
-	vk::CommandPool m_mainCommandPool;
+	//vk::CommandPool m_mainCommandPool;
 
 #pragma region Debug
 #ifdef RENDER_DEBUG_INFORMATION_QUERY

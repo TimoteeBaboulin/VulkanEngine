@@ -13,13 +13,19 @@ EditorMainWindow::EditorMainWindow(size_t _width, size_t _height) : QMainWindow(
 
     m_instance = this;
 
-    setMinimumHeight(_height);
-    setMaximumHeight(_height);
-    setMinimumWidth(_width);
-    setMaximumWidth(_width);
+    setMinimumHeight(200);
+    setMaximumHeight(_height * 2);
+    setMinimumWidth(200);
+    setMaximumWidth(_width * 2);
 
 	//Make sure to resize the window to the specified width and height.
 	resize(_width, _height);
+
+    QSizePolicy sizePol;
+    sizePol.setHorizontalPolicy(QSizePolicy::Preferred);
+    sizePol.setVerticalPolicy(QSizePolicy::Preferred);
+
+    setSizePolicy(sizePol);
 
     show();
 }

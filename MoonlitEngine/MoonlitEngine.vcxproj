@@ -258,7 +258,8 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
 xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s
+xcopy "$(OutDir)*.lib" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
@@ -406,7 +407,8 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
 xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s
+xcopy "$(OutDir)*.lib" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
@@ -505,7 +507,8 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
 xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s
+xcopy "$(OutDir)*.lib" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
@@ -515,12 +518,13 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
 xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s
+xcopy "$(OutDir)*.lib" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Renderer\BufferDeviceLink.cpp" />
-    <ClCompile Include="Source Files\Renderer\MaterialInstance.cpp" />
+    <ClCompile Include="Source Files\Renderer\Material\MaterialInstance.cpp" />
     <ClCompile Include="Source Files\Renderer\RenderTarget.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\FileHelper.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ImageHelper.cpp" />
@@ -535,13 +539,11 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     <ClCompile Include="Source Files\Inputs\PlatformInputAbstraction.cpp" />
     <ClCompile Include="Source Files\Inputs\WindowsInputAbstraction.cpp" />
     <ClCompile Include="Source Files\main.cpp" />
-    <ClCompile Include="Source Files\Mesh.cpp" />
-    <ClCompile Include="Source Files\MeshRenderer.cpp" />
     <ClCompile Include="Source Files\ObjectComponent.cpp" />
     <ClCompile Include="Source Files\ObjectTest.cpp" />
     <ClCompile Include="Source Files\ObjectTransform.cpp" />
     <ClCompile Include="Source Files\Renderer\RendererContext.cpp" />
-    <ClCompile Include="Source Files\Renderer\Material.cpp" />
+    <ClCompile Include="Source Files\Renderer\Material\Material.cpp" />
     <ClCompile Include="Source Files\Renderer\RendererDeviceManager.cpp" />
     <ClCompile Include="Source Files\Renderer\Renderer.cpp" />
   </ItemGroup>
@@ -550,7 +552,7 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     <ClInclude Include="Header Files\common.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
     <ClInclude Include="Header Files\Renderer\BufferDeviceLink.h" />
-    <ClInclude Include="Header Files\Renderer\MaterialInstance.h" />
+    <ClInclude Include="Header Files\Renderer\Material\MaterialInstance.h" />
     <ClInclude Include="Header Files\Renderer\RenderTarget.h" />
     <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
     <ClInclude Include="Header Files\ResourceManagement\ImageHelper.h" />
@@ -570,8 +572,7 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     <ClInclude Include="Header Files\ObjectTransform.h" />
     <ClInclude Include="Header Files\Renderer\RendererContext.h" />
     <ClInclude Include="Header Files\Renderer\DrawBuffer.h" />
-    <ClInclude Include="Header Files\Renderer\TextureHandler.h" />
-    <ClInclude Include="Header Files\Renderer\Material.h" />
+    <ClInclude Include="Header Files\Renderer\Material\Material.h" />
     <ClInclude Include="Header Files\Renderer\RendererDeviceManager.h" />
     <ClInclude Include="Header Files\Renderer\VulkanHelperFunctions.h" />
     <ClInclude Include="Header Files\Renderer\Renderer.h" />

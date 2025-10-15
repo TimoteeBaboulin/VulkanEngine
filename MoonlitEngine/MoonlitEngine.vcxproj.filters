@@ -48,7 +48,7 @@
     <ClCompile Include="Source Files\Renderer\RendererContext.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Renderer\Material.cpp">
+    <ClCompile Include="Source Files\Renderer\Material\Material.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Renderer\RendererDeviceManager.cpp">
@@ -61,12 +61,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\GameObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\MeshRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\MoonlitEngine.cpp">
@@ -95,7 +89,7 @@
     <ClCompile Include="Source Files\Renderer\BufferDeviceLink.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Renderer\MaterialInstance.cpp" />
+    <ClCompile Include="Source Files\Renderer\Material\MaterialInstance.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\GameObject.h">
@@ -134,13 +128,12 @@
     <ClInclude Include="Header Files\ResourceManagement\TextureData.h" />
     <ClInclude Include="Header Files\ResourceManagement\TextureBank.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
-    <ClInclude Include="Header Files\Renderer\TextureHandler.h" />
     <ClInclude Include="Header Files\MoonlitExport.h" />
     <ClInclude Include="Header Files\ResourceManagement\ImageHelper.h" />
     <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
     <ClInclude Include="Header Files\Renderer\RenderTarget.h" />
     <ClInclude Include="Header Files\Renderer\BufferDeviceLink.h" />
-    <ClInclude Include="Header Files\Renderer\MaterialInstance.h" />
+    <ClInclude Include="Header Files\Renderer\Material\MaterialInstance.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Inputs\InputManager.h">
@@ -158,7 +151,7 @@
     <ClInclude Include="Header Files\Renderer\RendererContext.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Renderer\Material.h">
+    <ClInclude Include="Header Files\Renderer\Material\Material.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Renderer\RendererDeviceManager.h">

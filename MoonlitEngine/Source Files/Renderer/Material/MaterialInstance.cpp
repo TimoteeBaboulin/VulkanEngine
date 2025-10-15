@@ -1,6 +1,6 @@
-#include "Renderer/MaterialInstance.h"
+#include "Renderer/Material/MaterialInstance.h"
 #include "Renderer/RenderTarget.h"
-#include "Renderer/Material.h"
+#include "Renderer/Material/Material.h"
 #include "Renderer/VulkanHelperFunctions.h"
 
 MaterialInstance::MaterialInstance(RenderTarget& _target, ShaderCode* _shaderCodes, Material* _material) 

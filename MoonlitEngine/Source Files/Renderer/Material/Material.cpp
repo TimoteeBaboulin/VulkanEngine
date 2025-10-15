@@ -1,11 +1,7 @@
-#include "Renderer/Material.h"
-
-#include "Renderer/VulkanHelperFunctions.h"
-#include "Renderer/Renderer.h"
+#include "Renderer/Material/Material.h"
+#include "Renderer/Material/MaterialInstance.h"
 #include "slang/slang-com-ptr.h"
 
-#include "ResourceManagement/FileHelper.h"
-#include "Renderer/MaterialInstance.h"
 
 /// <summary>
 /// Function used to load a slang module and compile the shaders inside it to SPIR-V

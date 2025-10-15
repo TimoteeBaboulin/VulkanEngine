@@ -7,7 +7,7 @@ class MoonlitEditor;
 class EditorWindowBase : public QDockWidget
 {
 public:
-	EditorWindowBase(MoonlitEditor* _editor);
+	EditorWindowBase(MoonlitEditor* _editor, QWidget* _parent = nullptr);
 private:
 	MoonlitEditor* m_editor = nullptr;
 };

@@ -24,7 +24,7 @@ struct DrawBufferResources
 	std::vector<TextureData> textures;
 };
 
-class BufferDeviceLink
+class MOONLIT_API BufferDeviceLink
 {
 public:
 	bool IsDirty = false;

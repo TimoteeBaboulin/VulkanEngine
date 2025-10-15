@@ -1,7 +1,6 @@
 #include "Renderer/BufferDeviceLink.h"
-#include "Renderer/RendererDeviceManager.h"
 #include "Renderer/VulkanHelperFunctions.h"
-#include "Renderer/MaterialInstance.h"
+#include "Renderer/Material/MaterialInstance.h"
 #include "Renderer/DrawBuffer.h"
 
 #include "ResourceManagement/TextureData.h"
@@ -37,9 +36,9 @@ BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _ma
 BufferDeviceLink::~BufferDeviceLink()
 {
 	//TODO: See why I can't destroy the command pool here
-	ClearBuffers();
-	ClearTextures();
-	m_deviceData.Device.freeCommandBuffers(m_commandPool, m_commandBuffer);
+	//ClearBuffers();
+	//ClearTextures();
+	//m_deviceData.Device.freeCommandBuffers(m_commandPool, m_commandBuffer);
 	//m_deviceData.Device.destroyCommandPool(m_commandPool);
 }
 
@@ -62,12 +61,12 @@ void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,
 
 	for (int i = 0; i < _meshEntries.size(); i++)
 	{
-		int instanceCount = _meshEntries[i].ModelMatrices.size();
+		size_t instanceCount = _meshEntries[i].ModelMatrices.size();
 		int indexCount = _meshEntries[i].Data->triangleCount * 3;
 
-		_cmd.drawIndexed(indexCount, instanceCount, currIndex, 0, currInstance);
+		_cmd.drawIndexed(indexCount, (uint32_t) instanceCount, currIndex, 0, currInstance);
 
-		currInstance += instanceCount;
+		currInstance += (int)instanceCount;
 		currIndex += indexCount;
 	}
 }
@@ -91,7 +90,7 @@ void BufferDeviceLink::GenerateBuffers(Vertex* _vertexData, uint32_t _vertexCoun
 	size_t totalInstanceDataSize = instanceDataSize * _modelCount;
 	void* instanceData = new char[totalInstanceDataSize];
 
-	for (int i = 0; i < _modelCount; i++)
+	for (uint32_t i = 0; i < _modelCount; i++)
 	{
 		memcpy((char*)instanceData + i * instanceDataSize, &_modelData[i], sizeof(glm::mat4x4));
 		// While the texture data from draw buffers assume each mesh instance has 4 textures
@@ -295,5 +294,5 @@ void BufferDeviceLink::UpdateTextures()
 		writeSets[i].pImageInfo = &imageInfos[i];
 	}
 
-	m_deviceData.Device.updateDescriptorSets(textureCount, writeSets, 0, nullptr);
+	m_deviceData.Device.updateDescriptorSets((uint32_t) textureCount, writeSets, 0, nullptr);
 }

@@ -3,7 +3,7 @@
 
 #include "BufferDeviceLink.h"
 #include "common.h"
-#include "Material.h"
+#include "Material/Material.h"
 
 //This should make the vertex and index buffer sizes be 32 mb
 constexpr int MaxVertexCount = 100000;
@@ -51,7 +51,7 @@ public:
 
 		for (auto it = m_meshes.begin(); it != m_meshes.end(); it++)
 		{
-			triangleCount += (*it).ModelMatrices.size() * (*it).Data->triangleCount;
+			triangleCount += (int)(*it).ModelMatrices.size() * (*it).Data->triangleCount;
 
 			index++;
 		}

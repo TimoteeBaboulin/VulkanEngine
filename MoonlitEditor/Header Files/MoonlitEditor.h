@@ -15,6 +15,7 @@ class MoonlitEditor
 public:
 	MoonlitEditor();
 
+	MoonlitEngine& GetEngine() { return *m_engine; }
 private:
 	EditorMainWindow* m_mainWindow = nullptr;
 	MoonlitEngine* m_engine = nullptr;

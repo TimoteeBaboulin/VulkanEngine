@@ -1,5 +1,5 @@
 #include "Windows/EditorWindowBase.h"
 
-EditorWindowBase::EditorWindowBase(MoonlitEditor* _editor) : m_editor(_editor)
+EditorWindowBase::EditorWindowBase(MoonlitEditor* _editor, QWidget* _parent) : QDockWidget(_parent), m_editor(_editor)
 {
 }

@@ -40,6 +40,6 @@ void MoonlitEngine::Init()
 void MoonlitEngine::Update()
 {
 	// Update the renderer
-	std::cout << "Updating Moonlit Engine..." << std::endl;
+	//std::cout << "Updating Moonlit Engine..." << std::endl;
 	m_renderer.Render();
 }

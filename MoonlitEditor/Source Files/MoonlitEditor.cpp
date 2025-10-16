@@ -20,6 +20,7 @@ MoonlitEditor::MoonlitEditor()
 	char** argv = nullptr;
 	int argc = 0;
 	m_app = new QApplication(argc, argv);
+	m_app->setStyle("Fusion");
 
 	//Create the main window
 	m_mainWindow = new EditorMainWindow(DefaultEditorWidth, DefaultEditorHeight);

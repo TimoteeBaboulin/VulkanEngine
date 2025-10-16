@@ -2,7 +2,7 @@
 
 #include <QtWidgets/qmainwindow.h>
 
-class EditorMainWindow : public QMainWindow
+class  EditorMainWindow : public QMainWindow
 {
 public:
 	EditorMainWindow(size_t _width, size_t _height);

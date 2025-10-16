@@ -155,8 +155,8 @@ LRESULT WndProcCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		DestroyWindow(_handle);
 		break;
 	}
-	case WM_NCHITTEST:
-		return HTCLIENT;
+	//case WM_NCHITTEST:
+	//	return HTCLIENT;
 	default:
 		DefWindowProc(_handle, uMsg, wParam, lParam);
 		break;

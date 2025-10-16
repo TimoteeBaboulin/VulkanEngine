@@ -437,7 +437,7 @@ void RenderTarget::Render(std::vector<DrawBuffer>& _drawBuffers)
 
 	UpdateUniformBuffer();
 
-	std::cout << "Post UpdateUniformBuffer\n";
+	//std::cout << "Post UpdateUniformBuffer\n";
 
 	uint32_t index;
 	//Might be an artifact from the old code

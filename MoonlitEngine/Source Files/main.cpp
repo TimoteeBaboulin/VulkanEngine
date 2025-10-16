@@ -38,6 +38,7 @@
 #include "QtWidgets/qwidget.h"
 #include "QtCore/qtimer.h"
 #include "ResourceManagement/TextureBank.h"
+#include "Camera.h"
 
 constexpr int WindowWidth = 960;
 constexpr int WindowHeight = 540;
@@ -69,6 +70,7 @@ void GamepadAxisCallback(GAMEPAD_KEY _key, float _x, float _y)
 int main(int argc, char** argv) 
 {
     QApplication* application = new QApplication(argc, argv);
+    Camera* camera = new Camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     QWidget* window = new QWidget();
     window->resize(WindowWidth, WindowHeight);
     window->show();
@@ -76,6 +78,7 @@ int main(int argc, char** argv)
     HWND winHandle = (HWND)window->effectiveWinId();
 
     MoonlitEngine engine(winHandle);
+	engine.AddRenderTarget((void*)winHandle, camera);
     QTimer* timer = new QTimer(0);
     timer->setSingleShot(false);
     std::function<void (void)> updateFunction = std::bind(&MoonlitEngine::Update, &engine);
@@ -88,6 +91,8 @@ int main(int argc, char** argv)
     InputManager::GetInstance()->SubscribeMouseEvent(KEY_STATE::PRESSED, MousePressedCallback);
     InputManager::GetInstance()->SubscribeGamepadEvent(KEY_STATE::PRESSED, GamepadPressedCallback);
     InputManager::GetInstance()->SubscribeGamepadAxisEvent(GamepadAxisCallback);
+
+    application->processEvents();
 
     return application->exec();
 }
@@ -114,10 +119,7 @@ GLFWwindow* InitWindow(Renderer& _app)
     HWND winHandle = glfwGetWin32Window(window);
     InputManager::InitManager(winHandle);
     ContextInfo context = {
-        .name = "Vulkan Engine",
-        .width = WindowWidth,
-        .height = WindowHeight,
-        .windowHandle = winHandle
+        .name = "Vulkan Engine"
     };
 
     _app.Init(context, extensions);

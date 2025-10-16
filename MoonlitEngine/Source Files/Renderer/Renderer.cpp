@@ -142,13 +142,13 @@ void Renderer::LoadMesh(std::string name)
 
 void Renderer::Render()
 {
-	std::cout << "Rendering frame " << m_currentFrame << std::endl;
+	//std::cout << "Rendering frame " << m_currentFrame << std::endl;
 	for (auto& renderTarget : m_renderTargets)
 	{
 		renderTarget->Render(m_drawBuffers);
 	}
 
-	std::cout << "Frame rendered" << std::endl;
+	//std::cout << "Frame rendered" << std::endl;
 
 // Those have not been added to the render target layer yet
 // TODO: Add them to the render target layer
@@ -300,6 +300,7 @@ void Renderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
 		break;
 	}
 	default:
+		//DefWindowProc()
 		break;
 	}
 }

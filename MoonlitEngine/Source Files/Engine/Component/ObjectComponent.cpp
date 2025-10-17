@@ -1,8 +1,8 @@
-#include "ObjectBehaviour.h"
+#include "Engine/Components/ObjectBehaviour.h"
 
 #include <iostream>
 
-#include "GameObject.h"
+#include "Engine/GameObject.h"
 
 ObjectBehaviour::ObjectBehaviour() : m_owner(nullptr)
 {

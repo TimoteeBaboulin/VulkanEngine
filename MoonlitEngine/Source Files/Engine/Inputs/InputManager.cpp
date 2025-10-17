@@ -1,4 +1,4 @@
-#include "Inputs/InputManager.h"
+#include "Engine/Inputs/InputManager.h"
 #include <cwchar>
 
 #include <iostream>
@@ -6,12 +6,14 @@
 
 #ifdef _WIN32
 
-#include "Inputs/WindowsInputAbstraction.h"
+#include "Engine/Inputs/WindowsInputAbstraction.h"
 #include <Windows.h>
 #undef MemoryBarrier
 #include <Xinput.h>
 
 #endif
+
+#include "QtWidgets/qapplication.h"
 
 InputManager* InputManager::m_instance;
 
@@ -308,6 +310,11 @@ void InputManager::SubscribeMouseEvent(KEY_STATE _state, MouseInputCallback _cal
 void InputManager::SubscribeWindowEvent(WindowEventCallback _callback)
 {
 	m_windowEventCallbacks.push_back(_callback);
+}
+
+void InputManager::LinkQtApplication(QApplication* _qApp)
+{
+	m_platformInput->LinkQtApplication(_qApp);
 }
 
 void InputManager::PollEvents()

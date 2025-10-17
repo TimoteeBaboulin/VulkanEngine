@@ -30,6 +30,9 @@
     <ClCompile Include="Source Files\Windows\EditorWindowBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SceneViewInputHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\MoonlitEditor.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Windows\EditorWindowBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneViewInputHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

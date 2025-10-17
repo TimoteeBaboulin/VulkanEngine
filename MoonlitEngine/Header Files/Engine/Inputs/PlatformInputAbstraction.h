@@ -2,6 +2,9 @@
 
 #include "Inputs.h"
 
+class QApplication;
+class QtEventReader;
+
 class PlatformInputAbstraction
 {
 protected:
@@ -13,10 +16,14 @@ protected:
 	void WindowResize(int _width, int _height);
 	void WindowClose();
 
+	QtEventReader* m_eventReader;
+
 public:
 	virtual void Init() = 0;
 	virtual void PollEvents() = 0;
 
 	virtual void LockCursor() = 0;
 	virtual void UnlockCursor() = 0;
+
+	void LinkQtApplication(QApplication* _qApp);
 };

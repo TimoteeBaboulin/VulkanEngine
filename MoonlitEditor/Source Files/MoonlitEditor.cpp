@@ -25,9 +25,11 @@ MoonlitEditor::MoonlitEditor()
 	//Create the main window
 	m_mainWindow = new EditorMainWindow(DefaultEditorWidth, DefaultEditorHeight);
 	HWND mainHandle = (HWND)m_mainWindow->effectiveWinId();
-	// Engine requires a HWND for the input manager
+
+	// Engine requires a low level HWND to avoid breaking Qt's systems
 	m_engine = new MoonlitEngine((void*)mainHandle);
 	m_engine->Init();
+
 
 	//By default, the main window already has a scene view docked to the left
 	m_editorWindows.push_back(new SceneViewWindow(this, nullptr, m_mainWindow));
@@ -48,6 +50,8 @@ MoonlitEditor::MoonlitEditor()
 	m_updateTimer->start();
 	QObject::connect(m_updateTimer, &QTimer::timeout, m_mainWindow, m_updateCallback);
 	//sceneView->connect(m_updateTimer, &QTimer::timeout, sceneView, m_updateCallback);
+
+	InputManager::GetInstance()->LinkQtApplication(m_app);
 
 	m_app->processEvents();
 

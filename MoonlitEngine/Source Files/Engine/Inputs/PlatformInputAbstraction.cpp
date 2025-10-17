@@ -1,5 +1,8 @@
-#include "Inputs/PlatformInputAbstraction.h"
-#include "Inputs/InputManager.h"
+#include "Engine/Inputs/PlatformInputAbstraction.h"
+#include "Engine/Inputs/InputManager.h"
+
+#include <QtWidgets/qapplication.h>
+#include "Engine/Inputs/QtEventReader.h"
 
 void PlatformInputAbstraction::SendKeyboardInput(KEYBOARD_KEY _key, bool _keyDown)
 {
@@ -34,4 +37,9 @@ void PlatformInputAbstraction::WindowResize(int _width, int _height)
 void PlatformInputAbstraction::WindowClose()
 {
 	InputManager::m_instance->WindowClose();
+}
+
+void PlatformInputAbstraction::LinkQtApplication(QApplication* _qApp)
+{
+	_qApp->installNativeEventFilter(m_eventReader);
 }

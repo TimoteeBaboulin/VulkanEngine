@@ -1,14 +1,14 @@
-#include "Renderer/Renderer.h"
-#include "Renderer/RendererDeviceManager.h"
-#include "Renderer/RendererContext.h"
+#include "Engine/Renderer/Renderer.h"
+#include "Engine/Renderer/RendererDeviceManager.h"
+#include "Engine/Renderer/RendererContext.h"
 #include "common.h"
 
-#include "Renderer/Material/Material.h"
+#include "Engine/Renderer/Material/Material.h"
 #include "Camera.h"
 
 #include "ResourceManagement/MeshBank.h"
 #include "ResourceManagement/TextureBank.h"
-#include "Renderer/RenderTarget.h"
+#include "Engine/Renderer/RenderTarget.h"
 
 #include "glm/gtx/transform.hpp"
 
@@ -47,7 +47,7 @@ void Renderer::InitContext(ContextInfo& _info, std::vector<const char*> required
 	//InputManager::GetInstance()->AddInputHandler(m_inputHandler);
 	//InputManager::GetInstance()->LockCursor();
 	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&Renderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
-	InputManager::GetInstance()->SubscribeWindowEvent(windowCallback);
+	//InputManager::GetInstance()->SubscribeWindowEvent(windowCallback);
 }
 
 void Renderer::InitVulkan()
@@ -394,72 +394,3 @@ void Renderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
 //	
 //	_buffer.end();
 //}
-
-void CameraInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
-{
-	if (!m_mouseHeld) return;
-	m_camera->Rotate(glm::vec3(0.0f, -1.0f, 0.0f), _deltaX * 0.01f);
-	m_camera->Rotate(glm::vec3(-1.0f, 0.0f, 0.0f), _deltaY * 0.01f);
-}
-
-void CameraInputHandler::HandleMouseInput(MOUSE_KEY _key, bool _keyDown)
-{
-	switch (_key)
-	{
-	case MOUSE_KEY::LEFT_CLICK:
-		m_mouseHeld = _keyDown;
-		break;
-	default:
-		break;
-	}
-}
-
-void CameraInputHandler::HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown)
-{
-	switch (_key)
-	{
-	case KEYBOARD_KEY::ARROW_LEFT:
-		m_camera->Translate(-m_camera->GetRightVector());
-		break;
-	case KEYBOARD_KEY::ESCAPE:
-		InputManager::GetInstance()->UnlockCursor();
-		break;
-	case KEYBOARD_KEY::SPACE:
-		InputManager::GetInstance()->LockCursor();
-		break;
-	}
-}
-
-void CameraInputHandler::HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown)
-{
-	switch (_key)
-	{
-	case GAMEPAD_KEY::DPAD_LEFT:
-		m_camera->Translate(-m_camera->GetRightVector());
-		break;
-	case GAMEPAD_KEY::DPAD_RIGHT:
-		m_camera->Translate(m_camera->GetRightVector());
-		break;
-	default:
-		break;
-	}
-}
-
-void CameraInputHandler::HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float _y)
-{
-	switch (_key)
-	{
-	case AXIS_RIGHT:
-		m_camera->Rotate(glm::vec3(0.0f, -1.0f, 0.0f), _x * 0.1f);
-		m_camera->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), _y * 0.1f);
-		break;
-	case AXIS_LEFT:
-	{
-		glm::vec3 translation = m_camera->GetForwardVector() * _y + m_camera->GetRightVector() * _x;
-		m_camera->Translate(translation);
-		break;
-	}
-	default:
-		break;
-	}
-}

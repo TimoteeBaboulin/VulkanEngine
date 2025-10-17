@@ -1,8 +1,8 @@
-#include "Renderer/RenderTarget.h"
-#include "Renderer/VulkanHelperFunctions.h"
+#include "Engine/Renderer/RenderTarget.h"
+#include "Engine/Renderer/VulkanHelperFunctions.h"
 
 #include "glm/gtc/matrix_transform.hpp"
-#include "Renderer/DrawBuffer.h"
+#include "Engine/Renderer/DrawBuffer.h"
 
 RenderTarget::RenderTarget(int _framesInFlight, HWND _surface,
 	vk::Instance _instance, Camera* _camera,
@@ -175,6 +175,8 @@ void RenderTarget::CreateFrameBuffers()
 
 void RenderTarget::RecreateSwapChain()
 {
+	m_deviceData.Device.waitIdle();
+
 	DestroySwapChain();
 
 	CalculateExtent();
@@ -185,7 +187,6 @@ void RenderTarget::RecreateSwapChain()
 void RenderTarget::DestroySwapChain()
 {
 	vk::Device device = m_deviceData.Device;
-	device.waitIdle();
 
 	device.destroySwapchainKHR(m_swapChain);
 	for (int i = 0; i < m_framesInFlight; ++i)
@@ -492,8 +493,6 @@ void RenderTarget::Render(std::vector<DrawBuffer>& _drawBuffers)
 	}
 	catch (vk::OutOfDateKHRError e)
 	{
-		m_deviceData.Queues.presentQueue.waitIdle();
-		m_deviceData.Queues.graphicsQueue.waitIdle();
 		RecreateSwapChain();
 	}
 

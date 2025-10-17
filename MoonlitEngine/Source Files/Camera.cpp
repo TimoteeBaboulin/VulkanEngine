@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "Inputs/InputManager.h"
+#include "Engine/Inputs/InputManager.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 

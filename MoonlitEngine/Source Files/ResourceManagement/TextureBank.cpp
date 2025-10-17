@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 #include "common.h"
-#include "Renderer/VulkanHelperFunctions.h"
+#include "Engine/Renderer/VulkanHelperFunctions.h"
 #include "ResourceManagement/ImageHelper.h"
 
 //ResourceBank<Image>* TextureBank::Instance = new TextureBank();

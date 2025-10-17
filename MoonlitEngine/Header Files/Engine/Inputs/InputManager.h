@@ -6,8 +6,9 @@
 #include <functional>
 
 #include "Inputs.h"
+#include "MoonlitExport.h"
 
-class InputHandler
+class MOONLIT_API InputHandler
 {
 public:
 	virtual void HandleMouseMoveInput(int _deltaX, int _deltaY) = 0;
@@ -24,6 +25,7 @@ enum struct WINDOW_EVENT : char
 };
 
 class PlatformInputAbstraction;
+class QApplication;
 
 using KeyboardInputCallback = std::function<void(KEYBOARD_KEY)>;
 using GamepadInputCallback = std::function<void(GAMEPAD_KEY)>;
@@ -32,7 +34,7 @@ using GamepadAxisInputCallback = std::function<void(GAMEPAD_KEY, float, float)>;
 using AxisInputCallback = std::function<void(float, float)>;
 using WindowEventCallback = std::function<void(WINDOW_EVENT, void*)>;	
 
-class InputManager
+class MOONLIT_API InputManager
 {
 	friend class PlatformInputAbstraction;
 
@@ -75,6 +77,8 @@ public:
 	void SubscribeGamepadAxisEvent(GamepadAxisInputCallback _callback);
 	void SubscribeMouseEvent(KEY_STATE _state, MouseInputCallback _callback);
 	void SubscribeWindowEvent(WindowEventCallback _callback);
+
+	void LinkQtApplication(QApplication* _qApp);
 
 	void PollEvents();
 	void WindowResize(int _width, int _height);

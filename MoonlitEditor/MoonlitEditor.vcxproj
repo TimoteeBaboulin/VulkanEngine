@@ -309,6 +309,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SceneViewInputHandler.cpp" />
     <ClCompile Include="Source Files\Windows\EditorWindowBase.cpp" />
     <ClCompile Include="Source Files\MoonlitEditor.cpp" />
     <ClCompile Include="Source Files\Windows\EditorMainWindow.cpp" />
@@ -320,6 +321,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\Windows\EditorMainWindow.h" />
     <ClInclude Include="Header Files\Windows\EditorWindowBase.h" />
     <ClInclude Include="Header Files\Windows\SceneViewWindow.h" />
+    <ClInclude Include="SceneViewInputHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

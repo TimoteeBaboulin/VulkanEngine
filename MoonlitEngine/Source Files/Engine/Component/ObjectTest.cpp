@@ -1,7 +1,7 @@
-#include "ObjectTest.h"
+#include "Engine/Components/ObjectTest.h"
 
-#include "GameObject.h"
-#include "ObjectTransform.h"
+#include "Engine/GameObject.h"
+#include "Engine/Components/ObjectTransform.h"
 
 #include <iostream>
 

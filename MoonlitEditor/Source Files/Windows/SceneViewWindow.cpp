@@ -1,7 +1,9 @@
 #include "Windows/SceneViewWindow.h"
 #include "MoonlitEditor.h"
+#include "..\..\SceneViewInputHandler.h"
 #include "Engine/MoonlitEngine.h"
 #include <QtCore/qtimer.h>
+
 
 SceneViewWindow::SceneViewWindow(MoonlitEditor* _editor, MoonlitEngine* _engine, QWidget* _parent) : 
 	EditorWindowBase(_editor, _parent), m_camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f))
@@ -9,6 +11,8 @@ SceneViewWindow::SceneViewWindow(MoonlitEditor* _editor, MoonlitEngine* _engine,
 	SetQtData();
 
 	_editor->GetEngine().AddRenderTarget(m_windowHandle, &m_camera);
+
+	m_inputHandler = new SceneViewInputHandler(&m_camera);
 
 	//This code will need to be removed to be played in the editor instead
 	if (m_engine)

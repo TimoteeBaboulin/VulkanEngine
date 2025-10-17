@@ -1,8 +1,8 @@
 #pragma once
 #include "DrawBuffer.h"
-#include "Inputs/InputManager.h"
+#include "Engine/Inputs/InputManager.h"
 
-#include "Renderer/RendererDeviceManager.h"
+#include "RendererDeviceManager.h"
 #include "RendererContext.h"
 
 struct Camera;
@@ -12,22 +12,6 @@ class VulkanEngine;
 class RenderTarget;
 
 constexpr int TEXTURE_DESCRIPTOR_COUNT = 16;
-
-class CameraInputHandler : public InputHandler
-{
-private:
-	Camera* m_camera;
-	bool m_mouseHeld;
-
-public:
-	CameraInputHandler(Camera* _camera) : m_camera(_camera), m_mouseHeld(false) {}
-
-	void HandleMouseMoveInput(int _deltaX, int _deltaY) override;
-	void HandleMouseInput(MOUSE_KEY _key, bool _keyDown) override;
-	void HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown) override;
-	void HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown) override;
-	void HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float _y) override;
-};
 
 class __declspec(dllexport) Renderer
 {
@@ -55,8 +39,6 @@ private:
 	float m_timeStampPeriods;
 
 	bool test = false;
-
-	CameraInputHandler* m_inputHandler;
 
 	uint32_t m_framesInFlight = 3;
 	uint32_t m_currentFrame = 0;

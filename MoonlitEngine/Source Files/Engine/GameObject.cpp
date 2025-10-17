@@ -1,5 +1,5 @@
-#include "GameObject.h"
-#include "ObjectBehaviour.h"
+#include "Engine/GameObject.h"
+#include "Engine/Components/ObjectBehaviour.h"
 
 #include <iostream>
 

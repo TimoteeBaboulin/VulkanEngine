@@ -1,4 +1,4 @@
-#include "Inputs/WindowsInputAbstraction.h"
+#include "Engine/Inputs/WindowsInputAbstraction.h"
 
 #include <Windows.h>
 #undef MemoryBarrier
@@ -6,6 +6,9 @@
 #include <windowsx.h>
 
 #include <iostream>
+
+#include "Engine/Inputs/QtEventReader.h"
+#include <QtWidgets/qapplication.h>
 
 WindowsInputAbstraction* WindowsInputAbstraction::m_instance = nullptr;
 std::map<int, KEYBOARD_KEY> WindowsInputAbstraction::m_keyMap =
@@ -111,56 +114,9 @@ std::map<int, GAMEPAD_KEY> WindowsInputAbstraction::m_gamepadKeyMap =
 
 LRESULT WndProcCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	wchar_t buffer[32];
-	switch (uMsg)
-	{
-	case WM_KEYDOWN:
-	{
-		WindowsInputAbstraction::m_instance->OnKeyboardInput(wParam, true);
-		break;
-	}
-	case WM_KEYUP:
-	{
-		WindowsInputAbstraction::m_instance->OnKeyboardInput(wParam, false);
-		break;
-	}
-	case WM_MOUSEMOVE:
-	{
-		WindowsInputAbstraction::m_instance->OnMouseMove(POINT{ GET_X_LPARAM(lParam) , GET_Y_LPARAM(lParam) });
-		break;
-	}
-	case WM_LBUTTONDOWN:
-	{
-		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::LEFT_CLICK, true);
-		break;
-	}
-	case WM_LBUTTONUP:
-	{
-		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::LEFT_CLICK, false);
-		break;
-	}
-	case WM_RBUTTONDOWN:
-	{
-		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::RIGHT_CLICK, true);
-		break;
-	}
-	case WM_RBUTTONUP:
-	{
-		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::RIGHT_CLICK, false);
-		break;
-	}
-	case WM_CLOSE:
-	{
-		WindowsInputAbstraction::m_instance->WindowClose();
-		DestroyWindow(_handle);
-		break;
-	}
-	//case WM_NCHITTEST:
-	//	return HTCLIENT;
-	default:
-		DefWindowProc(_handle, uMsg, wParam, lParam);
-		break;
-	}
+
+
+	DefWindowProc(_handle, uMsg, wParam, lParam);
 	return 0;
 }
 
@@ -213,11 +169,63 @@ WindowsInputAbstraction::WindowsInputAbstraction(HWND _windowHandle) : m_windowH
 	}
 	m_instance = this;
 	m_axisActive = new bool[3] { false, false, false };
+
+	m_eventReader = new QtEventReader(_windowHandle, this);
+}
+
+void WindowsInputAbstraction::HandleWindowsInputs(MSG _msg)
+{
+	wchar_t buffer[32];
+	switch (_msg.message)
+	{
+	case WM_KEYDOWN:
+	{
+		WindowsInputAbstraction::m_instance->OnKeyboardInput(_msg.wParam, true);
+		break;
+	}
+	case WM_KEYUP:
+	{
+		WindowsInputAbstraction::m_instance->OnKeyboardInput(_msg.wParam, false);
+		break;
+	}
+	case WM_MOUSEMOVE:
+	{
+		WindowsInputAbstraction::m_instance->OnMouseMove(POINT{ GET_X_LPARAM(_msg.lParam) , GET_Y_LPARAM(_msg.lParam) });
+		break;
+	}
+	case WM_LBUTTONDOWN:
+	{
+		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::LEFT_CLICK, true);
+		break;
+	}
+	case WM_LBUTTONUP:
+	{
+		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::LEFT_CLICK, false);
+		break;
+	}
+	case WM_RBUTTONDOWN:
+	{
+		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::RIGHT_CLICK, true);
+		break;
+	}
+	case WM_RBUTTONUP:
+	{
+		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::RIGHT_CLICK, false);
+		break;
+	}
+	case WM_CLOSE:
+	{
+		WindowsInputAbstraction::m_instance->WindowClose();
+		break;
+	}
+	default:
+		break;
+	}
 }
 
 void WindowsInputAbstraction::Init()
 {
-	SetWindowLongPtrA(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)WndProcCallback);
+	//SetWindowLongPtrA(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)WndProcCallback);
 }
 
 void WindowsInputAbstraction::PollEvents()

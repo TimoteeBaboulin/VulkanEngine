@@ -3,7 +3,7 @@
 #define VULKAN_HELPER_FUNCTIONS_H
 
 #include <cstdint>
-#include "../common.h"
+#include "common.h"
 
 #define WIN32_LEAN_AND_MEAN
 

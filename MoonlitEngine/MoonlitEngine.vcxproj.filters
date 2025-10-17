@@ -36,46 +36,46 @@
     <ClCompile Include="Source Files\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Inputs\InputManager.cpp">
+    <ClCompile Include="Source Files\Engine\Inputs\InputManager.cpp">
       <Filter>Source Files\Inputs</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Inputs\PlatformInputAbstraction.cpp">
+    <ClCompile Include="Source Files\Engine\Inputs\PlatformInputAbstraction.cpp">
       <Filter>Source Files\Inputs</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Inputs\WindowsInputAbstraction.cpp">
+    <ClCompile Include="Source Files\Engine\Inputs\WindowsInputAbstraction.cpp">
       <Filter>Source Files\Inputs</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Renderer\RendererContext.cpp">
+    <ClCompile Include="Source Files\Engine\Renderer\RendererContext.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Renderer\Material\Material.cpp">
+    <ClCompile Include="Source Files\Engine\Renderer\Material\Material.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Renderer\RendererDeviceManager.cpp">
+    <ClCompile Include="Source Files\Engine\Renderer\RendererDeviceManager.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Renderer\Renderer.cpp">
+    <ClCompile Include="Source Files\Engine\Renderer\Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\falsemain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\GameObject.cpp">
+    <ClCompile Include="Source Files\Engine\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\MoonlitEngine.cpp">
+    <ClCompile Include="Source Files\Engine\MoonlitEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\ObjectComponent.cpp">
+    <ClCompile Include="Source Files\Engine\Component\ObjectComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\ObjectTest.cpp">
+    <ClCompile Include="Source Files\Engine\Component\ObjectTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\ObjectTransform.cpp">
+    <ClCompile Include="Source Files\Engine\Component\ObjectTransform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Renderer\DrawBuffer.cpp">
+    <ClCompile Include="Source Files\Engine\Renderer\DrawBuffer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp">
@@ -85,29 +85,30 @@
     <ClCompile Include="Source Files\MoonlitEngine.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ImageHelper.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\FileHelper.cpp" />
-    <ClCompile Include="Source Files\Renderer\RenderTarget.cpp" />
-    <ClCompile Include="Source Files\Renderer\BufferDeviceLink.cpp">
+    <ClCompile Include="Source Files\Engine\Renderer\RenderTarget.cpp" />
+    <ClCompile Include="Source Files\Engine\Renderer\BufferDeviceLink.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Renderer\Material\MaterialInstance.cpp" />
+    <ClCompile Include="Source Files\Engine\Renderer\Material\MaterialInstance.cpp" />
+    <ClCompile Include="Source Files\Engine\Inputs\QtEventReader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header Files\GameObject.h">
+    <ClInclude Include="Header Files\Engine\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\MeshRenderer.h">
+    <ClInclude Include="Header Files\Engine\Components\MeshRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\MoonlitEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ObjectBehaviour.h">
+    <ClInclude Include="Header Files\Engine\Components\ObjectBehaviour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ObjectTest.h">
+    <ClInclude Include="Header Files\Engine\Components\ObjectTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ObjectTransform.h">
+    <ClInclude Include="Header Files\Engine\Components\ObjectTransform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\ResourceManagement\ResourceBank.h">
@@ -119,7 +120,7 @@
     <ClInclude Include="Header Files\Interfaces\ISingleton.h">
       <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Renderer\DrawBuffer.h">
+    <ClInclude Include="Header Files\Engine\Renderer\DrawBuffer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\ResourceManagement\MeshBank.h">
@@ -131,36 +132,37 @@
     <ClInclude Include="Header Files\MoonlitExport.h" />
     <ClInclude Include="Header Files\ResourceManagement\ImageHelper.h" />
     <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
-    <ClInclude Include="Header Files\Renderer\RenderTarget.h" />
-    <ClInclude Include="Header Files\Renderer\BufferDeviceLink.h" />
-    <ClInclude Include="Header Files\Renderer\Material\MaterialInstance.h" />
+    <ClInclude Include="Header Files\Engine\Renderer\RenderTarget.h" />
+    <ClInclude Include="Header Files\Engine\Renderer\BufferDeviceLink.h" />
+    <ClInclude Include="Header Files\Engine\Renderer\Material\MaterialInstance.h" />
+    <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header Files\Inputs\InputManager.h">
+    <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">
       <Filter>Header Files\Inputs</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Inputs\Inputs.h">
+    <ClInclude Include="Header Files\Engine\Inputs\Inputs.h">
       <Filter>Header Files\Inputs</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Inputs\PlatformInputAbstraction.h">
+    <ClInclude Include="Header Files\Engine\Inputs\PlatformInputAbstraction.h">
       <Filter>Header Files\Inputs</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Inputs\WindowsInputAbstraction.h">
+    <ClInclude Include="Header Files\Engine\Inputs\WindowsInputAbstraction.h">
       <Filter>Header Files\Inputs</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Renderer\RendererContext.h">
+    <ClInclude Include="Header Files\Engine\Renderer\RendererContext.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Renderer\Material\Material.h">
+    <ClInclude Include="Header Files\Engine\Renderer\Material\Material.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Renderer\RendererDeviceManager.h">
+    <ClInclude Include="Header Files\Engine\Renderer\RendererDeviceManager.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Renderer\VulkanHelperFunctions.h">
+    <ClInclude Include="Header Files\Engine\Renderer\VulkanHelperFunctions.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Renderer\Renderer.h">
+    <ClInclude Include="Header Files\Engine\Renderer\Renderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Camera.h">

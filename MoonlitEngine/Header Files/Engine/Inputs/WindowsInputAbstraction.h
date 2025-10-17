@@ -5,6 +5,8 @@
 #include "Windows.h"
 #include "map"
 
+class QtEventReader;
+
 class WindowsInputAbstraction : public PlatformInputAbstraction
 {
 	friend LRESULT WndProcCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -29,6 +31,8 @@ private:
 
 public:
 	WindowsInputAbstraction(HWND _windowHandle);
+
+	void HandleWindowsInputs(MSG _msg);
 
 	void Init() override;
 	void PollEvents() override;

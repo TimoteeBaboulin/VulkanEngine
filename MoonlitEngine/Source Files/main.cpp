@@ -21,7 +21,7 @@
 #include <GLFW/glfw3native.h>
 
 #include <iostream>
-#include "Inputs/InputManager.h"
+#include "Engine/Inputs/InputManager.h"
 
 #include <algorithm>
 #include "assimp/scene.h"
@@ -29,7 +29,7 @@
 #include "assimp/postprocess.h"
 #include "assimp/mesh.h"
 
-#include "Renderer/Renderer.h"
+#include "Engine/Renderer/Renderer.h"
 #include "Engine/MoonlitEngine.h"
 
 #include "ResourceManagement/MeshBank.h"
@@ -37,6 +37,8 @@
 #include "QtWidgets/qapplication.h"
 #include "QtWidgets/qwidget.h"
 #include "QtCore/qtimer.h"
+#include "QtWidgets/qmainwindow.h"
+#include <QtWidgets/qdockwidget.h>
 #include "ResourceManagement/TextureBank.h"
 #include "Camera.h"
 
@@ -71,7 +73,8 @@ int main(int argc, char** argv)
 {
     QApplication* application = new QApplication(argc, argv);
     Camera* camera = new Camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    QWidget* window = new QWidget();
+    QMainWindow* window = new QMainWindow();
+    QWidget* widget = new QWidget(window);
     window->resize(WindowWidth, WindowHeight);
     window->show();
     
@@ -79,6 +82,8 @@ int main(int argc, char** argv)
 
     MoonlitEngine engine(winHandle);
 	engine.AddRenderTarget((void*)winHandle, camera);
+
+    InputManager::GetInstance()->LinkQtApplication(application);
     QTimer* timer = new QTimer(0);
     timer->setSingleShot(false);
     std::function<void (void)> updateFunction = std::bind(&MoonlitEngine::Update, &engine);

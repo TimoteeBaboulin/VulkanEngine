@@ -10,7 +10,7 @@
 
 #ifndef EDITOR_BUILD
 
-#include "Windows.h"
+#include <Windows.h>
 
 #undef MemoryBarrier
 #undef max
@@ -19,28 +19,16 @@
 
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-
-#include <iostream>
+#include <QtWidgets/qapplication.h>
+#include <QtWidgets/qwidget.h>
+#include <QtCore/qtimer.h>
+#include <QtWidgets/qmainwindow.h>
 #include "Engine/Inputs/InputManager.h"
-
-#include <algorithm>
-#include "assimp/scene.h"
-#include "assimp/Importer.hpp"
-#include "assimp/postprocess.h"
-#include "assimp/mesh.h"
 
 #include "Engine/Renderer/Renderer.h"
 #include "Engine/MoonlitEngine.h"
-
-#include "ResourceManagement/MeshBank.h"
-
-#include "QtWidgets/qapplication.h"
-#include "QtWidgets/qwidget.h"
-#include "QtCore/qtimer.h"
-#include "QtWidgets/qmainwindow.h"
-#include <QtWidgets/qdockwidget.h>
-#include "ResourceManagement/TextureBank.h"
 #include "Camera.h"
+#include "Debug/Logger.h"
 
 constexpr int WindowWidth = 960;
 constexpr int WindowHeight = 540;
@@ -52,7 +40,7 @@ void MousePressedCallback(MOUSE_KEY _key)
 {
     if (_key == MOUSE_KEY::LEFT_CLICK)
     {
-        std::cout << "Left Click" << std::endl;
+		Logger::LogInfo("Left Mouse Clicked");
     }
 }
 
@@ -60,13 +48,14 @@ void GamepadPressedCallback(GAMEPAD_KEY _key)
 {
 	if (_key == GAMEPAD_KEY::BUTTON_A)
 	{
-		std::cout << "A Pressed" << std::endl;
+        Logger::LogInfo("A pressed");
 	}
 }
 
 void GamepadAxisCallback(GAMEPAD_KEY _key, float _x, float _y)
 {
-    std::cout << "Axis value is " << _x << ", " << _y << std::endl;
+	std::string text = "Axis value is " + std::to_string(_x) + ", " + std::to_string(_y);
+    Logger::LogInfo(text.c_str());
 }
 
 int main(int argc, char** argv) 
@@ -77,7 +66,7 @@ int main(int argc, char** argv)
     QWidget* widget = new QWidget(window);
     window->resize(WindowWidth, WindowHeight);
     window->show();
-    
+
     HWND winHandle = (HWND)window->effectiveWinId();
 
     MoonlitEngine engine(winHandle);
@@ -88,7 +77,6 @@ int main(int argc, char** argv)
     timer->setSingleShot(false);
     std::function<void (void)> updateFunction = std::bind(&MoonlitEngine::Update, &engine);
 	timer->connect(timer, &QTimer::timeout, updateFunction);
-    //timer->setParent(application);
     timer->start();
 
     engine.Init();

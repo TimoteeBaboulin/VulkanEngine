@@ -1,9 +1,9 @@
 #pragma once
 
-#include "PlatformInputAbstraction.h"
+#include <Windows.h>
+#include <map>
 
-#include "Windows.h"
-#include "map"
+#include "PlatformInputAbstraction.h"
 
 class QtEventReader;
 

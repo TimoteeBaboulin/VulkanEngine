@@ -6,9 +6,8 @@
 #include <windowsx.h>
 
 #include <iostream>
-
-#include "Engine/Inputs/QtEventReader.h"
 #include <QtWidgets/qapplication.h>
+#include "Engine/Inputs/QtEventReader.h"
 
 WindowsInputAbstraction* WindowsInputAbstraction::m_instance = nullptr;
 std::map<int, KEYBOARD_KEY> WindowsInputAbstraction::m_keyMap =
@@ -178,7 +177,6 @@ void WindowsInputAbstraction::HandleWindowsInputs(MSG _msg)
 	wchar_t buffer[32];
 
 	//Read the msg to debug it
-	std::wcout << "Windows Input Message Received: " << std::to_wstring(_msg.message) << std::endl;
 	switch (_msg.message)
 	{
 	case WM_KEYDOWN:
@@ -269,7 +267,8 @@ void WindowsInputAbstraction::PollEvents()
 			}
 			else
 			{
-				std::cout << "Gamepad input with code: " << keystroke.VirtualKey << std::endl;
+				//TODO: This is for debugging purposes only, remove later
+				//std::cout << "Gamepad input with code: " << keystroke.VirtualKey << std::endl;
 			}
 		}
 
@@ -307,9 +306,10 @@ void WindowsInputAbstraction::PollEvents()
 
 void WindowsInputAbstraction::LockCursor()
 {
+	//TODO: This needs to be improved by allowing to lock to a specific renderTarget since these are the only windows the engine uses
 	if (!GetClientRect(m_windowHandle, &m_lockRect))
 	{
-		std::cout << "Couldn't lock the cursor because we couldn't get the screen rect" << std::endl;
+		//std::cout << "Couldn't lock the cursor because we couldn't get the screen rect" << std::endl;
 		return;
 	}
 	ClipCursor(&m_lockRect);

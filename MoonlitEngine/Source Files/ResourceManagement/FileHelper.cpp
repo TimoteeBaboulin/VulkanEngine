@@ -1,7 +1,7 @@
 #include "ResourceManagement/FileHelper.h"
-
 #include <fstream>
 #include <iostream>
+#include "Debug/Logger.h"
 
 std::vector<char> FileHelper::ReadFile(std::string _path)
 {
@@ -11,7 +11,7 @@ std::vector<char> FileHelper::ReadFile(std::string _path)
 
 	if (!stream.is_open())
 	{
-		std::cout << "fuck" << std::endl;
+		Logger::LogWarning(("Failed to open file: " + _path).c_str());
 		return buffer;
 	}
 

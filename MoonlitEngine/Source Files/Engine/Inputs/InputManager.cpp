@@ -2,18 +2,16 @@
 #include <cwchar>
 
 #include <iostream>
+#include <QtWidgets/qapplication.h>
+#include "Debug/Logger.h"
 
 
 #ifdef _WIN32
-
-#include "Engine/Inputs/WindowsInputAbstraction.h"
 #include <Windows.h>
 #undef MemoryBarrier
 #include <Xinput.h>
-
+#include "Engine/Inputs/WindowsInputAbstraction.h"
 #endif
-
-#include "QtWidgets/qapplication.h"
 
 InputManager* InputManager::m_instance;
 
@@ -279,7 +277,9 @@ void InputManager::InitManager(void* _handle)
 		}
 		catch (std::exception e)
 		{
-			std::cout << "Couldn't create Input Manager because of: " << e.what() << std::endl;
+			std::string errorMsg = "Failed to create Input Manager instance because of ";
+			errorMsg += e.what();
+			Logger::LogWarning(errorMsg.data());
 			m_instance = nullptr;
 		}
 	}

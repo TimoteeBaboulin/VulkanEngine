@@ -1,11 +1,12 @@
 #include "ResourceManagement/MeshBank.h"
 
 #include <filesystem>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/mesh.h>
+#include <assimp/scene.h>
 
-#include "assimp/Importer.hpp"
-#include "assimp/postprocess.h"
-#include "assimp/mesh.h"
-#include "assimp/scene.h"
+#include "Debug/Logger.h"
 
 //ResourceBank<MeshData>* MeshBank::Instance = new MeshBank();
 
@@ -45,7 +46,7 @@ bool MeshBank::TryLoad(std::string _filepath)
 
     if (Exist(name))
     {
-        std::cout << "[MeshBank] Mesh with name " << name << " already exist in MeshBank." << std::endl;
+		Logger::LogWarning(("Mesh with name " + name + " already exist in MeshBank.").c_str());
         return false;
     }
 

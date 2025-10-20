@@ -517,6 +517,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Debug\Logger.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\QtEventReader.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\BufferDeviceLink.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\Material\MaterialInstance.cpp" />
@@ -528,13 +529,12 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y
     <ClCompile Include="Source Files\Engine\Renderer\DrawBuffer.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
-    <ClCompile Include="Source Files\falsemain.cpp" />
     <ClCompile Include="Source Files\Engine\GameObject.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\InputManager.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\PlatformInputAbstraction.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\WindowsInputAbstraction.cpp" />
     <ClCompile Include="Source Files\main.cpp" />
-    <ClCompile Include="Source Files\Engine\Component\ObjectComponent.cpp" />
+    <ClCompile Include="Source Files\Engine\Component\ObjectBehaviour.cpp" />
     <ClCompile Include="Source Files\Engine\Component\ObjectTest.cpp" />
     <ClCompile Include="Source Files\Engine\Component\ObjectTransform.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\RendererContext.cpp" />
@@ -545,6 +545,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y
   <ItemGroup>
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\common.h" />
+    <ClInclude Include="Header Files\Debug\Logger.h" />
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
     <ClInclude Include="Header Files\Engine\Renderer\BufferDeviceLink.h" />

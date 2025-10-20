@@ -1,7 +1,6 @@
 #include "Engine/Inputs/QtEventReader.h"
-#include "Engine/Inputs/WindowsInputAbstraction.h" // adjust include path to your header
-
 #include <iostream>
+#include "Engine/Inputs/WindowsInputAbstraction.h" // adjust include path to your header
 
 QtEventReader::QtEventReader(HWND targetHandle, PlatformInput_t* backend)
     : m_targetHandle(targetHandle), m_backend(backend)
@@ -15,7 +14,6 @@ QtEventReader::~QtEventReader()
 bool QtEventReader::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
 {
     return false;
-    //std::cout << "Event Filter Called Succesfully" << std::endl;
 
     // We have to inverse the if otherwise the compiler can not choose the right override
     if (!(eventType == "windows_generic_MSG" || eventType == "windows_dispatcher_MSG"))

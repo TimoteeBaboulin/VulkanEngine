@@ -1,7 +1,7 @@
 #include "ResourceManagement/ImageHelper.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb_image.h>
 
 Image ImageHelper::LoadFromFile(std::string _path)
 {

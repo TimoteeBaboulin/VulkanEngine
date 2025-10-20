@@ -1,7 +1,7 @@
 #include "Camera.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 #include "Engine/Inputs/InputManager.h"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/rotate_vector.hpp"
 
 Camera::Camera(glm::vec3 _pos, glm::vec3 _lookDir, glm::vec3 _worldUp) : Position(_pos), Forward(_lookDir), Up(_worldUp)
 {

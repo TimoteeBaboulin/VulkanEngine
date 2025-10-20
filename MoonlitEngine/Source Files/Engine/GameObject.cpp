@@ -1,7 +1,7 @@
 #include "Engine/GameObject.h"
-#include "Engine/Components/ObjectBehaviour.h"
-
 #include <iostream>
+#include "Engine/Components/ObjectBehaviour.h"
+#include "Debug/Logger.h"
 
 GameObject::GameObject(uint32_t id) : m_id(id), m_updates(), m_components()
 {
@@ -32,7 +32,7 @@ void GameObject::Update()
 		}
 		catch (const std::exception&)
 		{
-			std::cout << "Mistake while updating a component" << std::endl;
+			Logger::LogError("Mistake while updating a component");
 		}
 	}
 }

@@ -35,7 +35,8 @@ BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _ma
 
 BufferDeviceLink::~BufferDeviceLink()
 {
-	//TODO: See why I can't destroy the command pool here
+	// TODO: Cleaning the resources here causes crashes due to the initial copy getting destroyed during push_back in the drawbuffer
+	// TODO: Need to cleanly handle the bufferdevicelink lifecycle
 	//ClearBuffers();
 	//ClearTextures();
 	//m_deviceData.Device.freeCommandBuffers(m_commandPool, m_commandBuffer);
@@ -235,10 +236,7 @@ TextureData BufferDeviceLink::GetTextureData(Image& _image)
 	vhf::TransitionImageLayout(m_deviceData.Device, m_commandPool, m_deviceData.Queues.graphicsQueue, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eTransferDstOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal, transInfo);
 
-	//std::vector<vk::ImageView> imageViews(1);
 	texData.m_imageView = vhf::CreateImageView(m_deviceData.Device, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
-
-	//std::vector<vk::Sampler> samplers(1);
 
 	//Create sampler
 	vk::SamplerCreateInfo info;

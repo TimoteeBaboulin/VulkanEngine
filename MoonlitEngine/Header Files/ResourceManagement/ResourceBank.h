@@ -2,8 +2,7 @@
 
 #include <string>
 #include <vector>
-
-#include <filesystem>
+#include <memory>
 
 constexpr int ResourceBankDefaultSize = 10;
 
@@ -68,7 +67,7 @@ inline void ResourceBank<T>::TryUnloadUnusedResources()
 	{
 		if ((*it).Resource.use_count() == 1)
 		{
-			//std::cout << "Should remove this resource" << std::endl;
+			//TODO: Handle resource unloading properly
 		}
 	}
 }

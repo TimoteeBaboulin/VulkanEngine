@@ -1,9 +1,11 @@
 #include "Engine/Components/ObjectTest.h"
 
+#include <iostream>
+#include <string>
+#include "Debug/Logger.h"
 #include "Engine/GameObject.h"
 #include "Engine/Components/ObjectTransform.h"
 
-#include <iostream>
 
 void ObjectTest::SubscribeToFunctions()
 {
@@ -16,16 +18,16 @@ void ObjectTest::Update()
 
 	if (m_owner->TryGetComponentsOfType(transforms, typeid(ObjectTransform)))
 	{
-		std::cout << "Found " << transforms.size() << " transforms:" << std::endl;
+		std::string logMessage = "ObjectTest found " + std::to_string(transforms.size()) + " transforms.";
+		Logger::LogInfo(logMessage.c_str());
 
 		for (auto it = transforms.begin(); it != transforms.end(); it++)
 		{
 			ObjectTransform* transformPtr = dynamic_cast<ObjectTransform*>((*it));
 			if (transformPtr == nullptr)
 			{
-				std::cout << "Incorrect type received, could not cast to transform type" << std::endl;
+				Logger::LogError("Incorrect type received, could not cast to transform type");
 			}
-			std::cout << transformPtr->GetPosition()[0] << " " << transformPtr->GetPosition()[1] << " " << transformPtr->GetPosition()[2] << std::endl;
 		}
 	}
 }

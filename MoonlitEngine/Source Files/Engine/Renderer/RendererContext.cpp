@@ -7,6 +7,8 @@ bool RendererContext::ValidationLayersEnabled = false;
 bool RendererContext::ValidationLayersEnabled = true;
 #endif // NDEBUG
 
+#include "Debug/Logger.h"
+
 const std::vector<const char*> requiredLayers = {
 	"VK_LAYER_KHRONOS_validation"
 };
@@ -63,7 +65,7 @@ vk::Instance RendererContext::CreateInstance(vk::ApplicationInfo _appInfo, const
 
 	if (ValidationLayersEnabled && !CheckValidationLayerSupport())
 	{
-		std::cout << "Couldn't activate validation layers." << std::endl;
+		Logger::LogError("Couldn't activate validation layers.");
 		ValidationLayersEnabled = false;
 	}
 

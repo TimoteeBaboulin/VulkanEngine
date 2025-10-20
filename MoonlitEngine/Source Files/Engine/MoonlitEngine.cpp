@@ -1,14 +1,14 @@
 #include "Engine/MoonlitEngine.h"
+#include <vulkan/vulkan.h>
 #include "Engine/Renderer/Renderer.h"
-
 #include "ResourceManagement/MeshBank.h"
 #include "ResourceManagement/TextureBank.h"
-
-#include "vulkan/vulkan.h"
+#include "Debug/Logger.h"
 
 MoonlitEngine::MoonlitEngine(void* _handle)
 {
-	std::cout << "Initializing Moonlit Engine..." << std::endl;
+
+	Logger::LogInfo("Initializing Moonlit Engine...");
 
 	InputManager::InitManager(_handle);
 
@@ -18,9 +18,7 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 	contextInfo.name = "Moonlit Engine";
 	m_renderer.Init(contextInfo, {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_win32_surface"});
 
-#ifdef _DEBUG
-	std::cout << "Initialized Moonlit Engine!" << std::endl;
-#endif
+	Logger::LogInfo("Moonlit Engine initialized successfully.");
 }
 
 void MoonlitEngine::Init()
@@ -38,6 +36,5 @@ void MoonlitEngine::Init()
 void MoonlitEngine::Update()
 {
 	// Update the renderer
-	//std::cout << "Updating Moonlit Engine..." << std::endl;
 	m_renderer.Render();
 }

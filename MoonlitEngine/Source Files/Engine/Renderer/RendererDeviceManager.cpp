@@ -1,8 +1,8 @@
+#include "Engine/Renderer/RendererDeviceManager.h"
 #include <set>
 #include <string>
 
-#include "vulkan/vulkan.hpp"
-#include "Engine/Renderer/RendererDeviceManager.h"
+#include <vulkan/vulkan.hpp>
 #include "Engine/Renderer/RenderTarget.h"
 
 RendererDeviceManager::RendererDeviceManager(vk::Instance _instance)
@@ -81,57 +81,6 @@ void RendererDeviceManager::RemoveTarget(RenderTarget* _target)
 	}
 }
 
-
-//bool RendererDeviceManager::TryAddRenderTarget(RenderTarget* _target, DeviceData& _deviceData)
-//{
-//	if (m_targetCount >= 16)
-//	{
-//		return false;
-//	}
-//
-//	auto targetIterator = std::find(m_renderTargets.begin(), m_renderTargets.end(), nullptr);
-//	(*targetIterator) = _target;
-//
-//	for (int index = 0; index < m_devices.size(); index++)
-//	{
-//		if (Check)
-//	}
-//
-//	for (int i = 0; i < m_renderTargets.size(); i++)
-//	{
-//		if (m_renderTargets[i] == nullptr)
-//		{
-//			m_renderTargets[i] = _target;
-//			m_targetCount++;
-//
-//
-//			return true;
-//		}
-//	}
-//
-//	return false;
-//}
-
-//RenderQueues RendererDeviceManager::GetRenderQueues(RenderTarget* _target) const
-//{
-//	int index = 0;
-//
-//	for (int i = 0; i < m_renderTargets.size(); i++)
-//	{
-//		if (m_renderTargets[i] == _target)
-//		{
-//			index = i;
-//			break;
-//		}
-//	}
-//
-//	RenderQueues queues;
-//	queues.graphicsQueue = m_device.getQueue(m_familyIndices.graphicsFamily.value(), index);
-//	queues.presentQueue = m_device.getQueue(m_familyIndices.khrPresentFamily.value(), index);
-//
-//	return queues;
-//}
-
 /// <summary>
 /// Method used to pick a new physical device for use by a new surface
 /// </summary>
@@ -189,7 +138,6 @@ bool RendererDeviceManager::CheckDeviceExtensions(vk::PhysicalDevice& _device)
 	std::set<std::string> requiredExtensions(m_extensionNames.begin(), m_extensionNames.end());
 
 	for (const auto& extension : properties) {
-		// std::cout << extension.extensionName << std::endl;
 		requiredExtensions.erase(extension.extensionName);
 	}
 

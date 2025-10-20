@@ -8,12 +8,11 @@
 #include <fstream>
 #include <vector>
 
-#include "glm/glm.hpp"
-
+#include <glm/glm.hpp>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #undef MemoryBarrier
-#include "vulkan/vulkan.hpp"
+#include <vulkan/vulkan.hpp>
 
 #include "MoonlitExport.h"
 

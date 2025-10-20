@@ -1,12 +1,13 @@
 #pragma once
 
-#include "glm/common.hpp"
-#include "glm/gtc/quaternion.hpp"
-#include "glm/gtx/quaternion.hpp"
+#include <glm/common.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <memory>
 
 #include "ObjectBehaviour.h"
 
-#include <memory>
+
 
 class ObjectTransform : public ObjectBehaviour
 {

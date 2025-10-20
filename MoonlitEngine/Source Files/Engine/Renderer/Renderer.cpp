@@ -1,4 +1,6 @@
 #include "Engine/Renderer/Renderer.h"
+#define GLM_FORCE_RADIANS
+#include <glm/gtx/transform.hpp>
 #include "Engine/Renderer/RendererDeviceManager.h"
 #include "Engine/Renderer/RendererContext.h"
 #include "common.h"
@@ -9,10 +11,6 @@
 #include "ResourceManagement/MeshBank.h"
 #include "ResourceManagement/TextureBank.h"
 #include "Engine/Renderer/RenderTarget.h"
-
-#include "glm/gtx/transform.hpp"
-
-#define GLM_FORCE_RADIANS
 
 Renderer::Renderer()
 {
@@ -40,19 +38,12 @@ void Renderer::InitContext(ContextInfo& _info, std::vector<const char*> required
 
 	//TODO: Clean up this code, it is a bit messy
 	m_deviceManager = new RendererDeviceManager(m_instance);
-
-	//m_mainCommandPool = m_renderTargets[0]->GetCommandPool();
-
-	//m_inputHandler = new CameraInputHandler(m_cameras[0]);
-	//InputManager::GetInstance()->AddInputHandler(m_inputHandler);
-	//InputManager::GetInstance()->LockCursor();
 	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&Renderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
-	//InputManager::GetInstance()->SubscribeWindowEvent(windowCallback);
 }
 
 void Renderer::InitVulkan()
 {
-	//TODO: Repare this
+	//TODO: Repare render profiling
 	//m_timeStampPeriods = m_deviceManager->GetTimeStampPeriods();
 }
 

@@ -2,11 +2,12 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 
 #include <vulkan/vulkan.hpp>
-#include "MoonlitExport.h"
-#include "Windows.h"
+#include <Windows.h>
 
 #undef MemoryBarrier
 #undef max
+#include "MoonlitExport.h"
+
 
 struct ContextInfo
 {

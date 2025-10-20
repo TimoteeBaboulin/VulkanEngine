@@ -1,7 +1,6 @@
 #include "Engine/Inputs/PlatformInputAbstraction.h"
-#include "Engine/Inputs/InputManager.h"
-
 #include <QtWidgets/qapplication.h>
+#include "Engine/Inputs/InputManager.h"
 #include "Engine/Inputs/QtEventReader.h"
 
 void PlatformInputAbstraction::SendKeyboardInput(KEYBOARD_KEY _key, bool _keyDown)

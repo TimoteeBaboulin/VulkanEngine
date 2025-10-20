@@ -1,7 +1,6 @@
 #include "Engine/Renderer/RenderTarget.h"
+#include <glm/gtc/matrix_transform.hpp>
 #include "Engine/Renderer/VulkanHelperFunctions.h"
-
-#include "glm/gtc/matrix_transform.hpp"
 #include "Engine/Renderer/DrawBuffer.h"
 
 RenderTarget::RenderTarget(int _framesInFlight, HWND _surface,
@@ -189,8 +188,6 @@ void RenderTarget::DestroySwapChain()
 	device.destroySwapchainKHR(m_swapChain);
 	for (int i = 0; i < m_framesInFlight; ++i)
 	{
-		//m_device.destroyImageView(m_swapChainImageViews[i]);
-		//m_device.destroyImage(m_swapChainImages[i]);
 		device.destroyImageView(m_swapChainDepthImageViews[i]);
 		device.destroyImage(m_swapChainDepthImages[i]);
 		device.destroyFramebuffer(m_swapChainFramebuffers[i]);
@@ -436,8 +433,6 @@ void RenderTarget::Render(std::vector<DrawBuffer>& _drawBuffers)
 
 	UpdateUniformBuffer();
 
-	//std::cout << "Post UpdateUniformBuffer\n";
-
 	uint32_t index;
 	//Might be an artifact from the old code
 	//TODO: Check if it's fine to remove this
@@ -460,11 +455,8 @@ void RenderTarget::Render(std::vector<DrawBuffer>& _drawBuffers)
 
 	vk::CommandBuffer& buffer = m_commandBuffers[m_currentFrame];
 	buffer.reset();
-	//std::cout << "Pre RecordCommandBuffer\n";
 
 	RecordCommandBuffer(buffer, _drawBuffers);
-
-	//std::cout << "Post RecordCommandBuffer\n";
 	
 	vk::PipelineStageFlags* waitStages = new vk::PipelineStageFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 
@@ -542,8 +534,6 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 	_buffer.setScissor(0, scissor);
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-	//std::cout << "Pre DrawBuffer.Render" << std::endl;
-
 	for (auto& drawBuffer : _drawBuffers)
 	{
 		drawBuffer.RenderBuffer(*this, _buffer, 0);
@@ -555,8 +545,6 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 	{
 		drawBuffer.RenderBuffer(*this, _buffer, 1);
 	}
-
-	//std::cout << "Post DrawBuffer.Render" << std::endl;
 
 	_buffer.endRenderPass();
 

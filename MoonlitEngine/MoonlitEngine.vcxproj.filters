@@ -57,16 +57,13 @@
     <ClCompile Include="Source Files\Engine\Renderer\Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\falsemain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Engine\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Engine\MoonlitEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Engine\Component\ObjectComponent.cpp">
+    <ClCompile Include="Source Files\Engine\Component\ObjectBehaviour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Engine\Component\ObjectTest.cpp">
@@ -90,6 +87,7 @@
     </ClCompile>
     <ClCompile Include="Source Files\Engine\Renderer\Material\MaterialInstance.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\QtEventReader.cpp" />
+    <ClCompile Include="Source Files\Debug\Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\GameObject.h">
@@ -135,6 +133,7 @@
     <ClInclude Include="Header Files\Engine\Renderer\BufferDeviceLink.h" />
     <ClInclude Include="Header Files\Engine\Renderer\Material\MaterialInstance.h" />
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
+    <ClInclude Include="Header Files\Debug\Logger.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

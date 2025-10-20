@@ -141,7 +141,6 @@ void DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, in
 {
 	if (m_meshes.size() == 0)
 	{
-		//std::cout << "No meshes to render\n";
 		return;
 	}
 

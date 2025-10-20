@@ -32,8 +32,6 @@ void RenderTarget::Init()
 
 	m_defaultMaterial = new Material("Shaders/BaseMaterial.slang");
 	
-	//Need the format to create the render pass in the renderer
-	//TODO: Remove this dependency
 	CalculateExtent();
 
 	CreateSwapChainResources();
@@ -448,8 +446,15 @@ void RenderTarget::Render(std::vector<DrawBuffer>& _drawBuffers)
 
 	vk::Semaphore* waitSemaphore = &m_imageAvailableSemaphores[m_currentFrame];
 	
+	vk::ResultValue<uint32_t> resultValue = m_deviceData.Device.acquireNextImageKHR(m_swapChain, std::numeric_limits<uint64_t>::max(), *waitSemaphore);
 
-	index = m_deviceData.Device.acquireNextImageKHR(m_swapChain, std::numeric_limits<uint64_t>::max(), *waitSemaphore).value;
+	if (resultValue.result == vk::Result::eErrorOutOfDateKHR)
+	{
+		RecreateSwapChain();
+		m_currentFrame = 0;
+		return;
+	}
+	index = resultValue.value;
 	
 	vk::Semaphore* signalSemaphore = &m_renderFinishedSemaphores[index];
 
@@ -490,13 +495,15 @@ void RenderTarget::Render(std::vector<DrawBuffer>& _drawBuffers)
 	try
 	{
 		m_deviceData.Queues.presentQueue.presentKHR(presentInfo);
+		m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 	}
 	catch (vk::OutOfDateKHRError e)
 	{
 		RecreateSwapChain();
+		m_currentFrame = 0;
 	}
 
-	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
+	
 }
 
 void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer>& _drawBuffers)

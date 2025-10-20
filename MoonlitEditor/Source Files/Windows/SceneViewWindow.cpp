@@ -13,6 +13,7 @@ SceneViewWindow::SceneViewWindow(MoonlitEditor* _editor, MoonlitEngine* _engine,
 	_editor->GetEngine().AddRenderTarget(m_windowHandle, &m_camera);
 
 	m_inputHandler = new SceneViewInputHandler(&m_camera);
+	InputManager::GetInstance()->AddInputHandler(m_inputHandler);
 
 	//This code will need to be removed to be played in the editor instead
 	if (m_engine)

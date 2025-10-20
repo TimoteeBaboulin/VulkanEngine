@@ -14,6 +14,7 @@ QtEventReader::~QtEventReader()
 
 bool QtEventReader::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
 {
+    return false;
     //std::cout << "Event Filter Called Succesfully" << std::endl;
 
     // We have to inverse the if otherwise the compiler can not choose the right override

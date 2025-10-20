@@ -82,7 +82,6 @@
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\ResourceManagement\TextureBank.cpp" />
-    <ClCompile Include="Source Files\MoonlitEngine.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ImageHelper.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\FileHelper.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\RenderTarget.cpp" />

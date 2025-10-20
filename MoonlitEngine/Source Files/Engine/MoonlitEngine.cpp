@@ -15,8 +15,6 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 	// Initialize the renderer
 	m_renderer = Renderer();
 	ContextInfo contextInfo;
-	//RECT screenSize;
-	//GetClientRect((HWND)_handle, &screenSize);
 	contextInfo.name = "Moonlit Engine";
 	m_renderer.Init(contextInfo, {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_win32_surface"});
 

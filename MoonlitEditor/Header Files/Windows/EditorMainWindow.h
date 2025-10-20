@@ -6,7 +6,7 @@ class  EditorMainWindow : public QMainWindow
 {
 public:
 	EditorMainWindow(size_t _width, size_t _height);
-	bool event(QEvent* _event) override;
+	//bool event(QEvent* _event) override;
 
 	static bool TryGetInstance(EditorMainWindow*& _window);
 

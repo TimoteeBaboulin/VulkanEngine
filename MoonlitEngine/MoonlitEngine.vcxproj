@@ -257,9 +257,8 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
-xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.lib" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
@@ -406,9 +405,8 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
-xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.lib" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s
+xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
@@ -506,9 +504,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </ClCompile>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
-xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.lib" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
@@ -517,9 +513,7 @@ xcopy "$(OutDir)*.lib" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
     </ClCompile>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
-xcopy "$(OutDir)*.dll" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.pdb" "$(SolutionDir)ExternalLibraries" /v /y /s
-xcopy "$(OutDir)*.lib" "$(SolutionDir)ExternalLibraries" /v /y /s</Command>
+xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

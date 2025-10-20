@@ -12,8 +12,8 @@ SceneViewWindow::SceneViewWindow(MoonlitEditor* _editor, MoonlitEngine* _engine,
 
 	_editor->GetEngine().AddRenderTarget(m_windowHandle, &m_camera);
 
-	m_inputHandler = new SceneViewInputHandler(&m_camera);
-	InputManager::GetInstance()->AddInputHandler(m_inputHandler);
+	//m_inputHandler = new SceneViewInputHandler(&m_camera);
+	//InputManager::GetInstance()->AddInputHandler(m_inputHandler);
 
 	//This code will need to be removed to be played in the editor instead
 	if (m_engine)
@@ -29,10 +29,6 @@ SceneViewWindow::SceneViewWindow(MoonlitEditor* _editor, MoonlitEngine* _engine,
 
 void SceneViewWindow::SetQtData()
 {
-	//setDockLocation(Qt::DockWidgetArea::TopDockWidgetArea);
-	// This should be done automatically by Qt
-	//setFeatures(QDockWidget::DockWidgetFeature::DockWidgetFloatable | QDockWidget::DockWidgetFeatures::set);
-
 	//The attribute and resize are needed to make sure the docked widget has a its own HWND
 	//And with a valid size before show/creation
 	m_containerWidget = new QWidget();
@@ -54,6 +50,5 @@ void SceneViewWindow::SetQtData()
 	setWidget(m_containerWidget);
 
 	show();
-
-	//Check if the dockwidget don't already resize its content
+	//TODO: Find a way to prevent docking onto this widget
 }

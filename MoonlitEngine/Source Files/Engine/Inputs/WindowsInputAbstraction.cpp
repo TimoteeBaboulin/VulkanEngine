@@ -176,6 +176,7 @@ WindowsInputAbstraction::WindowsInputAbstraction(HWND _windowHandle) : m_windowH
 void WindowsInputAbstraction::HandleWindowsInputs(MSG _msg)
 {
 	wchar_t buffer[32];
+
 	//Read the msg to debug it
 	std::wcout << "Windows Input Message Received: " << std::to_wstring(_msg.message) << std::endl;
 	switch (_msg.message)

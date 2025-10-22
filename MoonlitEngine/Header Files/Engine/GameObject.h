@@ -10,10 +10,23 @@
 using GameEventFunction = std::function<void(void)>;
 
 class ObjectBehaviour;
+namespace glm
+{
+	struct vec3;
+}
 
 class GameObject
 {
 	friend ObjectBehaviour;
+	// STATIC/FACTORY
+public:
+	static GameObject* Create();
+	static GameObject* CreateAt(glm::vec3 _pos);
+
+private:
+	static std::map<uint32_t, GameObject*> m_gameObjects;
+
+	// Default
 public:
 	GameObject(uint32_t id);
 	GameObject(const GameObject& _toCopy);

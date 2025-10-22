@@ -13,42 +13,51 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Editor">
+      <UniqueIdentifier>{a051217b-1bb0-4663-9ef4-d676660226f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Editor\General">
+      <UniqueIdentifier>{5e546bef-9ed2-4c7d-b1f3-db11669a7012}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Editor\NewFilter1">
+      <UniqueIdentifier>{821fadd1-445d-4154-ad60-1451cead0790}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source Files\MoonlitEditor.cpp">
+    <ClCompile Include="Source Files\Editor\MoonlitEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Windows\EditorMainWindow.cpp">
+    <ClCompile Include="Source Files\Editor\Windows\EditorMainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\EditorMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Windows\SceneViewWindow.cpp">
+    <ClCompile Include="Source Files\Editor\Windows\General\SceneViewWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Windows\EditorWindowBase.cpp">
+    <ClCompile Include="Source Files\Editor\Windows\EditorWindowBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SceneViewInputHandler.cpp">
+    <ClCompile Include="Source Files\SceneViewInputHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header Files\MoonlitEditor.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h">
+      <Filter>Header Files\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Windows\EditorMainWindow.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Header Files\Editor\Windows\EditorWindowBase.h">
+      <Filter>Header Files\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Windows\SceneViewWindow.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Header Files\Editor\MoonlitEditor.h">
+      <Filter>Header Files\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Windows\EditorWindowBase.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Header Files\SceneViewInputHandler.h">
+      <Filter>Header Files\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="SceneViewInputHandler.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Header Files\Editor\Windows\General\SceneViewWindow.h">
+      <Filter>Header Files\Editor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

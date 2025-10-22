@@ -1,7 +1,27 @@
 #include "Engine/GameObject.h"
 #include <iostream>
+#include <glm/vec3.hpp>
 #include "Engine/Components/ObjectBehaviour.h"
 #include "Debug/Logger.h"
+#include "Engine/Components/ObjectTransform.h"
+
+GameObject* GameObject::Create()
+{
+	//TODO: implement ID management
+	GameObject* newObject = new GameObject(0);
+	m_gameObjects[newObject->m_id] = newObject;
+
+	return newObject;
+}
+
+GameObject* GameObject::CreateAt(glm::vec3 _pos)
+{
+	GameObject* newObject = Create();
+	ObjectTransform* transform = new ObjectTransform();
+	transform->SetPosition(_pos);
+
+	return newObject;
+}
 
 GameObject::GameObject(uint32_t id) : m_id(id), m_updates(), m_components()
 {

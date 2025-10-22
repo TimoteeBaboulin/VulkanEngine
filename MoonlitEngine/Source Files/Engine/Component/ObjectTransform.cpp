@@ -16,3 +16,12 @@ ObjectTransform::ObjectTransform()
 void ObjectTransform::SubscribeToFunctions()
 {
 }
+
+void ObjectTransform::SetPosition(glm::vec3 _position)
+{
+	m_position = _position;
+
+	// TODO: Use a dirty flag to recalculate the matrices in late update
+	m_translationMatrix = glm::translate(glm::mat4(1), m_position);
+	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+}

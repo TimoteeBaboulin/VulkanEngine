@@ -16,7 +16,11 @@ public:
 
 	void SubscribeToFunctions() override;
 
-	glm::vec3 GetPosition() { return m_position; }
+	//Setters
+	void SetPosition(glm::vec3 _position);
+
+	// Getters
+	glm::vec3 GetPosition() { return m_position; } const
 	std::shared_ptr<glm::mat4> GetSharedPtrModelMat() { return std::make_shared<glm::mat4>(m_transformMatrix); };
 protected:
 	glm::vec3 m_position;

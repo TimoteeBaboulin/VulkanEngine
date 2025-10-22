@@ -283,7 +283,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
+      <AdditionalDependencies>Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
@@ -301,7 +301,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
+      <AdditionalDependencies>Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
@@ -309,19 +309,19 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="SceneViewInputHandler.cpp" />
-    <ClCompile Include="Source Files\Windows\EditorWindowBase.cpp" />
-    <ClCompile Include="Source Files\MoonlitEditor.cpp" />
-    <ClCompile Include="Source Files\Windows\EditorMainWindow.cpp" />
+    <ClCompile Include="Source Files\SceneViewInputHandler.cpp" />
+    <ClCompile Include="Source Files\Editor\Windows\EditorWindowBase.cpp" />
+    <ClCompile Include="Source Files\Editor\MoonlitEditor.cpp" />
+    <ClCompile Include="Source Files\Editor\Windows\EditorMainWindow.cpp" />
     <ClCompile Include="Source Files\EditorMain.cpp" />
-    <ClCompile Include="Source Files\Windows\SceneViewWindow.cpp" />
+    <ClCompile Include="Source Files\Editor\Windows\General\SceneViewWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header Files\MoonlitEditor.h" />
-    <ClInclude Include="Header Files\Windows\EditorMainWindow.h" />
-    <ClInclude Include="Header Files\Windows\EditorWindowBase.h" />
-    <ClInclude Include="Header Files\Windows\SceneViewWindow.h" />
-    <ClInclude Include="SceneViewInputHandler.h" />
+    <ClInclude Include="Header Files\Editor\MoonlitEditor.h" />
+    <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h" />
+    <ClInclude Include="Header Files\Editor\Windows\EditorWindowBase.h" />
+    <ClInclude Include="Header Files\Editor\Windows\General\SceneViewWindow.h" />
+    <ClInclude Include="Header Files\SceneViewInputHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

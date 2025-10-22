@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Windows/EditorWindowBase.h"
+#include "../EditorWindowBase.h"
 #include "Camera.h"
 
 class MoonlitEngine;

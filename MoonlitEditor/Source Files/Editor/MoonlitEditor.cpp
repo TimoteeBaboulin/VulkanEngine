@@ -1,12 +1,12 @@
-#include "MoonlitEditor.h"
+#include "Editor/MoonlitEditor.h"
 
 #include <iostream>
 
 #include <QtCore/qtimer.h>
 #include <QtWidgets/qapplication.h>
 
-#include "Windows/EditorMainWindow.h"
-#include "Windows/SceneViewWindow.h"
+#include "Editor/Windows/EditorMainWindow.h"
+#include "Editor/Windows/General/SceneViewWindow.h"
 #include "Engine/MoonlitEngine.h"
 
 

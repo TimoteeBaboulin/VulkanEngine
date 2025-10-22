@@ -2,7 +2,7 @@
 
 #define VK_USE_PLATFORM_WIN32_KHR
 
-#include "MoonlitEditor.h"
+#include "Editor/MoonlitEditor.h"
 
 int main(int argc, char** argv)
 {

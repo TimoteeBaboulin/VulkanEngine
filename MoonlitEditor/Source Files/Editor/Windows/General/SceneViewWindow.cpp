@@ -1,6 +1,6 @@
-#include "Windows/SceneViewWindow.h"
-#include "MoonlitEditor.h"
-#include "..\..\SceneViewInputHandler.h"
+#include "Editor/Windows/General/SceneViewWindow.h"
+#include "Editor/MoonlitEditor.h"
+#include "SceneViewInputHandler.h"
 #include "Engine/MoonlitEngine.h"
 #include <QtCore/qtimer.h>
 

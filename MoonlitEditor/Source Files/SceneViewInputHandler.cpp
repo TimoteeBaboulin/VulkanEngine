@@ -1,23 +1,27 @@
 #include "SceneViewInputHandler.h"
-#include <iostream>
+#include <string>
+#include "Debug/Logger.h"
 
 void SceneViewInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
 {
 	if (!m_mouseHeld) return;
 	m_camera->Rotate(glm::vec3(0.0f, -1.0f, 0.0f), _deltaX * 0.01f);
 	m_camera->Rotate(glm::vec3(-1.0f, 0.0f, 0.0f), _deltaY * 0.01f);
-	std::cout << "Camera is rotating" << std::endl;
+
+	LOG_INFO("Camera is rotating");
 }
 
 void SceneViewInputHandler::HandleMouseInput(MOUSE_KEY _key, bool _keyDown)
 {
+	std::string message;
 	switch (_key)
 	{
 	case MOUSE_KEY::LEFT_CLICK:
 		m_mouseHeld = _keyDown;
-		std::cout << "Mouse is ";
-		if (!m_mouseHeld) std::cout << "not ";
-		std::cout << "held down" << std::endl;
+		message = "Left mouse button is ";
+		if (!m_mouseHeld) message += "not ";
+		message += "held down";
+		LOG_INFO(message.c_str());
 		break;
 	default:
 		break;

@@ -8,9 +8,10 @@
 #include "Engine/Renderer/Material/Material.h"
 #include "Camera.h"
 
-#include "ResourceManagement/MeshBank.h"
-#include "ResourceManagement/TextureBank.h"
+#include "ResourceManagement/ResourceManager.h"
 #include "Engine/Renderer/RenderTarget.h"
+
+#include "Debug/Logger.h"
 
 Renderer::Renderer()
 {
@@ -81,10 +82,13 @@ void Renderer::AddRenderTarget(void* _handle, Camera* _camera)
 
 void Renderer::LoadMesh(std::string name)
 {
-	MeshData* mesh = MeshBank::Instance->Get(name).get();
-	if (mesh == nullptr)
+	//TODO: Don't load the mesh in the renderer, it should be done by the engine itself through gameobjects
+	std::shared_ptr<MeshData> testMesh;
+	if (!ResourceManager::TryGetResource<MeshData>(name, testMesh))
 	{
-		return;
+		std::string errorMsg = "Mesh " + name + " not found in ResourceManager.";
+		LOG_ERROR(errorMsg.c_str());
+		throw std::runtime_error(errorMsg);
 	}
 
 	glm::mat4x4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -93,22 +97,36 @@ void Renderer::LoadMesh(std::string name)
 
 	glm::mat4x4 model = translate * rotate * scale;
 
+	std::shared_ptr<Image> firstTexture;
 	std::vector<std::shared_ptr<Image>> m_textures;
-	m_textures.push_back(TextureBank::Instance->Get("barstool_albedo"));
+	if (ResourceManager::TryGetResource<Image>("barstool_albedo", firstTexture))
+	{
+		m_textures.push_back(firstTexture);
+	}
+	else
+	{
+		LOG_ERROR("Failed to load texture barstool_albedo.png from ResourceManager.");
+	}
 
+	std::shared_ptr<Image> secondTexture;
 	std::vector<std::shared_ptr<Image>> secondaryTextures;
-	secondaryTextures.push_back(TextureBank::Instance->Get("sniper_albedo"));
-
-	
+	if (ResourceManager::TryGetResource<Image>("sniper_albedo", secondTexture))
+	{
+		secondaryTextures.push_back(secondTexture);
+	}
+	else
+	{
+		LOG_ERROR("Failed to load texture sniper_albedo.png from ResourceManager.");
+	}
 
 	if (!test)
 	{
 		for (int i = -5; i < 6; i++)
 		{
-			translate = glm::translate(glm::vec3(i, i, i));
+			translate = glm::translate(glm::vec3(i, -i, i));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			MeshInstance* instance = new MeshInstance{ *mesh, m_textures, model };
+			MeshInstance* instance = new MeshInstance{ *testMesh, m_textures, model };
 
 			m_drawBuffers[0].TryAddMesh(instance);
 		}
@@ -121,7 +139,7 @@ void Renderer::LoadMesh(std::string name)
 			translate = glm::translate(glm::vec3(i, 0, 0));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			MeshInstance* instance = new MeshInstance{ *mesh, m_textures, model };
+			MeshInstance* instance = new MeshInstance{ *testMesh, m_textures, model };
 
 			m_drawBuffers[0].TryAddMesh(instance);
 		}

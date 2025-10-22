@@ -14,11 +14,13 @@ bool TextureBank::TryLoad(std::string _filepath)
 
     fs::path path(_filepath);
     if (!fs::is_regular_file(path))
-        throw new std::runtime_error(_filepath + " is not a regular file");
+    {
+		LOG_ERROR((_filepath + " is not a regular file").c_str());
+        return false;
+    }
     std::string name = path.stem().string();
 	std::shared_ptr<Image> texturePtr = std::make_shared<Image>();
 	
-
     if (Exist(name))
     {
 		Logger::LogWarning(("Mesh with name " + name + " already exist in MeshBank.").c_str());

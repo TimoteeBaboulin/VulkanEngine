@@ -1,9 +1,11 @@
 #include "Engine/GameObject.h"
 #include <iostream>
-#include <glm/vec3.hpp>
+
 #include "Engine/Components/ObjectBehaviour.h"
 #include "Debug/Logger.h"
 #include "Engine/Components/ObjectTransform.h"
+
+std::map<uint32_t, GameObject*> GameObject::m_gameObjects = std::map<uint32_t, GameObject*>();
 
 GameObject* GameObject::Create()
 {

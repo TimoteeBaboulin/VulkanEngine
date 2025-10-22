@@ -6,6 +6,10 @@
 
 constexpr int ResourceBankDefaultSize = 10;
 
+//Forward declaration
+template <class T>
+class ResourceBank;
+
 template <class T>
 struct ResourcePair
 {

@@ -1,8 +1,7 @@
 #include "Engine/MoonlitEngine.h"
 #include <vulkan/vulkan.h>
 #include "Engine/Renderer/Renderer.h"
-#include "ResourceManagement/MeshBank.h"
-#include "ResourceManagement/TextureBank.h"
+#include "ResourceManagement/ResourceManager.h"
 #include "Debug/Logger.h"
 
 MoonlitEngine::MoonlitEngine(void* _handle)
@@ -23,13 +22,11 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 
 void MoonlitEngine::Init()
 {
-	MeshBank::Initialize();
-	TextureBank::Initialize();
 
-	MeshBank::Instance->TryLoad("Meshes/barstool.gltf");
-	MeshBank::Instance->TryLoad("Meshes/Sniper_Final.fbx");
-
-	TextureBank::Instance->TryLoad("Textures/barstool_albedo.png");
+	ResourceManager::TryLoadResource<MeshData>("Meshes/barstool.gltf");
+	ResourceManager::TryLoadResource<MeshData>("Meshes/Sniper_Final.fbx");
+	ResourceManager::TryLoadResource<Image>("Textures/barstool_albedo.png");
+	ResourceManager::TryLoadResource<Image>("Textures/Sniper.png");
 
 	m_renderer.LoadMesh("barstool");
 }

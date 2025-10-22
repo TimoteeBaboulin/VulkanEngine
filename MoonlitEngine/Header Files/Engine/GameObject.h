@@ -6,14 +6,11 @@
 #include <map>
 
 #include <typeinfo>
+#include <glm/vec3.hpp>
 
 using GameEventFunction = std::function<void(void)>;
 
 class ObjectBehaviour;
-namespace glm
-{
-	struct vec3;
-}
 
 class GameObject
 {

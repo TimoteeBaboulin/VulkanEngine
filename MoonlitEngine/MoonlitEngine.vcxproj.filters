@@ -88,12 +88,14 @@
     <ClCompile Include="Source Files\Engine\Renderer\Material\MaterialInstance.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\QtEventReader.cpp" />
     <ClCompile Include="Source Files\Debug\Logger.cpp" />
+    <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
+    <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Engine\Components\MeshRenderer.h">
+    <ClInclude Include="Header Files\Engine\Components\ObjectMeshRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\MoonlitEngine.h">
@@ -134,6 +136,7 @@
     <ClInclude Include="Header Files\Engine\Renderer\Material\MaterialInstance.h" />
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Debug\Logger.h" />
+    <ClInclude Include="Header Files\Engine\Scene\Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

@@ -41,7 +41,12 @@ bool MeshBank::TryLoad(std::string _filepath)
     namespace fs = std::filesystem;
 
     fs::path path(_filepath);
-    assert(fs::is_regular_file(path));
+    if (!fs::is_regular_file(path))
+    {
+        LOG_ERROR((_filepath + " is not a regular file").c_str());
+		return false;
+    }
+
     std::string name = path.stem().string();
 
     if (Exist(name))

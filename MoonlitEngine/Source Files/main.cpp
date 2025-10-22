@@ -61,7 +61,7 @@ void GamepadAxisCallback(GAMEPAD_KEY _key, float _x, float _y)
 int main(int argc, char** argv) 
 {
     QApplication* application = new QApplication(argc, argv);
-    Camera* camera = new Camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    Camera* camera = new Camera(glm::vec3(-20.0f, 0.0f, 0.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     QMainWindow* window = new QMainWindow();
     QWidget* widget = new QWidget(window);
     window->resize(WindowWidth, WindowHeight);

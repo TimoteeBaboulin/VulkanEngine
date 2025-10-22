@@ -4,11 +4,17 @@
 
 #include "Engine/GameObject.h"
 
-ObjectBehaviour::ObjectBehaviour() : m_owner(nullptr)
+ObjectBehaviour::ObjectBehaviour(GameObject* _owner) : m_owner(_owner)
 {
+	m_owner->AddComponent(this);
 }
 
-void ObjectBehaviour::SetOwner(GameObject* Owner)
+void ObjectBehaviour::SetOwner(GameObject* _owner)
 {
-	m_owner = Owner;
+	m_owner = _owner;
+	SubscribeToFunctions();
+}
+
+void ObjectBehaviour::SubscribeToFunctions()
+{
 }

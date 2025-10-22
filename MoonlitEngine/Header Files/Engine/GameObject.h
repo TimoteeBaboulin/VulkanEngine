@@ -37,6 +37,43 @@ public:
 	void AddComponent(ObjectBehaviour* _component);
 
 	bool TryGetComponentsOfType(std::vector<ObjectBehaviour*>& _components, const type_info& _type);
+	template <class T>
+	bool TryGetComponentsOfType(std::vector<T*>& _components)
+	{
+		bool foundComponent = false;
+
+		for (auto it = m_components.begin(); it != m_components.end(); it++)
+		{
+			ObjectBehaviour* component = (*it);
+			const type_info& componentType = typeid(*component);
+			if (componentType == typeid(T))
+			{
+				foundComponent = true;
+				_components.push_back(reinterpret_cast<T*>(component));
+			}
+		}
+
+		return foundComponent;
+	}
+
+	bool TryGetComponentOfType(ObjectBehaviour*& _component, const type_info& _type);
+	template <class T>
+	bool TryGetComponentOfType(T*& _component)
+	{
+		bool foundComponent = false;
+		for (auto it = m_components.begin(); it != m_components.end(); it++)
+		{
+			ObjectBehaviour* component = (*it);
+			const type_info& componentType = typeid(*component);
+			if (componentType == typeid(T))
+			{
+				foundComponent = true;
+				_component = reinterpret_cast<T*>(component);
+				break;
+			}
+		}
+		return foundComponent;
+	}
 protected:
 	uint32_t m_id;
 

@@ -42,7 +42,7 @@ bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
 
 	for (auto entIt = m_meshes.begin(); entIt != m_meshes.end(); entIt++)
 	{
-		if ((*entIt).Data == &_instance->MeshData)
+		if ((*entIt).Data == _instance->MeshData)
 		{
 			(*entIt).ModelMatrices.push_back(_instance->Model);
 			entryFound = true;
@@ -54,7 +54,7 @@ bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
 	if (!entryFound)
 	{
 		m_meshes.push_back(MeshEntry{
-			&_instance->MeshData,
+			_instance->MeshData,
 			{_instance->Model}
 			});
 
@@ -187,7 +187,7 @@ void DrawBuffer::UpdateEntries()
 	for (int index = 0; index < m_meshInstances.size(); index++)
 	{
 		MeshInstance& instance = *m_meshInstances[index];
-		MeshData* meshData = &instance.MeshData;
+		MeshData* meshData = instance.MeshData;
 		auto meshEntryIt = m_meshes.end();
 
 		for (auto it = m_meshes.begin(); it != m_meshes.end(); it++)

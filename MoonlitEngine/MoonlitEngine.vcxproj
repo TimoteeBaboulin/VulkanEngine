@@ -349,6 +349,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Engine\Component\ObjectMeshRenderer.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
     <ClCompile Include="Source Files\Debug\Logger.cpp" />

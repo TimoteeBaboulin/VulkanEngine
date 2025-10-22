@@ -20,6 +20,7 @@ public:
 
 	void Init(ContextInfo& _info, std::vector<const char*> requiredExtensions);
 	void Cleanup();
+	void AddMeshInstance(MeshInstance& _meshInstance);
 	void AddRenderTarget(void* _handle, Camera* _camera);
 
 	void LoadMesh(std::string name);

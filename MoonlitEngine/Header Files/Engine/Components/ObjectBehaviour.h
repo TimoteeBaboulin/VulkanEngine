@@ -5,11 +5,12 @@ class GameObject;
 class ObjectBehaviour
 {
 public:
-	ObjectBehaviour();
+	ObjectBehaviour() = delete;
+	ObjectBehaviour(GameObject* _owner);
 
-	void SetOwner(GameObject* Owner);
+	void SetOwner(GameObject* _owner);
 
-	virtual void SubscribeToFunctions() = 0;
+	virtual void SubscribeToFunctions();
 
 protected:
 	GameObject* m_owner;

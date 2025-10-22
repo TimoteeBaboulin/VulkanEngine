@@ -90,6 +90,7 @@
     <ClCompile Include="Source Files\Debug\Logger.cpp" />
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
+    <ClCompile Include="Source Files\Engine\Component\ObjectMeshRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\GameObject.h">

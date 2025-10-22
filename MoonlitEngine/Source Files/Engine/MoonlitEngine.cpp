@@ -2,10 +2,15 @@
 #include <vulkan/vulkan.h>
 #include "Engine/Renderer/Renderer.h"
 #include "ResourceManagement/ResourceManager.h"
+#include "Engine/Scene/Scene.h"
+
 #include "Debug/Logger.h"
+
+MoonlitEngine* MoonlitEngine::m_instance = nullptr;
 
 MoonlitEngine::MoonlitEngine(void* _handle)
 {
+	m_instance = this;
 
 	Logger::LogInfo("Initializing Moonlit Engine...");
 
@@ -28,7 +33,8 @@ void MoonlitEngine::Init()
 	ResourceManager::TryLoadResource<Image>("Textures/barstool_albedo.png");
 	ResourceManager::TryLoadResource<Image>("Textures/Sniper.png");
 
-	m_renderer.LoadMesh("barstool");
+	m_activeScene = new Scene();
+	//m_renderer.LoadMesh("barstool");
 }
 void MoonlitEngine::Update()
 {

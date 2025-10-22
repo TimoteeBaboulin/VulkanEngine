@@ -71,6 +71,14 @@ void Renderer::Cleanup()
 {
 }
 
+void Renderer::AddMeshInstance(MeshInstance& _meshInstance)
+{
+	for (auto it = m_drawBuffers.begin(); it != m_drawBuffers.end(); it++)
+	{
+		(*it).TryAddMesh(&_meshInstance);
+	}
+}
+
 void Renderer::AddRenderTarget(void* _handle, Camera* _camera)
 {
 	m_renderTargets.push_back(new RenderTarget(3, (HWND)_handle, m_instance, _camera, m_deviceManager));
@@ -123,10 +131,11 @@ void Renderer::LoadMesh(std::string name)
 	{
 		for (int i = -5; i < 6; i++)
 		{
+			glm::vec3 vec = glm::vec3(i, -i, i);
 			translate = glm::translate(glm::vec3(i, -i, i));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			MeshInstance* instance = new MeshInstance{ *testMesh, m_textures, model };
+			MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
 
 			m_drawBuffers[0].TryAddMesh(instance);
 		}
@@ -139,7 +148,7 @@ void Renderer::LoadMesh(std::string name)
 			translate = glm::translate(glm::vec3(i, 0, 0));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			MeshInstance* instance = new MeshInstance{ *testMesh, m_textures, model };
+			MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
 
 			m_drawBuffers[0].TryAddMesh(instance);
 		}

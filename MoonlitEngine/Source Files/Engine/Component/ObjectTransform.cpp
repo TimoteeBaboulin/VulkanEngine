@@ -1,15 +1,13 @@
 #include "Engine/Components/ObjectTransform.h"
 
-ObjectTransform::ObjectTransform()
+ObjectTransform::ObjectTransform(GameObject* _owner, glm::vec3 _position, glm::vec3 _scale, glm::fquat _rotation) : ObjectBehaviour(_owner)
 {
-	m_position = glm::vec3(0, 0, 0);
-	m_rotation = glm::fquat(0, 0, 0, 1);
-	m_scale = glm::vec3(1, 1, 1);
-
-	m_translationMatrix = glm::translate(glm::mat4(), m_position);
+	m_position = _position;
+	m_rotation = _rotation;
+	m_scale = _scale;
+	m_translationMatrix = glm::translate(glm::mat4(1), m_position);
 	m_rotationMatrix = glm::toMat4(m_rotation);
 	m_scaleMatrix = glm::scale(glm::mat4(1), m_scale);
-
 	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
 }
 

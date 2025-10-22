@@ -19,8 +19,7 @@ GameObject* GameObject::Create()
 GameObject* GameObject::CreateAt(glm::vec3 _pos)
 {
 	GameObject* newObject = Create();
-	ObjectTransform* transform = new ObjectTransform();
-	transform->SetPosition(_pos);
+	ObjectTransform* transform = new ObjectTransform(newObject, _pos);
 
 	return newObject;
 }
@@ -67,7 +66,6 @@ void GameObject::BindToUpdate(GameEventFunction _func)
 void GameObject::AddComponent(ObjectBehaviour* _component)
 {
 	m_components.push_back(_component);
-	_component->SetOwner(this);
 	_component->SubscribeToFunctions();
 }
 
@@ -86,6 +84,23 @@ bool GameObject::TryGetComponentsOfType(std::vector<ObjectBehaviour*>& _componen
 		}
 	}
 
+	return foundComponent;
+}
+
+bool GameObject::TryGetComponentOfType(ObjectBehaviour*& _component, const type_info& _type)
+{
+	bool foundComponent = false;
+	for (auto it = m_components.begin(); it != m_components.end(); it++)
+	{
+		ObjectBehaviour* component = (*it);
+		const type_info& componentType = typeid(*component);
+		if (componentType == _type)
+		{
+			foundComponent = true;
+			_component = component;
+			break;
+		}
+	}
 	return foundComponent;
 }
 

@@ -101,7 +101,7 @@ struct DeviceData
 
 struct MeshInstance
 {
-	MeshData& MeshData;
+	MeshData* MeshData;
 	std::vector<std::shared_ptr<Image>> Textures;
 	glm::mat4x4 Model;
 };

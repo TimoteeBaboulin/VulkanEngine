@@ -91,6 +91,7 @@
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Component\ObjectMeshRenderer.cpp" />
+    <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\GameObject.h">
@@ -138,6 +139,8 @@
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Debug\Logger.h" />
     <ClInclude Include="Header Files\Engine\Scene\Scene.h" />
+    <ClInclude Include="Header Files\Engine\Components\ObjectParameterRepository.h" />
+    <ClInclude Include="Header Files\Engine\Components\BehaviourRegistry.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

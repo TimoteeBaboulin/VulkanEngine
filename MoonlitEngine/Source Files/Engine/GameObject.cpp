@@ -1,5 +1,6 @@
 #include "Engine/GameObject.h"
 #include <iostream>
+#include <string>
 
 #include "Engine/Components/ObjectBehaviour.h"
 #include "Debug/Logger.h"
@@ -66,7 +67,46 @@ void GameObject::BindToUpdate(GameEventFunction _func)
 void GameObject::AddComponent(ObjectBehaviour* _component)
 {
 	m_components.push_back(_component);
+
+	for (auto it = m_components.begin(); it != m_components.end(); it++)
+	{
+		ObjectBehaviour* component = (*it);
+		std::vector<ParameterRepositoryEntry> entries = (*it)->GetParameterEntries();
+		for (auto jt = entries.begin(); jt != entries.end(); jt++)
+		{
+			std::string message = "Registered parameter: ";
+			ParameterRepositoryEntry entry = (*jt);
+			message += entry.Name;
+			message += "\tType: ";
+			message += entry.TypeName;
+			message += "\tSize: ";
+			message += std::to_string(entry.Size);
+			message += " bytes";
+			Logger::LogInfo(message.c_str());
+		}
+	}
+
 	_component->SubscribeToFunctions();
+}
+
+void GameObject::SaveToFile(std::ofstream& _stream)
+{
+	_stream << "GameObject " << m_id << std::endl;
+	for (auto it = m_components.begin(); it != m_components.end(); it++)
+	{
+		ObjectBehaviour* component = (*it);
+		component->SaveToFile(_stream);
+	}
+}
+
+void GameObject::LoadFromFile(std::ifstream& _stream)
+{
+	_stream >> m_id;
+	for (auto it = m_components.begin(); it != m_components.end(); it++)
+	{
+		ObjectBehaviour* component = (*it);
+		component->LoadFromFile(_stream);
+	}
 }
 
 bool GameObject::TryGetComponentsOfType(std::vector<ObjectBehaviour*>& _components, const type_info& _type)

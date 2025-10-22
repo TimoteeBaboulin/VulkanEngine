@@ -7,6 +7,7 @@
 
 #include <typeinfo>
 #include <glm/vec3.hpp>
+#include <fstream>
 
 using GameEventFunction = std::function<void(void)>;
 
@@ -36,6 +37,10 @@ public:
 	void BindToUpdate(GameEventFunction _func);
 	void AddComponent(ObjectBehaviour* _component);
 
+	void SaveToFile(std::ofstream& _stream);
+	void LoadFromFile(std::ifstream& _stream);
+
+	//Component accessors
 	bool TryGetComponentsOfType(std::vector<ObjectBehaviour*>& _components, const type_info& _type);
 	template <class T>
 	bool TryGetComponentsOfType(std::vector<T*>& _components)

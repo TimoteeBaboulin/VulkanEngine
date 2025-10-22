@@ -15,6 +15,17 @@ void ObjectTransform::SubscribeToFunctions()
 {
 }
 
+std::vector<ParameterRepositoryEntry> ObjectTransform::GetParameterEntries()
+{
+	std::vector<ParameterRepositoryEntry> entries = ObjectBehaviour::GetParameterEntries();
+
+	entries.push_back(ParameterRepositoryEntry{ "Position", typeid(m_position).name(), sizeof(m_position), &m_position});
+	entries.push_back(ParameterRepositoryEntry{ "Scale", typeid(m_scale).name(), sizeof(m_scale), &m_scale });
+	entries.push_back(ParameterRepositoryEntry{ "Rotation", typeid(m_rotation).name(), sizeof(m_rotation), &m_rotation });
+
+	return entries;
+}
+
 void ObjectTransform::SetPosition(glm::vec3 _position)
 {
 	m_position = _position;

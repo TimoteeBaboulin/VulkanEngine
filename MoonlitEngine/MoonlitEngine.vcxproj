@@ -349,6 +349,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
     <ClCompile Include="Source Files\Engine\Component\ObjectMeshRenderer.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
@@ -381,6 +382,8 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\common.h" />
     <ClInclude Include="Header Files\Debug\Logger.h" />
+    <ClInclude Include="Header Files\Engine\Components\BehaviourRegistry.h" />
+    <ClInclude Include="Header Files\Engine\Components\ObjectParameterRepository.h" />
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
     <ClInclude Include="Header Files\Engine\Renderer\BufferDeviceLink.h" />

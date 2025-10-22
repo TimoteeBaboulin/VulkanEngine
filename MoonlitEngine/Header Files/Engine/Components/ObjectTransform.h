@@ -10,6 +10,7 @@
 #include <glm/mat4x4.hpp>
 
 #include <memory>
+#include <vector>
 
 #include "ObjectBehaviour.h"
 
@@ -22,6 +23,7 @@ public:
 		glm::fquat _rotation = glm::fquat(glm::vec3(0.0f, 0.0f, 0.0f)));
 
 	void SubscribeToFunctions() override;
+	virtual std::vector<ParameterRepositoryEntry> GetParameterEntries() override;
 
 	//Setters
 	void SetPosition(glm::vec3 _position);

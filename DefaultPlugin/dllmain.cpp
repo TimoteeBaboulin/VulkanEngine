@@ -4,6 +4,8 @@
 #include "PluginBehaviourTest.h"
 #include "Engine/Components/BehaviourRegistry.h"
 
+#include "Debug/Logger.h"
+
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
@@ -20,16 +22,19 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 }
 
+ObjectBehaviour* CreatePluginBehaviourTest(GameObject* _owner)
+{
+    return new PluginBehaviourTest(_owner);
+}
+
 /// <summary>
 /// This is the library's entry point for registering custom behaviours
 /// </summary>
 /// <returns></returns>
-void APIENTRY RegisterBehaviours()
+extern "C" __declspec(dllexport) std::vector<BehaviourRegistryEntry> GetRegistry()
 {
-    BehaviourRegistry::RegisterBehaviour<PluginBehaviourTest>(
-        [](GameObject* _owner)
-        {
-            new PluginBehaviourTest(_owner);
-        }
-	);
+	std::vector<BehaviourRegistryEntry> entries;
+	entries.push_back(BehaviourRegistryEntry{ typeid(PluginBehaviourTest).name(), CreatePluginBehaviourTest });
+	LOG_INFO("Default Plugin behaviours registered.");
+	return entries;
 }

@@ -15,24 +15,32 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
+    <ClInclude Include="Headers\framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pch.h">
+    <ClInclude Include="Headers\PluginBehaviourTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PluginBehaviourTest.h">
+    <ClInclude Include="Headers\ObjectMeshRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\ObjectTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Source\ObjectMeshRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ObjectTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PluginBehaviourTest.cpp">
+    <ClCompile Include="Source\PluginBehaviourTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,4 +1,6 @@
-#include "Engine/Components/ObjectTest.h"
+#include "pch.h"
+
+#include "ObjectTest.h"
 
 #include <iostream>
 #include <string>

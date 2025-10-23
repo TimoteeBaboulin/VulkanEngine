@@ -9,11 +9,13 @@
 #include <glm/vec3.hpp>
 #include <fstream>
 
+#include "MoonlitExport.h"
+
 using GameEventFunction = std::function<void(void)>;
 
 class ObjectBehaviour;
 
-class GameObject
+class MOONLIT_API GameObject
 {
 	friend ObjectBehaviour;
 	// STATIC/FACTORY

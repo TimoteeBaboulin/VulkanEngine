@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ObjectParameterRepository.h"
 #include <vector>
 #include <fstream>
 
@@ -9,6 +8,19 @@
 #include "MoonlitExport.h"
 
 class GameObject;
+
+/// <summary>
+/// Struct representing a member of an object behaviour.
+/// This is used for load/read operations
+/// </summary>
+struct ParameterRepositoryEntry
+{
+	const char* Name;
+	const char* TypeName;
+	size_t Size;
+
+	void* Data;
+};
 
 class MOONLIT_API ObjectBehaviour
 {

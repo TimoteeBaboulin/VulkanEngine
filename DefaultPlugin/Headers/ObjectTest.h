@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ObjectBehaviour.h"
+#include "Engine/Components/ObjectBehaviour.h"
 
 class ObjectTest : public ObjectBehaviour
 {

@@ -66,12 +66,6 @@
     <ClCompile Include="Source Files\Engine\Component\ObjectBehaviour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Engine\Component\ObjectTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\Engine\Component\ObjectTransform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Engine\Renderer\DrawBuffer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -90,26 +84,17 @@
     <ClCompile Include="Source Files\Debug\Logger.cpp" />
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
-    <ClCompile Include="Source Files\Engine\Component\ObjectMeshRenderer.cpp" />
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
+    <ClCompile Include="Source Files\Engine\Component\ObjectTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\GameObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Engine\Components\ObjectMeshRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\MoonlitEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Engine\Components\ObjectBehaviour.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Engine\Components\ObjectTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Engine\Components\ObjectTransform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\ResourceManagement\ResourceBank.h">
@@ -139,8 +124,9 @@
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Debug\Logger.h" />
     <ClInclude Include="Header Files\Engine\Scene\Scene.h" />
-    <ClInclude Include="Header Files\Engine\Components\ObjectParameterRepository.h" />
     <ClInclude Include="Header Files\Engine\Components\BehaviourRegistry.h" />
+    <ClInclude Include="Header Files\ResourceManagement\Mesh.h" />
+    <ClInclude Include="Header Files\Engine\Components\ObjectTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

@@ -1,10 +1,14 @@
-#include "Engine/Components/ObjectMeshRenderer.h"
-#include "Engine/GameObject.h"
+#include "pch.h"
+
+#include "ObjectMeshRenderer.h"
 #include "Engine/Components/ObjectTransform.h"
+
+#include "Engine/GameObject.h"
 #include "Engine/MoonlitEngine.h"
 
 #include "ResourceManagement/ResourceManager.h"
 #include "Debug/Logger.h"
+#include "ResourceManagement/Mesh.h"
 
 ObjectMeshRenderer::ObjectMeshRenderer(GameObject* _owner) : ObjectBehaviour(_owner)
 {
@@ -25,7 +29,7 @@ ObjectMeshRenderer::ObjectMeshRenderer(GameObject* _owner, std::shared_ptr<MeshD
 		LOG_ERROR("Failed to load texture barstool_albedo.png from ResourceManager.");
 	}
 
-	MoonlitEngine::GetInstance()->GetRenderer().AddMeshInstance(m_meshInstance);
+	MoonlitEngine::GetInstance()->AddMeshInstance(m_meshInstance);
 }
 
 void ObjectMeshRenderer::LookForTransformComponent()

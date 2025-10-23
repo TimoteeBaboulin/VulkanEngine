@@ -1,7 +1,8 @@
 #ifndef MOONLIT_ENGINE_H
 #define MOONLIT_ENGINE_H
 
-#include "Renderer/Renderer.h"
+#include <string>
+#include "Camera.h"
 
 class MOONLIT_API MoonlitEngine
 { 
@@ -10,15 +11,17 @@ public:
 
 	MoonlitEngine(void* _handle);
 
-	void LoadMesh(std::string name) { m_renderer.LoadMesh(name); };
-	Renderer& GetRenderer() { return m_renderer; }
+	void LoadPlugin(std::string _name);
+	void LoadMesh(std::string name);
+	class Renderer& GetRenderer() { return *m_renderer; }
 
 	void Init();
 	void Update();
 
-	void AddRenderTarget(void* _handle, Camera* _camera) { m_renderer.AddRenderTarget(_handle, _camera); };
+	void AddMeshInstance(struct MeshInstance& _meshInstance);
+	void AddRenderTarget(void* _handle, Camera* _camera);
 private:
-	Renderer m_renderer;
+	class Renderer* m_renderer;
 	class Scene* m_activeScene;
 	static MoonlitEngine* m_instance;
 };

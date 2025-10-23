@@ -11,6 +11,5 @@ std::vector<ParameterRepositoryEntry> PluginBehaviourTest::GetParameterEntries()
 	intEntry.Size = 10;
 	intEntry.TypeName = typeid(int).name();
 	entries.push_back(intEntry);
-	float testFloat = 3.14f;
 	return entries;
 }

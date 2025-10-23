@@ -1,7 +1,7 @@
 #pragma once
-#include "ObjectBehaviour.h"
+#include "Engine/Components/ObjectBehaviour.h"
 
-#include "common.h"
+#include "ResourceManagement/Mesh.h"
 
 
 class ObjectMeshRenderer : public ObjectBehaviour

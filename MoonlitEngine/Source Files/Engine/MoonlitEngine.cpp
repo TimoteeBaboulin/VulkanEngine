@@ -5,6 +5,9 @@
 #include "Engine/Scene/Scene.h"
 
 #include "Debug/Logger.h"
+#include "Engine/Renderer/Renderer.h"
+#include "ResourceManagement/Mesh.h"
+#include "Engine/Components/BehaviourRegistry.h"
 
 MoonlitEngine* MoonlitEngine::m_instance = nullptr;
 
@@ -17,17 +20,50 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 	InputManager::InitManager(_handle);
 
 	// Initialize the renderer
-	m_renderer = Renderer();
+	m_renderer = new Renderer();
 	ContextInfo contextInfo;
 	contextInfo.name = "Moonlit Engine";
-	m_renderer.Init(contextInfo, {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_win32_surface"});
+	m_renderer->Init(contextInfo, {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_win32_surface"});
 
 	Logger::LogInfo("Moonlit Engine initialized successfully.");
+
+	LoadPlugin("DefaultPlugin.dll");
+}
+
+void MoonlitEngine::LoadPlugin(std::string _name)
+{
+	std::string pluginPath = _name;
+	HMODULE pluginHandle = LoadLibraryA(pluginPath.c_str());
+	if (pluginHandle == NULL)
+	{
+		DWORD error = GetLastError();
+		Logger::LogError(("Failed to load plugin: " + _name + " Error: " + std::to_string(error)).c_str());
+		return;
+	}
+
+	FARPROC registerFunction = GetProcAddress(pluginHandle, "GetRegistry");
+	if (!registerFunction)
+	{
+		Logger::LogError(("Failed to find GetRegistry function in plugin: " + _name).c_str());
+		FreeLibrary(pluginHandle);
+		return;
+	}
+
+	PluginRegistryFunction pluginRegister = reinterpret_cast<PluginRegistryFunction>(registerFunction);
+	auto registries = pluginRegister();
+	for (auto it = registries.begin(); it != registries.end(); it++)
+	{
+		BehaviourRegistry::RegisterBehaviour((*it).Name, (*it).CreateFunction);
+	}
+	LOG_INFO(("Plugin loaded and behaviours registered: " + _name).c_str());
+}
+void MoonlitEngine::LoadMesh(std::string name)
+{
+	m_renderer->LoadMesh(name);
 }
 
 void MoonlitEngine::Init()
 {
-
 	ResourceManager::TryLoadResource<MeshData>("Meshes/barstool.gltf");
 	ResourceManager::TryLoadResource<MeshData>("Meshes/Sniper_Final.fbx");
 	ResourceManager::TryLoadResource<Image>("Textures/barstool_albedo.png");
@@ -39,5 +75,15 @@ void MoonlitEngine::Init()
 void MoonlitEngine::Update()
 {
 	// Update the renderer
-	m_renderer.Render();
+	m_renderer->Render();
+}
+
+void MoonlitEngine::AddMeshInstance(MeshInstance& _meshInstance)
+{
+	m_renderer->AddMeshInstance(_meshInstance);
+}
+
+void MoonlitEngine::AddRenderTarget(void* _handle, Camera* _camera)
+{
+	m_renderer->AddRenderTarget(_handle, _camera);
 }

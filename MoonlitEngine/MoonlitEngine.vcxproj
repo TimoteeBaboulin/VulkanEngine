@@ -350,7 +350,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
-    <ClCompile Include="Source Files\Engine\Component\ObjectMeshRenderer.cpp" />
+    <ClCompile Include="Source Files\Engine\Component\ObjectTransform.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
     <ClCompile Include="Source Files\Debug\Logger.cpp" />
@@ -371,8 +371,6 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClCompile Include="Source Files\Engine\Inputs\WindowsInputAbstraction.cpp" />
     <ClCompile Include="Source Files\main.cpp" />
     <ClCompile Include="Source Files\Engine\Component\ObjectBehaviour.cpp" />
-    <ClCompile Include="Source Files\Engine\Component\ObjectTest.cpp" />
-    <ClCompile Include="Source Files\Engine\Component\ObjectTransform.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\RendererContext.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\Material\Material.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\RendererDeviceManager.cpp" />
@@ -383,7 +381,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\common.h" />
     <ClInclude Include="Header Files\Debug\Logger.h" />
     <ClInclude Include="Header Files\Engine\Components\BehaviourRegistry.h" />
-    <ClInclude Include="Header Files\Engine\Components\ObjectParameterRepository.h" />
+    <ClInclude Include="Header Files\Engine\Components\ObjectTransform.h" />
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
     <ClInclude Include="Header Files\Engine\Renderer\BufferDeviceLink.h" />
@@ -399,19 +397,17 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\Engine\Inputs\PlatformInputAbstraction.h" />
     <ClInclude Include="Header Files\Engine\Inputs\WindowsInputAbstraction.h" />
     <ClInclude Include="Header Files\Interfaces\ISingleton.h" />
-    <ClInclude Include="Header Files\Engine\Components\ObjectMeshRenderer.h" />
     <ClInclude Include="Header Files\MoonlitEngine.h" />
     <ClInclude Include="Header Files\MoonlitVulkan.h" />
     <ClInclude Include="Header Files\MoonlitVulkanExport.h" />
     <ClInclude Include="Header Files\Engine\Components\ObjectBehaviour.h" />
-    <ClInclude Include="Header Files\Engine\Components\ObjectTest.h" />
-    <ClInclude Include="Header Files\Engine\Components\ObjectTransform.h" />
     <ClInclude Include="Header Files\Engine\Renderer\RendererContext.h" />
     <ClInclude Include="Header Files\Engine\Renderer\DrawBuffer.h" />
     <ClInclude Include="Header Files\Engine\Renderer\Material\Material.h" />
     <ClInclude Include="Header Files\Engine\Renderer\RendererDeviceManager.h" />
     <ClInclude Include="Header Files\Engine\Renderer\VulkanHelperFunctions.h" />
     <ClInclude Include="Header Files\Engine\Renderer\Renderer.h" />
+    <ClInclude Include="Header Files\ResourceManagement\Mesh.h" />
     <ClInclude Include="Header Files\ResourceManagement\MeshBank.h" />
     <ClInclude Include="Header Files\ResourceManagement\ResourceBank.h" />
     <ClInclude Include="Header Files\ResourceManagement\ResourceManager.h" />

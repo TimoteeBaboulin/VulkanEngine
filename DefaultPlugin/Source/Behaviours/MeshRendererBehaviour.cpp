@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "ObjectMeshRenderer.h"
-#include "Engine/Components/ObjectTransform.h"
+#include "Behaviours/MeshRendererBehaviour.h"
+#include "Behaviours/TransformBehaviour.h"
 
 #include "Engine/GameObject.h"
 #include "Engine/MoonlitEngine.h"
@@ -10,12 +10,12 @@
 #include "Debug/Logger.h"
 #include "ResourceManagement/Mesh.h"
 
-ObjectMeshRenderer::ObjectMeshRenderer(GameObject* _owner) : ObjectBehaviour(_owner)
+MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner) : ObjectBehaviour(_owner)
 {
 	LookForTransformComponent();
 }
 
-ObjectMeshRenderer::ObjectMeshRenderer(GameObject* _owner, std::shared_ptr<MeshData> _mesh) : ObjectBehaviour(_owner)
+MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner, std::shared_ptr<MeshData> _mesh) : ObjectBehaviour(_owner)
 {
 	LookForTransformComponent();
 	m_meshInstance.MeshData = _mesh.get();
@@ -32,12 +32,12 @@ ObjectMeshRenderer::ObjectMeshRenderer(GameObject* _owner, std::shared_ptr<MeshD
 	MoonlitEngine::GetInstance()->AddMeshInstance(m_meshInstance);
 }
 
-void ObjectMeshRenderer::LookForTransformComponent()
+void MeshRendererBehaviour::LookForTransformComponent()
 {
-	ObjectTransform* transform;
-	if (!m_owner->TryGetComponentOfType<ObjectTransform>(transform))
+	TransformBehaviour* transform;
+	if (!m_owner->TryGetComponentOfType<TransformBehaviour>(transform))
 	{
-		transform = new ObjectTransform(m_owner);
+		transform = new TransformBehaviour(m_owner);
 	}
 
 	m_meshInstance.Model = *(transform->GetSharedPtrModelMat());

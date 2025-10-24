@@ -85,7 +85,6 @@
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
-    <ClCompile Include="Source Files\Engine\Component\ObjectTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\GameObject.h">
@@ -126,7 +125,6 @@
     <ClInclude Include="Header Files\Engine\Scene\Scene.h" />
     <ClInclude Include="Header Files\Engine\Components\BehaviourRegistry.h" />
     <ClInclude Include="Header Files\ResourceManagement\Mesh.h" />
-    <ClInclude Include="Header Files\Engine\Components\ObjectTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

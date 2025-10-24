@@ -1,10 +1,17 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
 
-#include "PluginBehaviourTest.h"
+#include "Behaviours/MeshRendererBehaviour.h"
+#include "Behaviours/TransformBehaviour.h"
+
 #include "Engine/Components/BehaviourRegistry.h"
 
 #include "Debug/Logger.h"
+
+#include <string>
+
+#define REGISTER_BEHAVIOUR(behaviour, func) \
+    entries.push_back(BehaviourRegistryEntry{ ClassNameFromTypeName(typeid(behaviour).name()), func });
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -22,19 +29,26 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 }
 
-ObjectBehaviour* CreatePluginBehaviourTest(GameObject* _owner)
+ObjectBehaviour* CreateMeshRenderer(GameObject* _owner)
 {
-    return new PluginBehaviourTest(_owner);
+    return new MeshRendererBehaviour(_owner);
+}
+
+ObjectBehaviour* CreateTransform(GameObject* _owner)
+{
+    return new TransformBehaviour(_owner);
 }
 
 /// <summary>
 /// This is the library's entry point for registering custom behaviours
 /// </summary>
-/// <returns></returns>
 extern "C" __declspec(dllexport) std::vector<BehaviourRegistryEntry> GetRegistry()
 {
 	std::vector<BehaviourRegistryEntry> entries;
-	entries.push_back(BehaviourRegistryEntry{ typeid(PluginBehaviourTest).name(), CreatePluginBehaviourTest });
+
+	REGISTER_BEHAVIOUR(MeshRendererBehaviour, CreateMeshRenderer);
+	REGISTER_BEHAVIOUR(TransformBehaviour, CreateTransform);
+
 	LOG_INFO("Default Plugin behaviours registered.");
 	return entries;
 }

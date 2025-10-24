@@ -1,6 +1,7 @@
-#include "Engine/Components/ObjectTransform.h"
+#include "pch.h"
+#include "Behaviours/TransformBehaviour.h"
 
-ObjectTransform::ObjectTransform(GameObject* _owner, glm::vec3 _position, glm::vec3 _scale, glm::fquat _rotation) : ObjectBehaviour(_owner)
+TransformBehaviour::TransformBehaviour(GameObject* _owner, glm::vec3 _position, glm::vec3 _scale, glm::fquat _rotation) : ObjectBehaviour(_owner)
 {
 	m_position = _position;
 	m_rotation = _rotation;
@@ -11,11 +12,11 @@ ObjectTransform::ObjectTransform(GameObject* _owner, glm::vec3 _position, glm::v
 	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
 }
 
-void ObjectTransform::SubscribeToFunctions()
+void TransformBehaviour::SubscribeToFunctions()
 {
 }
 
-std::vector<ParameterRepositoryEntry> ObjectTransform::GetParameterEntries()
+std::vector<ParameterRepositoryEntry> TransformBehaviour::GetParameterEntries()
 {
 	std::vector<ParameterRepositoryEntry> entries = ObjectBehaviour::GetParameterEntries();
 
@@ -26,7 +27,7 @@ std::vector<ParameterRepositoryEntry> ObjectTransform::GetParameterEntries()
 	return entries;
 }
 
-void ObjectTransform::SetPosition(glm::vec3 _position)
+void TransformBehaviour::SetPosition(glm::vec3 _position)
 {
 	m_position = _position;
 

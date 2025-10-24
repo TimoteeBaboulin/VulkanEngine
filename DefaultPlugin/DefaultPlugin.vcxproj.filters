@@ -18,29 +18,29 @@
     <ClInclude Include="Headers\framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\PluginBehaviourTest.h">
+    <ClInclude Include="Headers\Behaviours\MeshRendererBehaviour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ObjectMeshRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\ObjectTest.h">
+    <ClInclude Include="Headers\Behaviours\TestBehaviour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\pch.h" />
+    <ClInclude Include="Headers\Behaviours\TransformBehaviour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Source\ObjectMeshRenderer.cpp">
+    <ClCompile Include="Source\Behaviours\MeshRendererBehaviour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ObjectTest.cpp">
+    <ClCompile Include="Source\Behaviours\TestBehaviour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\PluginBehaviourTest.cpp">
+    <ClCompile Include="Source\Behaviours\TransformBehaviour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

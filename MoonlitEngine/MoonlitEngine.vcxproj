@@ -350,7 +350,6 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
-    <ClCompile Include="Source Files\Engine\Component\ObjectTransform.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
     <ClCompile Include="Source Files\Debug\Logger.cpp" />
@@ -381,7 +380,6 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\common.h" />
     <ClInclude Include="Header Files\Debug\Logger.h" />
     <ClInclude Include="Header Files\Engine\Components\BehaviourRegistry.h" />
-    <ClInclude Include="Header Files\Engine\Components\ObjectTransform.h" />
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
     <ClInclude Include="Header Files\Engine\Renderer\BufferDeviceLink.h" />

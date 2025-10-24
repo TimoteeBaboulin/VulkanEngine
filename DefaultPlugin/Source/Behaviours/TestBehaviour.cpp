@@ -1,31 +1,31 @@
 #include "pch.h"
 
-#include "ObjectTest.h"
+#include "Behaviours/TestBehaviour.h"
 
 #include <iostream>
 #include <string>
 #include "Debug/Logger.h"
 #include "Engine/GameObject.h"
-#include "Engine/Components/ObjectTransform.h"
+#include "Behaviours/TransformBehaviour.h"
 
 
-void ObjectTest::SubscribeToFunctions()
+void TestBehaviour::SubscribeToFunctions()
 {
-	m_owner->BindToUpdate(std::bind(&ObjectTest::Update, this));
+	m_owner->BindToUpdate(std::bind(&TestBehaviour::Update, this));
 }
 
-void ObjectTest::Update()
+void TestBehaviour::Update()
 {
 	std::vector<ObjectBehaviour*> transforms;
 
-	if (m_owner->TryGetComponentsOfType(transforms, typeid(ObjectTransform)))
+	if (m_owner->TryGetComponentsOfType(transforms, typeid(TransformBehaviour)))
 	{
 		std::string logMessage = "ObjectTest found " + std::to_string(transforms.size()) + " transforms.";
 		Logger::LogInfo(logMessage.c_str());
 
 		for (auto it = transforms.begin(); it != transforms.end(); it++)
 		{
-			ObjectTransform* transformPtr = dynamic_cast<ObjectTransform*>((*it));
+			TransformBehaviour* transformPtr = dynamic_cast<TransformBehaviour*>((*it));
 			if (transformPtr == nullptr)
 			{
 				Logger::LogError("Incorrect type received, could not cast to transform type");

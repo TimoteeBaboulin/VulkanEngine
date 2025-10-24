@@ -166,22 +166,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Headers\framework.h" />
-    <ClInclude Include="Headers\ObjectMeshRenderer.h" />
-    <ClInclude Include="Headers\ObjectTest.h" />
+    <ClInclude Include="Headers\Behaviours\MeshRendererBehaviour.h" />
+    <ClInclude Include="Headers\Behaviours\TestBehaviour.h" />
+    <ClInclude Include="Headers\Behaviours\TransformBehaviour.h" />
     <ClInclude Include="Headers\pch.h" />
-    <ClInclude Include="Headers\PluginBehaviourTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Source\ObjectMeshRenderer.cpp" />
-    <ClCompile Include="Source\ObjectTest.cpp" />
+    <ClCompile Include="Source\Behaviours\MeshRendererBehaviour.cpp" />
+    <ClCompile Include="Source\Behaviours\TestBehaviour.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\PluginBehaviourTest.cpp" />
+    <ClCompile Include="Source\Behaviours\TransformBehaviour.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

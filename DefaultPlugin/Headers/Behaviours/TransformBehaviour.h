@@ -12,12 +12,12 @@
 #include <memory>
 #include <vector>
 
-#include "ObjectBehaviour.h"
+#include "Engine/Components/ObjectBehaviour.h"
 
-class ObjectTransform : public ObjectBehaviour
+class TransformBehaviour : public ObjectBehaviour
 {
 public:
-	ObjectTransform(GameObject* _owner,
+	TransformBehaviour(GameObject* _owner,
 		glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3 _scale = glm::vec3(1.0, 1.0f, 1.0f),
 		glm::fquat _rotation = glm::fquat(glm::vec3(0.0f, 0.0f, 0.0f)));

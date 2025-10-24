@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <typeinfo>
+#include <cstring>
 
 #include "MoonlitExport.h"
 #include "Engine/Components/ObjectBehaviour.h"
@@ -17,6 +18,19 @@ struct MOONLIT_API BehaviourRegistryEntry
 	BehaviourCreateFunction CreateFunction;
 };
 using PluginRegistryFunction = std::vector<BehaviourRegistryEntry>(*)();
+
+//
+// Helper to remove MSVC "class " / "struct " prefix if present
+// Placed in the header as a free inline function so all translation units can use it.
+//
+inline std::string ClassNameFromTypeName(const char* name)
+{
+	if (!name) return std::string();
+	// MSVC often prefixes "class " or "struct "
+	if (std::strncmp(name, "class ", 6) == 0) return std::string(name + 6);
+	if (std::strncmp(name, "struct ", 7) == 0) return std::string(name + 7);
+	return std::string(name);
+}
 
 class MOONLIT_API BehaviourRegistry
 {

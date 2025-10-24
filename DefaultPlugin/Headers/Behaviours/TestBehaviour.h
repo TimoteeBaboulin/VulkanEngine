@@ -2,7 +2,7 @@
 
 #include "Engine/Components/ObjectBehaviour.h"
 
-class ObjectTest : public ObjectBehaviour
+class TestBehaviour : public ObjectBehaviour
 {
 public:
 	void SubscribeToFunctions() override;

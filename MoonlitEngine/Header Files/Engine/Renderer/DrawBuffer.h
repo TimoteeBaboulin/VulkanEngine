@@ -19,9 +19,6 @@ struct MeshEntry
 
 class RenderTarget;
 
-//TODO: Draw buffers should not be device specific for multiple render targets
-//TODO: Need to handle buffers in render targets
-//TODO: Or allow draw buffers to link to multiple devices
 /// <summary>
 /// Class used to batch draw calls together into a single one
 /// </summary>
@@ -31,18 +28,21 @@ public:
 	DrawBuffer(Material* _material);
 
 	//DATA MANAGEMENT----------------------------------------------------------------------
-	// TryAddMesh returns a bool but RemoveMesh throw in case of not finding the mesh
-	// We should normalize their behavior
+
 	bool TryAddMesh(MeshInstance* _instance);
 	void RemoveMesh(MeshInstance* _instance);
+
 	//TODO: Add a remove target function
+	
 	void LinkTarget(RenderTarget& _renderTarget);
 	void UpdateBuffers();
 
 	//RENDER-------------------------------------------------------------------------------
+	
 	void RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, int _renderPass);
 
 	//GETTERS------------------------------------------------------------------------------
+	
 	uint32_t GetVertexCount() const { return m_vertexCount; }
 	uint32_t GetTriangleCount() const 
 	{ 
@@ -61,22 +61,26 @@ public:
 
 private:
 	//DATA---------------------------------------------------------------------------------
+	
 	std::vector<MeshInstance*> m_meshInstances;
 	std::vector<BufferDeviceLink> m_deviceLinks;
 	std::vector<std::shared_ptr<Image>> m_textureList;
 
 	//Mesh Entries
+	
 	std::vector<MeshEntry> m_meshes;
 	std::vector<std::vector<glm::mat4x4>> m_modelMatrices;
 	std::vector<int> m_meshInstanceCount;
 
 	//RAW DATA-----------------------------------------------------------------------------
+	
 	Vertex* m_vertexData;
 	uint16_t* m_indexData;
 	glm::mat4x4* m_modelData;
 	int* m_textureIndices;
 
 	//DATA COUNTS--------------------------------------------------------------------------
+	
 	int m_vertexCount;
 	int m_indexCount;
 	int m_instanceCount;
@@ -90,7 +94,7 @@ private:
 	void UpdateEntries();
 
 	/// <summary>
-	/// Function meant to add textures that aren't already there to the textureArray
+	/// Function meant to add textures that aren't already there to the textureArray<para/>
 	/// It returns the indexes of the textures in the texture array, whether they were added or not
 	/// </summary>
 	std::vector<int> AddTextures(std::vector<std::shared_ptr<Image>>& _images);

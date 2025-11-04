@@ -57,10 +57,6 @@ void MoonlitEngine::LoadPlugin(std::string _name)
 	}
 	LOG_INFO(("Plugin loaded and behaviours registered: " + _name).c_str());
 }
-void MoonlitEngine::LoadMesh(std::string name)
-{
-	m_renderer->LoadMesh(name);
-}
 
 void MoonlitEngine::Init()
 {

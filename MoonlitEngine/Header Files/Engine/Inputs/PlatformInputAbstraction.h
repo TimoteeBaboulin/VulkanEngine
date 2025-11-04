@@ -5,9 +5,14 @@
 class QApplication;
 class QtEventReader;
 
+/// <summary>
+/// Class used as an abstraction layer for platform specific input handling
+/// </summary>
 class PlatformInputAbstraction
 {
 protected:
+	// Interface with InputManager to avoid having to friend every platform implementation
+
 	void SendKeyboardInput(KEYBOARD_KEY _key, bool _keyDown);
 	void SendMouseInput(MOUSE_KEY _key, bool _keyDown);
 	void SendMouseMovement(float _x, float _y);

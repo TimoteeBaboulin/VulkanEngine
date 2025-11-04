@@ -5,10 +5,10 @@
 #include <memory>
 
 constexpr int ResourceBankDefaultSize = 10;
-
-//Forward declaration
-template <class T>
-class ResourceBank;
+//
+////Forward declaration
+//template <class T>
+//class ResourceBank;
 
 template <class T>
 struct ResourcePair
@@ -17,6 +17,9 @@ struct ResourcePair
 	std::shared_ptr<T> Resource;
 };
 
+/// <summary>
+/// Generic class holding the loaded resources and implementing load operations 
+/// </summary>
 template <class T>
 class ResourceBank
 {

@@ -19,22 +19,26 @@ struct MOONLIT_API BehaviourRegistryEntry
 };
 using PluginRegistryFunction = std::vector<BehaviourRegistryEntry>(*)();
 
-//
-// Helper to remove MSVC "class " / "struct " prefix if present
-// Placed in the header as a free inline function so all translation units can use it.
-//
+// Helper to remove "class " / "struct " prefix from class names
 inline std::string ClassNameFromTypeName(const char* name)
 {
 	if (!name) return std::string();
-	// MSVC often prefixes "class " or "struct "
+	// MSVC usually prefixes class names with "class" or "struct"
 	if (std::strncmp(name, "class ", 6) == 0) return std::string(name + 6);
 	if (std::strncmp(name, "struct ", 7) == 0) return std::string(name + 7);
 	return std::string(name);
 }
 
+/// <summary>
+/// Static behaviour registry class reprensenting the engine's main reflection tool<para/>
+/// All Plugins' behaviours should get registered here to be usable by the engine
+/// </summary>
 class MOONLIT_API BehaviourRegistry
 {
 public:
+	// Behaviour creation classes with the 3 main uses:
+	// Templated, from typeid, or from name
+
 	template <typename T>
 	static ObjectBehaviour* CreateBehaviour(GameObject* _parent)
 	{
@@ -73,6 +77,10 @@ public:
 		LOG_ERROR(("Behaviour of type " + std::string(_info.name()) + " not found in registry").c_str());
 		return nullptr;
 	}
+
+	// Functions allowing to add behaviours to the registry
+	// This is called while loading a plugin
+	// TODO: Add safety checks to avoid adding the same behaviour multiple times
 
 	template <typename T>
 	static void RegisterBehaviour(BehaviourCreateFunction createFunction)

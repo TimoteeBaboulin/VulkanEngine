@@ -8,6 +8,11 @@
 #include "Interfaces/ISingleton.h"
 #include "ResourceBank.h"
 
+
+
+/// <summary>
+/// Static class handling ResourceBank interface for easy loading of different resources
+/// </summary>
 class MOONLIT_API ResourceManager
 {
 // Static

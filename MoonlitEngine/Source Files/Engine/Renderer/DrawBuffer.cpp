@@ -3,6 +3,8 @@
 #include "Engine/Renderer/BufferDeviceLink.h"
 #include "Engine/Renderer/RenderTarget.h"
 
+#include "Debug/Logger.h"
+
 DrawBuffer::DrawBuffer(Material* _material)
 {
 	m_material = _material;
@@ -24,8 +26,7 @@ bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
 {
 	if (std::find(m_meshInstances.begin(), m_meshInstances.end(), _instance) != m_meshInstances.end())
 	{
-		//TODO: Log a warning
-
+		LOG_WARNING("Trying to load already existing mesh");
 		return false;
 	}
 
@@ -97,6 +98,7 @@ void DrawBuffer::LinkTarget(RenderTarget& _renderTarget)
 	if (it != m_deviceLinks.end())
 	{
 		//TODO: Log a warning
+		LOG_WARNING("Trying to link a target that's already subscribed");
 		return;
 	}
 

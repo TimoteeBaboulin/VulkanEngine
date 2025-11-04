@@ -11,7 +11,7 @@ class GameObject;
 
 /// <summary>
 /// Struct representing a member of an object behaviour.
-/// This is used for load/read operations
+/// This is used for load/read operations as well as automated serialisation.
 /// </summary>
 struct ParameterRepositoryEntry
 {
@@ -22,6 +22,9 @@ struct ParameterRepositoryEntry
 	void* Data;
 };
 
+/// <summary>
+/// Base class for GameObject Behaviours
+/// </summary>
 class MOONLIT_API ObjectBehaviour
 {
 public:
@@ -36,7 +39,7 @@ public:
 
 	/// <summary>
 	/// Attempts to set a parameter value by name
-	/// There is no type or size checking, so error handling must be done by the caller
+	/// There is no type or size checking, so error handling should be done by the caller
 	/// </summary>
 	void SetParameterValue(const std::string& _name, void* _data);
 	virtual std::vector<ParameterRepositoryEntry> GetParameterEntries() { return std::vector<ParameterRepositoryEntry>(); };

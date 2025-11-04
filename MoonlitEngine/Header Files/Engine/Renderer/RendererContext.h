@@ -11,7 +11,7 @@
 
 struct ContextInfo
 {
-		const char* name;
+	const char* name;
 };
 
 class MOONLIT_API RendererContext

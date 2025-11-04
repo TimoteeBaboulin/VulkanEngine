@@ -13,22 +13,26 @@ class RenderTarget;
 
 constexpr int TEXTURE_DESCRIPTOR_COUNT = 16;
 
+/// <summary>
+/// Main rendering class, this is the rendering module's entry point.
+/// </summary>
 class __declspec(dllexport) Renderer
 {
 public:
+	//TODO: Rule of three/five
+
 	Renderer();
+	~Renderer();
 
 	void Init(ContextInfo& _info, std::vector<const char*> requiredExtensions);
 	void Cleanup();
 	void AddMeshInstance(MeshInstance& _meshInstance);
 	void AddRenderTarget(void* _handle, Camera* _camera);
 
+	[[deprecated("This function is deprecated in favor of meshrenderers")]]
 	void LoadMesh(std::string name);
 
 	void Render();
-
-	//Getters
-	//vk::CommandPool GetMainCommandPool() const { return m_mainCommandPool; }
 private:
 	RendererContext m_context;
 	RendererDeviceManager* m_deviceManager;

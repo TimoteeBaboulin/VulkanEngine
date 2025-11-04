@@ -10,6 +10,9 @@ class MaterialInstance;
 struct MeshEntry;
 struct DeviceData;
 
+/// <summary>
+/// Buffers and memory addresses for vertex/index/texture data
+/// </summary>
 struct DrawBufferResources
 {
 	vk::Buffer vertexBuffer;
@@ -24,9 +27,13 @@ struct DrawBufferResources
 	std::vector<TextureData> textures;
 };
 
+/// <summary>
+/// Class interfacing between the batching system and the render targets
+/// </summary>
 class MOONLIT_API BufferDeviceLink
 {
 public:
+	//TODO: Use it and pass it to private if possible
 	bool IsDirty = false;
 
 	BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _materialInstance);
@@ -43,8 +50,10 @@ public:
 		uint16_t* _indexData, uint32_t _indexCount,
 		glm::mat4x4* _modelData, uint32_t _modelCount,
 		int* _textureIndices);
+
 	// Textures are handled separately as they require a different approach
 	// And aren't stored in vk::Buffer structures
+
 	void GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures);
 
 private:

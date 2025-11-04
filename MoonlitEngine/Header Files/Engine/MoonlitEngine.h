@@ -12,7 +12,6 @@ public:
 	MoonlitEngine(void* _handle);
 
 	void LoadPlugin(std::string _name);
-	void LoadMesh(std::string name);
 	class Renderer& GetRenderer() { return *m_renderer; }
 
 	void Init();

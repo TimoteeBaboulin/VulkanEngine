@@ -11,6 +11,10 @@ struct ShaderCode
 	size_t size;
 };
 
+/// <summary>
+/// Class representing a shader module <para/>
+/// This class is device agnostic
+/// </summary>
 class Material
 {
 public:

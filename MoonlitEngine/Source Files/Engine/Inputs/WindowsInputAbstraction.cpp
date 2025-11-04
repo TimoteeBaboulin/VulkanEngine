@@ -10,6 +10,9 @@
 #include "Engine/Inputs/QtEventReader.h"
 
 WindowsInputAbstraction* WindowsInputAbstraction::m_instance = nullptr;
+
+// Maps between windows' API enums and platform agnostic ones
+
 std::map<int, KEYBOARD_KEY> WindowsInputAbstraction::m_keyMap =
 {
 	{VK_ESCAPE, KEYBOARD_KEY::ESCAPE},
@@ -111,10 +114,11 @@ std::map<int, GAMEPAD_KEY> WindowsInputAbstraction::m_gamepadKeyMap =
 	{VK_PAD_RTHUMB_UPRIGHT	, GAMEPAD_KEY::AXIS_RIGHT	},
 };
 
+// TODO: Remove this if it remains unused
+// This is deprecated
+[[deprecated("Cause conflicts with Qt's event reading")]]
 LRESULT WndProcCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-
-
 	DefWindowProc(_handle, uMsg, wParam, lParam);
 	return 0;
 }

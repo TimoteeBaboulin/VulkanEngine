@@ -3,6 +3,9 @@
 #include <vector>
 #include <string>
 
+/// <summary>
+/// Represents a level
+/// </summary>
 class Scene
 {
 public:

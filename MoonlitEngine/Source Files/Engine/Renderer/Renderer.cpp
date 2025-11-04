@@ -18,6 +18,11 @@ Renderer::Renderer()
 	
 }
 
+Renderer::~Renderer()
+{
+	Cleanup();
+}
+
 vk::ApplicationInfo GetAppInfo(const char* _appName)
 {
 	vk::ApplicationInfo appInfo{};
@@ -36,8 +41,6 @@ void Renderer::InitContext(ContextInfo& _info, std::vector<const char*> required
 	m_context.Init();
 	vk::ApplicationInfo appInfo = GetAppInfo(_info.name);
 	m_instance = m_context.CreateInstance(appInfo, requiredExtensions.data(), requiredExtensions.size());
-
-	//TODO: Clean up this code, it is a bit messy
 	m_deviceManager = new RendererDeviceManager(m_instance);
 	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&Renderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
 }
@@ -55,9 +58,9 @@ void Renderer::InitRenderer()
 	InitQueryPool();
 #endif
 
+	// TODO: Make the resource manager handle loading the material
 	Material* defaultMaterial = new Material("Shaders/BaseMaterial.slang");
 	m_drawBuffers.push_back(DrawBuffer(defaultMaterial));
-	//m_drawBuffers[0].LinkTarget(*m_renderTargets[0]);
 }
 
 void Renderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensions)

@@ -4,6 +4,9 @@
 
 class RenderTarget;
 
+/// <summary>
+/// Manager to streamline vulkan device creation/destruction
+/// </summary>
 class RendererDeviceManager
 {
 public:
@@ -14,9 +17,6 @@ public:
 	void RemoveTarget(RenderTarget* _target);
 
 	SwapChainSupportDetails QuerySwapChainSupportDetails(vk::SurfaceKHR& _surface, vk::PhysicalDevice _device);
-
-#pragma region Getters
-#pragma endregion //Getters
 
 private:
 	vk::Instance m_vulkanInstance;

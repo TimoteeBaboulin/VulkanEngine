@@ -1,5 +1,8 @@
 #pragma once
 
+/// <summary>
+/// This is unused
+/// </summary>
 template <class T>
 class ISingleton
 {

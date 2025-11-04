@@ -7,6 +7,9 @@
 
 class QtEventReader;
 
+/// <summary>
+/// Windows-specific input abstraction singleton class
+/// </summary>
 class WindowsInputAbstraction : public PlatformInputAbstraction
 {
 	friend LRESULT WndProcCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam);

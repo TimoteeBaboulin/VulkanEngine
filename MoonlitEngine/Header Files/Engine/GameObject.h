@@ -15,6 +15,10 @@ using GameEventFunction = std::function<void(void)>;
 
 class ObjectBehaviour;
 
+/// <summary>
+/// Base game object class, not meant to be inherited from<para/>
+/// Contains factory functions to create GameObjects
+/// </summary>
 class MOONLIT_API GameObject
 {
 	friend ObjectBehaviour;

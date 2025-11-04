@@ -11,8 +11,9 @@ using PlatformInput_t = WindowsInputAbstraction;
 using PlatformInput_t = PlatformInputAbstraction;
 #endif
 
-class WindowsInputAbstraction; // forward; or use InputManager pointer / callback
-
+/// <summary>
+/// Qt event reader class used to avoid event reading conflicts between platform specific code and Qt
+/// </summary>
 class QtEventReader : public QAbstractNativeEventFilter
 {
 public:

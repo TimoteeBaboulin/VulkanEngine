@@ -383,6 +383,12 @@ void InputManager::WindowClose()
 
 void InputManager::AddInputHandler(InputHandler* _handler)
 {
+	const auto& it = std::find(m_inputHandlers.begin(), m_inputHandlers.end(), _handler);
+	if (it != m_inputHandlers.end())
+	{
+		return;
+	}
+
 	m_inputHandlers.push_back(_handler);
 }
 

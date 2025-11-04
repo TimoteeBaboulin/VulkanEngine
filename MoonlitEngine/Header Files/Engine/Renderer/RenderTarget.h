@@ -14,6 +14,9 @@ class Material;
 
 // TODO: Since render targets each have their own logical device, they are not device agnostic.
 // TODO: Material Instantiation should be made either here or in another abstraction layer
+/// <summary>
+/// Abstraction layer representing a window handle and linking it to the render backend
+/// <summary/>
 class RenderTarget
 {
 public:

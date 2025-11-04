@@ -143,6 +143,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -166,6 +167,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -191,6 +193,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -212,6 +215,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -235,6 +239,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -260,6 +265,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -278,6 +284,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -296,6 +303,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -309,6 +317,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Editor\Windows\General\FileExplorer.cpp" />
     <ClCompile Include="Source Files\SceneViewInputHandler.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\EditorWindowBase.cpp" />
     <ClCompile Include="Source Files\Editor\MoonlitEditor.cpp" />
@@ -320,6 +329,8 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\Editor\MoonlitEditor.h" />
     <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h" />
     <ClInclude Include="Header Files\Editor\Windows\EditorWindowBase.h" />
+    <ClInclude Include="Header Files\Editor\Windows\General\FileExplorer.h" />
+    <ClInclude Include="Header Files\Editor\Windows\General\SceneHierarchy.h" />
     <ClInclude Include="Header Files\Editor\Windows\General\SceneViewWindow.h" />
     <ClInclude Include="Header Files\SceneViewInputHandler.h" />
   </ItemGroup>

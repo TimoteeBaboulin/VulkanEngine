@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {
-	MoonlitEditor editor;
+	// The editor is initialized through its static instance
 }
 
 #endif //EDITOR_BUILD

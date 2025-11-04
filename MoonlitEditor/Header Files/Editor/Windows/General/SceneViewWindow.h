@@ -10,7 +10,7 @@ class SceneViewInputHandler;
 class SceneViewWindow : public EditorWindowBase
 {
 public:
-	SceneViewWindow(MoonlitEditor* _editor, MoonlitEngine* _engine, QWidget* _parent = nullptr);
+	SceneViewWindow(QWidget* _parent = nullptr);
 
 	//GETTERS
 	HWND GetWindowHandle() const { return m_windowHandle; };

@@ -5,26 +5,17 @@
 #include <QtCore/qtimer.h>
 
 
-SceneViewWindow::SceneViewWindow(MoonlitEditor* _editor, MoonlitEngine* _engine, QWidget* _parent) : 
-	EditorWindowBase(_editor, _parent), m_camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f))
+SceneViewWindow::SceneViewWindow(QWidget* _parent) : 
+	EditorWindowBase(_parent), m_camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 {
 	SetQtData();
 
-	_editor->GetEngine().AddRenderTarget(m_windowHandle, &m_camera);
+	m_engine = &MoonlitEditor::Editor->GetEngine();
+	m_engine->AddRenderTarget(m_windowHandle, &m_camera);
 
+	//TODO: Handle scene input
 	//m_inputHandler = new SceneViewInputHandler(&m_camera);
 	//InputManager::GetInstance()->AddInputHandler(m_inputHandler);
-
-	//This code will need to be removed to be played in the editor instead
-	if (m_engine)
-	{
-		m_updateTimer = new QTimer(this);
-		m_updateTimer->setSingleShot(false);
-		m_updateTimer->setInterval(0);
-		
-		m_updateCallback = std::bind(&MoonlitEngine::Update, m_engine);
-		connect(m_updateTimer, &QTimer::timeout, this, m_updateCallback);
-	}
 }
 
 void SceneViewWindow::SetQtData()
@@ -51,4 +42,5 @@ void SceneViewWindow::SetQtData()
 
 	show();
 	//TODO: Find a way to prevent docking onto this widget
+	//TODO: Add connect to update timer here
 }

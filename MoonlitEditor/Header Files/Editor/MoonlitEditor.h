@@ -13,12 +13,16 @@ class QTimer;
 class MoonlitEditor
 {
 public:
+	static MoonlitEditor* Editor;
+
 	MoonlitEditor();
 
 	MoonlitEngine& GetEngine() { return *m_engine; }
+	QApplication& GetApplication() { return *m_app; }
 private:
 	EditorMainWindow* m_mainWindow = nullptr;
 	MoonlitEngine* m_engine = nullptr;
+	
 
 	QApplication* m_app = nullptr;
 	QTimer* m_updateTimer = nullptr;

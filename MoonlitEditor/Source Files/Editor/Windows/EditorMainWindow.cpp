@@ -29,12 +29,6 @@ EditorMainWindow::EditorMainWindow(size_t _width, size_t _height) : QMainWindow(
 
     show();
 }
-//
-//bool EditorMainWindow::event(QEvent* _event)
-//{
-//
-//    return false;
-//}
 
 bool EditorMainWindow::TryGetInstance(EditorMainWindow*& _window)
 {

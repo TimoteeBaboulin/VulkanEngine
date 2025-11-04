@@ -2,12 +2,8 @@
 
 #include <QtWidgets/qdockwidget.h>
 
-class MoonlitEditor;
-
 class EditorWindowBase : public QDockWidget
 {
 public:
-	EditorWindowBase(MoonlitEditor* _editor, QWidget* _parent = nullptr);
-private:
-	MoonlitEditor* m_editor = nullptr;
+	EditorWindowBase(QWidget* _parent = nullptr);
 };

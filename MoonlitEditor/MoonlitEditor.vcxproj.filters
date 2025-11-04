@@ -45,6 +45,9 @@
     <ClCompile Include="Source Files\Editor\Windows\General\FileExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\Editor\ModelClasses\SceneObjectItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h">
@@ -66,6 +69,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Editor\Windows\General\SceneHierarchy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\ModelClasses\SceneObjectItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

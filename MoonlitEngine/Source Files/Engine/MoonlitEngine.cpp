@@ -6,6 +6,7 @@
 #include "Engine/Scene/Scene.h"
 
 #include "Debug/Logger.h"
+#include "Debug/Profiler.h"
 #include "ResourceManagement/Mesh.h"
 #include "Engine/Components/BehaviourRegistry.h"
 
@@ -69,6 +70,8 @@ void MoonlitEngine::Init()
 }
 void MoonlitEngine::Update()
 {
+	FrameSample sample = Profiler::Get().GetLastFrameSample();
+
 	// Update the renderer
 	Renderer->Render();
 }

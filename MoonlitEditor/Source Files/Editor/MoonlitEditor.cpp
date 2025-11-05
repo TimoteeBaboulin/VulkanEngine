@@ -12,6 +12,9 @@
 #include "Engine/MoonlitEngine.h"
 #include "Engine/Inputs/InputManager.h"
 
+#include "Debug/Profiler.h"
+#include "Debug/Logger.h"
+
 constexpr int DefaultEditorWidth = 1920;
 constexpr int DefaultEditorHeight = 1080;
 
@@ -20,6 +23,7 @@ MoonlitEditor* MoonlitEditor::Editor = new MoonlitEditor();
 MoonlitEditor::MoonlitEditor()
 {
 	Editor = this;
+	Profiler::Get().StartProfiling();
 
 	//Needed for application initialization
 	char** argv = nullptr;
@@ -58,6 +62,16 @@ MoonlitEditor::MoonlitEditor()
 	InputManager::GetInstance()->LinkQtApplication(m_app);
 
 	m_app->processEvents();
+
+	FrameSample frame = Profiler::Get().GetLastFrameSample();
+	if (frame.stackSamples.size() > 0)
+	{
+		LOG_INFO("Profiler sample retrieved successfully.");
+	}
+	else
+	{
+		LOG_WARNING("No profiler samples available.");
+	}
 
 	m_app->exec();
 }

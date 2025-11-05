@@ -85,6 +85,7 @@
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
+    <ClCompile Include="Header Files\Debug\Profiler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\GameObject.h">
@@ -127,6 +128,7 @@
     <ClInclude Include="Header Files\ResourceManagement\Mesh.h" />
     <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanStructs.h" />
     <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanImport.h" />
+    <ClInclude Include="Header Files\Debug\Profiler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

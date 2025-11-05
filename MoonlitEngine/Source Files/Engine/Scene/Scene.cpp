@@ -13,12 +13,12 @@
 Scene::Scene()
 {
 	GameObject* testObject = GameObject::CreateAt(glm::vec3(1, 0, 0));
-	m_gameObjects.push_back(testObject);
+	m_rootGameObjects.push_back(testObject);
 }
 
 Scene::~Scene()
 {
-	for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
+	for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
 	{
 		delete (*it);
 	}
@@ -34,7 +34,7 @@ void Scene::Save(std::string _filePath)
 		return;
 	}
 
-	for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
+	for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
 	{
 		(*it)->SaveToFile(fileStream);
 	}
@@ -69,7 +69,7 @@ void Scene::Load(std::string _filePath)
 
 		// create empty GameObject and let it load the rest
 		GameObject* newObject = GameObject::Create();
-		m_gameObjects.push_back(newObject);
+		m_rootGameObjects.push_back(newObject);
 		newObject->LoadFromFile(fileStream);
 	}
 
@@ -78,9 +78,9 @@ void Scene::Load(std::string _filePath)
 
 void Scene::ClearScene()
 {
-	for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
+	for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
 	{
 		delete (*it);
 	}
-	m_gameObjects.clear();
+	m_rootGameObjects.clear();
 }

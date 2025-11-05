@@ -317,6 +317,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Editor\Windows\General\SceneHierarchy.cpp" />
     <ClCompile Include="Source Files\Editor\ModelClasses\SceneObjectItem.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\FileExplorer.cpp" />
     <ClCompile Include="Source Files\SceneViewInputHandler.cpp" />

@@ -164,6 +164,18 @@ void GameObject::LoadFromFile(std::ifstream& _stream)
 	}
 }
 
+void GameObject::RemoveChild(GameObject* _child)
+{
+	auto it = std::find(m_children.begin(), m_children.end(), _child);
+	if (it == m_children.end())
+	{
+		//Open for potential logging or error handling
+		return;
+	}
+
+	m_children.erase(it);
+}
+
 bool GameObject::TryGetComponentsOfType(std::vector<ObjectBehaviour*>& _components, const type_info& _type)
 {
 	bool foundComponent = false;

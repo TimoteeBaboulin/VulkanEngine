@@ -46,6 +46,19 @@ public:
 	void SaveToFile(std::ofstream& _stream);
 	void LoadFromFile(std::ifstream& _stream);
 
+	GameObject* GetParent() const { return m_parent; }
+	void SetParent(GameObject* _parent) { m_parent = _parent; }
+
+	std::vector<GameObject*> GetChildren() const { return m_children; }
+	GameObject* GetChildAt(int index) const { return (index < 0 || index >= m_children.size()) ? nullptr : m_children[index]; }
+	
+	int GetId() const { return m_id; }
+
+	// TODO : Add checks to avoid adding a child multiple times
+	
+	void AddChild(GameObject* _child) { m_children.push_back(_child); }
+	void RemoveChild(GameObject* _child);
+
 	//Component accessors
 	bool TryGetComponentsOfType(std::vector<ObjectBehaviour*>& _components, const type_info& _type);
 	template <class T>
@@ -90,4 +103,6 @@ protected:
 
 	std::vector<GameEventFunction> m_updates;
 	std::vector<ObjectBehaviour*> m_components;
+	std::vector<GameObject*> m_children;
+	GameObject* m_parent;
 };

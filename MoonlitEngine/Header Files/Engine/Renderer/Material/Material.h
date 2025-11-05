@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+#include <string>
+
 class MaterialInstance;
 class RenderTarget;
 

@@ -22,7 +22,6 @@ public:
 private:
 	EditorMainWindow* m_mainWindow = nullptr;
 	MoonlitEngine* m_engine = nullptr;
-	
 
 	QApplication* m_app = nullptr;
 	QTimer* m_updateTimer = nullptr;

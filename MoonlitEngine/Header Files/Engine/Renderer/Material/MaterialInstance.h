@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include "common.h"
+#include "Engine/Renderer/CustomVulkanStructs.h"
 
 constexpr int TextureArrayCount = 32;
 

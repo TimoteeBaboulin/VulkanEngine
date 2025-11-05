@@ -125,6 +125,8 @@
     <ClInclude Include="Header Files\Engine\Scene\Scene.h" />
     <ClInclude Include="Header Files\Engine\Components\BehaviourRegistry.h" />
     <ClInclude Include="Header Files\ResourceManagement\Mesh.h" />
+    <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanStructs.h" />
+    <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanImport.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

@@ -1,11 +1,8 @@
 #pragma once
-#define VK_USE_PLATFORM_WIN32_KHR
 
-#include <vulkan/vulkan.hpp>
+#include "CustomVulkanStructs.h"
+
 #include <Windows.h>
-
-#undef MemoryBarrier
-#undef max
 #include "MoonlitExport.h"
 
 
@@ -22,7 +19,7 @@ public:
 	void Init();
 	void Cleanup();
 
-	vk::Instance CreateInstance(vk::ApplicationInfo _appInfo, const char** requiredExtensions, int extensionCount);
+	vk::Instance* CreateInstance(vk::ApplicationInfo _appInfo, const char** requiredExtensions, int extensionCount);
 
 private:
 	vk::Instance m_instance;

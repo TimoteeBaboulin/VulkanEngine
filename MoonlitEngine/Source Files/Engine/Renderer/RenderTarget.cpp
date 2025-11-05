@@ -425,7 +425,7 @@ void RenderTarget::CreateDescriptorSets()
 	m_deviceData.Device.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
 }
 
-void RenderTarget::Render(std::vector<DrawBuffer>& _drawBuffers)
+void RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuffers)
 {
 	m_deviceData.Device.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
 
@@ -498,7 +498,7 @@ void RenderTarget::Render(std::vector<DrawBuffer>& _drawBuffers)
 	
 }
 
-void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer>& _drawBuffers)
+void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers)
 {
 	vk::CommandBufferBeginInfo beginInfo;
 	beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
@@ -536,14 +536,14 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 
 	for (auto& drawBuffer : _drawBuffers)
 	{
-		drawBuffer.RenderBuffer(*this, _buffer, 0);
+		drawBuffer->RenderBuffer(*this, _buffer, 0);
 	}
 
 	_buffer.nextSubpass(vk::SubpassContents::eInline);
 
 	for (auto& drawBuffer : _drawBuffers)
 	{
-		drawBuffer.RenderBuffer(*this, _buffer, 1);
+		drawBuffer->RenderBuffer(*this, _buffer, 1);
 	}
 
 	_buffer.endRenderPass();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
+#include "Engine/Renderer/CustomVulkanStructs.h"
 
 struct TextureData
 {

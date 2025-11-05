@@ -1,15 +1,21 @@
 #pragma once
-#include "DrawBuffer.h"
-#include "Engine/Inputs/InputManager.h"
 
-#include "RendererDeviceManager.h"
-#include "RendererContext.h"
+#include "Engine/Inputs/InputManager.h"
+#include "common.h"
+
+#include <string>
 
 struct Camera;
 
 class RendererContext;
+class RendererDeviceManager;
 class VulkanEngine;
 class RenderTarget;
+class DrawBuffer;
+namespace vk
+{
+	class Instance;
+}
 
 constexpr int TEXTURE_DESCRIPTOR_COUNT = 16;
 
@@ -24,7 +30,7 @@ public:
 	MoonlitRenderer();
 	~MoonlitRenderer();
 
-	void Init(ContextInfo& _info, std::vector<const char*> requiredExtensions);
+	void Init(struct ContextInfo& _info, std::vector<const char*> requiredExtensions);
 	void Cleanup();
 	void AddMeshInstance(MeshInstance& _meshInstance);
 	RenderTarget* AddRenderTarget(void* _handle, Camera* _camera);
@@ -34,12 +40,12 @@ public:
 
 	void Render();
 private:
-	RendererContext m_context;
+	RendererContext* m_context;
 	RendererDeviceManager* m_deviceManager;
 
 	std::vector<RenderTarget*> m_renderTargets;
 
-	vk::Instance m_instance;
+	vk::Instance* m_instance;
 
 	float m_timeStampPeriods;
 
@@ -52,12 +58,12 @@ private:
 
 	bool m_windowClosed = false;
 
-	std::vector<DrawBuffer> m_drawBuffers;
+	std::vector<DrawBuffer*> m_drawBuffers;
 	//vk::CommandPool m_mainCommandPool;
 
 #pragma region Debug
 #ifdef RENDER_DEBUG_INFORMATION_QUERY
-	vk::QueryPool m_timestampQueryPool;
+	//vk::QueryPool m_timestampQueryPool;
 
 	void InitQueryPool();
 #endif

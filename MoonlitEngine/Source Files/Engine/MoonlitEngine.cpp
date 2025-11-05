@@ -1,6 +1,7 @@
 #include "Engine/MoonlitEngine.h"
 #include <vulkan/vulkan.h>
 #include "Engine/Renderer/Renderer.h"
+#include "Engine/Renderer/RendererContext.h"
 #include "ResourceManagement/ResourceManager.h"
 #include "Engine/Scene/Scene.h"
 

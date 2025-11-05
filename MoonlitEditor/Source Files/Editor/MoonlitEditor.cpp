@@ -8,6 +8,7 @@
 #include "Editor/Windows/EditorMainWindow.h"
 #include "Editor/Windows/General/SceneViewWindow.h"
 #include "Editor/Windows/General/FileExplorer.h"
+#include "Editor/Windows/General/SceneHierarchy.h"
 #include "Engine/MoonlitEngine.h"
 #include "Engine/Inputs/InputManager.h"
 
@@ -41,6 +42,9 @@ MoonlitEditor::MoonlitEditor()
 
 	m_editorWindows.push_back(new FileExplorer(m_mainWindow));
 	m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_editorWindows.back());
+
+	m_editorWindows.push_back(new SceneHierarchy(m_mainWindow));
+	m_mainWindow->addDockWidget(Qt::RightDockWidgetArea, m_editorWindows.back());
 
 	m_updateCallback = std::bind(&MoonlitEngine::Update, m_engine);
 

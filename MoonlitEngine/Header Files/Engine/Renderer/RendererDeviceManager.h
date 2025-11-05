@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "CustomVulkanStructs.h"
 
 class RenderTarget;
 

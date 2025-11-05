@@ -2,6 +2,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <string>
+#include <stdexcept>
 
 Image ImageHelper::LoadFromFile(std::string _path)
 {

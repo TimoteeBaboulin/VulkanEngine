@@ -144,7 +144,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /D "VK_USE_PLATFORM_WIN32_KHR" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -162,6 +162,7 @@
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
 xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
+    <Bscmake />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|Win32'">
     <ClCompile>
@@ -171,7 +172,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /D "VK_USE_PLATFORM_WIN32_KHR" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
       <AssemblerOutput>All</AssemblerOutput>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -194,6 +195,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
 xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s
 xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s</Command>
     </PostBuildEvent>
+    <Bscmake />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -205,7 +207,7 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /D "VK_USE_PLATFORM_WIN32_KHR" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -225,6 +227,7 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
 xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
+    <Bscmake />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -234,7 +237,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /D "VK_USE_PLATFORM_WIN32_KHR" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>
@@ -253,6 +256,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
 xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
+    <Bscmake />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">
     <ClCompile>
@@ -262,7 +266,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /D "VK_USE_PLATFORM_WIN32_KHR" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
       <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
     <Link>
@@ -284,6 +288,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
 xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s
 xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s</Command>
     </PostBuildEvent>
+    <Bscmake />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -295,7 +300,7 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /D "VK_USE_PLATFORM_WIN32_KHR" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -315,12 +320,13 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
 xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
+    <Bscmake />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>EDITOR_BUILD;ENGINE_DLL_EXPORT;GLM_ENABLE_EXPERIMENTAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING </AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /D "VK_USE_PLATFORM_WIN32_KHR" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING </AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
@@ -331,12 +337,13 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
       <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
     <ClCompile>
       <PreprocessorDefinitions>EDITOR_BUILD;ENGINE_DLL_EXPORT;GLM_ENABLE_EXPERIMENTAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.4.313.0\Include;$(SolutionDir)Libraries/Include;$(SolutionDir)$(ProjectName)/Header Files</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D "NOLIB" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING </AdditionalOptions>
+      <AdditionalOptions>/D "NOLIB" /D "VK_USE_PLATFORM_WIN32_KHR" /Zc:__cplusplus -DQT_NO_VERSION_TAGGING </AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
@@ -347,6 +354,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
       <AdditionalDependencies>glfw3.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
@@ -383,6 +391,8 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
     <ClInclude Include="Header Files\Engine\Renderer\BufferDeviceLink.h" />
+    <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanImport.h" />
+    <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanStructs.h" />
     <ClInclude Include="Header Files\Engine\Renderer\Material\MaterialInstance.h" />
     <ClInclude Include="Header Files\Engine\Renderer\RenderTarget.h" />
     <ClInclude Include="Header Files\Engine\Scene\Scene.h" />

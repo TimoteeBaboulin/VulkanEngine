@@ -2,7 +2,7 @@
 #include <set>
 #include <string>
 
-#include <vulkan/vulkan.hpp>
+#include "Engine/Renderer/CustomVulkanStructs.h"
 #include "Engine/Renderer/RenderTarget.h"
 
 RendererDeviceManager::RendererDeviceManager(vk::Instance _instance)

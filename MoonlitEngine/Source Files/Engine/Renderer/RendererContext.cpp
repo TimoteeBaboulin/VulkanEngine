@@ -59,7 +59,7 @@ bool CheckValidationLayerSupport()
 	return true;
 }
 
-vk::Instance RendererContext::CreateInstance(vk::ApplicationInfo _appInfo, const char ** requiredExtensions, int extensionCount)
+vk::Instance* RendererContext::CreateInstance(vk::ApplicationInfo _appInfo, const char ** requiredExtensions, int extensionCount)
 {
 	vk::ApplicationInfo appInfo = _appInfo;
 
@@ -85,5 +85,5 @@ vk::Instance RendererContext::CreateInstance(vk::ApplicationInfo _appInfo, const
 	}
 
 	m_instance = vk::createInstance(createInfo);
-	return m_instance;
+	return &m_instance;
 }

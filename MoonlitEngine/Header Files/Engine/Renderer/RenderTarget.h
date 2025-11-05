@@ -1,10 +1,9 @@
 #pragma once
 
-#define VK_USE_PLATFORM_WIN32_KHR
 #include <Windows.h>
-#undef MemoryBarrier
 #include <vector>
-#include <vulkan/vulkan.hpp>
+
+#include "CustomVulkanStructs.h"
 #include "RendererDeviceManager.h"
 #include "Camera.h"
 
@@ -26,7 +25,7 @@ public:
 
 	void Init();
 	void SetRenderPass(vk::RenderPass _renderPass);
-	void Render(std::vector<DrawBuffer>& _drawBuffers);
+	void Render(std::vector<DrawBuffer*>& _drawBuffers);
 
 	void Pause(bool _paused) { m_paused = _paused; }
 	bool IsPaused() const { return m_paused; }
@@ -129,5 +128,5 @@ private:
 
 	void CreateCommandPool();
 	void CreateCommandBuffers();
-	void RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer>& _drawBuffers);
+	void RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers);
 };

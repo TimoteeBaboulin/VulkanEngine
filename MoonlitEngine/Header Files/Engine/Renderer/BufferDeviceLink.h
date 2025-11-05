@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include "common.h"
+#include "CustomVulkanStructs.h"
 #include "ResourceManagement/TextureData.h"
 
 class RendererDeviceManager;

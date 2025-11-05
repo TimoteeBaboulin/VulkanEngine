@@ -6,11 +6,14 @@
 class MoonlitEngine;
 class QTimer;
 class SceneViewInputHandler;
+class RenderTarget;
 
 class SceneViewWindow : public EditorWindowBase
 {
 public:
 	SceneViewWindow(QWidget* _parent = nullptr);
+
+	bool event(QEvent* _event) override;
 
 	//GETTERS
 	HWND GetWindowHandle() const { return m_windowHandle; };
@@ -25,6 +28,13 @@ private:
 	Camera m_camera;
 
 	SceneViewInputHandler* m_inputHandler = nullptr;
+	RenderTarget* m_renderTarget = nullptr;
+
+	QTimer* m_resizeTimer = nullptr;
+
+	bool resizing = false;
 
 	void SetQtData();
+	void StartResizing();
+	void StopResizing();
 };

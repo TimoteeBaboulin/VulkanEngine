@@ -1,8 +1,10 @@
 #include "Engine/Renderer/Renderer.h"
 #define GLM_FORCE_RADIANS
 #include <glm/gtx/transform.hpp>
+
 #include "Engine/Renderer/RendererDeviceManager.h"
 #include "Engine/Renderer/RendererContext.h"
+#include "Engine/Renderer/DrawBuffer.h"
 #include "common.h"
 
 #include "Engine/Renderer/Material/Material.h"
@@ -15,7 +17,7 @@
 
 MoonlitRenderer::MoonlitRenderer()
 {
-	
+	m_context = new RendererContext();
 }
 
 MoonlitRenderer::~MoonlitRenderer()
@@ -38,10 +40,10 @@ vk::ApplicationInfo GetAppInfo(const char* _appName)
 
 void MoonlitRenderer::InitContext(ContextInfo& _info, std::vector<const char*> requiredExtensions)
 {
-	m_context.Init();
+	m_context->Init();
 	vk::ApplicationInfo appInfo = GetAppInfo(_info.name);
-	m_instance = m_context.CreateInstance(appInfo, requiredExtensions.data(), requiredExtensions.size());
-	m_deviceManager = new RendererDeviceManager(m_instance);
+	m_instance = m_context->CreateInstance(appInfo, requiredExtensions.data(), requiredExtensions.size());
+	m_deviceManager = new RendererDeviceManager(*m_instance);
 	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&MoonlitRenderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
 }
 
@@ -60,7 +62,7 @@ void MoonlitRenderer::InitRenderer()
 
 	// TODO: Make the resource manager handle loading the material
 	Material* defaultMaterial = new Material("Shaders/BaseMaterial.slang");
-	m_drawBuffers.push_back(DrawBuffer(defaultMaterial));
+	m_drawBuffers.push_back(new DrawBuffer(defaultMaterial));
 }
 
 void MoonlitRenderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensions)
@@ -78,16 +80,16 @@ void MoonlitRenderer::AddMeshInstance(MeshInstance& _meshInstance)
 {
 	for (auto it = m_drawBuffers.begin(); it != m_drawBuffers.end(); it++)
 	{
-		(*it).TryAddMesh(&_meshInstance);
+		(*it)->TryAddMesh(&_meshInstance);
 	}
 }
 
 RenderTarget* MoonlitRenderer::AddRenderTarget(void* _handle, Camera* _camera)
 {
-	m_renderTargets.push_back(new RenderTarget(3, (HWND)_handle, m_instance, _camera, m_deviceManager));
+	m_renderTargets.push_back(new RenderTarget(3, (HWND)_handle, *m_instance, _camera, m_deviceManager));
 	for (auto it = m_drawBuffers.begin(); it != m_drawBuffers.end(); it++)
 	{
-		(*it).LinkTarget(*m_renderTargets.back());
+		(*it)->LinkTarget(*m_renderTargets.back());
 	}
 	return m_renderTargets.back();
 }
@@ -141,7 +143,7 @@ void MoonlitRenderer::LoadMesh(std::string name)
 			glm::mat4x4 model = translate * rotate * scale;
 			MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
 
-			m_drawBuffers[0].TryAddMesh(instance);
+			m_drawBuffers[0]->TryAddMesh(instance);
 		}
 		
 	}
@@ -154,12 +156,12 @@ void MoonlitRenderer::LoadMesh(std::string name)
 			glm::mat4x4 model = translate * rotate * scale;
 			MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
 
-			m_drawBuffers[0].TryAddMesh(instance);
+			m_drawBuffers[0]->TryAddMesh(instance);
 		}
 	}
 	test = !test;
 
-	m_drawBuffers[0].UpdateBuffers();
+	m_drawBuffers[0]->UpdateBuffers();
 }
 
 void MoonlitRenderer::Render()

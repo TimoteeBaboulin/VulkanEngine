@@ -13,12 +13,12 @@
 
 #include "Debug/Logger.h"
 
-Renderer::Renderer()
+MoonlitRenderer::MoonlitRenderer()
 {
 	
 }
 
-Renderer::~Renderer()
+MoonlitRenderer::~MoonlitRenderer()
 {
 	Cleanup();
 }
@@ -36,22 +36,22 @@ vk::ApplicationInfo GetAppInfo(const char* _appName)
 	return appInfo;
 }
 
-void Renderer::InitContext(ContextInfo& _info, std::vector<const char*> requiredExtensions)
+void MoonlitRenderer::InitContext(ContextInfo& _info, std::vector<const char*> requiredExtensions)
 {
 	m_context.Init();
 	vk::ApplicationInfo appInfo = GetAppInfo(_info.name);
 	m_instance = m_context.CreateInstance(appInfo, requiredExtensions.data(), requiredExtensions.size());
 	m_deviceManager = new RendererDeviceManager(m_instance);
-	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&Renderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
+	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&MoonlitRenderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
 }
 
-void Renderer::InitVulkan()
+void MoonlitRenderer::InitVulkan()
 {
 	//TODO: Repare render profiling
 	//m_timeStampPeriods = m_deviceManager->GetTimeStampPeriods();
 }
 
-void Renderer::InitRenderer()
+void MoonlitRenderer::InitRenderer()
 {
 
 #ifdef RENDER_DEBUG_INFORMATION_QUERY
@@ -63,18 +63,18 @@ void Renderer::InitRenderer()
 	m_drawBuffers.push_back(DrawBuffer(defaultMaterial));
 }
 
-void Renderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensions)
+void MoonlitRenderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensions)
 {
 	InitContext(_info, requiredExtensions);
 	InitVulkan();
 	InitRenderer();
 }
 
-void Renderer::Cleanup()
+void MoonlitRenderer::Cleanup()
 {
 }
 
-void Renderer::AddMeshInstance(MeshInstance& _meshInstance)
+void MoonlitRenderer::AddMeshInstance(MeshInstance& _meshInstance)
 {
 	for (auto it = m_drawBuffers.begin(); it != m_drawBuffers.end(); it++)
 	{
@@ -82,16 +82,17 @@ void Renderer::AddMeshInstance(MeshInstance& _meshInstance)
 	}
 }
 
-void Renderer::AddRenderTarget(void* _handle, Camera* _camera)
+RenderTarget* MoonlitRenderer::AddRenderTarget(void* _handle, Camera* _camera)
 {
 	m_renderTargets.push_back(new RenderTarget(3, (HWND)_handle, m_instance, _camera, m_deviceManager));
 	for (auto it = m_drawBuffers.begin(); it != m_drawBuffers.end(); it++)
 	{
 		(*it).LinkTarget(*m_renderTargets.back());
 	}
+	return m_renderTargets.back();
 }
 
-void Renderer::LoadMesh(std::string name)
+void MoonlitRenderer::LoadMesh(std::string name)
 {
 	//TODO: Don't load the mesh in the renderer, it should be done by the engine itself through gameobjects
 	std::shared_ptr<MeshData> testMesh;
@@ -161,12 +162,13 @@ void Renderer::LoadMesh(std::string name)
 	m_drawBuffers[0].UpdateBuffers();
 }
 
-void Renderer::Render()
+void MoonlitRenderer::Render()
 {
 	//std::cout << "Rendering frame " << m_currentFrame << std::endl;
 	for (auto& renderTarget : m_renderTargets)
 	{
-		renderTarget->Render(m_drawBuffers);
+		if (!renderTarget->IsPaused())
+			renderTarget->Render(m_drawBuffers);
 	}
 
 	//std::cout << "Frame rendered" << std::endl;
@@ -205,7 +207,7 @@ void Renderer::Render()
 }
 
 #ifdef RENDER_DEBUG_INFORMATION_QUERY
-void Renderer::InitQueryPool()
+void MoonlitRenderer::InitQueryPool()
 {
 	vk::QueryPoolCreateInfo createInfo;
 	createInfo.sType = vk::StructureType::eQueryPoolCreateInfo;
@@ -302,7 +304,7 @@ void Renderer::InitQueryPool()
 //	m_mainRenderPass = m_device.createRenderPass(renderpass);
 //}
 
-void Renderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
+void MoonlitRenderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
 {
 	switch (_event)
 	{

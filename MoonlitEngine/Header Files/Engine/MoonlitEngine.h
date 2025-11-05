@@ -3,24 +3,25 @@
 
 #include <string>
 #include "Camera.h"
+#include "Scene/Scene.h"
 
 class MOONLIT_API MoonlitEngine
 { 
 public:
 	static MoonlitEngine* GetInstance() { return m_instance; }
 
+	class MoonlitRenderer* Renderer;
+
 	MoonlitEngine(void* _handle);
 
 	void LoadPlugin(std::string _name);
-	class Renderer& GetRenderer() { return *m_renderer; }
 
 	void Init();
 	void Update();
 
-	void AddMeshInstance(struct MeshInstance& _meshInstance);
-	void AddRenderTarget(void* _handle, Camera* _camera);
+	Scene& GetScene() const { return *m_activeScene; }
 private:
-	class Renderer* m_renderer;
+	
 	class Scene* m_activeScene;
 	static MoonlitEngine* m_instance;
 };

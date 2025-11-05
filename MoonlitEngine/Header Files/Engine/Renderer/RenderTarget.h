@@ -28,6 +28,9 @@ public:
 	void SetRenderPass(vk::RenderPass _renderPass);
 	void Render(std::vector<DrawBuffer>& _drawBuffers);
 
+	void Pause(bool _paused) { m_paused = _paused; }
+	bool IsPaused() const { return m_paused; }
+
 #pragma region Getters
 	vk::Format GetFormat() const { return m_format.format; }
 	vk::SurfaceKHR GetSurfaceKHR() const { return m_surfaceKHR; }
@@ -53,6 +56,7 @@ private:
 
 	RendererDeviceManager* m_deviceManager = nullptr;
 	Camera* m_camera = nullptr;
+	bool m_paused = false;
 
 #pragma region Surface Data
 	vk::Extent2D m_extent;

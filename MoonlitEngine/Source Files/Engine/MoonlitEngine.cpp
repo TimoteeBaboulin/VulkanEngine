@@ -5,7 +5,6 @@
 #include "Engine/Scene/Scene.h"
 
 #include "Debug/Logger.h"
-#include "Engine/Renderer/Renderer.h"
 #include "ResourceManagement/Mesh.h"
 #include "Engine/Components/BehaviourRegistry.h"
 
@@ -20,10 +19,10 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 	InputManager::InitManager(_handle);
 
 	// Initialize the renderer
-	m_renderer = new Renderer();
+	Renderer = new MoonlitRenderer();
 	ContextInfo contextInfo;
 	contextInfo.name = "Moonlit Engine";
-	m_renderer->Init(contextInfo, {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_win32_surface"});
+	Renderer->Init(contextInfo, {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_win32_surface"});
 
 	Logger::LogInfo("Moonlit Engine initialized successfully.");
 
@@ -66,20 +65,9 @@ void MoonlitEngine::Init()
 	ResourceManager::TryLoadResource<Image>("Textures/Sniper.png");
 
 	m_activeScene = new Scene();
-	//m_renderer.LoadMesh("barstool");
 }
 void MoonlitEngine::Update()
 {
 	// Update the renderer
-	m_renderer->Render();
-}
-
-void MoonlitEngine::AddMeshInstance(MeshInstance& _meshInstance)
-{
-	m_renderer->AddMeshInstance(_meshInstance);
-}
-
-void MoonlitEngine::AddRenderTarget(void* _handle, Camera* _camera)
-{
-	m_renderer->AddRenderTarget(_handle, _camera);
+	Renderer->Render();
 }

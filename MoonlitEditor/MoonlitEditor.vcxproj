@@ -317,6 +317,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source Files\Editor\Windows\Debug\ProfilerWindow.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\SceneHierarchy.cpp" />
     <ClCompile Include="Source Files\Editor\ModelClasses\SceneObjectItem.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\FileExplorer.cpp" />
@@ -330,6 +331,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
   <ItemGroup>
     <ClInclude Include="Header Files\Editor\ModelClasses\SceneObjectItem.h" />
     <ClInclude Include="Header Files\Editor\MoonlitEditor.h" />
+    <ClInclude Include="Header Files\Editor\Windows\Debug\ProfilerWindow.h" />
     <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h" />
     <ClInclude Include="Header Files\Editor\Windows\EditorWindowBase.h" />
     <ClInclude Include="Header Files\Editor\Windows\General\FileExplorer.h" />

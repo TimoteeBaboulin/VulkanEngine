@@ -70,8 +70,6 @@ void MoonlitEngine::Init()
 }
 void MoonlitEngine::Update()
 {
-	FrameSample sample = Profiler::Get().GetLastFrameSample();
-
 	// Update the renderer
 	Renderer->Render();
 }

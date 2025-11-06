@@ -1,4 +1,7 @@
 #include "Editor/Windows/EditorMainWindow.h"
+#include "Editor/Windows/Debug/ProfilerWindow.h"
+
+#include "Debug/Logger.h"
 
 EditorMainWindow* EditorMainWindow::m_instance = nullptr;
 
@@ -13,21 +16,8 @@ EditorMainWindow::EditorMainWindow(size_t _width, size_t _height) : QMainWindow(
 
     m_instance = this;
 
-    setMinimumHeight(200);
-    setMaximumHeight(_height * 2);
-    setMinimumWidth(200);
-    setMaximumWidth(_width * 2);
-
-	//Make sure to resize the window to the specified width and height.
-	resize(_width, _height);
-
-    QSizePolicy sizePol;
-    sizePol.setHorizontalPolicy(QSizePolicy::Preferred);
-    sizePol.setVerticalPolicy(QSizePolicy::Preferred);
-
-    setSizePolicy(sizePol);
-
-    show();
+	SetupUI();
+    SetupConnections();
 }
 
 bool EditorMainWindow::TryGetInstance(EditorMainWindow*& _window)
@@ -39,4 +29,40 @@ bool EditorMainWindow::TryGetInstance(EditorMainWindow*& _window)
 
 	_window = m_instance;
     return true;
+}
+
+void EditorMainWindow::SetupConnections()
+{
+    connect(m_openProfilerAction, &QAction::triggered, this, []()
+        {
+			LOG_INFO("Opening Profiler Window...");
+            ProfilerWindow* window = new ProfilerWindow();
+        });
+}
+
+void EditorMainWindow::SetupUI()
+{
+    setMinimumHeight(200);
+    setMaximumHeight(m_height * 2);
+    setMinimumWidth(200);
+    setMaximumWidth(m_width * 2);
+
+    //Make sure to resize the window to the specified width and height.
+    resize(m_width, m_height);
+
+    m_menuBar = new QMenuBar(this);
+	setMenuBar(m_menuBar);
+
+    m_profilerMenu = new QMenu("Profiler", this);
+    m_menuBar->addMenu(m_profilerMenu);
+
+	m_openProfilerAction = m_profilerMenu->addAction("Open Profiler");
+
+    /*QSizePolicy sizePol;
+    sizePol.setHorizontalPolicy(QSizePolicy::Preferred);
+    sizePol.setVerticalPolicy(QSizePolicy::Preferred);
+
+    setSizePolicy(sizePol);*/
+
+    show();
 }

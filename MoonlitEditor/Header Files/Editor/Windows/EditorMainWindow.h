@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtWidgets/qmainwindow.h>
+#include <QtWidgets/qmenubar.h>
 
 class  EditorMainWindow : public QMainWindow
 {
@@ -11,7 +12,14 @@ public:
 	static bool TryGetInstance(EditorMainWindow*& _window);
 
 private:
+	void SetupConnections();
+	void SetupUI();
+
 	static EditorMainWindow* m_instance;
 
 	size_t m_width, m_height;
+
+	QMenuBar* m_menuBar;
+	QMenu* m_profilerMenu;
+	QAction* m_openProfilerAction;
 };

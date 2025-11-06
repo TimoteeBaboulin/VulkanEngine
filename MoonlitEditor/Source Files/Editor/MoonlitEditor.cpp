@@ -23,7 +23,6 @@ MoonlitEditor* MoonlitEditor::Editor = new MoonlitEditor();
 MoonlitEditor::MoonlitEditor()
 {
 	Editor = this;
-	Profiler::Get().StartProfiling();
 
 	//Needed for application initialization
 	char** argv = nullptr;

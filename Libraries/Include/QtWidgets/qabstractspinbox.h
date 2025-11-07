@@ -132,6 +132,7 @@ protected:
     virtual StepEnabled stepEnabled() const;
 Q_SIGNALS:
     void editingFinished();
+    void returnPressed();
 protected:
     QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent = nullptr);
 

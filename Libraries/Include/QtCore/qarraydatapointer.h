@@ -107,11 +107,11 @@ public:
     {
         if (!deref()) {
             (*this)->destroyAll();
-            free(d);
+            Data::deallocate(d);
         }
     }
 
-    bool isNull() const noexcept
+    constexpr bool isNull() const noexcept
     {
         return !ptr;
     }

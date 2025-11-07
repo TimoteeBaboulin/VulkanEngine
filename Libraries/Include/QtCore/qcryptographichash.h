@@ -21,12 +21,9 @@ class Q_CORE_EXPORT QCryptographicHash
     Q_GADGET
 public:
     enum Algorithm {
-#ifndef QT_CRYPTOGRAPHICHASH_ONLY_SHA1
         Md4,
         Md5,
-#endif
         Sha1 = 2,
-#ifndef QT_CRYPTOGRAPHICHASH_ONLY_SHA1
         Sha224,
         Sha256,
         Sha384,
@@ -60,7 +57,6 @@ public:
         Blake2s_160,
         Blake2s_224,
         Blake2s_256,
-#endif
         NumAlgorithms
     };
     Q_ENUM(Algorithm)

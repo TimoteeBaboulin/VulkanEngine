@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:critical reason:data-parser
 
 #ifndef QJSONVALUE_H
 #define QJSONVALUE_H
@@ -100,6 +101,7 @@ public:
     double toDouble(double defaultValue = 0) const;
     QString toString() const;
     QString toString(const QString &defaultValue) const;
+    QAnyStringView toStringView(QAnyStringView defaultValue = {}) const;
     QJsonArray toArray() const;
     QJsonArray toArray(const QJsonArray &defaultValue) const;
     QJsonObject toObject() const;
@@ -165,6 +167,8 @@ public:
     { return concreteDouble(*this, defaultValue); }
     QString toString(const QString &defaultValue = {}) const
     { return concreteString(*this, defaultValue); }
+    QAnyStringView toStringView(QAnyStringView defaultValue = {}) const
+    { return concreteStringView(*this, defaultValue); }
     Q_CORE_EXPORT QJsonArray toArray() const;
     Q_CORE_EXPORT QJsonObject toObject() const;
 
@@ -195,11 +199,15 @@ protected:
     Q_CORE_EXPORT static double
     concreteDouble(QJsonValueConstRef self, double defaultValue) noexcept Q_DECL_PURE_FUNCTION;
     Q_CORE_EXPORT static QString concreteString(QJsonValueConstRef self, const QString &defaultValue);
+    Q_CORE_EXPORT static QAnyStringView concreteStringView(QJsonValueConstRef self, QAnyStringView defaultValue);
     Q_CORE_EXPORT static QJsonValue concrete(QJsonValueConstRef self) noexcept;
 
     // for iterators
     Q_CORE_EXPORT static QString objectKey(QJsonValueConstRef self);
     QString objectKey() const { return objectKey(*this); }
+
+    Q_CORE_EXPORT static QAnyStringView objectKeyView(QJsonValueConstRef self);
+    QAnyStringView objectKeyView() const { return objectKeyView(*this); }
 
 #if QT_VERSION < QT_VERSION_CHECK(7, 0, 0) && !defined(QT_BOOTSTRAPPED)
     QJsonValueConstRef(QJsonArray *array, qsizetype idx)
@@ -284,6 +292,8 @@ public:
     inline qint64 toInteger(qint64 defaultValue = 0) const { return QJsonValueConstRef::toInteger(defaultValue); }
     inline double toDouble(double defaultValue = 0) const { return QJsonValueConstRef::toDouble(defaultValue); }
     inline QString toString(const QString &defaultValue = {}) const { return QJsonValueConstRef::toString(defaultValue); }
+    QAnyStringView toStringView(QAnyStringView defaultValue = {}) const
+    { return QJsonValueConstRef::toStringView(defaultValue); }
     QJsonArray toArray() const;
     QJsonObject toObject() const;
 

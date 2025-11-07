@@ -9,7 +9,6 @@
 #include <QtCore/qcompare.h>
 #include <QtCore/qhashfunctions.h>
 
-#include <functional>
 
 QT_BEGIN_NAMESPACE
 

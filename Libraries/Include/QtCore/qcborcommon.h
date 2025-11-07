@@ -1,11 +1,13 @@
 // Copyright (C) 2018 Intel Corporation.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:critical reason:data-parser
 
 #ifndef QCBORCOMMON_H
 #define QCBORCOMMON_H
 
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qmetatype.h>
+#include <QtCore/qshareddata.h>
 
 #if 0
 #pragma qt_class(QtCborCommon)
@@ -20,6 +22,9 @@
 QT_BEGIN_NAMESPACE
 
 class QDebug;
+
+class QCborContainerPrivate;
+QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QCborContainerPrivate) // defined in qcborvalue.cpp
 
 enum class QCborSimpleType : quint8 {
     False = 20,

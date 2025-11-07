@@ -27,6 +27,7 @@
 #include "qabstractproxymodel.h"
 #endif
 #include "qalgorithms.h"
+#include "qalloc.h"
 #if QT_CONFIG(animation)
 #include "qanimationgroup.h"
 #endif
@@ -206,6 +207,7 @@
 #include "qpropertyprivate.h"
 #include "qqueue.h"
 #include "qrandom.h"
+#include "qrangemodel.h"
 #include "qreadwritelock.h"
 #include "qrect.h"
 #include "qrefcount.h"
@@ -221,9 +223,7 @@
 #include "qscopedpointer.h"
 #include "qscopedvaluerollback.h"
 #include "qscopeguard.h"
-#if QT_CONFIG(thread)
 #include "qsemaphore.h"
-#endif
 #if QT_CONFIG(animation)
 #include "qsequentialanimationgroup.h"
 #endif
@@ -277,9 +277,7 @@
 #include "qtextboundaryfinder.h"
 #include "qtextstream.h"
 #include "qthread.h"
-#if QT_CONFIG(thread)
 #include "qthreadpool.h"
-#endif
 #include "qthreadstorage.h"
 #if QT_CONFIG(easingcurve)
 #include "qtimeline.h"

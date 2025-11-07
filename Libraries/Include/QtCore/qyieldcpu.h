@@ -1,6 +1,7 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // Copyright (C) 2023 Intel Corporation.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
 
 #ifndef QYIELDCPU_H
 #define QYIELDCPU_H
@@ -21,10 +22,11 @@ void _mm_pause(void);       // the compiler recognizes as intrinsic
 
 QT_BEGIN_NAMESPACE
 
+Q_ALWAYS_INLINE
 #ifdef Q_CC_GNU
 __attribute__((artificial))
 #endif
-Q_ALWAYS_INLINE void qYieldCpu(void) Q_DECL_NOEXCEPT;
+void qYieldCpu(void) Q_DECL_NOEXCEPT;
 
 void qYieldCpu(void)
 #ifdef __cplusplus

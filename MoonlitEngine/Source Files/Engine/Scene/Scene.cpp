@@ -97,3 +97,17 @@ GameObject* Scene::GetGameObjectById(uint64_t _id) const
 
 	return (it != m_rootGameObjects.end()) ? *it : nullptr;
 }
+
+GameObject* Scene::GetGameObjectByName(const std::string& _name) const
+{
+	for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
+	{
+		GameObject* obj = *it;
+		if (obj->GetName() == _name)
+		{
+			return obj;
+		}
+	}
+
+	return nullptr;
+}

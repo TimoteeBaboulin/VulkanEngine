@@ -129,7 +129,7 @@ namespace QtPrivate {
 [[nodiscard]] Q_CORE_EXPORT Q_DECL_PURE_FUNCTION bool isLatin1(QStringView   s) noexcept;
 [[nodiscard]] Q_CORE_EXPORT Q_DECL_PURE_FUNCTION bool isValidUtf16(QStringView s) noexcept;
 
-template <typename Char, size_t N> [[nodiscard]] constexpr Q_ALWAYS_INLINE
+template <typename Char, size_t N> [[nodiscard]] Q_ALWAYS_INLINE constexpr
 qsizetype lengthHelperContainerLoop(const Char (&str)[N])
 {
 #if defined(__cpp_lib_constexpr_algorithms) && defined(Q_CC_GNU_ONLY)
@@ -148,7 +148,7 @@ qsizetype lengthHelperContainerLoop(const Char (&str)[N])
 #endif
 }
 
-template <typename Char, size_t N> [[nodiscard]] constexpr Q_ALWAYS_INLINE
+template <typename Char, size_t N> [[nodiscard]] Q_ALWAYS_INLINE constexpr
 std::enable_if_t<sizeof(Char) == sizeof(char16_t), qsizetype>
 lengthHelperContainer(const Char (&str)[N])
 {

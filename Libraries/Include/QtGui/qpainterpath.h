@@ -10,14 +10,12 @@
 #include <QtCore/qline.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qrect.h>
-#include <QtCore/qshareddata.h>
 
 QT_BEGIN_NAMESPACE
 
 
 class QFont;
 class QPainterPathPrivate;
-struct QPainterPathPrivateDeleter;
 class QPainterPathStrokerPrivate;
 class QPen;
 class QPolygonF;
@@ -56,10 +54,13 @@ public:
     explicit QPainterPath(const QPointF &startPoint);
     QPainterPath(const QPainterPath &other);
     QPainterPath &operator=(const QPainterPath &other);
+    QPainterPath(QPainterPath &&other) noexcept
+        : d_ptr(std::exchange(other.d_ptr, nullptr))
+    {}
     QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_PURE_SWAP(QPainterPath)
     ~QPainterPath();
 
-    inline void swap(QPainterPath &other) noexcept { d_ptr.swap(other.d_ptr); }
+    inline void swap(QPainterPath &other) noexcept { qt_ptr_swap(d_ptr, other.d_ptr); }
 
     void clear();
     void reserve(int size);
@@ -134,11 +135,14 @@ public:
     QPainterPath::Element elementAt(int i) const;
     void setElementPositionAt(int i, qreal x, qreal y);
 
+    bool isCachingEnabled() const;
+    void setCachingEnabled(bool enabled);
     qreal   length() const;
-    qreal   percentAtLength(qreal t) const;
+    qreal   percentAtLength(qreal len) const;
     QPointF pointAtPercent(qreal t) const;
     qreal   angleAtPercent(qreal t) const;
     qreal   slopeAtPercent(qreal t) const;
+    [[nodiscard]] QPainterPath trimmed(qreal fromFraction, qreal toFraction, qreal offset = 0) const;
 
     bool intersects(const QPainterPath &p) const;
     bool contains(const QPainterPath &p) const;
@@ -161,19 +165,19 @@ public:
     QPainterPath &operator-=(const QPainterPath &other);
 
 private:
-    QExplicitlySharedDataPointer<QPainterPathPrivate> d_ptr;
+    QPainterPathPrivate *d_ptr;
 
     inline void ensureData() { if (!d_ptr) ensureData_helper(); }
     void ensureData_helper();
-    void detach();
     void setDirty(bool);
     void computeBoundingRect() const;
     void computeControlPointRect() const;
 
-    QPainterPathPrivate *d_func() const { return d_ptr.data(); }
+    QPainterPathPrivate *d_func() const { return d_ptr; }
 
     friend class QPainterPathStroker;
     friend class QPainterPathStrokerPrivate;
+    friend class QPainterPathPrivate;
     friend class QTransform;
     friend class QVectorPath;
     friend Q_GUI_EXPORT const QVectorPath &qtVectorPathForPath(const QPainterPath &);

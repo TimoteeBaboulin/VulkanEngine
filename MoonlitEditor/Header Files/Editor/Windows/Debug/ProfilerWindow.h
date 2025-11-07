@@ -4,9 +4,11 @@
 #include <QtCore/qtimer.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qlistview.h>
+#include <QtWidgets/qtreeview.h>
 #include <QtCore/qstringlistmodel.h>
 
 #include "Debug/Profiler.h"
+#include "Editor/Models/MethodViewModel.h"
 
 struct ListModel
 {
@@ -50,7 +52,10 @@ private:
 	ListModel* m_frameListModel = nullptr;
 	ListModel* m_threadListModel = nullptr;
 
+	QTreeView* m_functionTreeView = nullptr;
+
 	ProfilingSession m_profilingSession;
+	MethodListModel m_functionListModel;
 
 	int m_currentFrameId = -1;
 };

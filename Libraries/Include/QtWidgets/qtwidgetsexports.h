@@ -22,6 +22,7 @@
 /* outside library -> inline decl + defi */
 /* static builds treat everything as part of the library, so they never inline */
 #  define QT_WIDGETS_INLINE_SINCE(major, minor) inline
+#  define QT_WIDGETS_CONSTEXPR_INLINE_SINCE(major, minor) constexpr
 #  define QT_WIDGETS_INLINE_IMPL_SINCE(major, minor) 1
 #elif defined(QT_WIDGETS_BUILD_REMOVED_API)
 /* inside library, inside removed_api.cpp:
@@ -30,6 +31,8 @@
  * definition is always available */
 #  define QT_WIDGETS_INLINE_SINCE(major, minor) \
     QT_IF_DEPRECATED_SINCE(major, minor, inline, /* not inline */)
+#  define QT_WIDGETS_CONSTEXPR_INLINE_SINCE(major, minor) \
+    QT_IF_DEPRECATED_SINCE(major, minor, constexpr, /* not inline */)
 #  define QT_WIDGETS_INLINE_IMPL_SINCE(major, minor) 1
 #else
 /* inside library, outside removed_api.cpp:
@@ -37,6 +40,8 @@
  * remove deprecated API -> inline decl, defi */
 #  define QT_WIDGETS_INLINE_SINCE(major, minor) \
     QT_IF_DEPRECATED_SINCE(major, minor, inline, /* not inline */)
+#  define QT_WIDGETS_CONSTEXPR_INLINE_SINCE(major, minor) \
+    QT_IF_DEPRECATED_SINCE(major, minor, constexpr, /* not inline */)
 #  define QT_WIDGETS_INLINE_IMPL_SINCE(major, minor) \
     QT_IF_DEPRECATED_SINCE(major, minor, 1, 0)
 #endif

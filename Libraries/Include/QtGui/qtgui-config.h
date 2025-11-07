@@ -112,6 +112,8 @@
 
 #define QT_FEATURE_wayland -1
 
+#define QT_FEATURE_waylandscanner -1
+
 #define QT_NO_ACCESSIBILITY_ATSPI_BRIDGE 1
 #define QT_NO_FONTCONFIG 1
 #define QT_OPENGL_DYNAMIC

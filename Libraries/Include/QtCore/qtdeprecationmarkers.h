@@ -249,6 +249,14 @@ QT_BEGIN_NAMESPACE
 # define QT_DEPRECATED_VERSION_6_13
 #endif
 
+#if QT_WARN_DEPRECATED_UP_TO >= QT_VERSION_CHECK(6, 14, 0)
+# define QT_DEPRECATED_VERSION_X_6_14(text) QT_DEPRECATED_X(text)
+# define QT_DEPRECATED_VERSION_6_14         QT_DEPRECATED
+#else
+# define QT_DEPRECATED_VERSION_X_6_14(text)
+# define QT_DEPRECATED_VERSION_6_14
+#endif
+
 #define QT_DEPRECATED_VERSION_X_5(minor, text)      QT_DEPRECATED_VERSION_X_5_##minor(text)
 #define QT_DEPRECATED_VERSION_X(major, minor, text) QT_DEPRECATED_VERSION_X_##major##_##minor(text)
 

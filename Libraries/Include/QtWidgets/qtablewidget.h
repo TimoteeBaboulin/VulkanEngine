@@ -194,6 +194,9 @@ class Q_WIDGETS_EXPORT QTableWidget : public QTableView
     Q_OBJECT
     Q_PROPERTY(int rowCount READ rowCount WRITE setRowCount)
     Q_PROPERTY(int columnCount READ columnCount WRITE setColumnCount)
+#if QT_CONFIG(draganddrop)
+    Q_PROPERTY(Qt::DropActions supportedDragActions READ supportedDragActions WRITE setSupportedDragActions)
+#endif
 
     friend class QTableModel;
 public:
@@ -264,6 +267,11 @@ public:
 
     const QTableWidgetItem *itemPrototype() const;
     void setItemPrototype(const QTableWidgetItem *item);
+
+#if QT_CONFIG(draganddrop)
+    Qt::DropActions supportedDragActions() const;
+    void setSupportedDragActions(Qt::DropActions actions);
+#endif
 
 public Q_SLOTS:
     void scrollToItem(const QTableWidgetItem *item, QAbstractItemView::ScrollHint hint = EnsureVisible);

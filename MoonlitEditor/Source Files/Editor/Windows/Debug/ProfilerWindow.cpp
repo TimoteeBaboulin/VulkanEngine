@@ -33,10 +33,16 @@ void ProfilerWindow::SetupUI()
 	m_threadListModel->listView.setUniformItemSizes(true);
 	m_threadListModel->listView.setModel(&m_threadListModel->model);
 
-	layout->addWidget(&m_frameListModel->listView, 0, 0, 3, 2);
-	layout->addWidget(m_startProfilingButton, 3, 0);
-	layout->addWidget(m_stopProfilingButton, 3, 1);
-	layout->addWidget(&m_threadListModel->listView, 0, 2, 3, 1);
+	m_functionTreeView = new QTreeView(this);
+	m_functionTreeView->setModel(&m_functionListModel);
+	m_functionTreeView->setSortingEnabled(true);
+
+	layout->addWidget(&m_frameListModel->listView, 0, 0, 2, 1);
+	layout->addWidget(&m_threadListModel->listView, 2, 0, 2, 1);
+	layout->addWidget(m_functionTreeView, 0, 1, 4, 1);
+
+	layout->addWidget(m_startProfilingButton, 4, 0);
+	layout->addWidget(m_stopProfilingButton, 4, 1);
 
 	show();
 }
@@ -86,6 +92,9 @@ void ProfilerWindow::DisplayProfilingSession(const ProfilingSession& _session)
 		DisplayFrameSample(_session.frameSamples[0]);
 		m_currentFrameId = _session.frameSamples[0].frameId;
 	}
+
+	m_functionListModel.SetFunctions(_session.functionCallCounts);
+	m_functionTreeView->setModel(&m_functionListModel);
 }
 
 // Qt event callbacks

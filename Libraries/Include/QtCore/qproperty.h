@@ -299,7 +299,7 @@ public:
               auto This = static_cast<QPropertyChangeHandler<Functor>*>(self);
               This->m_handler();
           })
-        , m_handler(handler)
+        , m_handler(std::move(handler))
     {
     }
 
@@ -310,7 +310,7 @@ public:
               auto This = static_cast<QPropertyChangeHandler<Functor>*>(self);
               This->m_handler();
           })
-        , m_handler(handler)
+        , m_handler(std::move(handler))
     {
         setSource(property);
     }
@@ -329,7 +329,7 @@ public:
             auto This = static_cast<QPropertyNotifier *>(self);
             This->m_handler();
         })
-        , m_handler(handler)
+        , m_handler(std::move(handler))
     {
     }
 
@@ -341,7 +341,7 @@ public:
             auto This = static_cast<QPropertyNotifier *>(self);
             This->m_handler();
         })
-        , m_handler(handler)
+        , m_handler(std::move(handler))
     {
         setSource(property);
     }
@@ -359,6 +359,17 @@ class QProperty : public QPropertyData<T>
         }
         return false;
     }
+
+    template <typename U, typename = void>
+    struct has_operator_equal_to : std::false_type{};
+
+    template <typename U>
+    struct has_operator_equal_to<U, std::void_t<decltype(bool(std::declval<const T&>() == std::declval<const U&>()))>>
+        : std::true_type{};
+
+    template <typename U>
+    static constexpr bool has_operator_equal_to_v =
+            !std::is_same_v<U, T> && has_operator_equal_to<U>::value;
 
 public:
     using value_type = typename QPropertyData<T>::value_type;
@@ -383,6 +394,27 @@ public:
     explicit QProperty(Functor &&f);
 #endif
     ~QProperty() = default;
+
+    QT_DECLARE_EQUALITY_OPERATORS_HELPER(QProperty, QProperty, /* non-constexpr */, noexcept(false), template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>)
+    QT_DECLARE_EQUALITY_OPERATORS_HELPER(QProperty, T, /* non-constexpr */, noexcept(false), template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>)
+    QT_DECLARE_EQUALITY_OPERATORS_REVERSED_HELPER(QProperty, T, /* non-constexpr */, noexcept(false), template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>)
+
+    QT_DECLARE_EQUALITY_OPERATORS_HELPER(QProperty, U, /* non-constexpr */, noexcept(false), template <typename U, std::enable_if_t<has_operator_equal_to_v<U>>* = nullptr>)
+    QT_DECLARE_EQUALITY_OPERATORS_REVERSED_HELPER(QProperty, U, /* non-constexpr */, noexcept(false), template <typename U, std::enable_if_t<has_operator_equal_to_v<U>>* = nullptr>)
+
+    // Explicitly delete op==(QProperty<T>, QProperty<U>) for different T & U.
+    // We do not want implicit conversions here!
+    // However, GCC complains about using a default template argument in a
+    // friend declaration, while Clang and MSVC are fine. So, skip GCC here.
+#if !defined(Q_CC_GNU) || defined(Q_CC_CLANG)
+#define QPROPERTY_DECL_DELETED_EQ_OP \
+    Q_DECL_EQ_DELETE_X("Call .value() on one of the properties explicitly.")
+    template <typename U, std::enable_if_t<!std::is_same_v<T, U>>* = nullptr>
+    friend void operator==(const QProperty &, const QProperty<U> &) QPROPERTY_DECL_DELETED_EQ_OP;
+    template <typename U, std::enable_if_t<!std::is_same_v<T, U>>* = nullptr>
+    friend void operator!=(const QProperty &, const QProperty<U> &) QPROPERTY_DECL_DELETED_EQ_OP;
+#undef QPROPERTY_DECL_DELETED_EQ_OP
+#endif // !defined(Q_CC_GNU) || defined(Q_CC_CLANG)
 
     parameter_type value() const
     {
@@ -484,7 +516,7 @@ public:
     QPropertyChangeHandler<Functor> onValueChanged(Functor f)
     {
         static_assert(std::is_invocable_v<Functor>, "Functor callback must be callable without any parameters");
-        return QPropertyChangeHandler<Functor>(*this, f);
+        return QPropertyChangeHandler<Functor>(*this, std::move(f));
     }
 
     template<typename Functor>
@@ -492,18 +524,36 @@ public:
     {
         static_assert(std::is_invocable_v<Functor>, "Functor callback must be callable without any parameters");
         f();
-        return onValueChanged(f);
+        return onValueChanged(std::move(f));
     }
 
     template<typename Functor>
     QPropertyNotifier addNotifier(Functor f)
     {
         static_assert(std::is_invocable_v<Functor>, "Functor callback must be callable without any parameters");
-        return QPropertyNotifier(*this, f);
+        return QPropertyNotifier(*this, std::move(f));
     }
 
     const QtPrivate::QPropertyBindingData &bindingData() const { return d; }
 private:
+    template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>
+    friend bool comparesEqual(const QProperty &lhs, const QProperty &rhs)
+    {
+        return lhs.value() == rhs.value();
+    }
+
+    template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>
+    friend bool comparesEqual(const QProperty &lhs, const T &rhs)
+    {
+        return lhs.value() == rhs;
+    }
+
+    template <typename U, std::enable_if_t<has_operator_equal_to_v<U>>* = nullptr>
+    friend bool comparesEqual(const QProperty &lhs, const U &rhs)
+    {
+        return lhs.value() == rhs;
+    }
+
     void notify()
     {
         d.notifyObservers(this);
@@ -735,7 +785,7 @@ public:
     template<typename Functor>
     QPropertyChangeHandler<Functor> onValueChanged(Functor f) const
     {
-        QPropertyChangeHandler<Functor> handler(f);
+        QPropertyChangeHandler<Functor> handler(std::move(f));
         observe(&handler);
         return handler;
     }
@@ -744,13 +794,13 @@ public:
     QPropertyChangeHandler<Functor> subscribe(Functor f) const
     {
         f();
-        return onValueChanged(f);
+        return onValueChanged(std::move(f));
     }
 
     template<typename Functor>
     QPropertyNotifier addNotifier(Functor f)
     {
-        QPropertyNotifier handler(f);
+        QPropertyNotifier handler(std::move(f));
         observe(&handler);
         return handler;
     }
@@ -996,19 +1046,19 @@ public:
     template<typename Functor>
     QPropertyChangeHandler<Functor> onValueChanged(Functor f)
     {
-        return QBindable<T>(aliasedProperty(), iface).onValueChanged(f);
+        return QBindable<T>(aliasedProperty(), iface).onValueChanged(std::move(f));
     }
 
     template<typename Functor>
     QPropertyChangeHandler<Functor> subscribe(Functor f)
     {
-        return QBindable<T>(aliasedProperty(), iface).subscribe(f);
+        return QBindable<T>(aliasedProperty(), iface).subscribe(std::move(f));
     }
 
     template<typename Functor>
     QPropertyNotifier addNotifier(Functor f)
     {
-        return QBindable<T>(aliasedProperty(), iface).addNotifier(f);
+        return QBindable<T>(aliasedProperty(), iface).addNotifier(std::move(f));
     }
 
     bool isValid() const
@@ -1067,6 +1117,10 @@ public:
     template <typename Functor>
     explicit QObjectBindableProperty(Functor &&f);
 #endif
+
+    QT_DECLARE_EQUALITY_OPERATORS_HELPER(QObjectBindableProperty, QObjectBindableProperty, /* non-constexpr */, noexcept(false), template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>)
+    QT_DECLARE_EQUALITY_OPERATORS_HELPER(QObjectBindableProperty, T, /* non-constexpr */, noexcept(false), template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>)
+    QT_DECLARE_EQUALITY_OPERATORS_REVERSED_HELPER(QObjectBindableProperty, T, /* non-constexpr */, noexcept(false), template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>)
 
     parameter_type value() const
     {
@@ -1184,7 +1238,7 @@ public:
     QPropertyChangeHandler<Functor> onValueChanged(Functor f)
     {
         static_assert(std::is_invocable_v<Functor>, "Functor callback must be callable without any parameters");
-        return QPropertyChangeHandler<Functor>(*this, f);
+        return QPropertyChangeHandler<Functor>(*this, std::move(f));
     }
 
     template<typename Functor>
@@ -1192,14 +1246,14 @@ public:
     {
         static_assert(std::is_invocable_v<Functor>, "Functor callback must be callable without any parameters");
         f();
-        return onValueChanged(f);
+        return onValueChanged(std::move(f));
     }
 
     template<typename Functor>
     QPropertyNotifier addNotifier(Functor f)
     {
         static_assert(std::is_invocable_v<Functor>, "Functor callback must be callable without any parameters");
-        return QPropertyNotifier(*this, f);
+        return QPropertyNotifier(*this, std::move(f));
     }
 
     const QtPrivate::QPropertyBindingData &bindingData() const
@@ -1208,6 +1262,18 @@ public:
         return *storage->bindingData(const_cast<ThisType *>(this), true);
     }
 private:
+    template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>
+    friend bool comparesEqual(const QObjectBindableProperty &lhs, const QObjectBindableProperty &rhs)
+    {
+        return lhs.value() == rhs.value();
+    }
+
+    template <typename Ty = T, std::enable_if_t<QTypeTraits::has_operator_equal_v<Ty>>* = nullptr>
+    friend bool comparesEqual(const QObjectBindableProperty &lhs, const T &rhs)
+    {
+        return lhs.value() == rhs;
+    }
+
     void notify(const QtPrivate::QPropertyBindingData *binding)
     {
         if (binding)
@@ -1320,7 +1386,7 @@ public:
     QPropertyChangeHandler<Functor> onValueChanged(Functor f)
     {
         static_assert(std::is_invocable_v<Functor>, "Functor callback must be callable without any parameters");
-        return QPropertyChangeHandler<Functor>(*this, f);
+        return QPropertyChangeHandler<Functor>(*this, std::move(f));
     }
 
     template<typename Functor>
@@ -1328,14 +1394,14 @@ public:
     {
         static_assert(std::is_invocable_v<Functor>, "Functor callback must be callable without any parameters");
         f();
-        return onValueChanged(f);
+        return onValueChanged(std::move(f));
     }
 
     template<typename Functor>
     QPropertyNotifier addNotifier(Functor f)
     {
         static_assert(std::is_invocable_v<Functor>, "Functor callback must be callable without any parameters");
-        return QPropertyNotifier(*this, f);
+        return QPropertyNotifier(*this, std::move(f));
     }
 
     QtPrivate::QPropertyBindingData &bindingData() const

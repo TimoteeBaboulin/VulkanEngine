@@ -377,6 +377,7 @@ public:
     enum class Attribute {
         Custom,
         Level,
+        Locale,
     };
     Q_ENUM(Attribute)
 

@@ -4,6 +4,7 @@
 #include "qtguiglobal.h"
 #include "qabstractfileiconprovider.h"
 #include "qabstracttextdocumentlayout.h"
+#include "qaccessibilityhints.h"
 #include "qaccessible.h"
 #include "qaccessiblebridge.h"
 #include "qaccessibleobject.h"

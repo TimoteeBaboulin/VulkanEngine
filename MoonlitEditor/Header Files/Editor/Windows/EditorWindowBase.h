@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QtWidgets/qdockwidget.h>
+#include <qdockwidget.h>
 
 class EditorWindowBase : public QDockWidget
 {

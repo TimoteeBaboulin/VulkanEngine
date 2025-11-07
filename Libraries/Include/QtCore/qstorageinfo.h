@@ -1,5 +1,6 @@
 // Copyright (C) 2014 Ivan Komissarov <ABBAPOH@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
 
 #ifndef QSTORAGEINFO_H
 #define QSTORAGEINFO_H
@@ -17,6 +18,7 @@ QT_BEGIN_NAMESPACE
 class QDebug;
 
 class QStorageInfoPrivate;
+QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QStorageInfoPrivate)
 class Q_CORE_EXPORT QStorageInfo
 {
 public:
@@ -24,6 +26,7 @@ public:
     explicit QStorageInfo(const QString &path);
     explicit QStorageInfo(const QDir &dir);
     QStorageInfo(const QStorageInfo &other);
+    QStorageInfo(QStorageInfo &&) noexcept = default;
     ~QStorageInfo();
 
     QStorageInfo &operator=(const QStorageInfo &other);

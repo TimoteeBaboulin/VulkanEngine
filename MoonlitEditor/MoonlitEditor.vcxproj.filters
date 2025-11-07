@@ -45,13 +45,16 @@
     <ClCompile Include="Source Files\Editor\Windows\General\FileExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Editor\ModelClasses\SceneObjectItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Editor\Windows\General\SceneHierarchy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Editor\Windows\Debug\ProfilerWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Editor\ModelClasses\MethodViewModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Header Files\Editor\Models\SceneHierarchyModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,9 +80,13 @@
     <ClInclude Include="Header Files\Editor\Windows\General\SceneHierarchy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\Debug\ProfilerWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Editor\Windows\Debug\ProfilerWindow.h">
+    <ClInclude Include="Header Files\Editor\Models\MethodViewModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Models\SceneHierarchyModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

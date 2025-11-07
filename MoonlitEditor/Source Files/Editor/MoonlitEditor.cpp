@@ -5,6 +5,8 @@
 #include <QtCore/qtimer.h>
 #include <QtWidgets/qapplication.h>
 
+#include <ADS/DockManager.h>
+
 #include "Editor/Windows/EditorMainWindow.h"
 #include "Editor/Windows/General/SceneViewWindow.h"
 #include "Editor/Windows/General/FileExplorer.h"
@@ -22,6 +24,7 @@ MoonlitEditor* MoonlitEditor::Editor = new MoonlitEditor();
 
 MoonlitEditor::MoonlitEditor()
 {
+	ads::CDockManager::setConfigFlags(ads::CDockManager::DefaultOpaqueConfig);
 	Editor = this;
 
 	//Needed for application initialization
@@ -40,8 +43,8 @@ MoonlitEditor::MoonlitEditor()
 
 	//By default, the main window already has a scene view docked to the left
 	m_editorWindows.push_back(new SceneViewWindow(m_mainWindow));
+	m_mainWindow->setCentralWidget(m_editorWindows.back());
 	SceneViewWindow* sceneView = static_cast<SceneViewWindow*>(m_editorWindows.back());
-	m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, sceneView);
 
 	m_editorWindows.push_back(new FileExplorer(m_mainWindow));
 	m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_editorWindows.back());

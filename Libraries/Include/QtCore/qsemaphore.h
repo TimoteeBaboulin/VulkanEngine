@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
 
 #ifndef QSEMAPHORE_H
 #define QSEMAPHORE_H
@@ -8,8 +9,6 @@
 #include <QtCore/qdeadlinetimer.h>
 
 #include <chrono>
-
-QT_REQUIRE_CONFIG(thread);
 
 QT_BEGIN_NAMESPACE
 
@@ -101,7 +100,7 @@ public:
 
 private:
     QSemaphore *m_sem = nullptr;
-    int m_n;
+    int m_n = 0;
 };
 
 QT_END_NAMESPACE

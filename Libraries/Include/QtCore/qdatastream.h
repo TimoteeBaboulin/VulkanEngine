@@ -1,13 +1,15 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:critical reason:data-parser
 
 #ifndef QDATASTREAM_H
 #define QDATASTREAM_H
 
-#include <QtCore/qscopedpointer.h>
-#include <QtCore/qiodevicebase.h>
+#include <QtCore/qchar.h>
 #include <QtCore/qcontainerfwd.h>
+#include <QtCore/qiodevicebase.h>
 #include <QtCore/qnamespace.h>
+#include <QtCore/qscopedpointer.h>
 #include <QtCore/qttypetraits.h>
 
 #include <iterator>         // std::distance(), std::next()
@@ -28,7 +30,6 @@ class QIODevice;
 class QString;
 
 #if !defined(QT_NO_DATASTREAM)
-class QDataStreamPrivate;
 namespace QtPrivate {
 class StreamStateSaver;
 template <typename Container>
@@ -90,8 +91,9 @@ public:
         Qt_6_7 = 22,
         Qt_6_8 = Qt_6_7,
         Qt_6_9 = Qt_6_7,
-        Qt_DefaultCompiledVersion = Qt_6_9
-#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        Qt_6_10 = 23,
+        Qt_DefaultCompiledVersion = Qt_6_10
+#if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
 #error Add the datastream version for this Qt version and update Qt_DefaultCompiledVersion
 #endif
     };
@@ -192,6 +194,8 @@ public:
     QDataStream &operator<<(char16_t c);
     QDataStream &operator<<(char32_t c);
 
+    explicit operator bool() const noexcept { return status() == Ok; }
+
 #if QT_DEPRECATED_SINCE(6, 11)
     QT_DEPRECATED_VERSION_X_6_11("Use an overload that takes qint64 length.")
     QDataStream &readBytes(char *&, uint &len);
@@ -217,7 +221,9 @@ public:
 private:
     Q_DISABLE_COPY(QDataStream)
 
-    std::unique_ptr<QDataStreamPrivate> d;
+#if QT_VERSION < QT_VERSION_CHECK(7, 0, 0)
+    void* const d = nullptr;
+#endif
 
     QIODevice *dev = nullptr;
     bool owndev = false;
@@ -267,7 +273,8 @@ class StreamStateSaver
 {
     Q_DISABLE_COPY_MOVE(StreamStateSaver)
 public:
-    inline StreamStateSaver(QDataStream *s) : stream(s), oldStatus(s->status())
+    Q_NODISCARD_CTOR
+    explicit StreamStateSaver(QDataStream *s) : stream(s), oldStatus(s->status())
     {
         if (!stream->isDeviceTransactionStarted())
             stream->resetStatus();
@@ -300,8 +307,7 @@ QDataStream &readArrayBasedContainer(QDataStream &s, Container &c)
     c.reserve(n);
     for (qsizetype i = 0; i < n; ++i) {
         typename Container::value_type t;
-        s >> t;
-        if (s.status() != QDataStream::Ok) {
+        if (!(s >> t)) {
             c.clear();
             break;
         }
@@ -325,8 +331,7 @@ QDataStream &readListBasedContainer(QDataStream &s, Container &c)
     }
     for (qsizetype i = 0; i < n; ++i) {
         typename Container::value_type t;
-        s >> t;
-        if (s.status() != QDataStream::Ok) {
+        if (!(s >> t)) {
             c.clear();
             break;
         }
@@ -351,8 +356,7 @@ QDataStream &readAssociativeContainer(QDataStream &s, Container &c)
     for (qsizetype i = 0; i < n; ++i) {
         typename Container::key_type k;
         typename Container::mapped_type t;
-        s >> k >> t;
-        if (s.status() != QDataStream::Ok) {
+        if (!(s >> k >> t)) {
             c.clear();
             break;
         }
@@ -546,6 +550,9 @@ operator>>(QDataStream &s, T &t)
     t = T(i);
     return s;
 }
+
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &out, QChar chr);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &in, QChar &chr);
 
 #ifndef Q_QDOC
 

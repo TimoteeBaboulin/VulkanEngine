@@ -64,7 +64,6 @@ class QLocale;
 class QGraphicsProxyWidget;
 class QGraphicsEffect;
 class QRasterWindowSurface;
-class QUnifiedToolbarSurface;
 class QPixmap;
 #ifndef QT_NO_DEBUG_STREAM
 class QDebug;

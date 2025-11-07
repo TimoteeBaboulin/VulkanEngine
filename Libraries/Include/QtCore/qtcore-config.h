@@ -8,6 +8,8 @@
 
 #define QT_FEATURE_inotify -1
 
+#define QT_FEATURE_jemalloc -1
+
 #define QT_FEATURE_std_atomic64 1
 
 #define QT_FEATURE_mimetype 1
@@ -22,7 +24,7 @@
 
 #define QT_FEATURE_xmlstream 1
 
-#define QT_FEATURE_cpp_winrt 1
+#define QT_FEATURE_cpp_winrt -1
 
 #define QT_FEATURE_xmlstreamreader 1
 

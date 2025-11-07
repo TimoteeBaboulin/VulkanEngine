@@ -332,12 +332,18 @@ public:
         // elements (the one to be removed can be skipped).
         detach();
 
+#ifdef __cpp_lib_node_extract
+        if (const auto node = d->m.extract(key))
+            return std::move(node.mapped());
+#else
         auto i = d->m.find(key);
         if (i != d->m.end()) {
+            // ### breaks RVO on most compilers (but only on old-fashioned ones, so who cares?)
             T result(std::move(i->second));
             d->m.erase(i);
             return result;
         }
+#endif
         return T();
     }
 
@@ -614,10 +620,10 @@ public:
     const_key_value_iterator constKeyValueBegin() const { return const_key_value_iterator(begin()); }
     const_key_value_iterator keyValueEnd() const { return const_key_value_iterator(end()); }
     const_key_value_iterator constKeyValueEnd() const { return const_key_value_iterator(end()); }
-    auto asKeyValueRange() & { return QtPrivate::QKeyValueRange(*this); }
-    auto asKeyValueRange() const & { return QtPrivate::QKeyValueRange(*this); }
-    auto asKeyValueRange() && { return QtPrivate::QKeyValueRange(std::move(*this)); }
-    auto asKeyValueRange() const && { return QtPrivate::QKeyValueRange(std::move(*this)); }
+    auto asKeyValueRange() & { return QtPrivate::QKeyValueRange<QMap &>(*this); }
+    auto asKeyValueRange() const & { return QtPrivate::QKeyValueRange<const QMap &>(*this); }
+    auto asKeyValueRange() && { return QtPrivate::QKeyValueRange<QMap>(std::move(*this)); }
+    auto asKeyValueRange() const && { return QtPrivate::QKeyValueRange<QMap>(std::move(*this)); }
 
     iterator erase(const_iterator it)
     {
@@ -804,7 +810,7 @@ private:
             return seed;
         // don't use qHashRange to avoid its compile-time overhead:
         return std::accumulate(key.d->m.begin(), key.d->m.end(), seed,
-                               QtPrivate::QHashCombine{});
+                               QtPrivate::QHashCombine{seed});
     }
 #endif // !Q_QDOC
 };
@@ -1038,12 +1044,18 @@ public:
         // elements (the one to be removed can be skipped).
         detach();
 
+#ifdef __cpp_lib_node_extract
+        if (const auto node = d->m.extract(key))
+            return std::move(node.mapped());
+#else
         auto i = d->m.find(key);
         if (i != d->m.end()) {
+            // ### breaks RVO on most compilers (but only on old-fashioned ones, so who cares?)
             T result(std::move(i->second));
             d->m.erase(i);
             return result;
         }
+#endif
         return T();
     }
 
@@ -1341,10 +1353,10 @@ public:
     const_key_value_iterator constKeyValueBegin() const { return const_key_value_iterator(begin()); }
     const_key_value_iterator keyValueEnd() const { return const_key_value_iterator(end()); }
     const_key_value_iterator constKeyValueEnd() const { return const_key_value_iterator(end()); }
-    auto asKeyValueRange() & { return QtPrivate::QKeyValueRange(*this); }
-    auto asKeyValueRange() const & { return QtPrivate::QKeyValueRange(*this); }
-    auto asKeyValueRange() && { return QtPrivate::QKeyValueRange(std::move(*this)); }
-    auto asKeyValueRange() const && { return QtPrivate::QKeyValueRange(std::move(*this)); }
+    auto asKeyValueRange() & { return QtPrivate::QKeyValueRange<QMultiMap &>(*this); }
+    auto asKeyValueRange() const & { return QtPrivate::QKeyValueRange<const QMultiMap &>(*this); }
+    auto asKeyValueRange() && { return QtPrivate::QKeyValueRange<QMultiMap>(std::move(*this)); }
+    auto asKeyValueRange() const && { return QtPrivate::QKeyValueRange<QMultiMap>(std::move(*this)); }
 
     iterator erase(const_iterator it)
     {

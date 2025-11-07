@@ -27,6 +27,10 @@ public:
     QSize sizeHint() const override;
     bool event(QEvent *event) override;
 
+#ifndef QT_NO_CONTEXTMENU
+    QMenu *createStandardContextMenu(QPoint position);
+#endif
+
 protected:
 #if QT_CONFIG(wheelevent)
     void wheelEvent(QWheelEvent *) override;

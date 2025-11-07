@@ -4,6 +4,7 @@
 #ifndef QSIZE_H
 #define QSIZE_H
 
+#include <QtCore/qcheckedint_impl.h>
 #include <QtCore/qnamespace.h>
 #include <QtCore/qhashfunctions.h>
 #include <QtCore/qmargins.h>
@@ -47,9 +48,9 @@ public:
     [[nodiscard]] constexpr inline QSize boundedTo(const QSize &) const noexcept;
 
     [[nodiscard]] constexpr QSize grownBy(QMargins m) const noexcept
-    { return {width() + m.left() + m.right(), height() + m.top() + m.bottom()}; }
+    { return {wd + m.left() + m.right(), ht + m.top() + m.bottom()}; }
     [[nodiscard]] constexpr QSize shrunkBy(QMargins m) const noexcept
-    { return {width() - m.left() - m.right(), height() - m.top() - m.bottom()}; }
+    { return {wd - m.left() - m.right(), ht - m.top() - m.bottom()}; }
 
     constexpr inline int &rwidth() noexcept;
     constexpr inline int &rheight() noexcept;
@@ -68,11 +69,14 @@ private:
     friend inline constexpr QSize operator-(const QSize &s1, const QSize &s2) noexcept
     { return QSize(s1.wd - s2.wd, s1.ht - s2.ht); }
     friend inline constexpr QSize operator*(const QSize &s, qreal c) noexcept
-    { return QSize(qRound(s.wd * c), qRound(s.ht * c)); }
+    { return QSize(QtPrivate::qSaturateRound(s.width() * c), QtPrivate::qSaturateRound(s.height() * c)); }
     friend inline constexpr QSize operator*(qreal c, const QSize &s) noexcept
     { return s * c; }
     friend inline QSize operator/(const QSize &s, qreal c)
-    { Q_ASSERT(!qFuzzyIsNull(c)); return QSize(qRound(s.wd / c), qRound(s.ht / c)); }
+    {
+        Q_ASSERT(!qFuzzyIsNull(c));
+        return QSize(QtPrivate::qSaturateRound(s.width() / c), QtPrivate::qSaturateRound(s.height() / c));
+    }
     friend inline constexpr size_t qHash(const QSize &, size_t) noexcept;
 
 public:
@@ -83,8 +87,14 @@ public:
     [[nodiscard]] inline constexpr QSizeF toSizeF() const noexcept;
 
 private:
-    int wd;
-    int ht;
+    using Representation = QtPrivate::QCheckedIntegers::QCheckedInt<int>;
+
+    constexpr QSize(Representation w, Representation h) noexcept
+        : wd(w), ht(h)
+    {}
+
+    Representation wd;
+    Representation ht;
 
     template <std::size_t I,
               typename S,
@@ -93,9 +103,9 @@ private:
     friend constexpr decltype(auto) get(S &&s) noexcept
     {
         if constexpr (I == 0)
-            return q23::forward_like<S>(s.wd);
+            return q23::forward_like<S>(s.wd).as_underlying();
         else if constexpr (I == 1)
-            return q23::forward_like<S>(s.ht);
+            return q23::forward_like<S>(s.ht).as_underlying();
     }
 };
 Q_DECLARE_TYPEINFO(QSize, Q_RELOCATABLE_TYPE);
@@ -128,16 +138,16 @@ constexpr inline bool QSize::isValid() const noexcept
 { return wd >= 0 && ht >= 0; }
 
 constexpr inline int QSize::width() const noexcept
-{ return wd; }
+{ return wd.value(); }
 
 constexpr inline int QSize::height() const noexcept
-{ return ht; }
+{ return ht.value(); }
 
 constexpr inline void QSize::setWidth(int w) noexcept
-{ wd = w; }
+{ wd.setValue(w); }
 
 constexpr inline void QSize::setHeight(int h) noexcept
-{ ht = h; }
+{ ht.setValue(h); }
 
 constexpr inline QSize QSize::transposed() const noexcept
 { return QSize(ht, wd); }
@@ -152,10 +162,10 @@ inline QSize QSize::scaled(int w, int h, Qt::AspectRatioMode mode) const noexcep
 { return scaled(QSize(w, h), mode); }
 
 constexpr inline int &QSize::rwidth() noexcept
-{ return wd; }
+{ return wd.as_underlying(); }
 
 constexpr inline int &QSize::rheight() noexcept
-{ return ht; }
+{ return ht.as_underlying(); }
 
 constexpr inline QSize &QSize::operator+=(const QSize &s) noexcept
 {
@@ -173,19 +183,19 @@ constexpr inline QSize &QSize::operator-=(const QSize &s) noexcept
 
 constexpr inline QSize &QSize::operator*=(qreal c) noexcept
 {
-    wd = qRound(wd * c);
-    ht = qRound(ht * c);
+    wd.setValue(QtPrivate::qSaturateRound(width() * c));
+    ht.setValue(QtPrivate::qSaturateRound(height() * c));
     return *this;
 }
 
 constexpr inline size_t qHash(const QSize &s, size_t seed = 0) noexcept
-{ return qHashMulti(seed, s.wd, s.ht); }
+{ return qHashMulti(seed, s.width(), s.height()); }
 
 inline QSize &QSize::operator/=(qreal c)
 {
     Q_ASSERT(!qFuzzyIsNull(c));
-    wd = qRound(wd / c);
-    ht = qRound(ht / c);
+    wd.setValue(QtPrivate::qSaturateRound(width() / c));
+    ht.setValue(QtPrivate::qSaturateRound(height() / c));
     return *this;
 }
 
@@ -400,7 +410,7 @@ constexpr inline QSizeF QSizeF::boundedTo(const QSizeF &otherSize) const noexcep
 
 constexpr inline QSize QSizeF::toSize() const noexcept
 {
-    return QSize(qRound(wd), qRound(ht));
+    return QSize(QtPrivate::qSaturateRound(wd), QtPrivate::qSaturateRound(ht));
 }
 
 constexpr QSizeF QSize::toSizeF() const noexcept { return *this; }

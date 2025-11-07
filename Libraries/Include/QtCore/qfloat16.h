@@ -315,10 +315,10 @@ Q_CORE_EXPORT void qFloatFromFloat16(float *, const qfloat16 *, qsizetype length
 }
 
 // The remainder of these utility functions complement qglobal.h
-[[nodiscard]] inline int qRound(qfloat16 d) noexcept
+[[nodiscard]] inline int qRound(qfloat16 d)
 { return qRound(static_cast<float>(d)); }
 
-[[nodiscard]] inline qint64 qRound64(qfloat16 d) noexcept
+[[nodiscard]] inline qint64 qRound64(qfloat16 d)
 { return qRound64(static_cast<float>(d)); }
 
 [[nodiscard]] inline bool qFuzzyCompare(qfloat16 p1, qfloat16 p2) noexcept

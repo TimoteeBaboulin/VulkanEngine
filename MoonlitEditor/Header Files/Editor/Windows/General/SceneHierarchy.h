@@ -2,7 +2,7 @@
 
 #include "Editor/Windows/EditorWindowBase.h"
 
-#include <QtGui/qstandarditemmodel.h>
+#include "Editor/Models/SceneHierarchyModel.h"
 
 
 class SceneHierarchy : public EditorWindowBase
@@ -12,5 +12,5 @@ public:
 private:
 	void SetModel();
 
-	QStandardItemModel m_model;
+	SceneHierarchyModel* m_model;
 };

@@ -110,6 +110,11 @@ public:
     using rvalue_ref = T &&;
 #endif
 
+    DataPointer &data_ptr() &             { return d; }
+    const DataPointer &data_ptr() const & { return d; }
+    DataPointer &&data_ptr() &&           { return std::move(d); }
+    // No current use-case for a `const &&` overload
+
     class const_iterator;
     class iterator {
         friend class QList<T>;
@@ -137,6 +142,10 @@ public:
         inline T &operator*() const { return *i; }
         inline T *operator->() const { return i; }
         inline T &operator[](qsizetype j) const { return *(i + j); }
+#ifdef __cpp_lib_three_way_comparison
+        friend constexpr auto operator<=>(iterator, iterator) noexcept = default;
+        friend constexpr bool operator==(iterator, iterator) noexcept = default;
+#else
         inline constexpr bool operator==(iterator o) const { return i == o.i; }
         inline constexpr bool operator!=(iterator o) const { return i != o.i; }
         inline constexpr bool operator<(iterator other) const { return i < other.i; }
@@ -149,6 +158,7 @@ public:
         inline constexpr bool operator<=(const_iterator other) const { return i <= other.i; }
         inline constexpr bool operator>(const_iterator other) const { return i > other.i; }
         inline constexpr bool operator>=(const_iterator other) const { return i >= other.i; }
+#endif // __cpp_lib_three_way_comparison
         inline constexpr bool operator==(pointer p) const { return i == p; }
         inline constexpr bool operator!=(pointer p) const { return i != p; }
         inline iterator &operator++() { ++i; return *this; }
@@ -208,6 +218,14 @@ public:
         inline const T &operator*() const { return *i; }
         inline const T *operator->() const { return i; }
         inline const T &operator[](qsizetype j) const { return *(i + j); }
+#ifdef __cpp_lib_three_way_comparison
+        friend constexpr auto operator<=>(const_iterator, const_iterator) noexcept = default;
+        friend constexpr auto operator<=>(const_iterator a, iterator b) noexcept
+        { return a <=> const_iterator(b); }
+        friend constexpr bool operator==(const_iterator, const_iterator) noexcept = default;
+        friend constexpr bool operator==(const_iterator a, iterator b) noexcept
+        { return a == const_iterator(b); }
+#else
         inline constexpr bool operator==(const_iterator o) const { return i == o.i; }
         inline constexpr bool operator!=(const_iterator o) const { return i != o.i; }
         inline constexpr bool operator<(const_iterator other) const { return i < other.i; }
@@ -220,6 +238,7 @@ public:
         inline constexpr bool operator<=(iterator other) const { return i <= other.i; }
         inline constexpr bool operator>(iterator other) const { return i > other.i; }
         inline constexpr bool operator>=(iterator other) const { return i >= other.i; }
+#endif // __cpp_lib_three_way_comparison
         inline constexpr bool operator==(pointer p) const { return i == p; }
         inline constexpr bool operator!=(pointer p) const { return i != p; }
         inline const_iterator &operator++() { ++i; return *this; }
@@ -425,11 +444,18 @@ public:
 #endif // Q_QDOC
 
     static constexpr qsizetype maxSize() { return Data::maxSize(); }
-    qsizetype size() const noexcept { return d->size; }
-    qsizetype count() const noexcept { return size(); }
-    qsizetype length() const noexcept { return size(); }
+    constexpr qsizetype size() const noexcept
+    {
+#if __has_cpp_attribute(assume)
+        constexpr size_t MaxSize = maxSize();
+        [[assume(size_t(d.size) <= MaxSize)]];
+#endif
+        return d.size;
+    }
+    constexpr qsizetype count() const noexcept { return size(); }
+    constexpr qsizetype length() const noexcept { return size(); }
 
-    inline bool isEmpty() const noexcept { return d->size == 0; }
+    constexpr bool isEmpty() const noexcept { return size() == 0; }
 
     void resize(qsizetype size)
     {

@@ -553,6 +553,7 @@ public:
 #endif
 #endif
 
+public:
     // type erased converter function
     using ConverterFunction = std::function<bool(const void *src, void *target)>;
 
@@ -1212,8 +1213,6 @@ namespace QtPrivate
         }
         return true;
     }
-
-    Q_CORE_EXPORT bool isBuiltinType(const QByteArray &type);
 } // namespace QtPrivate
 
 template <typename T, int =
@@ -1350,6 +1349,10 @@ int qRegisterNormalizedMetaType(const QT_PREPEND_NAMESPACE(QByteArray) &normaliz
     return qRegisterNormalizedMetaTypeImplementation<T>(normalizedTypeName);
 }
 
+#if defined(QT_BOOTSTRAPPED)
+#define QT_DECL_METATYPE_EXTERN_TAGGED(TYPE, TAG, EXPORT)
+#define QT_IMPL_METATYPE_EXTERN_TAGGED(TYPE, TAG)
+#else
 #define QT_DECL_METATYPE_EXTERN_TAGGED(TYPE, TAG, EXPORT) \
     QT_BEGIN_NAMESPACE \
     EXPORT int qRegisterNormalizedMetaType_ ## TAG (const QByteArray &); \
@@ -1362,6 +1365,7 @@ int qRegisterNormalizedMetaType(const QT_PREPEND_NAMESPACE(QByteArray) &normaliz
     int qRegisterNormalizedMetaType_ ## TAG (const QByteArray &name) \
     { return qRegisterNormalizedMetaTypeImplementation< TYPE >(name); } \
     /* end */
+#endif
 #define QT_DECL_METATYPE_EXTERN(TYPE, EXPORT) \
     QT_DECL_METATYPE_EXTERN_TAGGED(TYPE, TYPE, EXPORT)
 #define QT_IMPL_METATYPE_EXTERN(TYPE) \
@@ -2097,6 +2101,9 @@ public:
         while (begin != end && is_space(*(end - 1)))
             end--;
 
+        if (begin == end)
+            return len;
+
         // Convert 'char const *' into 'const char *'. Start at index 1,
         // not 0, because 'const char *' is already OK.
         const char *cst = begin + 1;
@@ -2358,15 +2365,17 @@ struct QLessThanOperatorForType <T, false>
 template<typename T, bool = (QTypeTraits::has_ostream_operator_v<QDebug, T> && !std::is_pointer_v<T>)>
 struct QDebugStreamOperatorForType
 {
+    static constexpr QMetaTypeInterface::DebugStreamFn debugStream = nullptr;
+};
+
+#ifndef QT_NO_DEBUG_STREAM
+template<typename T>
+struct QDebugStreamOperatorForType <T, true>
+{
     static void debugStream(const QMetaTypeInterface *, QDebug &dbg, const void *a)
     { dbg << *reinterpret_cast<const T *>(a); }
 };
-
-template<typename T>
-struct QDebugStreamOperatorForType <T, false>
-{
-    static constexpr QMetaTypeInterface::DebugStreamFn debugStream = nullptr;
-};
+#endif
 
 template<typename T, bool = QTypeTraits::has_stream_operator_v<QDataStream, T>>
 struct QDataStreamOperatorForType

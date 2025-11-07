@@ -1,5 +1,6 @@
 // Copyright (C) 2018 Intel Corporation.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:critical reason:data-parser
 
 #ifndef QCBORSTREAMREADER_H
 #define QCBORSTREAMREADER_H
@@ -11,6 +12,9 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstringview.h>
 
+#ifdef __cpp_lib_bit_cast
+#include <bit>
+#endif
 #include <memory>
 
 QT_REQUIRE_CONFIG(cborstreamreader);
@@ -188,9 +192,13 @@ private:
     {
         using UIntFP = typename QIntegerForSizeof<FP>::Unsigned;
         UIntFP u = UIntFP(value64);
+#ifdef __cpp_lib_bit_cast
+        return std::bit_cast<FP>(u);
+#else
         FP f;
         memcpy(static_cast<void *>(&f), &u, sizeof(f));
         return f;
+#endif
     }
 
     friend QCborStreamReaderPrivate;

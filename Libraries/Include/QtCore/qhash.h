@@ -173,7 +173,7 @@ struct MultiNode
     {}
 
     MultiNode(MultiNode &&other)
-        : key(other.key),
+        : key(std::move(other.key)),
           value(std::exchange(other.value, nullptr))
     {
     }
@@ -685,10 +685,15 @@ struct Data
 
     template <typename K> Bucket findBucket(const K &key) const noexcept
     {
+        size_t hash = QHashPrivate::calculateHash(key, seed);
+        return findBucketWithHash(key, hash);
+    }
+
+    template <typename K> Bucket findBucketWithHash(const K &key, size_t hash) const noexcept
+    {
         static_assert(std::is_same_v<std::remove_cv_t<Key>, K> ||
                 QHashHeterogeneousSearch<std::remove_cv_t<Key>, K>::value);
         Q_ASSERT(numBuckets > 0);
-        size_t hash = QHashPrivate::calculateHash(key, seed);
         Bucket bucket(this, GrowthPolicy::bucketForHash(numBuckets, hash));
         // loop over the buckets until we find the entry we search for
         // or an empty slot, in which case we know the entry doesn't exist
@@ -722,14 +727,15 @@ struct Data
     template <typename K> InsertionResult findOrInsert(const K &key) noexcept
     {
         Bucket it(static_cast<Span *>(nullptr), 0);
+        size_t hash = QHashPrivate::calculateHash(key, seed);
         if (numBuckets > 0) {
-            it = findBucket(key);
+            it = findBucketWithHash(key, hash);
             if (!it.isUnused())
                 return { it.toIterator(this), true };
         }
         if (shouldGrow()) {
             rehash(size + 1);
-            it = findBucket(key); // need to get a new iterator after rehashing
+            it = findBucketWithHash(key, hash); // need to get a new iterator after rehashing
         }
         Q_ASSERT(it.span != nullptr);
         Q_ASSERT(it.isUnused());
@@ -1251,10 +1257,10 @@ public:
     inline const_key_value_iterator constKeyValueBegin() const noexcept { return const_key_value_iterator(begin()); }
     inline const_key_value_iterator keyValueEnd() const noexcept { return const_key_value_iterator(end()); }
     inline const_key_value_iterator constKeyValueEnd() const noexcept { return const_key_value_iterator(end()); }
-    auto asKeyValueRange() & { return QtPrivate::QKeyValueRange(*this); }
-    auto asKeyValueRange() const & { return QtPrivate::QKeyValueRange(*this); }
-    auto asKeyValueRange() && { return QtPrivate::QKeyValueRange(std::move(*this)); }
-    auto asKeyValueRange() const && { return QtPrivate::QKeyValueRange(std::move(*this)); }
+    auto asKeyValueRange() & { return QtPrivate::QKeyValueRange<QHash &>(*this); }
+    auto asKeyValueRange() const & { return QtPrivate::QKeyValueRange<const QHash &>(*this); }
+    auto asKeyValueRange() && { return QtPrivate::QKeyValueRange<QHash>(std::move(*this)); }
+    auto asKeyValueRange() const && { return QtPrivate::QKeyValueRange<QHash>(std::move(*this)); }
 
     struct TryEmplaceResult
     {
@@ -1436,7 +1442,8 @@ private:
             detach();
         QHash detachGuard;
 
-        typename Data::Bucket bucket = d->findBucket(key);
+        size_t hash = QHashPrivate::calculateHash(key, d->seed);
+        typename Data::Bucket bucket = d->findBucketWithHash(key, hash);
         const bool shouldInsert = bucket.isUnused();
 
         // Even if we don't insert we may have to detach because we are
@@ -1448,7 +1455,7 @@ private:
 
             // Must detach from detachGuard
             d = resized ? Data::detached(d, d->size + 1) : Data::detached(d);
-            bucket = resized ? d->findBucket(key) : typename Data::Bucket(d, bucketIndex);
+            bucket = resized ? d->findBucketWithHash(key, hash) : typename Data::Bucket(d, bucketIndex);
         }
         if (shouldInsert) {
             Node *n = bucket.insert();
@@ -2172,10 +2179,10 @@ public:
     inline const_key_value_iterator constKeyValueBegin() const noexcept { return const_key_value_iterator(begin()); }
     inline const_key_value_iterator keyValueEnd() const noexcept { return const_key_value_iterator(end()); }
     inline const_key_value_iterator constKeyValueEnd() const noexcept { return const_key_value_iterator(end()); }
-    auto asKeyValueRange() & { return QtPrivate::QKeyValueRange(*this); }
-    auto asKeyValueRange() const & { return QtPrivate::QKeyValueRange(*this); }
-    auto asKeyValueRange() && { return QtPrivate::QKeyValueRange(std::move(*this)); }
-    auto asKeyValueRange() const && { return QtPrivate::QKeyValueRange(std::move(*this)); }
+    auto asKeyValueRange() & { return QtPrivate::QKeyValueRange<QMultiHash &>(*this); }
+    auto asKeyValueRange() const & { return QtPrivate::QKeyValueRange<const QMultiHash &>(*this); }
+    auto asKeyValueRange() && { return QtPrivate::QKeyValueRange<QMultiHash>(std::move(*this)); }
+    auto asKeyValueRange() const && { return QtPrivate::QKeyValueRange<QMultiHash>(std::move(*this)); }
 
     iterator detach(const_iterator it)
     {
@@ -2703,9 +2710,9 @@ template <class Key, class T>
 size_t qHash(const QHash<Key, T> &key, size_t seed = 0)
     noexcept(noexcept(qHash(std::declval<Key&>())) && noexcept(qHash(std::declval<T&>())))
 {
+    const QtPrivate::QHashCombine combine(seed);
     size_t hash = 0;
     for (auto it = key.begin(), end = key.end(); it != end; ++it) {
-        QtPrivate::QHashCombine combine;
         size_t h = combine(seed, it.key());
         // use + to keep the result independent of the ordering of the keys
         hash += combine(h, it.value());
@@ -2717,9 +2724,9 @@ template <class Key, class T>
 inline size_t qHash(const QMultiHash<Key, T> &key, size_t seed = 0)
     noexcept(noexcept(qHash(std::declval<Key&>())) && noexcept(qHash(std::declval<T&>())))
 {
+    const QtPrivate::QHashCombine combine(seed);
     size_t hash = 0;
     for (auto it = key.begin(), end = key.end(); it != end; ++it) {
-        QtPrivate::QHashCombine combine;
         size_t h = combine(seed, it.key());
         // use + to keep the result independent of the ordering of the keys
         hash += combine(h, it.value());

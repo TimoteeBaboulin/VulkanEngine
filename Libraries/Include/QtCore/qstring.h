@@ -3,6 +3,7 @@
 // Copyright (C) 2019 Mail.ru Group.
 // Copyright (C) 2020 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Marc Mutz <marc.mutz@kdab.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:critical reason:data-parser
 
 #ifndef QSTRING_H
 #define QSTRING_H
@@ -65,9 +66,6 @@ template <> struct treat_as_integral_arg<unsigned short> : std::true_type {};
 template <> struct treat_as_integral_arg<  signed short> : std::true_type {};
 template <> struct treat_as_integral_arg<unsigned  char> : std::true_type {};
 template <> struct treat_as_integral_arg<  signed  char> : std::true_type {};
-// QTBUG-126054, keep until we can fix it for all platforms, not just Windows
-// (where wchar_t does convert to QAnyStringView):
-template <> struct treat_as_integral_arg<wchar_t> : std::true_type {};
 }
 
 // Qt 4.x compatibility
@@ -232,13 +230,20 @@ public:
         // -1 to deal with the NUL terminator
         return Data::maxSize() - 1;
     }
-    inline qsizetype size() const noexcept { return d.size; }
+    constexpr qsizetype size() const noexcept
+    {
+#if __has_cpp_attribute(assume)
+        constexpr size_t MaxSize = maxSize();
+        [[assume(size_t(d.size) <= MaxSize)]];
+#endif
+        return d.size;
+    }
 #if QT_DEPRECATED_SINCE(6, 4)
     QT_DEPRECATED_VERSION_X_6_4("Use size() or length() instead.")
-    inline qsizetype count() const { return d.size; }
+    constexpr qsizetype count() const { return size(); }
 #endif
-    inline qsizetype length() const noexcept { return d.size; }
-    inline bool isEmpty() const noexcept { return d.size == 0; }
+    constexpr qsizetype length() const noexcept { return size(); }
+    constexpr bool isEmpty() const noexcept { return size() == 0; }
     void resize(qsizetype size);
     void resize(qsizetype size, QChar fillChar);
     void resizeForOverwrite(qsizetype size);
@@ -699,6 +704,9 @@ public:
     [[nodiscard]] QString repeated(qsizetype times) const;
 
     const ushort *utf16() const; // ### Qt 7 char16_t
+    [[nodiscard]] QString nullTerminated() const &;
+    [[nodiscard]] QString nullTerminated() &&;
+    QString &nullTerminate();
 
 #if !defined(Q_QDOC)
     [[nodiscard]] QByteArray toLatin1() const &
@@ -752,6 +760,11 @@ public:
     }
     static QString fromUtf16(const char16_t *, qsizetype size = -1);
     static QString fromUcs4(const char32_t *, qsizetype size = -1);
+    static QString fromRawData(const char16_t *unicode, qsizetype size)
+    {
+        return QString(DataPointer::fromRawData(unicode, size));
+    }
+    QT_CORE_INLINE_SINCE(6, 10)
     static QString fromRawData(const QChar *, qsizetype size);
 
 #if QT_DEPRECATED_SINCE(6, 0)
@@ -1051,7 +1064,7 @@ public:
     }
 
     static inline QString fromStdString(const std::string &s);
-    inline std::string toStdString() const;
+    std::string toStdString() const;
     static inline QString fromStdWString(const std::wstring &s);
     inline std::wstring toStdWString() const;
 
@@ -1074,7 +1087,7 @@ public:
     emscripten::val toEcmaString() const;
 #endif
 
-    inline bool isNull() const { return d.isNull(); }
+    constexpr bool isNull() const { return d.isNull(); }
 
     bool isRightToLeft() const;
     [[nodiscard]] bool isValidUtf16() const noexcept
@@ -1538,9 +1551,6 @@ QT_ASCII_CAST_WARN inline QString operator+(QString &&lhs, const QByteArray &rhs
 #  endif // QT_NO_CAST_FROM_ASCII
 #endif // QT_USE_QSTRINGBUILDER
 
-std::string QString::toStdString() const
-{ return toUtf8().toStdString(); }
-
 QString QString::fromStdString(const std::string &s)
 { return fromUtf8(s.data(), qsizetype(s.size())); }
 
@@ -1615,6 +1625,12 @@ qsizetype QString::indexOf(QChar ch, qsizetype from, Qt::CaseSensitivity cs) con
 qsizetype QString::lastIndexOf(QChar ch, qsizetype from, Qt::CaseSensitivity cs) const
 {
     return qToStringViewIgnoringNull(*this).lastIndexOf(ch, from, cs);
+}
+#endif
+#if QT_CORE_INLINE_IMPL_SINCE(6, 10)
+QString QString::fromRawData(const QChar *unicode, qsizetype size)
+{
+    return fromRawData(reinterpret_cast<const char16_t *>(unicode), size);
 }
 #endif
 

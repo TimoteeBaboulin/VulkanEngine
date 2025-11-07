@@ -77,7 +77,6 @@
     <ClInclude Include="Header Files\Editor\Windows\General\SceneHierarchy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Editor\ModelClasses\SceneObjectItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Editor\Windows\Debug\ProfilerWindow.h">

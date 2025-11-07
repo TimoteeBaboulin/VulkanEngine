@@ -62,15 +62,5 @@ MoonlitEditor::MoonlitEditor()
 
 	m_app->processEvents();
 
-	FrameSample frame = Profiler::Get().GetLastFrameSample();
-	if (frame.stackSamples.size() > 0)
-	{
-		LOG_INFO("Profiler sample retrieved successfully.");
-	}
-	else
-	{
-		LOG_WARNING("No profiler samples available.");
-	}
-
 	m_app->exec();
 }

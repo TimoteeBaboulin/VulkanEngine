@@ -17,6 +17,8 @@ public:
 
 	void ClearScene();
 
+	class GameObject* GetGameObjectById(uint64_t _id) const;
+
 	std::vector<class GameObject*> GetRootGameObjects() const { return m_rootGameObjects; }
 private:
 	std::vector<class GameObject*> m_rootGameObjects;

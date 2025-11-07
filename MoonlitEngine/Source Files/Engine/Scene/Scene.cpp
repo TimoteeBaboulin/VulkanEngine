@@ -67,8 +67,12 @@ void Scene::Load(std::string _filePath)
 			break;
 		}
 
+		uint64_t id = 0;
+		if (!fileStream.read(reinterpret_cast<char*>(&id), sizeof(id)))
+			break;
+
 		// create empty GameObject and let it load the rest
-		GameObject* newObject = GameObject::Create();
+		GameObject* newObject = new GameObject(id);
 		m_rootGameObjects.push_back(newObject);
 		newObject->LoadFromFile(fileStream);
 	}
@@ -83,4 +87,13 @@ void Scene::ClearScene()
 		delete (*it);
 	}
 	m_rootGameObjects.clear();
+}
+
+GameObject* Scene::GetGameObjectById(uint64_t _id) const
+{
+	auto it = std::find_if(m_rootGameObjects.begin(), m_rootGameObjects.end(), [_id](GameObject* obj) {
+		return obj->GetId() == _id;
+	});
+
+	return (it != m_rootGameObjects.end()) ? *it : nullptr;
 }

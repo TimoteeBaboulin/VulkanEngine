@@ -28,11 +28,13 @@ public:
 	static GameObject* CreateAt(glm::vec3 _pos);
 
 private:
-	static std::map<uint32_t, GameObject*> m_gameObjects;
+	static uint64_t GetNextId();
+
+	static std::map<uint64_t, GameObject*> m_gameObjects;
 
 	// Default
 public:
-	GameObject(uint32_t id);
+	GameObject(uint64_t id);
 	GameObject(const GameObject& _toCopy);
 
 	virtual ~GameObject();
@@ -58,6 +60,9 @@ public:
 	
 	void AddChild(GameObject* _child) { m_children.push_back(_child); }
 	void RemoveChild(GameObject* _child);
+
+	void SetName(const std::string& _name) { m_name = _name; }
+	const std::string& GetName() const { return m_name; }
 
 	//Component accessors
 	bool TryGetComponentsOfType(std::vector<ObjectBehaviour*>& _components, const type_info& _type);
@@ -99,10 +104,11 @@ public:
 		return foundComponent;
 	}
 protected:
-	uint32_t m_id;
+	uint64_t m_id;
+	std::string m_name;
 
 	std::vector<GameEventFunction> m_updates;
 	std::vector<ObjectBehaviour*> m_components;
 	std::vector<GameObject*> m_children;
-	GameObject* m_parent;
+	GameObject* m_parent = nullptr;
 };

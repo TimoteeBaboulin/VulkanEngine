@@ -2,18 +2,18 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <random>
 
 #include "Engine/Components/ObjectBehaviour.h"
 #include "Debug/Logger.h"
 #include "Engine/Components/BehaviourRegistry.h"
 
-std::map<uint32_t, GameObject*> GameObject::m_gameObjects = std::map<uint32_t, GameObject*>();
+std::map<uint64_t, GameObject*> GameObject::m_gameObjects = std::map<uint64_t, GameObject*>();
 
 GameObject* GameObject::Create()
 {
-	//TODO: implement ID management
-	GameObject* newObject = new GameObject(0);
-	m_gameObjects[newObject->m_id] = newObject;
+	uint64_t id = GetNextId();
+	GameObject* newObject = new GameObject(id);
 
 	return newObject;
 }
@@ -28,17 +28,37 @@ GameObject* GameObject::CreateAt(glm::vec3 _pos)
 	return newObject;
 }
 
-GameObject::GameObject(uint32_t id) : m_id(id), m_updates(), m_components()
+uint64_t GameObject::GetNextId()
 {
+	static std::random_device rd;
+	static std::mt19937_64 randEngine(rd());
+	static std::uniform_int_distribution<uint64_t> dist(1, UINT64_MAX);
+
+	uint64_t objectId;
+
+	do
+	{
+		objectId = dist(randEngine);
+	} while (m_gameObjects.find(objectId) != m_gameObjects.end());
+
+	return objectId;
+}
+
+GameObject::GameObject(uint64_t id) : m_id(id)
+{
+	m_name = "GameObject_" + std::to_string(m_id);
+	m_gameObjects[m_id] = this;
 }
 
 GameObject::GameObject(const GameObject& _toCopy)
 {
-	m_id = 0;
+	m_id = GetNextId();
+	m_gameObjects[m_id] = this;
 }
 
 GameObject::~GameObject()
 {
+	m_gameObjects.erase(m_id);
 }
 
 GameObject& GameObject::operator=(const GameObject& _toCopy)
@@ -136,12 +156,7 @@ void GameObject::SaveToFile(std::ofstream& _stream)
 
 void GameObject::LoadFromFile(std::ifstream& _stream)
 {
-	// Expect id and component count (magic already consumed by caller)
-	uint32_t id = 0;
-	if (!_stream.read(reinterpret_cast<char*>(&id), sizeof(id)))
-		return;
-	m_id = id;
-
+	// Expected to be called after reading the magic and id
 	uint32_t count = 0;
 	if (!_stream.read(reinterpret_cast<char*>(&count), sizeof(count)))
 		return;

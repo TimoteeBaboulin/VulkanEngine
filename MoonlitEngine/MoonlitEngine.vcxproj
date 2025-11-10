@@ -150,7 +150,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;%(AdditionalLibraryDirectories);C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d_static.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -180,7 +180,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;C:\VulkanSDK\1.4.313.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d_static.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <GenerateMapFile>true</GenerateMapFile>
@@ -215,7 +215,7 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;%(AdditionalLibraryDirectories);C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d_static.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6_static.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -244,7 +244,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d_static.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -273,7 +273,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d_static.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <GenerateMapFile>true</GenerateMapFile>
@@ -308,7 +308,7 @@ xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d_static.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6_static.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;Qt6EntryPoint.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -334,7 +334,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
 xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /y /s /i</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d_static.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6_static.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
     </Link>
     <Bscmake />
@@ -351,7 +351,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
 xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /y /s /i</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6d_static.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;dbghelp.lib;qtadvanceddocking-qt6_static.lib;glfw3_mt.lib;glfw3dll.lib;assimp-vc143-mt.lib;%(AdditionalDependencies);vulkan-1.lib;xinput.lib;gfx.lib;slang.lib;slang-rt.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)Libraries\lib;..\..\Libraries\lib;C:\VulkanSDK\1.4.313.0\Lib</AdditionalLibraryDirectories>
     </Link>
     <Bscmake />

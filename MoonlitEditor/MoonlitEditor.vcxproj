@@ -138,7 +138,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>EDITOR_BUILD;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
@@ -149,7 +149,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalDependencies>qtadvanceddocking-qt6d_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtadvanceddocking-qt6d.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);</AdditionalDependencies>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
     </Link>
@@ -161,7 +161,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>EDITOR_BUILD;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
@@ -173,7 +173,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalDependencies>qtadvanceddocking-qt6d_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
+      <AdditionalDependencies>qtadvanceddocking-qt6d.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
     </Link>
@@ -188,7 +188,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>EDITOR_BUILD;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
@@ -201,7 +201,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtadvanceddocking-qt6d_static.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s</Command>
@@ -211,7 +211,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>EDITOR_BUILD;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
@@ -222,7 +222,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalDependencies>qtadvanceddocking-qt6d_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtadvanceddocking-qt6d.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);</AdditionalDependencies>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
     </Link>
@@ -234,7 +234,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>EDITOR_BUILD;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
@@ -246,7 +246,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalDependencies>qtadvanceddocking-qt6d_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
+      <AdditionalDependencies>qtadvanceddocking-qt6d.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
     </Link>
@@ -261,7 +261,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>EDITOR_BUILD;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);EDITOR_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
@@ -274,7 +274,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtadvanceddocking-qt6d_static.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s</Command>
@@ -282,7 +282,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>EDITOR_BUILD;;EDITOR_BUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;;EDITOR_BUILD</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
@@ -292,7 +292,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtadvanceddocking-qt6d_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
+      <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
@@ -301,7 +301,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>EDITOR_BUILD;;EDITOR_BUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;;EDITOR_BUILD</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
@@ -311,7 +311,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtadvanceddocking-qt6d_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
+      <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s

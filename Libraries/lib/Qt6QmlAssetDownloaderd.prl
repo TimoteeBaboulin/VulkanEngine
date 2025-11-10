@@ -1,5 +1,0 @@
-QMAKE_PRL_TARGET = Qt6QmlAssetDownloaderd.lib
-QMAKE_PRL_CONFIG = static
-QMAKE_PRL_VERSION = 6.9.0
-QMAKE_PRL_LIBS = $$[QT_INSTALL_PREFIX]/qml/Assets/Downloader/objects-Debug/QmlAssetDownloader_resources_1/.qt/rcc/qrc_qmake_Assets_Downloader_init.cpp.obj $$[QT_INSTALL_LIBS]/Qt6QmlAssetDownloaderd.lib $$[QT_INSTALL_LIBS]/Qt6ExamplesAssetDownloaderd.lib $$[QT_INSTALL_LIBS]/Qt6Concurrentd.lib $$[QT_INSTALL_LIBS]/Qt6Qmld.lib $$[QT_INSTALL_LIBS]/Qt6Networkd.lib $$[QT_INSTALL_LIBS]/Qt6Cored.lib -lmpr -luserenv -lws2_32 -lshell32
-QMAKE_PRL_LIBS_FOR_CMAKE = $$[QT_INSTALL_PREFIX]/qml/Assets/Downloader/objects-Debug/QmlAssetDownloader_resources_1/.qt/rcc/qrc_qmake_Assets_Downloader_init.cpp.obj;$$[QT_INSTALL_LIBS]/Qt6QmlAssetDownloaderd.lib;$$[QT_INSTALL_LIBS]/Qt6ExamplesAssetDownloaderd.lib;$$[QT_INSTALL_LIBS]/Qt6Concurrentd.lib;$$[QT_INSTALL_LIBS]/Qt6Qmld.lib;$$[QT_INSTALL_LIBS]/Qt6Networkd.lib;$$[QT_INSTALL_LIBS]/Qt6Cored.lib;-lmpr;-luserenv;-lws2_32;-lshell32

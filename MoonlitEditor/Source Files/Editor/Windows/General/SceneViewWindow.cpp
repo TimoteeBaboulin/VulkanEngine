@@ -1,6 +1,5 @@
 #include "Editor/Windows/General/SceneViewWindow.h"
 #include "Editor/MoonlitEditor.h"
-#include "SceneViewInputHandler.h"
 #include "Engine/MoonlitEngine.h"
 #include "Engine/Renderer/Renderer.h"
 #include "Engine/Renderer/RenderTarget.h"
@@ -11,9 +10,11 @@
 
 
 SceneViewWindow::SceneViewWindow(QWidget* _parent) : 
-	EditorWindowBase(_parent), m_camera(glm::vec3(20.0f, 30.0f, 35.0f), glm::vec3(1.0, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f))
+	EditorWindowBase(_parent), m_camera(glm::vec3(0.0f, 0.0f, 40.0f), glm::vec3(0.0, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 {
 	SetQtData();
+
+	m_inputHandler = new SceneViewInputHandler(m_camera);
 
 	m_engine = &MoonlitEditor::Editor->GetEngine();
 	m_renderTarget = m_engine->Renderer->AddRenderTarget(m_windowHandle, &m_camera);

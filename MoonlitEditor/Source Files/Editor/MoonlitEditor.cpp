@@ -25,6 +25,9 @@ MoonlitEditor* MoonlitEditor::Editor = new MoonlitEditor();
 MoonlitEditor::MoonlitEditor()
 {
 	ads::CDockManager::setConfigFlags(ads::CDockManager::DefaultOpaqueConfig);
+	
+	
+	
 	Editor = this;
 
 	//Needed for application initialization

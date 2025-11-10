@@ -1,4 +1,4 @@
-#include "SceneHierarchyModel.h"
+#include "Editor/Models/SceneHierarchyModel.h"
 #include "Engine/GameObject.h"
 
 SceneHierarchyModel::SceneHierarchyModel(Scene* scene)

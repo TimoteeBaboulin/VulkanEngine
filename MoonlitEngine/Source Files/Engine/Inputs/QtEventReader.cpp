@@ -13,14 +13,13 @@ QtEventReader::~QtEventReader()
 
 bool QtEventReader::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
 {
-    return false;
 
     // We have to inverse the if otherwise the compiler can not choose the right override
     if (!(eventType == "windows_generic_MSG" || eventType == "windows_dispatcher_MSG"))
         return false;
 
     MSG* msg = reinterpret_cast<MSG*>(message);
-    if (!msg || msg->hwnd != m_targetHandle)
+    if (!msg) // || msg->hwnd != m_targetHandle
         return false;
 
     if (m_backend) m_backend->HandleWindowsInputs(*msg);

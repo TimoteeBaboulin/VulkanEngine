@@ -12,7 +12,21 @@
 
 Scene::Scene()
 {
-	GameObject* testObject = GameObject::CreateAt(glm::vec3(1, 0, 0));
+	GameObject* testObject = GameObject::CreateAt(glm::vec3(0, 0, 0));
+	if (!testObject)
+	{
+		LOG_ERROR("Scene Constructor: Failed to create test GameObject");
+		return;
+	}
+
+	ObjectBehaviour* meshRenderer = BehaviourRegistry::CreateBehaviour("MeshRendererBehaviour", testObject);
+	if (!meshRenderer)
+	{
+		LOG_ERROR("Scene Constructor: Failed to create MeshRendererBehaviour for test GameObject");
+		delete testObject;
+		return;
+	}
+
 	m_rootGameObjects.push_back(testObject);
 }
 

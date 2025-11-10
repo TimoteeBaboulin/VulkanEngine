@@ -2,6 +2,7 @@
 
 #include "../EditorWindowBase.h"
 #include "Camera.h"
+#include "Editor/Controllers/SceneViewController.h"
 
 class MoonlitEngine;
 class QTimer;

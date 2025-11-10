@@ -54,7 +54,10 @@
     <ClCompile Include="Source Files\Editor\ModelClasses\MethodViewModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Header Files\Editor\Models\SceneHierarchyModel.cpp">
+    <ClCompile Include="Source Files\Editor\ModelClasses\SceneHierarchyModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Editor\Controllers\SceneViewController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -87,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Editor\Models\SceneHierarchyModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Controllers\SceneViewController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

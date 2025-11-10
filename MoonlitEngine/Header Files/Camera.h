@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include "MoonlitExport.h"
 
+// TODO: Add a dirty flag to avoid recalculating the view matrix on every call
+
 struct MOONLIT_API Camera
 {
 	Camera(glm::vec3 _pos, glm::vec3 _lookDir, glm::vec3 _worldUp);

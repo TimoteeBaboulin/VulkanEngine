@@ -20,31 +20,26 @@ public:
 	template <class T>
 	static void RegisterResourceBank(ResourceBank<T>* _bank)
 	{
-		ResourceManager* instance = GetInstance();
+		ResourceManager* instance = Get();
 		instance->m_resourceBanks[std::type_index(typeid(T))] = _bank;
 	}
 	template <class T>
 	static bool TryGetResource(std::string _name, std::shared_ptr<T>& _outResource)
 	{
-		ResourceManager* instance = GetInstance();
+		ResourceManager* instance = Get();
 		return instance->TryGetResourceInstance<T>(_name, _outResource);
 	}
 	template <class T>
 	static bool TryLoadResource(std::string _path)
 	{
-		ResourceManager* instance = GetInstance();
+		ResourceManager* instance = Get();
 		return instance->TryLoadResourceInstance<T>(_path);
 	}
 
+	static ResourceManager* Get();
+
+
 private:
-	static ResourceManager* GetInstance()
-	{
-		if (m_instance == nullptr)
-		{
-			m_instance = new ResourceManager();
-		}
-		return m_instance;
-	}
 
 	static ResourceManager* m_instance;
 

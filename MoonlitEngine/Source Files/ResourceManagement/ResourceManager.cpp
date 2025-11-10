@@ -3,7 +3,7 @@
 #include "ResourceManagement/MeshBank.h"
 #include "ResourceManagement/TextureBank.h"
 
-ResourceManager* ResourceManager::m_instance = nullptr;
+MOONLIT_API ResourceManager* ResourceManager::m_instance = nullptr;
 
 ResourceManager::ResourceManager()
 {
@@ -14,4 +14,13 @@ ResourceManager::ResourceManager()
 
 	ResourceManager::RegisterResourceBank<MeshData>(MeshBank::GetInstance());
 	ResourceManager::RegisterResourceBank<Image>(TextureBank::GetInstance());
+}
+
+ResourceManager* ResourceManager::Get()
+{
+	if (m_instance == nullptr)
+	{
+		m_instance = new ResourceManager();
+	}
+	return m_instance;
 }

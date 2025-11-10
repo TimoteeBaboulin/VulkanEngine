@@ -321,7 +321,8 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Header Files\Editor\Models\SceneHierarchyModel.cpp" />
+    <ClCompile Include="Source Files\Editor\Controllers\SceneViewController.cpp" />
+    <ClCompile Include="Source Files\Editor\ModelClasses\SceneHierarchyModel.cpp" />
     <ClCompile Include="Source Files\Editor\ModelClasses\MethodViewModel.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\Debug\ProfilerWindow.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\SceneHierarchy.cpp" />
@@ -334,6 +335,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClCompile Include="Source Files\Editor\Windows\General\SceneViewWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header Files\Editor\Controllers\SceneViewController.h" />
     <ClInclude Include="Header Files\Editor\Models\MethodViewModel.h" />
     <ClInclude Include="Header Files\Editor\Models\SceneHierarchyModel.h" />
     <ClInclude Include="Header Files\Editor\MoonlitEditor.h" />

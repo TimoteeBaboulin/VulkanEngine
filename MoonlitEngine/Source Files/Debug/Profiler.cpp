@@ -1,6 +1,8 @@
 #include "Debug/Profiler.h"
 #include "Debug/Logger.h"
 
+#include <string>
+
 
 Profiler& Profiler::Get()
 {

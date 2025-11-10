@@ -23,6 +23,13 @@ GameObject* GameObject::CreateAt(glm::vec3 _pos)
 	GameObject* newObject = Create();
 
 	ObjectBehaviour* transform = BehaviourRegistry::CreateBehaviour("TransformBehaviour", newObject);
+	if (!transform)
+	{
+		Logger::LogError("Failed to create TransformBehaviour for new GameObject");
+		delete newObject;
+		return nullptr;
+	}
+
 	transform->SetParameterValue("Position", &_pos);
 
 	return newObject;

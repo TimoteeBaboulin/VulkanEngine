@@ -192,7 +192,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
-xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s
+xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)/" /v /y /s /I
 xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s</Command>
     </PostBuildEvent>
     <Bscmake />
@@ -285,7 +285,7 @@ xcopy "$(ProjectDir)Resources" "$(OutDir)" /v /y /s</Command>
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>xcopy "$(OutDir)*.lib" "$(SolutionDir)Libraries/lib" /v /y /s
-xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s
+xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)/" /v /y /s /I
 xcopy "$(OutDir)*.pdb" "$(SolutionDir)Builds/$(Platform)/$(Configuration)" /v /y /s</Command>
     </PostBuildEvent>
     <Bscmake />

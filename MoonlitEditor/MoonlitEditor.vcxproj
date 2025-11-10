@@ -178,7 +178,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
+      <Command>xcopy "$(SolutionDir)Libraries/DLLs/Common" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Libraries/DLLs/Debug" "$(OutDir)" /v /y /s
 xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -251,7 +252,8 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
+      <Command>xcopy "$(SolutionDir)Libraries/DLLs/Common" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Libraries/DLLs/Debug" "$(OutDir)" /v /y /s
 xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -295,7 +297,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
+      <Command>xcopy "$(SolutionDir)Libraries/DLLs/Common" "$(OutDir)" /v /y /s
 xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -314,7 +316,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s
+      <Command>xcopy "$(SolutionDir)Libraries/DLLs/Common" "$(OutDir)" /v /y /s
 xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

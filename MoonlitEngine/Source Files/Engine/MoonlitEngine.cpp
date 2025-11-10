@@ -10,6 +10,8 @@
 #include "ResourceManagement/Mesh.h"
 #include "Engine/Components/BehaviourRegistry.h"
 
+#include "Debug/Exceptions/MoonlitExceptions.h"
+
 MoonlitEngine* MoonlitEngine::m_instance = nullptr;
 
 MoonlitEngine::MoonlitEngine(void* _handle)
@@ -28,7 +30,22 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 
 	Logger::LogInfo("Moonlit Engine initialized successfully.");
 
-	LoadPlugin("DefaultPlugin.dll");
+	try
+	{
+		LoadPlugin("DefaultPlugin.dll");
+	}
+	catch (PluginLoadException& e)
+	{
+		Logger::LogError(("Error loading plugin: " + std::string(e.what())).c_str());
+		if (e.Error() == PluginLoadError::REGISTER_FUNCTION_MISSING)
+		{
+			// Since this is the default plugin, freeing the library is our job
+			// This is still a very serious case as the main components are unusable without this plugin
+			FreeLibrary(e.PluginModule());
+			return;
+		}
+		throw;
+	}
 }
 
 void MoonlitEngine::LoadPlugin(std::string _name)
@@ -39,6 +56,7 @@ void MoonlitEngine::LoadPlugin(std::string _name)
 	{
 		DWORD error = GetLastError();
 		Logger::LogError(("Failed to load plugin: " + _name + " Error: " + std::to_string(error)).c_str());
+		throw PluginLoadException(PluginLoadError::FILE_NOT_FOUND, _name);
 		return;
 	}
 
@@ -46,7 +64,7 @@ void MoonlitEngine::LoadPlugin(std::string _name)
 	if (!registerFunction)
 	{
 		Logger::LogError(("Failed to find GetRegistry function in plugin: " + _name).c_str());
-		FreeLibrary(pluginHandle);
+		throw PluginLoadException(PluginLoadError::REGISTER_FUNCTION_MISSING, _name, pluginHandle);
 		return;
 	}
 

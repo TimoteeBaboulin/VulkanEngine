@@ -101,3 +101,9 @@ MaterialInstance* Material::CreateInstance(RenderTarget& _target)
 
 	return instance;
 }
+
+void Material::RemoveInstance(MaterialInstance* _instance)
+{
+	auto it = std::find(m_instances.begin(), m_instances.end(), _instance);
+	m_instances.erase(it);
+}

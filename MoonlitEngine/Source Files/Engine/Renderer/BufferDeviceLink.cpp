@@ -33,14 +33,54 @@ BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _ma
 	m_drawResources.textureDescriptorSets = m_deviceData.Device.allocateDescriptorSets(textureSetInfo);
 }
 
+BufferDeviceLink::BufferDeviceLink(BufferDeviceLink&& _src)
+{
+	// We can't keep the source's resources, not only is it bad practice
+	// But using the same resources from multiple places will cause vulkan crashes that are hell to debug
+	m_deviceData = _src.m_deviceData;
+	m_material = _src.m_material;
+	m_commandPool = _src.m_commandPool;
+	m_commandBuffer = _src.m_commandBuffer;
+	m_drawResources = _src.m_drawResources;
+	_src.m_material = nullptr;
+	_src.m_commandBuffer = nullptr;
+	_src.m_commandPool = nullptr;
+	_src.m_deviceData = {};
+	_src.m_drawResources = {};
+}
+
+BufferDeviceLink& BufferDeviceLink::operator=(BufferDeviceLink&& _rhs)
+{
+	// We can't keep the source's resources, not only is it bad practice
+	// But using the same resources from multiple places will cause vulkan crashes that are hell to debug
+
+	if (this != &_rhs)
+	{
+		m_deviceData = _rhs.m_deviceData;
+		m_material = _rhs.m_material;
+		m_commandPool = _rhs.m_commandPool;
+		m_commandBuffer = _rhs.m_commandBuffer;
+		m_drawResources = _rhs.m_drawResources;
+		_rhs.m_material = nullptr;
+		_rhs.m_commandBuffer = nullptr;
+		_rhs.m_commandPool = nullptr;
+		_rhs.m_deviceData = {};
+		_rhs.m_drawResources = {};
+	}
+
+	return *this;
+}
+
 BufferDeviceLink::~BufferDeviceLink()
 {
 	// TODO: Cleaning the resources here causes crashes due to the initial copy getting destroyed during push_back in the drawbuffer
 	// TODO: Need to cleanly handle the bufferdevicelink lifecycle
-	//ClearBuffers();
-	//ClearTextures();
-	//m_deviceData.Device.freeCommandBuffers(m_commandPool, m_commandBuffer);
-	//m_deviceData.Device.destroyCommandPool(m_commandPool);
+	ClearBuffers();
+	ClearTextures();
+	m_deviceData.Device.freeCommandBuffers(m_commandPool, m_commandBuffer);
+	m_deviceData.Device.destroyCommandPool(m_commandPool);
+
+	delete m_material;
 }
 
 void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,

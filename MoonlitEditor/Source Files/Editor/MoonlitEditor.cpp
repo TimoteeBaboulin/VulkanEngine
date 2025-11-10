@@ -17,8 +17,8 @@
 #include "Debug/Profiler.h"
 #include "Debug/Logger.h"
 
-constexpr int DefaultEditorWidth = 1920;
-constexpr int DefaultEditorHeight = 1080;
+constexpr int DefaultEditorWidth = 860;
+constexpr int DefaultEditorHeight = 540;
 
 MoonlitEditor* MoonlitEditor::Editor = new MoonlitEditor();
 

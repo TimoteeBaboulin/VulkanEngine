@@ -13,12 +13,18 @@ const std::vector<const char*> requiredLayers = {
 	"VK_LAYER_KHRONOS_validation"
 };
 
+RendererContext::~RendererContext()
+{
+	Cleanup();
+}
+
 void RendererContext::Init()
 {
 }
 
 void RendererContext::Cleanup()
 {
+	m_instance.destroy();
 }
 
 bool CheckValidationLayerSupport()

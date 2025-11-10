@@ -86,6 +86,7 @@
     <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
     <ClCompile Include="Source Files\Debug\Profiler.cpp" />
+    <ClCompile Include="Source Files\Debug\Exceptions\PluginLoadException.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\GameObject.h">
@@ -129,6 +130,8 @@
     <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanStructs.h" />
     <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanImport.h" />
     <ClInclude Include="Header Files\Debug\Profiler.h" />
+    <ClInclude Include="Header Files\Debug\Exceptions\MoonlitExceptions.h" />
+    <ClInclude Include="Header Files\Debug\Exceptions\PluginLoadException.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

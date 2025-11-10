@@ -22,6 +22,16 @@ DrawBuffer::DrawBuffer(Material* _material)
 	m_instanceCount = 0;
 }
 
+DrawBuffer::~DrawBuffer()
+{
+	delete[] m_vertexData;
+	delete[] m_indexData;
+	delete[] m_modelData;
+	delete[] m_textureIndices;
+
+	m_deviceLinks.clear();
+}
+
 bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
 {
 	if (std::find(m_meshInstances.begin(), m_meshInstances.end(), _instance) != m_meshInstances.end())
@@ -97,12 +107,11 @@ void DrawBuffer::LinkTarget(RenderTarget& _renderTarget)
 	auto it = FindDeviceLink(_renderTarget);
 	if (it != m_deviceLinks.end())
 	{
-		//TODO: Log a warning
 		LOG_WARNING("Trying to link a target that's already subscribed");
 		return;
 	}
 
-	m_deviceLinks.push_back(BufferDeviceLink(_renderTarget.GetDeviceData(), m_material->CreateInstance(_renderTarget)));
+	m_deviceLinks.emplace_back(_renderTarget.GetDeviceData(), m_material->CreateInstance(_renderTarget));
 	m_deviceLinks.back().GenerateBuffers(m_vertexData, m_vertexCount,
 		m_indexData, m_indexCount,
 		m_modelData, m_instanceCount, m_textureIndices);

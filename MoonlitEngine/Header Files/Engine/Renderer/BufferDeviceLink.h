@@ -37,6 +37,15 @@ public:
 	bool IsDirty = false;
 
 	BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _materialInstance);
+
+	// Forbid copy, explicitly implement move
+	// (Don't forget rule of five)
+
+	BufferDeviceLink(BufferDeviceLink const&) = delete;
+	BufferDeviceLink& operator=(BufferDeviceLink const&) = delete;
+	BufferDeviceLink(BufferDeviceLink&& _src);
+	BufferDeviceLink& operator=(BufferDeviceLink&& _rhs);
+
 	~BufferDeviceLink();
 	DrawBufferResources const GetBufferResources() { return m_drawResources; };
 	vk::Device const GetDevice() { return m_deviceData.Device; }

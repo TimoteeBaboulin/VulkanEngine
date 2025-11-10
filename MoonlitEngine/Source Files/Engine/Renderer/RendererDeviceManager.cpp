@@ -17,7 +17,16 @@ RendererDeviceManager::~RendererDeviceManager()
 
 void RendererDeviceManager::Cleanup()
 {
-	//TODO: Add cleanup code
+	m_renderTargets.clear();
+
+	for (auto& deviceData : m_devices)
+	{
+		deviceData.Device.destroy();
+	}
+
+	m_devices.clear();
+
+	m_physicalDevices.clear();
 }
 
 /// <summary>
@@ -78,6 +87,14 @@ void RendererDeviceManager::RemoveTarget(RenderTarget* _target)
 			m_targetCount--;
 			break;
 		}
+	}
+}
+
+void RendererDeviceManager::WaitIdleDevices()
+{
+	for (auto& deviceData : m_devices)
+	{
+		deviceData.Device.waitIdle();
 	}
 }
 

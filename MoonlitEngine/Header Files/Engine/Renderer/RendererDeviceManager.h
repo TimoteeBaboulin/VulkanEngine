@@ -17,6 +17,8 @@ public:
 	DeviceData AddTarget(RenderTarget* _target);
 	void RemoveTarget(RenderTarget* _target);
 
+	void WaitIdleDevices();
+
 	SwapChainSupportDetails QuerySwapChainSupportDetails(vk::SurfaceKHR& _surface, vk::PhysicalDevice _device);
 
 private:

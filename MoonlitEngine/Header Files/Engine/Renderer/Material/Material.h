@@ -19,6 +19,8 @@ struct ShaderCode
 /// </summary>
 class Material
 {
+	friend class MaterialInstance;
+
 public:
 	Material(std::string _shaderPath);
 	~Material();
@@ -26,6 +28,8 @@ public:
 	MaterialInstance* CreateInstance(RenderTarget& _target);
 
 private:
+	void RemoveInstance(MaterialInstance* _instance);
+
 	std::string m_shaderPath;
 	ShaderCode* m_shaderCode;
 

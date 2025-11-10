@@ -16,6 +16,8 @@ class MOONLIT_API RendererContext
 public:
 	static bool ValidationLayersEnabled;
 
+	~RendererContext();
+
 	void Init();
 	void Cleanup();
 

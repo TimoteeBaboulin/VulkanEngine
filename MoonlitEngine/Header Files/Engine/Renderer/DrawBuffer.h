@@ -26,6 +26,7 @@ class DrawBuffer
 {
 public:
 	DrawBuffer(Material* _material);
+	~DrawBuffer();
 
 	//DATA MANAGEMENT----------------------------------------------------------------------
 

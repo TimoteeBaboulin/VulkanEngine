@@ -25,8 +25,6 @@ constexpr int TEXTURE_DESCRIPTOR_COUNT = 16;
 class __declspec(dllexport) MoonlitRenderer
 {
 public:
-	//TODO: Rule of three/five
-
 	MoonlitRenderer();
 	~MoonlitRenderer();
 

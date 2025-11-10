@@ -15,6 +15,24 @@ MaterialInstance::MaterialInstance(RenderTarget& _target, ShaderCode* _shaderCod
 	CreateDescriptorPool();
 }
 
+MaterialInstance::~MaterialInstance()
+{
+	for (auto& pipeline : m_pipelines)
+	{
+		m_deviceData.Device.destroyPipeline(pipeline);
+	}
+	for (auto& layout : m_pipelineLayouts)
+	{
+		m_deviceData.Device.destroyPipelineLayout(layout);
+	}
+	for (auto& setLayout : m_setLayouts)
+	{
+		m_deviceData.Device.destroyDescriptorSetLayout(setLayout);
+	}
+	m_deviceData.Device.destroyDescriptorPool(m_descriptorPool);
+
+	m_baseMaterial->RemoveInstance(this);
+}
 
 void MaterialInstance::CreatePipelineLayouts()
 {

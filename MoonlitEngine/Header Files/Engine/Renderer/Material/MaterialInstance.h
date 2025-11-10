@@ -17,6 +17,7 @@ class MaterialInstance
 {
 public:
 	MaterialInstance(RenderTarget& _target, ShaderCode* _shaderCodes, Material* _material);
+	~MaterialInstance();
 	void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint);
 
 	//GETTERS

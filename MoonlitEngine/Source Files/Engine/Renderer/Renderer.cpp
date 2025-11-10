@@ -74,6 +74,15 @@ void MoonlitRenderer::Init(ContextInfo& _info, std::vector<const char*> required
 
 void MoonlitRenderer::Cleanup()
 {
+	m_deviceManager->WaitIdleDevices();
+
+	for (auto& renderTarget : m_renderTargets)
+	{
+		delete renderTarget;
+	}
+
+	delete m_deviceManager;
+	delete m_context;
 }
 
 void MoonlitRenderer::AddMeshInstance(MeshInstance& _meshInstance)

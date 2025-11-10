@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdint>
 #include <random>
+#include <stdexcept>
 
 #include "Engine/Components/ObjectBehaviour.h"
 #include "Debug/Logger.h"
@@ -25,9 +26,9 @@ GameObject* GameObject::CreateAt(glm::vec3 _pos)
 	ObjectBehaviour* transform = BehaviourRegistry::CreateBehaviour("TransformBehaviour", newObject);
 	if (!transform)
 	{
-		Logger::LogError("Failed to create TransformBehaviour for new GameObject");
+		LOG_ERROR("GameObject CreateAt: Couldn't create TransformBehaviour for new GameObject");
 		delete newObject;
-		return nullptr;
+		throw std::invalid_argument("Couldn't find behaviour with name TransformBehaviour");
 	}
 
 	transform->SetParameterValue("Position", &_pos);
@@ -82,9 +83,10 @@ void GameObject::Update()
 		{
 			(*it)();
 		}
-		catch (const std::exception&)
+		catch (const std::exception& err)
 		{
 			Logger::LogError("Mistake while updating a component");
+			throw (err);
 		}
 	}
 }
@@ -97,24 +99,6 @@ void GameObject::BindToUpdate(GameEventFunction _func)
 void GameObject::AddComponent(ObjectBehaviour* _component)
 {
 	m_components.push_back(_component);
-
-	for (auto it = m_components.begin(); it != m_components.end(); it++)
-	{
-		ObjectBehaviour* component = (*it);
-		std::vector<ParameterRepositoryEntry> entries = (*it)->GetParameterEntries();
-		for (auto jt = entries.begin(); jt != entries.end(); jt++)
-		{
-			std::string message = "Registered parameter: ";
-			ParameterRepositoryEntry entry = (*jt);
-			message += entry.Name;
-			message += "\tType: ";
-			message += entry.TypeName;
-			message += "\tSize: ";
-			message += std::to_string(entry.Size);
-			message += " bytes";
-			Logger::LogInfo(message.c_str());
-		}
-	}
 
 	_component->SubscribeToFunctions();
 }
@@ -178,6 +162,7 @@ void GameObject::LoadFromFile(std::ifstream& _stream)
 		if (component == nullptr)
 		{
 			LOG_ERROR("Game Object Load: Couldn't create behaviour from scene file. Can't keep loading file.");
+			throw std::invalid_argument("Couldn't create behaviour from scene file, file loading might be corrupted.");
 			return;
 		}
 
@@ -191,7 +176,6 @@ void GameObject::RemoveChild(GameObject* _child)
 	auto it = std::find(m_children.begin(), m_children.end(), _child);
 	if (it == m_children.end())
 	{
-		//Open for potential logging or error handling
 		return;
 	}
 

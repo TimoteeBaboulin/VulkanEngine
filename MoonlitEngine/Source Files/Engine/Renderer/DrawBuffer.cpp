@@ -192,9 +192,6 @@ void DrawBuffer::CountVertexData()
 
 void DrawBuffer::UpdateEntries()
 {
-	//TODO: Optimize this function to not clear everything and re-add everything
-	//m_meshes.clear();
-
 	for (int index = 0; index < m_meshInstances.size(); index++)
 	{
 		MeshInstance& instance = *m_meshInstances[index];

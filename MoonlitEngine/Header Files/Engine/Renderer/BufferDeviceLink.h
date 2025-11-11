@@ -52,9 +52,11 @@ public:
 
 	void Render(vk::CommandBuffer& _cmd, int _renderPass,
 		std::vector<MeshEntry>& _meshEntries, vk::DescriptorSet* _uboSet);
+
 	// This function has way too many parameters, need to refactor it
 	// Maybe pass a struct with all the data?
 	//TODO: Refactor this function
+
 	void GenerateBuffers(Vertex* _vertexData, uint32_t _vertexCount,
 		uint16_t* _indexData, uint32_t _indexCount,
 		glm::mat4x4* _modelData, uint32_t _modelCount,

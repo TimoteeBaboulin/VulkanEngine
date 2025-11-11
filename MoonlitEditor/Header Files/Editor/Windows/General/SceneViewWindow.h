@@ -3,6 +3,7 @@
 #include "../EditorWindowBase.h"
 #include "Camera.h"
 #include "Editor/Controllers/SceneViewController.h"
+#include "Editor/Windows/IDockManager.h"
 
 class MoonlitEngine;
 class QTimer;
@@ -12,15 +13,15 @@ class RenderTarget;
 class SceneViewWindow : public EditorWindowBase
 {
 public:
+	SceneViewWindow(IDockManager* _dockManager);
 	SceneViewWindow(QWidget* _parent = nullptr);
 
 	bool event(QEvent* _event) override;
 
 	//GETTERS
 	HWND GetWindowHandle() const { return m_windowHandle; };
-	HWND GetWidgetWindowHandle() const { return (HWND)m_containerWidget->effectiveWinId(); }
+	HWND GetWidgetWindowHandle() const { return (HWND)effectiveWinId(); }
 private:
-	QWidget* m_containerWidget = nullptr;
 	HWND m_windowHandle = nullptr;
 	MoonlitEngine* m_engine = nullptr;
 

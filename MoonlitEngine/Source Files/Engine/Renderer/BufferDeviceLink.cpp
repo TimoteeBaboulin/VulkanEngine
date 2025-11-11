@@ -73,8 +73,6 @@ BufferDeviceLink& BufferDeviceLink::operator=(BufferDeviceLink&& _rhs)
 
 BufferDeviceLink::~BufferDeviceLink()
 {
-	// TODO: Cleaning the resources here causes crashes due to the initial copy getting destroyed during push_back in the drawbuffer
-	// TODO: Need to cleanly handle the bufferdevicelink lifecycle
 	ClearBuffers();
 	ClearTextures();
 	m_deviceData.Device.freeCommandBuffers(m_commandPool, m_commandBuffer);

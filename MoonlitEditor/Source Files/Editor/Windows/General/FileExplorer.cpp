@@ -1,10 +1,19 @@
 #include "Editor/Windows/General/FileExplorer.h"
 #include "Editor/MoonlitEditor.h"
 #include <QtWidgets/qapplication.h>
+#include <QtWidgets/qboxlayout.h>
 
-FileExplorer::FileExplorer(QWidget* _parent)
-	: EditorWindowBase(_parent)
+
+//FileExplorer::FileExplorer(QWidget* _parent)
+//	: EditorWindowBase(_parent)
+//{
+//	Init();
+//}
+
+FileExplorer::FileExplorer(IDockManager* _dockManager)
+	: EditorWindowBase()
 {
+	_dockManager->AddWidget(this, "File Explorer", ads::BottomDockWidgetArea);
 	Init();
 }
 
@@ -27,7 +36,10 @@ void FileExplorer::Init()
 	m_treeView->setColumnHidden(2, true); // Type
 	m_treeView->setColumnHidden(3, true); // Date
 
-	setWidget(m_treeView);
+	QLayout* layout = new QBoxLayout(QBoxLayout::TopToBottom);
+	layout->addWidget(m_treeView);
+	setLayout(layout);
+	//setWidget(m_treeView);
 
 	show();
 }

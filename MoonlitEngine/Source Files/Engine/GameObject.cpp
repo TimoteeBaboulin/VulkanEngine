@@ -71,7 +71,7 @@ GameObject::~GameObject()
 
 GameObject& GameObject::operator=(const GameObject& _toCopy)
 {
-	// TODO: insert return statement here
+	// TODO: Copy components and children
 	return *this;
 }
 

@@ -60,6 +60,9 @@
     <ClCompile Include="Source Files\Editor\Controllers\SceneViewController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\Editor\Windows\DefaultDockManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h">
@@ -93,6 +96,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Editor\Controllers\SceneViewController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\IDockManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\DefaultDockManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

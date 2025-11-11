@@ -42,6 +42,8 @@ void EditorMainWindow::SetupConnections()
 
 void EditorMainWindow::SetupUI()
 {
+    setWindowFlag(Qt::WindowFullscreenButtonHint, true);
+
     setMinimumHeight(200);
     setMaximumHeight(m_height * 2);
     setMinimumWidth(200);
@@ -57,12 +59,6 @@ void EditorMainWindow::SetupUI()
     m_menuBar->addMenu(m_profilerMenu);
 
 	m_openProfilerAction = m_profilerMenu->addAction("Open Profiler");
-
-    /*QSizePolicy sizePol;
-    sizePol.setHorizontalPolicy(QSizePolicy::Preferred);
-    sizePol.setVerticalPolicy(QSizePolicy::Preferred);
-
-    setSizePolicy(sizePol);*/
 
     show();
 }

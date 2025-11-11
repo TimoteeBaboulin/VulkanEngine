@@ -1,8 +1,8 @@
 #pragma once
 
-#include <qdockwidget.h>
+#include <qwidget.h>
 
-class EditorWindowBase : public QDockWidget
+class EditorWindowBase : public QWidget
 {
 public:
 	EditorWindowBase(QWidget* _parent = nullptr);

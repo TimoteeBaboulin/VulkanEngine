@@ -3,6 +3,8 @@
 #include <QtWidgets/qmainwindow.h>
 #include <QtWidgets/qmenubar.h>
 
+#include <ADS/DockManager.h>
+
 class  EditorMainWindow : public QMainWindow
 {
 public:

@@ -10,6 +10,11 @@ class MoonlitEngine;
 class QApplication;
 class QTimer;
 
+namespace ads
+{
+	class CDockManager;
+}	
+
 class MoonlitEditor
 {
 public:
@@ -28,4 +33,6 @@ private:
 	std::function<void()> m_updateCallback;
 
 	std::vector<EditorWindowBase*> m_editorWindows;
+
+	class DefaultDockManager* m_dockManager;
 };

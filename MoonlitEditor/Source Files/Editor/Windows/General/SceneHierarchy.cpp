@@ -8,6 +8,15 @@
 #include "Engine/MoonlitEngine.h"
 #include "Engine/GameObject.h"
 
+#include <qboxlayout.h>
+
+SceneHierarchy::SceneHierarchy(IDockManager* _dockManager)
+	: EditorWindowBase()
+{
+	_dockManager->AddWidget(this, "Scene Hierarchy", ads::LeftDockWidgetArea);
+	SetModel();
+}
+
 SceneHierarchy::SceneHierarchy(QWidget* parent)
 	: EditorWindowBase(parent)
 {
@@ -16,10 +25,14 @@ SceneHierarchy::SceneHierarchy(QWidget* parent)
 
 void SceneHierarchy::SetModel()
 {
-	QTreeView* treeview = new QTreeView();
+	QTreeView* treeview = new QTreeView(this);
 	Scene& scene = MoonlitEditor::Editor->GetEngine().GetScene();
 
 	m_model = new SceneHierarchyModel(&scene);
 	treeview->setModel(m_model);
-	setWidget(treeview);
+
+	QLayout* layout = new QBoxLayout(QBoxLayout::TopToBottom);
+	layout->addWidget(treeview);
+	setLayout(layout);
+	//setWidget(treeview);
 }

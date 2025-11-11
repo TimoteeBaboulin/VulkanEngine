@@ -17,6 +17,8 @@
 #include "Debug/Profiler.h"
 #include "Debug/Logger.h"
 
+#include "Editor/Windows/DefaultDockManager.h"
+
 constexpr int DefaultEditorWidth = 860;
 constexpr int DefaultEditorHeight = 540;
 
@@ -25,9 +27,7 @@ MoonlitEditor* MoonlitEditor::Editor = new MoonlitEditor();
 MoonlitEditor::MoonlitEditor()
 {
 	ads::CDockManager::setConfigFlags(ads::CDockManager::DefaultOpaqueConfig);
-	
-	
-	
+
 	Editor = this;
 
 	//Needed for application initialization
@@ -36,8 +36,12 @@ MoonlitEditor::MoonlitEditor()
 	m_app = new QApplication(argc, argv);
 	m_app->setStyle("Fusion");
 
+
+
 	//Create the main window
 	m_mainWindow = new EditorMainWindow(DefaultEditorWidth, DefaultEditorHeight);
+	m_dockManager = new DefaultDockManager(m_mainWindow);
+
 	HWND mainHandle = (HWND)m_mainWindow->effectiveWinId();
 
 	// Engine requires a low level HWND to avoid breaking Qt's systems
@@ -45,15 +49,13 @@ MoonlitEditor::MoonlitEditor()
 	m_engine->Init();
 
 	//By default, the main window already has a scene view docked to the left
-	m_editorWindows.push_back(new SceneViewWindow(m_mainWindow));
-	m_mainWindow->setCentralWidget(m_editorWindows.back());
+	m_editorWindows.push_back(new SceneViewWindow(m_dockManager));
+	
 	SceneViewWindow* sceneView = static_cast<SceneViewWindow*>(m_editorWindows.back());
 
-	m_editorWindows.push_back(new FileExplorer(m_mainWindow));
-	m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_editorWindows.back());
+	m_editorWindows.push_back(new FileExplorer(m_dockManager));
 
-	m_editorWindows.push_back(new SceneHierarchy(m_mainWindow));
-	m_mainWindow->addDockWidget(Qt::RightDockWidgetArea, m_editorWindows.back());
+	m_editorWindows.push_back(new SceneHierarchy(m_dockManager));
 
 	m_updateCallback = std::bind(&MoonlitEngine::Update, m_engine);
 

@@ -104,5 +104,8 @@
     <ClInclude Include="Header Files\Editor\Windows\DefaultDockManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\General\ObjectEditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

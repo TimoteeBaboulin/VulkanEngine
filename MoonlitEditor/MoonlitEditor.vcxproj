@@ -345,6 +345,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h" />
     <ClInclude Include="Header Files\Editor\Windows\EditorWindowBase.h" />
     <ClInclude Include="Header Files\Editor\Windows\General\FileExplorer.h" />
+    <ClInclude Include="Header Files\Editor\Windows\General\ObjectEditor.h" />
     <ClInclude Include="Header Files\Editor\Windows\General\SceneHierarchy.h" />
     <ClInclude Include="Header Files\Editor\Windows\General\SceneViewWindow.h" />
     <ClInclude Include="Header Files\Editor\Windows\IDockManager.h" />

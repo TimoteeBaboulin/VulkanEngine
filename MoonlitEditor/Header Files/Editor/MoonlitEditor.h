@@ -3,6 +3,9 @@
 #include <vector>
 #include <functional>
 
+#include "Engine/Events/Event.h"
+#include "Engine/GameObject.h"
+
 class EditorWindowBase;
 class EditorMainWindow;
 class MoonlitEngine;
@@ -13,12 +16,18 @@ class QTimer;
 namespace ads
 {
 	class CDockManager;
-}	
+}
 
 class MoonlitEditor
 {
 public:
 	static MoonlitEditor* Editor;
+
+	static Event<void, GameObject*>& OnSelectionChanged()
+	{
+		static Event<void, GameObject*> instance;
+	    return instance;
+	}
 
 	MoonlitEditor();
 

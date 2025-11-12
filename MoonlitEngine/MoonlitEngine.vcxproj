@@ -393,6 +393,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\Debug\Logger.h" />
     <ClInclude Include="Header Files\Debug\Profiler.h" />
     <ClInclude Include="Header Files\Engine\Components\BehaviourRegistry.h" />
+    <ClInclude Include="Header Files\Engine\Events\Event.h" />
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
     <ClInclude Include="Header Files\Engine\Renderer\BufferDeviceLink.h" />

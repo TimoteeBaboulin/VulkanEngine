@@ -18,15 +18,33 @@
 #include "Debug/Logger.h"
 
 #include "Editor/Windows/DefaultDockManager.h"
+#include "Engine/GameObject.h"
 
 constexpr int DefaultEditorWidth = 860;
 constexpr int DefaultEditorHeight = 540;
 
 MoonlitEditor* MoonlitEditor::Editor = new MoonlitEditor();
 
+void GameobjectChangedTest(GameObject* _obj)
+{
+	if (_obj == nullptr)
+	{
+		Logger::LogInfo("Selected GameObject changed to nullptr");
+		return;
+	}
+	Logger::LogInfo(TEXTLOG("Selected GameObject changed to " + _obj->GetName()));
+}
+
 MoonlitEditor::MoonlitEditor()
 {
 	ads::CDockManager::setConfigFlags(ads::CDockManager::DefaultOpaqueConfig);
+
+	std::function<void(GameObject*)> func = GameobjectChangedTest;
+	EventEntryHandle handle = MoonlitEditor::OnSelectionChanged() += GameobjectChangedTest;
+	GameObject* testObj = GameObject::Create();
+	MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
+	MoonlitEditor::OnSelectionChanged() -= handle;
+	MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
 
 	Editor = this;
 
@@ -35,8 +53,6 @@ MoonlitEditor::MoonlitEditor()
 	int argc = 0;
 	m_app = new QApplication(argc, argv);
 	m_app->setStyle("Fusion");
-
-
 
 	//Create the main window
 	m_mainWindow = new EditorMainWindow(DefaultEditorWidth, DefaultEditorHeight);

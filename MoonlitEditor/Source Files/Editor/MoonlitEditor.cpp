@@ -20,6 +20,8 @@
 #include "Editor/Windows/DefaultDockManager.h"
 #include "Engine/GameObject.h"
 
+#include "Engine/Events/EventUtility.h"
+
 constexpr int DefaultEditorWidth = 860;
 constexpr int DefaultEditorHeight = 540;
 
@@ -39,11 +41,11 @@ MoonlitEditor::MoonlitEditor()
 {
 	ads::CDockManager::setConfigFlags(ads::CDockManager::DefaultOpaqueConfig);
 
-	std::function<void(GameObject*)> func = GameobjectChangedTest;
-	EventEntryHandle handle = MoonlitEditor::OnSelectionChanged() += GameobjectChangedTest;
 	GameObject* testObj = GameObject::Create();
-	MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
-	MoonlitEditor::OnSelectionChanged() -= handle;
+	{
+		EventSubscriber<GameObject*> subscriber(MoonlitEditor::OnSelectionChanged(), GameobjectChangedTest);
+		MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
+	}
 	MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
 
 	Editor = this;

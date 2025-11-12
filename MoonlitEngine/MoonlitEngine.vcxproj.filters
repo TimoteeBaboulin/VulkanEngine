@@ -133,6 +133,7 @@
     <ClInclude Include="Header Files\Debug\Exceptions\MoonlitExceptions.h" />
     <ClInclude Include="Header Files\Debug\Exceptions\PluginLoadException.h" />
     <ClInclude Include="Header Files\Engine\Events\Event.h" />
+    <ClInclude Include="Header Files\Engine\Events\EventUtility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

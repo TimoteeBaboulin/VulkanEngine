@@ -322,8 +322,8 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Header Files\Editor\Windows\General\ObjectEditor.cpp" />
-    <ClCompile Include="Header Files\Editor\Windows\Widgets\BehaviourWidget.cpp" />
-    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterWidget.cpp" />
+    <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourWidget.cpp" />
+    <ClCompile Include="Source Files\Editor\Windows\Widgets\ParameterWidget.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\DefaultDockManager.cpp" />
     <ClCompile Include="Source Files\Editor\Controllers\SceneViewController.cpp" />
     <ClCompile Include="Source Files\Editor\ModelClasses\SceneHierarchyModel.cpp" />

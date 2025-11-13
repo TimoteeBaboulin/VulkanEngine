@@ -66,10 +66,10 @@
     <ClCompile Include="Header Files\Editor\Windows\General\ObjectEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Header Files\Editor\Windows\Widgets\BehaviourWidget.cpp">
+    <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterWidget.cpp">
+    <ClCompile Include="Source Files\Editor\Windows\Widgets\ParameterWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

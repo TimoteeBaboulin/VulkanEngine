@@ -59,7 +59,7 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner, std::shared_ptr
 void MeshRendererBehaviour::LookForTransformComponent()
 {
 	TransformBehaviour* transform;
-	if (!m_owner->TryGetComponentOfType<TransformBehaviour>(transform))
+	if (!m_owner->TryGetBehaviourOfType<TransformBehaviour>(transform))
 	{
 		transform = new TransformBehaviour(m_owner);
 	}

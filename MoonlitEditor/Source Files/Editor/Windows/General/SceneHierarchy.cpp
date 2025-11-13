@@ -34,5 +34,10 @@ void SceneHierarchy::SetModel()
 	QLayout* layout = new QBoxLayout(QBoxLayout::TopToBottom);
 	layout->addWidget(treeview);
 	setLayout(layout);
-	//setWidget(treeview);
+
+	treeview->connect(treeview, &QTreeView::clicked, this, [this, treeview]() {
+		auto selected = treeview->currentIndex();
+		GameObject* obj = static_cast<GameObject*>(selected.internalPointer());
+		MoonlitEditor::OnSelectionChanged().Invoke(this, obj);
+		});
 }

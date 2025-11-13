@@ -321,6 +321,9 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Header Files\Editor\Windows\General\ObjectEditor.cpp" />
+    <ClCompile Include="Header Files\Editor\Windows\Widgets\BehaviourWidget.cpp" />
+    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterWidget.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\DefaultDockManager.cpp" />
     <ClCompile Include="Source Files\Editor\Controllers\SceneViewController.cpp" />
     <ClCompile Include="Source Files\Editor\ModelClasses\SceneHierarchyModel.cpp" />
@@ -349,6 +352,8 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\Editor\Windows\General\SceneHierarchy.h" />
     <ClInclude Include="Header Files\Editor\Windows\General\SceneViewWindow.h" />
     <ClInclude Include="Header Files\Editor\Windows\IDockManager.h" />
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\BehaviourWidget.h" />
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterWidget.h" />
     <ClInclude Include="Header Files\SceneViewInputHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

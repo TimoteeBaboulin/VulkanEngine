@@ -63,6 +63,15 @@
     <ClCompile Include="Source Files\Editor\Windows\DefaultDockManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Header Files\Editor\Windows\General\ObjectEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Header Files\Editor\Windows\Widgets\BehaviourWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h">
@@ -105,6 +114,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Editor\Windows\General\ObjectEditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\BehaviourWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

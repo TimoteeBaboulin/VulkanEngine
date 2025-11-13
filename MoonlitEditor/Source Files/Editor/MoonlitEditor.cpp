@@ -11,6 +11,7 @@
 #include "Editor/Windows/General/SceneViewWindow.h"
 #include "Editor/Windows/General/FileExplorer.h"
 #include "Editor/Windows/General/SceneHierarchy.h"
+#include "Editor/Windows/General/ObjectEditor.h"
 #include "Engine/MoonlitEngine.h"
 #include "Engine/Inputs/InputManager.h"
 
@@ -43,7 +44,7 @@ MoonlitEditor::MoonlitEditor()
 
 	GameObject* testObj = GameObject::Create();
 	{
-		EventSubscriber<GameObject*> subscriber(MoonlitEditor::OnSelectionChanged(), GameobjectChangedTest);
+		ScopedEventSubscriber<GameObject*> subscriber(MoonlitEditor::OnSelectionChanged(), GameobjectChangedTest);
 		MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
 	}
 	MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
@@ -74,6 +75,9 @@ MoonlitEditor::MoonlitEditor()
 	m_editorWindows.push_back(new FileExplorer(m_dockManager));
 
 	m_editorWindows.push_back(new SceneHierarchy(m_dockManager));
+	m_editorWindows.push_back(new ObjectInspector(*m_dockManager));
+
+	MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
 
 	m_updateCallback = std::bind(&MoonlitEngine::Update, m_engine);
 

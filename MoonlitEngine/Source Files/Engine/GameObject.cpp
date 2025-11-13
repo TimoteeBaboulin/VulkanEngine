@@ -98,7 +98,7 @@ void GameObject::BindToUpdate(GameEventFunction _func)
 
 void GameObject::AddComponent(ObjectBehaviour* _component)
 {
-	m_behaviours.push_back(_component);
+	m_behaviourWidgets.push_back(_component);
 
 	_component->SubscribeToFunctions();
 }
@@ -133,10 +133,10 @@ void GameObject::SaveToFile(std::ofstream& _stream)
 	uint32_t id = m_id;
 	_stream.write(reinterpret_cast<const char*>(&id), sizeof(id));
 
-	uint32_t compCount = static_cast<uint32_t>(m_behaviours.size());
+	uint32_t compCount = static_cast<uint32_t>(m_behaviourWidgets.size());
 	_stream.write(reinterpret_cast<const char*>(&compCount), sizeof(compCount));
 
-	for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)
+	for (auto it = m_behaviourWidgets.begin(); it != m_behaviourWidgets.end(); it++)
 	{
 		ObjectBehaviour* component = (*it);
 		std::string className = ClassNameFromTypeName(typeid(*component).name());
@@ -166,7 +166,7 @@ void GameObject::LoadFromFile(std::ifstream& _stream)
 			return;
 		}
 
-		m_behaviours.push_back(component);
+		m_behaviourWidgets.push_back(component);
 		component->LoadFromFile(_stream);
 	}
 }
@@ -184,14 +184,14 @@ void GameObject::RemoveChild(GameObject* _child)
 
 std::vector<ObjectBehaviour*> GameObject::GetAllBehaviours()
 {
-	return m_behaviours;
+	return m_behaviourWidgets;
 }
 
 bool GameObject::TryGetBehavioursOfType(std::vector<ObjectBehaviour*>& _components, const type_info& _type)
 {
 	bool foundComponent = false;
 
-	for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)
+	for (auto it = m_behaviourWidgets.begin(); it != m_behaviourWidgets.end(); it++)
 	{
 		ObjectBehaviour* component = (*it);
 		const type_info& componentType = typeid(*component);
@@ -208,7 +208,7 @@ bool GameObject::TryGetBehavioursOfType(std::vector<ObjectBehaviour*>& _componen
 bool GameObject::TryGetBehaviourOfType(ObjectBehaviour*& _component, const type_info& _type)
 {
 	bool foundComponent = false;
-	for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)
+	for (auto it = m_behaviourWidgets.begin(); it != m_behaviourWidgets.end(); it++)
 	{
 		ObjectBehaviour* component = (*it);
 		const type_info& componentType = typeid(*component);

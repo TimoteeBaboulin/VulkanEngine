@@ -18,7 +18,7 @@ void TestBehaviour::Update()
 {
 	std::vector<ObjectBehaviour*> transforms;
 
-	if (m_owner->TryGetComponentsOfType(transforms, typeid(TransformBehaviour)))
+	if (m_owner->TryGetBehavioursOfType(transforms, typeid(TransformBehaviour)))
 	{
 		std::string logMessage = "ObjectTest found " + std::to_string(transforms.size()) + " transforms.";
 		Logger::LogInfo(logMessage.c_str());

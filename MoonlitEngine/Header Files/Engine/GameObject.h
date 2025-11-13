@@ -73,7 +73,7 @@ public:
 	{
 		bool foundComponent = false;
 
-		for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)
+		for (auto it = m_behaviourWidgets.begin(); it != m_behaviourWidgets.end(); it++)
 		{
 			ObjectBehaviour* component = (*it);
 			const type_info& componentType = typeid(*component);
@@ -92,7 +92,7 @@ public:
 	bool TryGetBehaviourOfType(T*& _component)
 	{
 		bool foundComponent = false;
-		for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)
+		for (auto it = m_behaviourWidgets.begin(); it != m_behaviourWidgets.end(); it++)
 		{
 			ObjectBehaviour* component = (*it);
 			const type_info& componentType = typeid(*component);
@@ -110,7 +110,7 @@ protected:
 	std::string m_name;
 
 	std::vector<GameEventFunction> m_updates;
-	std::vector<ObjectBehaviour*> m_behaviours;
+	std::vector<ObjectBehaviour*> m_behaviourWidgets;
 	std::vector<GameObject*> m_children;
 	GameObject* m_parent = nullptr;
 };

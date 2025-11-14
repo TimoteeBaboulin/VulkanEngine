@@ -107,3 +107,28 @@ enum KEY_STATE : char
 	RELEASED,
 	HELD
 };
+
+// Structure representing a single input event instance
+// Used to pass input data from platform specific code to the input manager
+struct InputInstance
+{
+	// Enum used to store the type of device that generated the input
+	// System is used for native window events like resize and close
+	enum struct INPUT_DEVICE_TYPE : char
+	{
+		MOUSE, KEYBOARD, GAMEPAD, SYSTEM
+	} DeviceType;
+
+	// Enum used to store the state of the input
+	// If it is an axis input, the state is AXIS
+	enum struct INPUT_STATE : char
+	{
+		STARTED, CANCELLED, AXIS
+	} InputType;
+
+	// Handle to the window that generated the input
+	void* WindowHandle;
+
+	// Raw input data
+	void* RawInput;
+};

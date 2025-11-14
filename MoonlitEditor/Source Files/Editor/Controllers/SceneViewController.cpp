@@ -3,13 +3,14 @@
 
 #include <string>
 
-void SceneViewInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
+void SceneViewInputHandler::HandleMouseMoveInput(float _deltaX, float _deltaY)
 {
 	//DEBUG: Disable mouse movement handling for now
-	return;
 
+	if (!m_mouseHeld)
+		return;
 
-	const float mouseSensitivity = 0.1f;
+	const float mouseSensitivity = 0.05f;
 	LOG_INFO(TEXTLOG("Mouse Move Input: DeltaX: " + std::to_string(_deltaX) + ", DeltaY: " + std::to_string(_deltaY)));
 	m_camera.Rotate(m_camera.GetUpVector(), -_deltaX * mouseSensitivity);
 	m_camera.Rotate(m_camera.GetRightVector(), _deltaY * mouseSensitivity);
@@ -17,7 +18,10 @@ void SceneViewInputHandler::HandleMouseMoveInput(int _deltaX, int _deltaY)
 
 void SceneViewInputHandler::HandleMouseInput(MOUSE_KEY _key, bool _keyDown)
 {
-	// No implementation needed for mouse button input in this handler
+	if (_key == MOUSE_KEY::LEFT_CLICK)
+	{
+		m_mouseHeld = _keyDown;
+	}
 }
 
 void SceneViewInputHandler::HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown)
@@ -70,8 +74,10 @@ void SceneViewInputHandler::HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float 
 	}
 }
 
-SceneViewInputHandler::SceneViewInputHandler(Camera& camera) : m_camera(camera)
+SceneViewInputHandler::SceneViewInputHandler(Camera& _camera, void* _winHandle) 
+	: m_camera(_camera)
 {
+	m_windowHandle = _winHandle;
 	InputManager::GetInstance()->AddInputHandler(this);
 }
 

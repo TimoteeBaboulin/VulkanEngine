@@ -15,7 +15,7 @@ SceneViewWindow::SceneViewWindow(IDockManager* _dockManager)
 	_dockManager->AddWidget(this, "Scene View", ads::CenterDockWidgetArea);
 
 	SetQtData();
-	m_inputHandler = new SceneViewInputHandler(m_camera);
+	m_inputHandler = new SceneViewInputHandler(m_camera, m_windowHandle);
 
 	m_engine = &MoonlitEditor::Editor->GetEngine();
 	m_renderTarget = m_engine->Renderer->AddRenderTarget(m_windowHandle, &m_camera);
@@ -34,7 +34,7 @@ SceneViewWindow::SceneViewWindow(QWidget* _parent) :
 {
 	SetQtData();
 
-	m_inputHandler = new SceneViewInputHandler(m_camera);
+	m_inputHandler = new SceneViewInputHandler(m_camera, m_windowHandle);
 
 	m_engine = &MoonlitEditor::Editor->GetEngine();
 	m_renderTarget = m_engine->Renderer->AddRenderTarget(m_windowHandle, &m_camera);

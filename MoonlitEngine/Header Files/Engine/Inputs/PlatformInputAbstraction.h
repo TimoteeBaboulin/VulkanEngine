@@ -2,6 +2,8 @@
 
 #include "Inputs.h"
 
+#include <Windows.h>
+
 class QApplication;
 class QtEventReader;
 
@@ -13,15 +15,14 @@ class PlatformInputAbstraction
 protected:
 	// Interface with InputManager to avoid having to friend every platform implementation
 
-	void SendKeyboardInput(KEYBOARD_KEY _key, bool _keyDown);
-	void SendMouseInput(MOUSE_KEY _key, bool _keyDown);
-	void SendMouseMovement(float _x, float _y);
-	void SendGamepadInput(GAMEPAD_KEY _key, bool _keyDown);
-	void SendGamepadAxis(GAMEPAD_KEY _key, float _x, float _y);
+	void SendInput(InputInstance _instance);
+
 	void WindowResize(int _width, int _height);
 	void WindowClose();
 
 	QtEventReader* m_eventReader;
+
+	virtual void HandleWindowsEvents(void* _handle, MSG _msg) = 0;
 
 public:
 	virtual void Init() = 0;

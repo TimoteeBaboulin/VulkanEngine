@@ -114,25 +114,22 @@ std::map<int, GAMEPAD_KEY> WindowsInputAbstraction::m_gamepadKeyMap =
 	{VK_PAD_RTHUMB_UPRIGHT	, GAMEPAD_KEY::AXIS_RIGHT	},
 };
 
-// TODO: Remove this if it remains unused
-// This is deprecated
-[[deprecated("Cause conflicts with Qt's event reading")]]
-LRESULT WndProcCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	DefWindowProc(_handle, uMsg, wParam, lParam);
-	return 0;
-}
-
-void WindowsInputAbstraction::OnKeyboardInput(WPARAM _wParam, bool _keyDown)
+void WindowsInputAbstraction::OnKeyboardInput(WPARAM _wParam, bool _keyDown, void* _winHandle)
 {
 	auto key = m_keyMap.find(_wParam);
 	if (key != m_keyMap.end())
 	{
-		SendKeyboardInput(key->second, _keyDown);
+		InputInstance instance;
+		instance.DeviceType = InputInstance::INPUT_DEVICE_TYPE::KEYBOARD;
+		instance.InputType = _keyDown ? InputInstance::INPUT_STATE::STARTED : InputInstance::INPUT_STATE::CANCELLED;
+		instance.WindowHandle = _winHandle;
+		instance.RawInput = (void*)&key->second;
+
+		SendInput(instance);
 	}
 }
 
-void WindowsInputAbstraction::OnMouseMove(POINT _point)
+void WindowsInputAbstraction::OnMouseMove(POINT _point, void* _winHandle)
 {
 	int deltaX = 0;
 	int deltaY = 0;
@@ -161,7 +158,48 @@ void WindowsInputAbstraction::OnMouseMove(POINT _point)
 	m_mouseX = _point.x;
 	m_mouseY = _point.y;
 
-	SendMouseMovement(deltaX, deltaY);
+	InputInstance instance;
+	instance.DeviceType = InputInstance::INPUT_DEVICE_TYPE::MOUSE;
+	instance.InputType = InputInstance::INPUT_STATE::AXIS;
+	instance.WindowHandle = _winHandle;
+	float rawInput[2] = { (float)deltaX, (float)deltaY };
+	instance.RawInput = (void*)rawInput;
+
+	SendInput(instance);
+}
+
+void WindowsInputAbstraction::OnMouseClick(MOUSE_KEY _key, bool _keyDown, void* _winHandle)
+{
+	InputInstance instance;
+	instance.DeviceType = InputInstance::INPUT_DEVICE_TYPE::MOUSE;
+	instance.InputType = _keyDown ? InputInstance::INPUT_STATE::STARTED : InputInstance::INPUT_STATE::CANCELLED;
+	instance.WindowHandle = _winHandle;
+	instance.RawInput = (void*)&_key;
+	SendInput(instance);
+}
+
+void WindowsInputAbstraction::OnGamepadInput(GAMEPAD_KEY _key, bool _keyDown, void* _winHandle)
+{
+	InputInstance instance;
+	instance.DeviceType = InputInstance::INPUT_DEVICE_TYPE::GAMEPAD;
+	instance.InputType = _keyDown ? InputInstance::INPUT_STATE::STARTED : InputInstance::INPUT_STATE::CANCELLED;
+	instance.WindowHandle = _winHandle;
+	instance.RawInput = (void*)&_key;
+	SendInput(instance);
+}
+
+void WindowsInputAbstraction::OnGamepadAxis(GAMEPAD_KEY _key, float _x, float _y, void* _winHandle)
+{
+	InputInstance instance;
+	instance.DeviceType = InputInstance::INPUT_DEVICE_TYPE::GAMEPAD;
+	instance.InputType = InputInstance::INPUT_STATE::AXIS;
+	instance.WindowHandle = _winHandle;
+	float* rawInput = new float[3];
+	rawInput[0] = static_cast<float>(static_cast<int>(_key));
+	rawInput[1] = _x;
+	rawInput[2] = _y;
+	instance.RawInput = rawInput;
+	SendInput(instance);
 }
 
 WindowsInputAbstraction::WindowsInputAbstraction(HWND _windowHandle) : m_windowHandle(_windowHandle)
@@ -176,7 +214,7 @@ WindowsInputAbstraction::WindowsInputAbstraction(HWND _windowHandle) : m_windowH
 	m_eventReader = new QtEventReader(_windowHandle, this);
 }
 
-void WindowsInputAbstraction::HandleWindowsInputs(MSG _msg)
+void WindowsInputAbstraction::HandleWindowsEvents(void* _handle, MSG _msg)
 {
 	wchar_t buffer[32];
 
@@ -185,42 +223,42 @@ void WindowsInputAbstraction::HandleWindowsInputs(MSG _msg)
 	{
 	case WM_KEYDOWN:
 	{
-		WindowsInputAbstraction::m_instance->OnKeyboardInput(_msg.wParam, true);
+		OnKeyboardInput(_msg.wParam, true, _handle);
 		break;
 	}
 	case WM_KEYUP:
 	{
-		WindowsInputAbstraction::m_instance->OnKeyboardInput(_msg.wParam, false);
+		OnKeyboardInput(_msg.wParam, false, _handle);
 		break;
 	}
 	case WM_MOUSEMOVE:
 	{
-		WindowsInputAbstraction::m_instance->OnMouseMove(POINT{ GET_X_LPARAM(_msg.lParam) , GET_Y_LPARAM(_msg.lParam) });
+		OnMouseMove(POINT{ GET_X_LPARAM(_msg.lParam) , GET_Y_LPARAM(_msg.lParam) }, _handle);
 		break;
 	}
 	case WM_LBUTTONDOWN:
 	{
-		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::LEFT_CLICK, true);
+		OnMouseClick(MOUSE_KEY::LEFT_CLICK, true, _handle);
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
-		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::LEFT_CLICK, false);
+		OnMouseClick(MOUSE_KEY::LEFT_CLICK, false, _handle);
 		break;
 	}
 	case WM_RBUTTONDOWN:
 	{
-		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::RIGHT_CLICK, true);
+		OnMouseClick(MOUSE_KEY::RIGHT_CLICK, true, _handle);
 		break;
 	}
 	case WM_RBUTTONUP:
 	{
-		WindowsInputAbstraction::m_instance->SendMouseInput(MOUSE_KEY::RIGHT_CLICK, false);
+		OnMouseClick(MOUSE_KEY::RIGHT_CLICK, false, _handle);
 		break;
 	}
 	case WM_CLOSE:
 	{
-		WindowsInputAbstraction::m_instance->WindowClose();
+		WindowClose();
 		break;
 	}
 	default:
@@ -258,16 +296,24 @@ void WindowsInputAbstraction::PollEvents()
 			auto key = m_gamepadKeyMap.find(keystroke.VirtualKey);
 			if (key != m_gamepadKeyMap.end())
 			{
+				bool isAxis = false;
 				if (key->second == GAMEPAD_KEY::AXIS_LEFT)
 				{
 					m_axisActive[0] = state.Gamepad.sThumbLX != 0 || state.Gamepad.sThumbLY != 0;
+					isAxis = true;
 				}
 
 				if (key->second == GAMEPAD_KEY::AXIS_RIGHT)
 				{
 					m_axisActive[1] = state.Gamepad.sThumbRX != 0 || state.Gamepad.sThumbRY != 0;
+					isAxis = true;
 				}
-				SendGamepadInput(key->second, keystroke.Flags == XINPUT_KEYSTROKE_KEYDOWN);
+
+				// Ignore axis inputs here, they are handled separately
+				if (!isAxis)
+				{
+					OnGamepadInput(key->second, (keystroke.Flags & XINPUT_KEYSTROKE_KEYDOWN) != 0, nullptr);
+				}
 			}
 			else
 			{
@@ -288,7 +334,7 @@ void WindowsInputAbstraction::PollEvents()
 				m_axisActive[0] = false;
 			}
 
-			SendGamepadAxis(GAMEPAD_KEY::AXIS_LEFT, state.Gamepad.sThumbLX / 32767.f, state.Gamepad.sThumbLY / 32767.f);
+			OnGamepadAxis(GAMEPAD_KEY::AXIS_LEFT, state.Gamepad.sThumbLX / 32767.f, state.Gamepad.sThumbLY / 32767.f, nullptr);
 		}
 
 		if (m_axisActive[1])
@@ -303,7 +349,7 @@ void WindowsInputAbstraction::PollEvents()
 				m_axisActive[1] = false;
 			}
 
-			SendGamepadAxis(GAMEPAD_KEY::AXIS_RIGHT, state.Gamepad.sThumbRX / 32767.f, state.Gamepad.sThumbRY / 32767.f);
+			OnGamepadAxis(GAMEPAD_KEY::AXIS_RIGHT, state.Gamepad.sThumbRX / 32767.f, state.Gamepad.sThumbRY / 32767.f, nullptr);
 		}
 	}
 }

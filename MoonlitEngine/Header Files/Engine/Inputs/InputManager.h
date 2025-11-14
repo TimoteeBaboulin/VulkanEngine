@@ -11,17 +11,24 @@
 //TODO: Allow handlers to subscribe to a specific window/event source
 //TODO: Allow handlers to consume events so they don't propagate to other handlers
 
-/// <summary>
-/// Abstract class for handling input events
-/// </summary>
+// Abstract class for handling input events
+// TODO: Put it in its own file to avoid filling this file too much
 class MOONLIT_API InputHandler
 {
 public:
-	virtual void HandleMouseMoveInput(int _deltaX, int _deltaY) = 0;
+	virtual void HandleMouseMoveInput(float _deltaX, float _deltaY) = 0;
 	virtual void HandleMouseInput(MOUSE_KEY _key, bool _keyDown) = 0;
 	virtual void HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown) = 0;
 	virtual void HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown) = 0;
 	virtual void HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float _y) = 0;
+
+	void* GetWindowHandle() const {
+		return m_windowHandle;
+	}
+
+protected:
+	// If null, the handler listens to all windows
+	void* m_windowHandle = nullptr;
 };
 
 enum struct WINDOW_EVENT : char
@@ -33,17 +40,17 @@ enum struct WINDOW_EVENT : char
 class PlatformInputAbstraction;
 class QApplication;
 
+// TODO: Maybe move those typedefs to a separate file
 using KeyboardInputCallback = std::function<void(KEYBOARD_KEY)>;
 using GamepadInputCallback = std::function<void(GAMEPAD_KEY)>;
 using MouseInputCallback = std::function<void(MOUSE_KEY)>;
 using GamepadAxisInputCallback = std::function<void(GAMEPAD_KEY, float, float)>;
 using AxisInputCallback = std::function<void(float, float)>;
-using WindowEventCallback = std::function<void(WINDOW_EVENT, void*)>;	
+using WindowEventCallback = std::function<void(WINDOW_EVENT, void*)>;
 
-/// <summary>
-/// Platform agnostic singleton class used as an interface between input handlers<para/>
-/// And platform specific input reading systems
-/// </summary>
+// Platform agnostic singleton class used as an interface between input handlers<para/>
+// And platform specific input reading systems
+// TODO: Use the event system instead of callbacks for input subscriptions
 class MOONLIT_API InputManager
 {
 	// PlatformInputAbstraction is the base class for platform specific input handling
@@ -120,11 +127,25 @@ private:
 	// Input handling methods
 	// These are called by the platform abstraction
 
-	void HandleMouseMovement(float _x, float _y);
-	void HandleMouseInput(MOUSE_KEY _key, bool _keyDown);
-	void HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown);
-	void HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown);
-	void HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float _y);
+	// InputInstance dispatcher methods.
+	// ReadInput is called by the platform abstraction
+	// It dispatches to the right device specific method
+	// They then dispatch it based on the input type after interpreting the raw input data
+	void ReadInput(InputInstance _instance);
+	void ReadMouseInput(InputInstance _instance);
+	void ReadKeyboardInput(InputInstance _instance);
+	void ReadGamepadInput(InputInstance _instance);
+
+	// Handlers for specific input types
+
+	void HandleMouseMovement(float _x, float _y, void* _winHandle);
+	void HandleMouseInput(MOUSE_KEY _key, bool _keyDown, void* _winHandle);
+	void HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown, void* _winHandle);
+	void HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown, void* _winHandle);
+	void HandleGamepadAxis(GAMEPAD_KEY _key, float _x, float _y, void* _winHandle);
+
+	// Method meant to get the handlers that are subscribed to a specific window, or to any window
+	std::vector<InputHandler*> GetInputHandlersForWindow(void* _winHandle = nullptr);
 
 	std::vector<InputHandler*> m_inputHandlers;
 	std::map<KEYBOARD_KEY, KEY_STATE> m_keyboardKeyStates;

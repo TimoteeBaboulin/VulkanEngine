@@ -9,10 +9,10 @@
 class SceneViewInputHandler : public InputHandler
 {
 public:
-	SceneViewInputHandler(Camera& camera);
+	SceneViewInputHandler(Camera& _camera, void* _winHandle);
 	~SceneViewInputHandler();
 
-	void HandleMouseMoveInput(int _deltaX, int _deltaY) override;
+	void HandleMouseMoveInput(float _deltaX, float _deltaY) override;
 	void HandleMouseInput(MOUSE_KEY _key, bool _keyDown) override;
 	void HandleKeyboardInput(KEYBOARD_KEY _key, bool _keyDown) override;
 	void HandleGamepadInput(GAMEPAD_KEY _key, bool _keyDown) override;
@@ -20,4 +20,6 @@ public:
 
 private:
 	Camera& m_camera;
+
+	bool m_mouseHeld = false;
 };

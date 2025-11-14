@@ -22,7 +22,7 @@ bool QtEventReader::nativeEventFilter(const QByteArray &eventType, void *message
     if (!msg) // || msg->hwnd != m_targetHandle
         return false;
 
-    if (m_backend) m_backend->HandleWindowsInputs(*msg);
+    if (m_backend) m_backend->HandleWindowsEvents((void*)msg->hwnd, *msg);
 
     // Return false so Qt continues normal processing (important for resizing & non-client behavior).
     return false;

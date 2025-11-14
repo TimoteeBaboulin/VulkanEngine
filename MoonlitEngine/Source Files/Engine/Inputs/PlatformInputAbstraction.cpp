@@ -3,29 +3,9 @@
 #include "Engine/Inputs/InputManager.h"
 #include "Engine/Inputs/QtEventReader.h"
 
-void PlatformInputAbstraction::SendKeyboardInput(KEYBOARD_KEY _key, bool _keyDown)
+void PlatformInputAbstraction::SendInput(InputInstance _instance)
 {
-	InputManager::m_instance->HandleKeyboardInput(_key, _keyDown);
-}
-
-void PlatformInputAbstraction::SendMouseInput(MOUSE_KEY _key, bool _keyDown)
-{
-	InputManager::m_instance->HandleMouseInput(_key, _keyDown);
-}
-
-void PlatformInputAbstraction::SendMouseMovement(float _x, float _y)
-{
-	InputManager::m_instance->HandleMouseMovement(_x, _y);
-}
-
-void PlatformInputAbstraction::SendGamepadInput(GAMEPAD_KEY _key, bool _keyDown)
-{
-	InputManager::m_instance->HandleGamepadInput(_key, _keyDown);
-}
-
-void PlatformInputAbstraction::SendGamepadAxis(GAMEPAD_KEY _key, float _x, float _y)
-{
-	InputManager::m_instance->HandleGamepadAxis(_key, _x, _y);
+	InputManager::m_instance->ReadInput(_instance);
 }
 
 void PlatformInputAbstraction::WindowResize(int _width, int _height)

@@ -29,13 +29,17 @@ private:
 
 	bool m_cursorLocked = false;
 
-	void OnKeyboardInput(WPARAM _wParam, bool _keyDown);
-	void OnMouseMove(POINT _point);
+	void OnKeyboardInput(WPARAM _wParam, bool _keyDown, void* _winHandle);
+	void OnMouseMove(POINT _point, void* _winHandle);
+	void OnMouseClick(MOUSE_KEY _key, bool _keyDown, void* _winHandle);
+	void OnGamepadInput(GAMEPAD_KEY _key, bool _keyDown, void* _winHandle);
+	void OnGamepadAxis(GAMEPAD_KEY _key, float _x, float _y, void* _winHandle);
+
 
 public:
 	WindowsInputAbstraction(HWND _windowHandle);
 
-	void HandleWindowsInputs(MSG _msg);
+	void HandleWindowsEvents(void* _handle, MSG _msg) override;
 
 	void Init() override;
 	void PollEvents() override;

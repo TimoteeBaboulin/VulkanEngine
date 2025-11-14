@@ -55,7 +55,7 @@ bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
 	{
 		if ((*entIt).Data == _instance->MeshData)
 		{
-			(*entIt).ModelMatrices.push_back(_instance->Model);
+			(*entIt).ModelMatrices.push_back(*_instance->Model);
 			entryFound = true;
 			it = entIt;
 			break;
@@ -66,7 +66,7 @@ bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
 	{
 		m_meshes.push_back(MeshEntry{
 			_instance->MeshData,
-			{_instance->Model}
+			{*_instance->Model}
 			});
 
 		it = m_meshes.end() - 1;
@@ -162,6 +162,12 @@ void DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, in
 		return;
 	}
 
+	//Debug: force update every frame
+	//Debug: This cause absolutely awful performance, but it is here to test updating the transforms
+	UpdateEntries();
+	UpdateBuffers();
+	(*it).IsDirty = true;
+
 	if ((*it).IsDirty)
 	{
 		(*it).GenerateBuffers(m_vertexData, m_vertexCount,
@@ -192,6 +198,12 @@ void DrawBuffer::CountVertexData()
 
 void DrawBuffer::UpdateEntries()
 {
+	for (auto& entry: m_meshes)
+	{
+		entry.ModelMatrices.clear();
+	}
+
+
 	for (int index = 0; index < m_meshInstances.size(); index++)
 	{
 		MeshInstance& instance = *m_meshInstances[index];
@@ -213,13 +225,13 @@ void DrawBuffer::UpdateEntries()
 		{
 			m_meshes.push_back(MeshEntry{
 				meshData,
-				{instance.Model}
+				{*instance.Model}
 				});
 
 			continue;
 		}
 
-		(*meshEntryIt).ModelMatrices.push_back(instance.Model);
+		(*meshEntryIt).ModelMatrices.push_back(*instance.Model);
 	}
 }
 

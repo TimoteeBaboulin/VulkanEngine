@@ -150,9 +150,9 @@ void MoonlitRenderer::LoadMesh(std::string name)
 			translate = glm::translate(glm::vec3(i, -i, i));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
+			//MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
 
-			m_drawBuffers[0]->TryAddMesh(instance);
+			//m_drawBuffers[0]->TryAddMesh(instance);
 		}
 		
 	}
@@ -163,9 +163,9 @@ void MoonlitRenderer::LoadMesh(std::string name)
 			translate = glm::translate(glm::vec3(i, 0, 0));
 
 			glm::mat4x4 model = translate * rotate * scale;
-			MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
+			//MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
 
-			m_drawBuffers[0]->TryAddMesh(instance);
+			//m_drawBuffers[0]->TryAddMesh(instance);
 		}
 	}
 	test = !test;

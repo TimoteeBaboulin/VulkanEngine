@@ -126,6 +126,7 @@ void ObjectBehaviour::SetParameterValue(const std::string& _name, void* _data)
 		if (entry.Name == _name)
 		{
 			std::memcpy(entry.Data, _data, entry.Size);
+			ParameterChanged();
 			return;
 		}
 	}

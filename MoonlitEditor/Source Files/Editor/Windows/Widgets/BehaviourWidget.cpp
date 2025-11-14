@@ -38,7 +38,7 @@ void BehaviourWidget::ReadParameters()
 		paramMessage += " of type ";
 		paramMessage += parameter.TypeName;
 		LOG_INFO(paramMessage.c_str());
-		m_widgets.push_back(new ParameterWidget(parameter));
+		m_widgets.push_back(new ParameterWidget(parameter, m_behaviour));
 		m_layout->addWidget(m_widgets.back());
 	}
 }

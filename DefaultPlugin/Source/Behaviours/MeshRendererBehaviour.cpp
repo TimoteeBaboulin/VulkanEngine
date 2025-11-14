@@ -64,5 +64,5 @@ void MeshRendererBehaviour::LookForTransformComponent()
 		transform = new TransformBehaviour(m_owner);
 	}
 
-	m_meshInstance.Model = *(transform->GetSharedPtrModelMat());
+	m_meshInstance.Model = transform->GetSharedPtrModelMat();
 }

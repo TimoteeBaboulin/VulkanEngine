@@ -27,6 +27,11 @@ std::vector<ParameterRepositoryEntry> TransformBehaviour::GetParameterEntries()
 	return entries;
 }
 
+void TransformBehaviour::ParameterChanged()
+{
+	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+}
+
 void TransformBehaviour::SetPosition(glm::vec3 _position)
 {
 	m_position = _position;

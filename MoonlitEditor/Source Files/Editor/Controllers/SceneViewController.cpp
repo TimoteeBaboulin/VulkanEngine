@@ -11,7 +11,7 @@ void SceneViewInputHandler::HandleMouseMoveInput(float _deltaX, float _deltaY)
 		return;
 
 	const float mouseSensitivity = 0.05f;
-	LOG_INFO(TEXTLOG("Mouse Move Input: DeltaX: " + std::to_string(_deltaX) + ", DeltaY: " + std::to_string(_deltaY)));
+
 	m_camera.Rotate(m_camera.GetUpVector(), -_deltaX * mouseSensitivity);
 	m_camera.Rotate(m_camera.GetRightVector(), _deltaY * mouseSensitivity);
 }

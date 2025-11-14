@@ -12,8 +12,6 @@ class QtEventReader;
 /// </summary>
 class WindowsInputAbstraction : public PlatformInputAbstraction
 {
-	friend LRESULT WndProcCallback(HWND _handle, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 private:
 	static WindowsInputAbstraction* m_instance;
 	static std::map<int, KEYBOARD_KEY> m_keyMap;

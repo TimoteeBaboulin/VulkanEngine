@@ -13,10 +13,13 @@
 #include <vector>
 
 #include "Engine/Components/ObjectBehaviour.h"
+#include "Engine/Events/Event.h"
 
 class TransformBehaviour : public ObjectBehaviour
 {
 public:
+	Event<void> OnTransformChanged;
+
 	TransformBehaviour(GameObject* _owner,
 		glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3 _scale = glm::vec3(1.0, 1.0f, 1.0f),
@@ -28,7 +31,7 @@ public:
 
 	//Setters
 	void SetPosition(glm::vec3 _position);
-
+	
 	// Getters
 	glm::vec3 GetPosition() { return m_position; } const
 	std::shared_ptr<glm::mat4> GetSharedPtrModelMat() { return std::make_shared<glm::mat4>(m_transformMatrix); };

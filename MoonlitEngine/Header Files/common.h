@@ -15,7 +15,7 @@ MOONLIT_API struct MeshData
 	int triangleCount = 0;
 	uint16_t* indices = nullptr;
 
-	std::vector<Image> textures;
+	//std::vector<Image> textures;
 };
 
 struct MeshInstance

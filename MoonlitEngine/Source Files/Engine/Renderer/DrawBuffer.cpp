@@ -32,75 +32,143 @@ DrawBuffer::~DrawBuffer()
 	m_deviceLinks.clear();
 }
 
-bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
+void DrawBuffer::RemoveMeshInstance(uint32_t _instanceId)
 {
-	if (std::find(m_meshInstances.begin(), m_meshInstances.end(), _instance) != m_meshInstances.end())
-	{
-		LOG_WARNING("Trying to load already existing mesh");
-		return false;
-	}
-
-	m_meshInstances.push_back(_instance);
-
-	for (auto dit = m_deviceLinks.begin(); dit != m_deviceLinks.end(); dit++)
-	{
-		(*dit).IsDirty = true;
-	}
-
-	//Need to check whether there is already a mesh entry for this mesh data
-	bool entryFound = false;
-	auto it = m_meshes.end();
-
-	for (auto entIt = m_meshes.begin(); entIt != m_meshes.end(); entIt++)
-	{
-		if ((*entIt).Data == _instance->MeshData)
+	auto it = std::find_if(m_meshInstances.begin(), m_meshInstances.end(),
+		[_instanceId](const InstanceData& _data)
 		{
-			(*entIt).ModelMatrices.push_back(*_instance->Model);
-			entryFound = true;
-			it = entIt;
-			break;
-		}
-	}
+			return _data.Id == _instanceId;
+		});
 
-	if (!entryFound)
+	if (it == m_meshInstances.end())
 	{
-		m_meshes.push_back(MeshEntry{
-			_instance->MeshData,
-			{*_instance->Model}
-			});
-
-		it = m_meshes.end() - 1;
+		LOG_WARNING("Trying to remove mesh instance that isn't in the draw buffer.");
+		return;
 	}
 
-	std::vector<int> textureIndexes = AddTextures(_instance->Textures);
-	(*it).TextureIndexes.insert((*it).TextureIndexes.end(), textureIndexes.begin(), textureIndexes.end());
+	size_t index = std::distance(m_meshInstances.begin(), it);
 
-	// This has been commented since update entries clears everything and re-adds everything
-	// We are adding things dynamically to avoid unneeded overhead
-	// UpdateEntries should be optimized to only take care of the changed data
-	// Currently it is only used when removing a mesh instance as there is no easy way
-	// To update the buffers by only removing the instance
-	//UpdateEntries();
+	auto meshIt = FindMeshEntry((*it).MeshHandle);
+	if (meshIt == m_meshEntries.end())
+	{
+		LOG_ERROR("Trying to remove mesh instance that exists but without a corresponding mesh entry");
+		throw std::runtime_error("Mesh entry not found!");
+	}
 
-	UpdateBuffers();
+	(*meshIt).InstanceCount--;
+	if ((*meshIt).InstanceCount == 0)
+	{
+		RemoveMesh(meshIt);
+	}
 
-	return true;
+	m_modelData.erase(m_modelData.begin() + index);
+	m_meshInstances.erase(m_meshInstances.begin() + index);
 }
 
-void DrawBuffer::RemoveMesh(MeshInstance* _instance)
+uint32_t DrawBuffer::AddMeshInstance(std::shared_ptr<MeshData> _mesh, std::vector<std::shared_ptr<Image>> _textures, glm::mat4x4 _model)
 {
-	auto it = std::find(m_meshInstances.begin(), m_meshInstances.end(), _instance);
-	if (it != m_meshInstances.end())
-		m_meshInstances.erase(it);
+	static uint32_t currentId = 0;
 
-	for (auto dit = m_deviceLinks.begin(); dit != m_deviceLinks.end(); dit++)
+	intptr_t meshHandle = reinterpret_cast<intptr_t>(_mesh.get());
+	auto it = FindMeshEntry(meshHandle);
+
+	// Insert the new mesh in case it doesn't already exist
+	// Vertex/Index data is updated here
+	if (it == m_meshEntries.end())
 	{
-		(*dit).IsDirty = true;
+		InsertMesh(_mesh); 
+		it = m_meshEntries.end() - 1;
+	}
+	
+	// Since we need to find the correct place in the vector, we have to calculate to find the correct index
+	InstanceData instanceData;
+	instanceData.Id = currentId++;
+	instanceData.MeshHandle = (*it).MeshHandle;
+
+	size_t instanceToSkip = 0;
+	for (auto entIt = m_meshEntries.begin(); entIt != it; entIt++)
+	{
+		instanceToSkip += (*entIt).InstanceCount;
 	}
 
-	UpdateEntries();
-	UpdateBuffers();
+	instanceToSkip += (*it).InstanceCount;
+
+	(*it).InstanceCount++;
+	m_meshInstances.insert(m_meshInstances.begin() + instanceToSkip, instanceData);
+	m_modelData.insert(m_modelData.begin() + instanceToSkip, _model);
+
+	return instanceData.Id;
 }
+
+//bool DrawBuffer::TryAddMesh(MeshInstance* _instance)
+//{
+//	if (std::find(m_meshInstances.begin(), m_meshInstances.end(), _instance) != m_meshInstances.end())
+//	{
+//		LOG_WARNING("Trying to load already existing mesh");
+//		return false;
+//	}
+//
+//	m_meshInstances.push_back(_instance);
+//
+//	for (auto dit = m_deviceLinks.begin(); dit != m_deviceLinks.end(); dit++)
+//	{
+//		(*dit).IsDirty = true;
+//	}
+//
+//	//Need to check whether there is already a mesh entry for this mesh data
+//	bool entryFound = false;
+//	auto it = m_meshes.end();
+//
+//	for (auto entIt = m_meshes.begin(); entIt != m_meshes.end(); entIt++)
+//	{
+//		if ((*entIt).Data == _instance->MeshData)
+//		{
+//			(*entIt).ModelMatrices.push_back(*_instance->Model);
+//			entryFound = true;
+//			it = entIt;
+//			break;
+//		}
+//	}
+//
+//	if (!entryFound)
+//	{
+//		m_meshes.push_back(MeshEntry{
+//			_instance->MeshData,
+//			{*_instance->Model}
+//			});
+//
+//		it = m_meshes.end() - 1;
+//	}
+//
+//	std::vector<int> textureIndexes = AddTextures(_instance->Textures);
+//	(*it).TextureIndexes.insert((*it).TextureIndexes.end(), textureIndexes.begin(), textureIndexes.end());
+//
+//	// This has been commented since update entries clears everything and re-adds everything
+//	// We are adding things dynamically to avoid unneeded overhead
+//	// UpdateEntries should be optimized to only take care of the changed data
+//	// Currently it is only used when removing a mesh instance as there is no easy way
+//	// To update the buffers by only removing the instance
+//	//UpdateEntries();
+//
+//	UpdateBuffers();
+//
+//	return true;
+//}
+
+//void DrawBuffer::RemoveMesh(MeshInstance* _instance)
+//{
+//	auto it = std::find(m_meshInstances.begin(), m_meshInstances.end(), _instance);
+//	if (it != m_meshInstances.end())
+//		m_meshInstances.erase(it);
+//
+//	for (auto dit = m_deviceLinks.begin(); dit != m_deviceLinks.end(); dit++)
+//	{
+//		(*dit).IsDirty = true;
+//	}
+//
+//	UpdateEntries();
+//	UpdateBuffers();
+//}
 
 void DrawBuffer::LinkTarget(RenderTarget& _renderTarget)
 {
@@ -233,6 +301,58 @@ void DrawBuffer::UpdateEntries()
 
 		(*meshEntryIt).ModelMatrices.push_back(*instance.Model);
 	}
+}
+
+void DrawBuffer::InsertMesh(std::shared_ptr<MeshData> _mesh)
+{
+	m_meshEntries.push_back(MeshEntry{
+		reinterpret_cast<intptr_t>(_mesh.get()),
+		0
+		});
+
+	// Load data on the stack for faster operations
+	// Pre-calculate the final size to avoid causing multiple resizes
+	size_t vertexCount = (*_mesh).vertexCount;
+	size_t indexCount = (*_mesh).triangleCount * 3;
+	size_t baseIndex = m_indexCount;
+	m_vertexCount += vertexCount;
+	m_indexCount += indexCount;
+	m_vertexData.reserve(m_vertexCount);
+	m_indexData.reserve(m_indexCount);
+
+	for (size_t i = 0; i < vertexCount; i++)
+	{
+		m_vertexData.emplace_back((*_mesh).vertices[i]);
+	}
+
+	for (size_t i = 0; i < indexCount; i++)
+	{
+		m_vertexData.emplace_back((*_mesh).indices[i] + baseIndex);
+	}
+
+	// Create a copy in case the mesh is unloaded despite still existing in the draw buffer
+	MeshEntry& newEntry = m_meshEntries.back();
+	newEntry.Data.vertices = new Vertex[_mesh->vertexCount];
+	memcpy(newEntry.Data.vertices, _mesh->vertices, sizeof(Vertex) * _mesh->vertexCount);
+	newEntry.Data.vertexCount = _mesh->vertexCount;
+	newEntry.Data.indices = new uint16_t[_mesh->triangleCount * 3];
+	memcpy(newEntry.Data.indices, _mesh->indices, sizeof(uint16_t) * _mesh->triangleCount * 3);
+	newEntry.Data.triangleCount = _mesh->triangleCount;
+}
+
+void DrawBuffer::RemoveMesh(std::vector<MeshEntry>::iterator _instanceIt)
+{
+	//TODO: add mesh removal
+	return;
+}
+
+std::vector<MeshEntry>::iterator DrawBuffer::FindMeshEntry(intptr_t _handle)
+{
+	return std::find_if(m_meshEntries.begin(), m_meshEntries.end(),
+		[_handle](const MeshEntry& entry)
+		{
+			return entry.MeshHandle == _handle;
+		});
 }
 
 std::vector<int> DrawBuffer::AddTextures(std::vector<std::shared_ptr<Image>>& _images)

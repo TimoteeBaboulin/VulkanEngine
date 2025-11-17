@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Behaviours/TransformBehaviour.h"
 
-TransformBehaviour::TransformBehaviour(GameObject* _owner, glm::vec3 _position, glm::vec3 _scale, glm::fquat _rotation) : ObjectBehaviour(_owner)
+TransformBehaviour::TransformBehaviour(GameObject* _owner, glm::vec3 _position, glm::vec3 _scale, glm::fquat _rotation) 
+	: ObjectBehaviour(_owner), OnTransformChanged(this)
 {
 	m_position = _position;
 	m_rotation = _rotation;
@@ -30,6 +31,7 @@ std::vector<ParameterRepositoryEntry> TransformBehaviour::GetParameterEntries()
 void TransformBehaviour::ParameterChanged()
 {
 	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+	OnTransformChanged.Invoke(this);
 }
 
 void TransformBehaviour::SetPosition(glm::vec3 _position)
@@ -39,4 +41,5 @@ void TransformBehaviour::SetPosition(glm::vec3 _position)
 	// TODO: Use a dirty flag to recalculate the matrices in late update
 	m_translationMatrix = glm::translate(glm::mat4(1), m_position);
 	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+	OnTransformChanged.Invoke(this);
 }

@@ -26,6 +26,7 @@ public:
 	~Material();
 
 	MaterialInstance* CreateInstance(RenderTarget& _target);
+	int GetTextureCount() const { return m_textureCount; }
 
 private:
 	void RemoveInstance(MaterialInstance* _instance);
@@ -34,4 +35,6 @@ private:
 	ShaderCode* m_shaderCode;
 
 	std::vector<MaterialInstance*> m_instances;
+
+	int m_textureCount = 1;
 };

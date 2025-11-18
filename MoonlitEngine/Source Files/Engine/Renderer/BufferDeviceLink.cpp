@@ -5,32 +5,17 @@
 
 #include "ResourceManagement/TextureData.h"
 
-BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _materialInstance)
+BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _materialInstance,
+	DrawBuffer* _drawBuffer) : m_parentBuffer(_drawBuffer)
 {
 	m_deviceData = _deviceData;
 	m_material = _materialInstance;
 
-	vk::CommandPoolCreateInfo poolInfo;
-	poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
-	poolInfo.queueFamilyIndex = _deviceData.QueueIndices.graphicsFamily.value();
-	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-	m_commandPool = m_deviceData.Device.createCommandPool(poolInfo);
+	AllocateCommandBuffer();
+	AllocateTextureSets();
 
-	vk::CommandBufferAllocateInfo allocInfo;
-	allocInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
-	allocInfo.commandPool = m_commandPool;
-	allocInfo.level = vk::CommandBufferLevel::ePrimary;
-	allocInfo.commandBufferCount = 1;
-	auto result = m_deviceData.Device.allocateCommandBuffers(allocInfo);
-	m_commandBuffer = result.at(0);
-
-	vk::DescriptorSetAllocateInfo textureSetInfo;
-	textureSetInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
-	textureSetInfo.descriptorPool = m_material->GetDescriptorPool();
-	textureSetInfo.descriptorSetCount = 1;
-	textureSetInfo.pSetLayouts = &m_material->GetDescriptorSetLayouts()[1];
-
-	m_drawResources.textureDescriptorSets = m_deviceData.Device.allocateDescriptorSets(textureSetInfo);
+	// Initial data upload
+	UpdateData();
 }
 
 BufferDeviceLink::BufferDeviceLink(BufferDeviceLink&& _src)
@@ -82,8 +67,13 @@ BufferDeviceLink::~BufferDeviceLink()
 }
 
 void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,
-	std::vector<MeshEntry>& _meshEntries, vk::DescriptorSet* _uboSet)
+	vk::DescriptorSet* _uboSet)
 {
+	if (m_isDirty)
+	{
+		UpdateData();
+	}
+
 	vk::DeviceSize offsets[] = { 0 };
 
 	_cmd.bindVertexBuffers(0, m_drawResources.vertexBuffer, offsets);
@@ -98,10 +88,12 @@ void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,
 	int currIndex = 0;
 	int currInstance = 0;
 
-	for (int i = 0; i < _meshEntries.size(); i++)
+	auto meshEntries = m_parentBuffer->GetMeshEntries();
+
+	for (int i = 0; i < meshEntries.size(); i++)
 	{
-		size_t instanceCount = _meshEntries[i].ModelMatrices.size();
-		int indexCount = _meshEntries[i].Data->triangleCount * 3;
+		size_t instanceCount = meshEntries[i].InstanceCount;
+		int indexCount = meshEntries[i].Data.triangleCount * 3;
 
 		_cmd.drawIndexed(indexCount, (uint32_t) instanceCount, currIndex, 0, currInstance);
 
@@ -110,116 +102,12 @@ void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,
 	}
 }
 
-void BufferDeviceLink::GenerateBuffers(Vertex* _vertexData, uint32_t _vertexCount,
-	uint16_t* _indexData, uint32_t _indexCount, 
-	glm::mat4x4* _modelData, uint32_t _modelCount,
-	int* _textureIndices)
+void BufferDeviceLink::SetDirty()
 {
-	if (_modelCount == 0)
-	{
-		return;
-	}
-
-	if (m_resourcesGenerated)
-	{
-		ClearBuffers();
-	}
-
-	size_t instanceDataSize = (sizeof(glm::mat4x4) + sizeof(int32_t));
-	size_t totalInstanceDataSize = instanceDataSize * _modelCount;
-	void* instanceData = new char[totalInstanceDataSize];
-
-	for (uint32_t i = 0; i < _modelCount; i++)
-	{
-		memcpy((char*)instanceData + i * instanceDataSize, &_modelData[i], sizeof(glm::mat4x4));
-		// While the texture data from draw buffers assume each mesh instance has 4 textures
-		// This is meant to work with my current shader which only uses a single texture
-		// TODO: Update this when material can read the texture requirements of the shader
-		memcpy((char*)instanceData + i * instanceDataSize + sizeof(glm::mat4x4), &_textureIndices[i], sizeof(int32_t));
-	}
-
-	//Create the buffers
-	BufferCreateInfo vertexBufferInfo
-	{
-		.buffer = m_drawResources.vertexBuffer,
-		.memory = m_drawResources.vertexBufferMemory,
-		.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
-		.sharingMode = vk::SharingMode::eExclusive,
-		.size = sizeof(Vertex) * _vertexCount
-	};
-	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
-		m_deviceData.Queues.graphicsQueue, vertexBufferInfo, _vertexData);
-
-	BufferCreateInfo indexBufferInfo
-	{
-		.buffer = m_drawResources.indexBuffer,
-		.memory = m_drawResources.indexBufferMemory,
-		.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
-		.sharingMode = vk::SharingMode::eExclusive,
-		.size = sizeof(uint16_t) * _indexCount
-	};
-	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
-		m_deviceData.Queues.graphicsQueue, indexBufferInfo, _indexData);
-
-	BufferCreateInfo modelMatrixBufferInfo
-	{
-		.buffer = m_drawResources.modelMatrixBuffer,
-		.memory = m_drawResources.modelMatrixBufferMemory,
-		.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
-		.sharingMode = vk::SharingMode::eExclusive,
-		.size = totalInstanceDataSize
-	};
-	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
-		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, instanceData);
-
-	IsDirty = false;
+	m_isDirty = true;
 }
 
-void BufferDeviceLink::GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures)
-{
-	for (auto it = _textures.begin(); it != _textures.end(); it++)
-	{
-		auto loadedIt = std::find(m_loadedImages.begin(), m_loadedImages.end(), (*it));
-		if (loadedIt == m_loadedImages.end())
-		{
-			//Need to load the texture
-			TextureData texData = GetTextureData(*(*it).get());
-			m_drawResources.textures.push_back(texData);
-			m_loadedImages.push_back(*it);
-		}
-	}
-
-	UpdateTextures();
-}
-
-void BufferDeviceLink::ClearBuffers()
-{
-	vk::Device device = m_deviceData.Device;
-	device.waitIdle();
-
-	//Free the memory
-	device.freeMemory(m_drawResources.vertexBufferMemory);
-	device.freeMemory(m_drawResources.indexBufferMemory);
-	device.freeMemory(m_drawResources.modelMatrixBufferMemory);
-
-	//Destroy the buffers
-	device.destroyBuffer(m_drawResources.vertexBuffer);
-	device.destroyBuffer(m_drawResources.indexBuffer);
-	device.destroyBuffer(m_drawResources.modelMatrixBuffer);
-}
-
-void BufferDeviceLink::ClearTextures()
-{
-	for (auto it = m_drawResources.textures.begin(); it != m_drawResources.textures.end(); it++)
-	{
-		m_deviceData.Device.destroyImageView((*it).m_imageView);
-		m_deviceData.Device.destroyImage((*it).m_image);
-		m_deviceData.Device.destroySampler((*it).m_sampler);
-	}
-}
+// Helper functions
 
 TextureData BufferDeviceLink::GetTextureData(Image& _image)
 {
@@ -308,7 +196,33 @@ TextureData BufferDeviceLink::GetTextureData(Image& _image)
 	return texData;
 }
 
+// Update functions
+
+void BufferDeviceLink::UpdateData()
+{
+	UpdateBuffers();
+	UpdateTextures();
+}
+
+void BufferDeviceLink::UpdateBuffers()
+{
+	// Make sure to clear previous buffers if they exist
+	if (m_resourcesGenerated)
+		ClearBuffers();
+
+	GenerateBuffers();
+}
+
 void BufferDeviceLink::UpdateTextures()
+{
+	std::vector<std::shared_ptr<Image>> textures = m_parentBuffer->GetAllTextures();
+	//Load the textures to the device
+	GenerateTextures(textures);
+	//Write the descriptor set to hold the textures
+	UpdateTextureSets();
+}
+
+void BufferDeviceLink::UpdateTextureSets()
 {
 	size_t textureCount = m_drawResources.textures.size();
 	vk::WriteDescriptorSet* writeSets = new vk::WriteDescriptorSet[textureCount];
@@ -330,5 +244,148 @@ void BufferDeviceLink::UpdateTextures()
 		writeSets[i].pImageInfo = &imageInfos[i];
 	}
 
-	m_deviceData.Device.updateDescriptorSets((uint32_t) textureCount, writeSets, 0, nullptr);
+	m_deviceData.Device.updateDescriptorSets((uint32_t)textureCount, writeSets, 0, nullptr);
 }
+
+// Memory management functions
+
+void BufferDeviceLink::AllocateCommandBuffer()
+{
+	vk::CommandPoolCreateInfo poolInfo;
+	poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
+	poolInfo.queueFamilyIndex = m_deviceData.QueueIndices.graphicsFamily.value();
+	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+	m_commandPool = m_deviceData.Device.createCommandPool(poolInfo);
+
+	vk::CommandBufferAllocateInfo allocInfo;
+	allocInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
+	allocInfo.commandPool = m_commandPool;
+	allocInfo.level = vk::CommandBufferLevel::ePrimary;
+	allocInfo.commandBufferCount = 1;
+	auto result = m_deviceData.Device.allocateCommandBuffers(allocInfo);
+	m_commandBuffer = result.at(0);
+}
+
+void BufferDeviceLink::AllocateTextureSets()
+{
+	vk::DescriptorSetAllocateInfo textureSetInfo;
+	textureSetInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
+	textureSetInfo.descriptorPool = m_material->GetDescriptorPool();
+	textureSetInfo.descriptorSetCount = 1;
+	textureSetInfo.pSetLayouts = &m_material->GetDescriptorSetLayouts()[1];
+
+	m_drawResources.textureDescriptorSets = m_deviceData.Device.allocateDescriptorSets(textureSetInfo);
+}
+
+void BufferDeviceLink::GenerateBuffers()
+{
+	// Copy the data from the parent buffer
+	std::vector<Vertex> vertexData = m_parentBuffer->GetVertexData();
+	std::vector<uint16_t> indexData = m_parentBuffer->GetIndexData();
+	std::vector<glm::mat4x4> modelData = m_parentBuffer->GetModelData();
+	std::vector<uint16_t> textureIndices = m_parentBuffer->GetTextureIndices();
+
+	uint32_t vertexCount = (uint32_t)vertexData.size();
+	uint32_t indexCount = (uint32_t)indexData.size();
+	uint32_t modelCount = (uint32_t)modelData.size();
+
+	// If there's no data, we don't create the buffers
+	// So we need to be very wary about continuing the render loop if this happens
+	// If there's no models, the DrawBuffer should be deleted to clear up resources
+	if (modelCount == 0)
+		return;
+
+	size_t textureCount = m_material->GetTextureCount();
+	size_t instanceDataSize = sizeof(glm::mat4x4) + sizeof(uint16_t) * textureCount;
+	size_t totalInstanceDataSize = instanceDataSize * modelCount;
+	void* instanceData = new char[totalInstanceDataSize];
+
+	for (uint32_t i = 0; i < modelCount; i++)
+	{
+		memcpy((char*)instanceData + i * instanceDataSize, &modelData[i], sizeof(glm::mat4x4));
+		memcpy((char*)instanceData + i * instanceDataSize + sizeof(glm::mat4x4), &textureIndices[i], sizeof(uint16_t) * textureCount);
+	}
+
+	//Create the buffers
+	BufferCreateInfo vertexBufferInfo
+	{
+		.buffer = m_drawResources.vertexBuffer,
+		.memory = m_drawResources.vertexBufferMemory,
+		.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
+		.sharingMode = vk::SharingMode::eExclusive,
+		.size = sizeof(Vertex) * vertexCount
+	};
+	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+		m_deviceData.Queues.graphicsQueue, vertexBufferInfo, vertexData.data());
+
+	BufferCreateInfo indexBufferInfo
+	{
+		.buffer = m_drawResources.indexBuffer,
+		.memory = m_drawResources.indexBufferMemory,
+		.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
+		.sharingMode = vk::SharingMode::eExclusive,
+		.size = sizeof(uint16_t) * indexCount
+	};
+	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+		m_deviceData.Queues.graphicsQueue, indexBufferInfo, indexData.data());
+
+	BufferCreateInfo modelMatrixBufferInfo
+	{
+		.buffer = m_drawResources.modelMatrixBuffer,
+		.memory = m_drawResources.modelMatrixBufferMemory,
+		.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
+		.sharingMode = vk::SharingMode::eExclusive,
+		.size = totalInstanceDataSize
+	};
+	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, instanceData);
+
+	m_isDirty = false;
+}
+
+void BufferDeviceLink::GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures)
+{
+	for (auto it = _textures.begin(); it != _textures.end(); it++)
+	{
+		auto loadedIt = std::find(m_loadedImages.begin(), m_loadedImages.end(), (*it));
+		if (loadedIt == m_loadedImages.end())
+		{
+			//Need to load the texture
+			TextureData texData = GetTextureData(*(*it).get());
+			m_drawResources.textures.push_back(texData);
+			m_loadedImages.push_back(*it);
+		}
+	}
+
+	UpdateTextureSets();
+}
+
+void BufferDeviceLink::ClearBuffers()
+{
+	vk::Device device = m_deviceData.Device;
+	device.waitIdle();
+
+	//Free the memory
+	device.freeMemory(m_drawResources.vertexBufferMemory);
+	device.freeMemory(m_drawResources.indexBufferMemory);
+	device.freeMemory(m_drawResources.modelMatrixBufferMemory);
+
+	//Destroy the buffers
+	device.destroyBuffer(m_drawResources.vertexBuffer);
+	device.destroyBuffer(m_drawResources.indexBuffer);
+	device.destroyBuffer(m_drawResources.modelMatrixBuffer);
+}
+
+void BufferDeviceLink::ClearTextures()
+{
+	for (auto it = m_drawResources.textures.begin(); it != m_drawResources.textures.end(); it++)
+	{
+		m_deviceData.Device.destroyImageView((*it).m_imageView);
+		m_deviceData.Device.destroyImage((*it).m_image);
+		m_deviceData.Device.destroySampler((*it).m_sampler);
+	}
+}
+

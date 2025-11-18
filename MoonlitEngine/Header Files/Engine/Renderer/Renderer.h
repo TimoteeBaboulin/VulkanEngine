@@ -30,7 +30,11 @@ public:
 
 	void Init(struct ContextInfo& _info, std::vector<const char*> requiredExtensions);
 	void Cleanup();
-	void AddMeshInstance(MeshInstance& _meshInstance);
+	uint32_t AddMeshInstance(std::shared_ptr<MeshData> _mesh,
+		std::vector<std::shared_ptr<Image>> _textures,
+		glm::mat4x4 _model);
+	void UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model);
+	void RemoveMeshInstance(uint32_t _instanceId);
 	RenderTarget* AddRenderTarget(void* _handle, Camera* _camera);
 
 	[[deprecated("This function is deprecated in favor of meshrenderers")]]

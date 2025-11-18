@@ -85,12 +85,22 @@ void MoonlitRenderer::Cleanup()
 	delete m_context;
 }
 
-void MoonlitRenderer::AddMeshInstance(MeshInstance& _meshInstance)
+uint32_t MoonlitRenderer::AddMeshInstance(std::shared_ptr<MeshData> _mesh,
+	std::vector<std::shared_ptr<Image>> _textures,
+	glm::mat4x4 _model)
 {
-	for (auto it = m_drawBuffers.begin(); it != m_drawBuffers.end(); it++)
-	{
-		(*it)->TryAddMesh(&_meshInstance);
-	}
+	// Find the correct draw buffer for this mesh/material
+	return m_drawBuffers[0]->AddMeshInstance(_mesh, _textures, _model);
+}
+
+void MoonlitRenderer::UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model)
+{
+	m_drawBuffers[0]->UpdateInstanceModel(_instanceId, _model);
+}
+
+void MoonlitRenderer::RemoveMeshInstance(uint32_t _instanceId)
+{
+	m_drawBuffers[0]->RemoveMeshInstance(_instanceId);
 }
 
 RenderTarget* MoonlitRenderer::AddRenderTarget(void* _handle, Camera* _camera)
@@ -105,72 +115,72 @@ RenderTarget* MoonlitRenderer::AddRenderTarget(void* _handle, Camera* _camera)
 
 void MoonlitRenderer::LoadMesh(std::string name)
 {
-	//TODO: Don't load the mesh in the renderer, it should be done by the engine itself through gameobjects
-	std::shared_ptr<MeshData> testMesh;
-	if (!ResourceManager::TryGetResource<MeshData>(name, testMesh))
-	{
-		std::string errorMsg = "Mesh " + name + " not found in ResourceManager.";
-		LOG_ERROR(errorMsg.c_str());
-		throw std::runtime_error(errorMsg);
-	}
+	////TODO: Don't load the mesh in the renderer, it should be done by the engine itself through gameobjects
+	//std::shared_ptr<MeshData> testMesh;
+	//if (!ResourceManager::TryGetResource<MeshData>(name, testMesh))
+	//{
+	//	std::string errorMsg = "Mesh " + name + " not found in ResourceManager.";
+	//	LOG_ERROR(errorMsg.c_str());
+	//	throw std::runtime_error(errorMsg);
+	//}
 
-	glm::mat4x4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	glm::mat4x4 rotate = glm::rotate(0.0f, glm::vec3(0, 1, 0));
-	glm::mat4x4 translate = glm::translate(glm::vec3(0, 0, 0));
+	//glm::mat4x4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+	//glm::mat4x4 rotate = glm::rotate(0.0f, glm::vec3(0, 1, 0));
+	//glm::mat4x4 translate = glm::translate(glm::vec3(0, 0, 0));
 
-	glm::mat4x4 model = translate * rotate * scale;
+	//glm::mat4x4 model = translate * rotate * scale;
 
-	std::shared_ptr<Image> firstTexture;
-	std::vector<std::shared_ptr<Image>> m_textures;
-	if (ResourceManager::TryGetResource<Image>("barstool_albedo", firstTexture))
-	{
-		m_textures.push_back(firstTexture);
-	}
-	else
-	{
-		LOG_ERROR("Failed to load texture barstool_albedo.png from ResourceManager.");
-	}
+	//std::shared_ptr<Image> firstTexture;
+	//std::vector<std::shared_ptr<Image>> m_textures;
+	//if (ResourceManager::TryGetResource<Image>("barstool_albedo", firstTexture))
+	//{
+	//	m_textures.push_back(firstTexture);
+	//}
+	//else
+	//{
+	//	LOG_ERROR("Failed to load texture barstool_albedo.png from ResourceManager.");
+	//}
 
-	std::shared_ptr<Image> secondTexture;
-	std::vector<std::shared_ptr<Image>> secondaryTextures;
-	if (ResourceManager::TryGetResource<Image>("sniper_albedo", secondTexture))
-	{
-		secondaryTextures.push_back(secondTexture);
-	}
-	else
-	{
-		LOG_ERROR("Failed to load texture sniper_albedo.png from ResourceManager.");
-	}
+	//std::shared_ptr<Image> secondTexture;
+	//std::vector<std::shared_ptr<Image>> secondaryTextures;
+	//if (ResourceManager::TryGetResource<Image>("sniper_albedo", secondTexture))
+	//{
+	//	secondaryTextures.push_back(secondTexture);
+	//}
+	//else
+	//{
+	//	LOG_ERROR("Failed to load texture sniper_albedo.png from ResourceManager.");
+	//}
 
-	if (!test)
-	{
-		for (int i = -5; i < 6; i++)
-		{
-			glm::vec3 vec = glm::vec3(i, -i, i);
-			translate = glm::translate(glm::vec3(i, -i, i));
+	//if (!test)
+	//{
+	//	for (int i = -5; i < 6; i++)
+	//	{
+	//		glm::vec3 vec = glm::vec3(i, -i, i);
+	//		translate = glm::translate(glm::vec3(i, -i, i));
 
-			glm::mat4x4 model = translate * rotate * scale;
-			//MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
+	//		glm::mat4x4 model = translate * rotate * scale;
+	//		//MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
 
-			//m_drawBuffers[0]->TryAddMesh(instance);
-		}
-		
-	}
-	else
-	{
-		for (int i = -5; i < 6; i++)
-		{
-			translate = glm::translate(glm::vec3(i, 0, 0));
+	//		//m_drawBuffers[0]->TryAddMesh(instance);
+	//	}
+	//	
+	//}
+	//else
+	//{
+	//	for (int i = -5; i < 6; i++)
+	//	{
+	//		translate = glm::translate(glm::vec3(i, 0, 0));
 
-			glm::mat4x4 model = translate * rotate * scale;
-			//MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
+	//		glm::mat4x4 model = translate * rotate * scale;
+	//		//MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
 
-			//m_drawBuffers[0]->TryAddMesh(instance);
-		}
-	}
-	test = !test;
+	//		//m_drawBuffers[0]->TryAddMesh(instance);
+	//	}
+	//}
+	//test = !test;
 
-	m_drawBuffers[0]->UpdateBuffers();
+	//m_drawBuffers[0]->UpdateBuffers();
 }
 
 void MoonlitRenderer::Render()

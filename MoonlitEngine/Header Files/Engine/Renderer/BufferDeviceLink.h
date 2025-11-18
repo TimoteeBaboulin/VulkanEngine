@@ -33,10 +33,8 @@ struct DrawBufferResources
 class MOONLIT_API BufferDeviceLink
 {
 public:
-	//TODO: Use it and pass it to private if possible
-	bool IsDirty = false;
-
-	BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _materialInstance);
+	BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _materialInstance,
+		class DrawBuffer* _buffer);
 
 	// Forbid copy, explicitly implement move
 	// (Don't forget rule of five)
@@ -51,24 +49,18 @@ public:
 	vk::Device const GetDevice() { return m_deviceData.Device; }
 
 	void Render(vk::CommandBuffer& _cmd, int _renderPass,
-		std::vector<MeshEntry>& _meshEntries, vk::DescriptorSet* _uboSet);
+		vk::DescriptorSet* _uboSet);
 
-	// This function has way too many parameters, need to refactor it
-	// Maybe pass a struct with all the data?
-	//TODO: Refactor this function
-
-	void GenerateBuffers(Vertex* _vertexData, uint32_t _vertexCount,
-		uint16_t* _indexData, uint32_t _indexCount,
-		glm::mat4x4* _modelData, uint32_t _modelCount,
-		int* _textureIndices);
-
-	// Textures are handled separately as they require a different approach
-	// And aren't stored in vk::Buffer structures
-
-	void GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures);
+	void SetDirty();
 
 private:
+
+	//TODO: Use it and pass it to private if possible
+	bool m_isDirty = false;
+
 	MaterialInstance* m_material;
+
+	class DrawBuffer* m_parentBuffer;
 
 	DrawBufferResources m_drawResources;
 	DeviceData m_deviceData;
@@ -79,8 +71,22 @@ private:
 
 	bool m_resourcesGenerated = false;
 
+	// Helper function to create a TextureData from an Image
+	TextureData GetTextureData(Image& _image);
+
+	// This is used if the buffer is dirty at render time
+	void UpdateData();
+	void UpdateBuffers();
+	void UpdateTextures();
+	void UpdateTextureSets();
+
+	// Memory management
+	void AllocateCommandBuffer();
+	void AllocateTextureSets();
+
+	void GenerateBuffers();
+	void GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures);
+
 	void ClearBuffers();
 	void ClearTextures();
-	TextureData GetTextureData(Image& _image);
-	void UpdateTextures();
 };

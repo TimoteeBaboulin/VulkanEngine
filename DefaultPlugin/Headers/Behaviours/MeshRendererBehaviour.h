@@ -2,6 +2,7 @@
 #include "Engine/Components/ObjectBehaviour.h"
 #include "common.h"
 #include "ResourceManagement/Mesh.h"
+#include "Engine/Events/EventUtility.h"
 
 
 class MeshRendererBehaviour : public ObjectBehaviour
@@ -11,8 +12,14 @@ public:
 	MeshRendererBehaviour(GameObject* _owner);
 	MeshRendererBehaviour(GameObject* _owner, std::shared_ptr<MeshData> _mesh);
 
+	~MeshRendererBehaviour();
+
 private:
 	void LookForTransformComponent();
+	void UpdateMeshInstanceModel(glm::mat4 _model);
 
-	MeshInstance m_meshInstance;
+	class TransformBehaviour* m_transformComponent = nullptr;
+
+	ScopedEventSubscriber<glm::mat4>* m_transformChangedSubscriber = nullptr;
+	uint32_t m_instanceId = 0;
 };

@@ -42,6 +42,8 @@ void ParameterWidget::SetUI()
 	if (!strcmp(m_entry.TypeName, typeid(glm::vec3).name()))
 	{
 		glm::vec3* data = (glm::vec3*)(m_entry.Data);
+//		data->r = 0;
+		m_behaviour->ParameterChanged();
 		QRegularExpression* regex = new QRegularExpression("^[0-9,\.]*$");
 		QRegularExpressionValidator* validator = new QRegularExpressionValidator();
 		validator->setRegularExpression(*regex);
@@ -56,6 +58,8 @@ void ParameterWidget::SetUI()
 			{
 				std::istringstream stream(xEdit->text().toStdString());
 				stream >> data->x;
+
+				//m_behaviour->SetParameterValue("Position", data);
 				m_behaviour->ParameterChanged();
 			});
 

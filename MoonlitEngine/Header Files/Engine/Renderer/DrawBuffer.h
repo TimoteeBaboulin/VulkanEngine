@@ -33,12 +33,22 @@ struct MeshEntry
 	size_t InstanceCount;
 };
 
+struct TextureSlot
+{
+	intptr_t TextureHandle;
+	uint16_t InstanceCount;
+	std::shared_ptr<Image> Texture;
+};
+
 // Memory layout:
 // Every instance of a mesh will be in a row
 // The order in which those batches are written in are the same as the order of the meshdata in the vector
 // So to get to instance 2 of mesh 3, we skip the combined instances of meshes 0, 1 and 2 and skip the 2 instances of mesh 3 before it
 
 class RenderTarget;
+
+// TODO: Currently index data is written in uint16_t, but index size is written in uint32_t
+// This should be fixed to avoid confusion
 
 /// <summary>
 /// Class used to batch draw calls together into a single one
@@ -55,13 +65,11 @@ public:
 	uint32_t AddMeshInstance(std::shared_ptr<MeshData> _mesh, 
 		std::vector<std::shared_ptr<Image>> _textures,
 		glm::mat4x4 _model);
-	//bool TryAddMesh(MeshInstance* _instance);
-	//void RemoveMesh(MeshInstance* _instance);
+	void UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model);
 
 	//TODO: Add a remove target function
 	
 	void LinkTarget(RenderTarget& _renderTarget);
-	void UpdateBuffers();
 
 	//RENDER-------------------------------------------------------------------------------
 	
@@ -70,36 +78,27 @@ public:
 	//GETTERS------------------------------------------------------------------------------
 	
 	uint32_t GetVertexCount() const { return m_vertexCount; }
-	uint32_t GetTriangleCount() const 
-	{ 
-		int triangleCount = 0;
-		int index = 0;
+	uint32_t GetTriangleCount() const { return m_indexCount / 3; }
 
-		for (auto it = m_meshes.begin(); it != m_meshes.end(); it++)
-		{
-			triangleCount += (int)(*it).ModelMatrices.size() * (*it).Data->triangleCount;
+	std::vector<Vertex> GetVertexData() const { return m_vertexData; }
+	std::vector<uint16_t> GetIndexData() const { return m_indexData; }
+	std::vector<glm::mat4x4> GetModelData() const { return m_modelData; }
+	std::vector<uint16_t> GetTextureIndices() const { return m_textureIndices; }
 
-			index++;
-		}
-
-		return triangleCount;
-	}
+	std::vector<MeshEntry> GetMeshEntries() const { return m_meshEntries; }
+	std::vector<std::shared_ptr<Image>> GetAllTextures() const;
 
 private:
 	//DATA---------------------------------------------------------------------------------
-	//
-	//std::vector<MeshInstance*> m_meshInstances;
-	//std::vector<BufferDeviceLink> m_deviceLinks;
-	//std::vector<std::shared_ptr<Image>> m_textureList;
+	
+	std::vector<BufferDeviceLink> m_deviceLinks;
+	Material* m_material;
 
 	////Mesh Entries
-	//
-	//std::vector<MeshEntry> m_meshes;
-	//std::vector<std::vector<glm::mat4x4>> m_modelMatrices;
-	//std::vector<int> m_meshInstanceCount;
 
 	std::vector<MeshEntry> m_meshEntries;
 	std::vector<InstanceData> m_meshInstances;
+	std::vector<TextureSlot> m_textureList;
 
 	//RAW DATA-----------------------------------------------------------------------------
 	
@@ -111,30 +110,31 @@ private:
 	std::vector<Vertex> m_vertexData;
 	std::vector<uint16_t> m_indexData;
 	std::vector<glm::mat4x4> m_modelData;
-	std::vector<int> m_textureIndices;
+	std::vector<uint16_t> m_textureIndices;
 
 	//DATA COUNTS--------------------------------------------------------------------------
 	
-	int m_vertexCount;
-	int m_indexCount;
-	int m_instanceCount;
-	
-	Material* m_material;
+	uint32_t m_vertexCount;
+	uint32_t m_indexCount;
+	uint32_t m_instanceCount;
 
 	//TODO: Re-implement indirect drawing
 	//std::vector<vk::DrawIndexedIndirectCommand> m_drawCommands;
 
-	void CountVertexData();
-	void UpdateEntries();
+	// MESH MANAGEMENT---------------------------------------------------------------------
 
 	void InsertMesh(std::shared_ptr<MeshData> _mesh);
 	void RemoveMesh(std::vector<MeshEntry>::iterator _instanceIt);
 	std::vector<MeshEntry>::iterator FindMeshEntry(intptr_t _handle);
 
-	/// <summary>
-	/// Function meant to add textures that aren't already there to the textureArray<para/>
-	/// It returns the indexes of the textures in the texture array, whether they were added or not
-	/// </summary>
-	std::vector<int> AddTextures(std::vector<std::shared_ptr<Image>>& _images);
+	// TEXTURE MANAGEMENT------------------------------------------------------------------
+
+	std::vector<uint16_t> GetTextureIndices(std::vector<std::shared_ptr<Image>>& _images);
+	uint16_t InsertTexture(std::shared_ptr<Image>& _image);
+	void RemoveTexture(uint16_t _index);
+
+	std::vector<TextureSlot>::iterator FindTexture(intptr_t _texHandle);
+
+	void SetDeviceLinkDirty();
 	std::vector<BufferDeviceLink>::iterator FindDeviceLink(RenderTarget& _target);
 };

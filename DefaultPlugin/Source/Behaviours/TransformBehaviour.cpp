@@ -30,8 +30,10 @@ std::vector<ParameterRepositoryEntry> TransformBehaviour::GetParameterEntries()
 
 void TransformBehaviour::ParameterChanged()
 {
+	m_translationMatrix = glm::translate(glm::mat4(1), m_position);
+
 	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
-	OnTransformChanged.Invoke(this);
+	OnTransformChanged.Invoke(this, m_transformMatrix);
 }
 
 void TransformBehaviour::SetPosition(glm::vec3 _position)
@@ -41,5 +43,5 @@ void TransformBehaviour::SetPosition(glm::vec3 _position)
 	// TODO: Use a dirty flag to recalculate the matrices in late update
 	m_translationMatrix = glm::translate(glm::mat4(1), m_position);
 	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
-	OnTransformChanged.Invoke(this);
+	OnTransformChanged.Invoke(this, m_transformMatrix);
 }

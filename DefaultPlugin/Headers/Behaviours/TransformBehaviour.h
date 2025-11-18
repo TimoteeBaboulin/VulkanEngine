@@ -18,7 +18,7 @@
 class TransformBehaviour : public ObjectBehaviour
 {
 public:
-	Event<void> OnTransformChanged;
+	Event<void, glm::mat4> OnTransformChanged;
 
 	TransformBehaviour(GameObject* _owner,
 		glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f),
@@ -33,8 +33,8 @@ public:
 	void SetPosition(glm::vec3 _position);
 	
 	// Getters
-	glm::vec3 GetPosition() { return m_position; } const
-	std::shared_ptr<glm::mat4> GetSharedPtrModelMat() { return std::make_shared<glm::mat4>(m_transformMatrix); };
+	glm::vec3 GetPosition() const { return m_position; }
+	glm::mat4 GetModelMat() const { return m_transformMatrix; };
 protected:
 	glm::vec3 m_position;
 	glm::vec3 m_scale;

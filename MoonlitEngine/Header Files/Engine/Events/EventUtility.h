@@ -24,11 +24,7 @@ private:
 	EventEntryHandle m_handle = 0;
 };
 
-// CTAD deduction guide:
-// When constructing from an Event<void, paramTs...>& and its EventFunctionT,
-// deduce ScopedEventSubscriber<paramTs...>. This allows using:
-//   ScopedEventSubscriber sub(event, func);
-// even when paramTs... is empty.
+// Used to avoid having to specify template parameters when creating a ScopedEventSubscriber
 template<typename... paramTs>
 ScopedEventSubscriber(Event<void, paramTs...>&, typename Event<void, paramTs...>::EventFunctionT)
 	-> ScopedEventSubscriber<paramTs...>;

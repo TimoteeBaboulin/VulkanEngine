@@ -1,4 +1,4 @@
-#include "Vector3.h"
+#include "Editor/Windows/Widgets/ParameterTypes/Vector3.h"
 
 #include <glm/glm.hpp>
 #include <qlayout.h>

@@ -8,10 +8,9 @@ class ScopedEventSubscriber
 public:
 	using EventT = Event<void, paramTs...>;
 	ScopedEventSubscriber() = delete;
-	ScopedEventSubscriber(EventT& _event, EventT::EventFunctionT _func)
+	ScopedEventSubscriber(EventT& _event, typename EventT::EventFunctionT _func)
 		: m_event(_event)
 	{
-		m_event = _event;
 		m_handle = m_event += _func;
 	}
 
@@ -24,3 +23,12 @@ private:
 	EventT& m_event;
 	EventEntryHandle m_handle = 0;
 };
+
+// CTAD deduction guide:
+// When constructing from an Event<void, paramTs...>& and its EventFunctionT,
+// deduce ScopedEventSubscriber<paramTs...>. This allows using:
+//   ScopedEventSubscriber sub(event, func);
+// even when paramTs... is empty.
+template<typename... paramTs>
+ScopedEventSubscriber(Event<void, paramTs...>&, typename Event<void, paramTs...>::EventFunctionT)
+	-> ScopedEventSubscriber<paramTs...>;

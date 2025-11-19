@@ -32,16 +32,32 @@ void TransformBehaviour::ParameterChanged()
 {
 	m_translationMatrix = glm::translate(glm::mat4(1), m_position);
 
-	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
-	OnTransformChanged.Invoke(this, m_transformMatrix);
+	m_isDirty = true;
+	OnTransformChanged.Invoke(this);
 }
 
 void TransformBehaviour::SetPosition(glm::vec3 _position)
 {
 	m_position = _position;
 
-	// TODO: Use a dirty flag to recalculate the matrices in late update
+	m_isDirty = true;
+	OnTransformChanged.Invoke(this);
+}
+
+glm::mat4 TransformBehaviour::GetModelMat()
+{
+	if (m_isDirty)
+		RecalculateMatrices();
+
+	return m_transformMatrix;
+}
+
+void TransformBehaviour::RecalculateMatrices()
+{
 	m_translationMatrix = glm::translate(glm::mat4(1), m_position);
+	m_rotationMatrix = glm::toMat4(m_rotation);
+	m_scaleMatrix = glm::scale(glm::mat4(1), m_scale);
 	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
-	OnTransformChanged.Invoke(this, m_transformMatrix);
+
+	m_isDirty = false;
 }

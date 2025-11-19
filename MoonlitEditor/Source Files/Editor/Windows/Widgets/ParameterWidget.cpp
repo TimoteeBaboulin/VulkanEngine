@@ -9,12 +9,9 @@
 #include <sstream>
 #include <iomanip>
 
-std::string GetPrettyFloat(float _value)
-{
-	std::ostringstream oss;
-	oss << std::setprecision(8) << std::noshowpoint << _value;
-	return oss.str();
-}
+#include "Editor/Windows/Widgets/ParameterTypes/ParameterTypeRegistry.h"
+#include "Editor/Windows/Widgets/ParameterTypes/ParameterEditor.h"
+
 
 ParameterWidget::ParameterWidget(const ParameterRepositoryEntry& _entry, ObjectBehaviour* _behaviour)
 	: m_entry(_entry), QWidget(), m_behaviour(_behaviour)
@@ -28,6 +25,18 @@ ParameterWidget::ParameterWidget(const ParameterWidget& _toCopy)
 	SetUI();
 }
 
+ParameterWidget::~ParameterWidget()
+{
+	QWidget::~QWidget();
+
+	for (ParameterEditor* editor : m_parameterEditors)
+	{
+		delete editor;
+	}
+
+	delete m_layout;
+}
+
 void ParameterWidget::SetUI()
 {
 	m_layout = new QBoxLayout(QBoxLayout::LeftToRight);
@@ -39,38 +48,12 @@ void ParameterWidget::SetUI()
 	m_layout->setContentsMargins(6, 6, 6, 6);
 	m_layout->setAlignment(Qt::AlignLeft);
 
-	if (!strcmp(m_entry.TypeName, typeid(glm::vec3).name()))
+	ParamEditorFactory_t factory = ParameterTypeRegistry::Get().GetFactoryForType(m_entry.TypeName);
+	if (factory != nullptr)
 	{
-		glm::vec3* data = (glm::vec3*)(m_entry.Data);
-		QRegularExpression* regex = new QRegularExpression("^[0-9,\.]*$");
-		QRegularExpressionValidator* validator = new QRegularExpressionValidator();
-		validator->setRegularExpression(*regex);
-
-		//delete the regex now to avoid memory leaks
-		delete regex;
-
-		QLineEdit* xEdit = new QLineEdit(this);
-		xEdit->setValidator(validator);
-		xEdit->setText(QString::fromStdString(GetPrettyFloat(data->x)));
-		connect(xEdit, &QLineEdit::editingFinished, this, [data, xEdit, this]()
-			{
-				std::istringstream stream(xEdit->text().toStdString());
-				stream >> data->x;
-
-				m_behaviour->ParameterChanged();
-			});
-
-		QLineEdit* yEdit = new QLineEdit(this);
-		yEdit->setValidator(validator);
-		yEdit->setText(QString::fromStdString(GetPrettyFloat(data->y)));
-		
-		QLineEdit* zEdit = new QLineEdit(this);
-		zEdit->setValidator(validator);
-		zEdit->setText(QString::fromStdString(GetPrettyFloat(data->z)));
-
-		m_layout->addWidget(xEdit);
-		m_layout->addWidget(yEdit);
-		m_layout->addWidget(zEdit);
+		ParameterEditor* editor = factory(m_entry);
+		editor->OnParameterChanged += std::bind(&ObjectBehaviour::ParameterChanged, m_behaviour);
+		editor->AddToLayout(m_layout);
 	}
 
 	setLayout(m_layout);

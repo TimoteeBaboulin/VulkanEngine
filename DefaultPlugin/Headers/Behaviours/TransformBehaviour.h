@@ -18,7 +18,7 @@
 class TransformBehaviour : public ObjectBehaviour
 {
 public:
-	Event<void, glm::mat4> OnTransformChanged;
+	Event<void> OnTransformChanged;
 
 	TransformBehaviour(GameObject* _owner,
 		glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f),
@@ -34,7 +34,7 @@ public:
 	
 	// Getters
 	glm::vec3 GetPosition() const { return m_position; }
-	glm::mat4 GetModelMat() const { return m_transformMatrix; };
+	glm::mat4 GetModelMat();
 protected:
 	glm::vec3 m_position;
 	glm::vec3 m_scale;
@@ -45,4 +45,8 @@ protected:
 	glm::mat4 m_scaleMatrix;
 
 	glm::mat4 m_transformMatrix;
+
+	bool m_isDirty = false;
+
+	void RecalculateMatrices();
 };

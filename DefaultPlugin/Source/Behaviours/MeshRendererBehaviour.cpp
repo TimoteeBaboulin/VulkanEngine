@@ -16,8 +16,8 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner)
 {
 	LookForTransformComponent();
 
-	m_transformChangedSubscriber = new ScopedEventSubscriber<glm::mat4>(m_transformComponent->OnTransformChanged,
-		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this, std::placeholders::_1));
+	m_transformChangedSubscriber = new ScopedEventSubscriber(m_transformComponent->OnTransformChanged,
+		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
 	std::shared_ptr<MeshData> defaultMesh;
 	ResourceManager* m_manager = ResourceManager::Get();
@@ -44,8 +44,8 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner, std::shared_ptr
 {
 	LookForTransformComponent();
 
-	m_transformChangedSubscriber = new ScopedEventSubscriber<glm::mat4>(m_transformComponent->OnTransformChanged,
-		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this, std::placeholders::_1));
+	m_transformChangedSubscriber = new ScopedEventSubscriber(m_transformComponent->OnTransformChanged,
+		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
 	std::shared_ptr<Image> firstTexture;
 	std::vector<std::shared_ptr<Image>> textures;
@@ -76,7 +76,7 @@ void MeshRendererBehaviour::LookForTransformComponent()
 	m_transformComponent = transform;
 }
 
-void MeshRendererBehaviour::UpdateMeshInstanceModel(glm::mat4 _model)
+void MeshRendererBehaviour::UpdateMeshInstanceModel()
 {
-	MoonlitEngine::GetInstance()->Renderer->UpdateInstanceModel(m_instanceId, _model);
+	MoonlitEngine::GetInstance()->Renderer->UpdateInstanceModel(m_instanceId, m_transformComponent->GetModelMat());
 }

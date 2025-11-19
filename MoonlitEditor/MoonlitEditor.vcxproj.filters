@@ -72,6 +72,9 @@
     <ClCompile Include="Source Files\Editor\Windows\Widgets\ParameterWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Vector3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h">
@@ -120,6 +123,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\ParameterTypeRegistry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\ParameterEditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Vector3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Float.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

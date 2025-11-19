@@ -16,10 +16,10 @@ public:
 
 private:
 	void LookForTransformComponent();
-	void UpdateMeshInstanceModel(glm::mat4 _model);
+	void UpdateMeshInstanceModel();
 
 	class TransformBehaviour* m_transformComponent = nullptr;
 
-	ScopedEventSubscriber<glm::mat4>* m_transformChangedSubscriber = nullptr;
+	ScopedEventSubscriber<>* m_transformChangedSubscriber = nullptr;
 	uint32_t m_instanceId = 0;
 };

@@ -313,7 +313,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
+      <AdditionalDependencies>qtadvanceddocking-qt6.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)Libraries/DLLs/Common" "$(OutDir)" /v /y /s
@@ -321,6 +321,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Vector3.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\ObjectEditor.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourWidget.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\Widgets\ParameterWidget.cpp" />
@@ -353,6 +354,10 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\Editor\Windows\General\SceneViewWindow.h" />
     <ClInclude Include="Header Files\Editor\Windows\IDockManager.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\BehaviourWidget.h" />
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Float.h" />
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\ParameterEditor.h" />
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\ParameterTypeRegistry.h" />
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Vector3.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterWidget.h" />
     <ClInclude Include="Header Files\SceneViewInputHandler.h" />
   </ItemGroup>

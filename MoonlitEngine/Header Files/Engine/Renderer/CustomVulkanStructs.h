@@ -35,6 +35,11 @@ struct RenderInfo
 struct UniformBufferObject {
 	glm::mat4 view;
 	glm::mat4 proj;
+
+	glm::vec3 lightPos;
+	float padding = 0.0f;
+	glm::vec3 lightColor;
+	float padding2 = 0.0f;
 };
 
 struct RenderQueues

@@ -352,6 +352,8 @@ void RenderTarget::UpdateUniformBuffer()
 	ubo.view = m_camera->GetViewMatrix();
 	ubo.proj = glm::perspective(glm::radians(90.0f), m_extent.width / (float)m_extent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1; // Vulkan uses a different coordinate system for Y
+	ubo.lightPos = glm::vec3(2.0f, 4.0f, -2.0f);
+	ubo.lightColor = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	memcpy(m_uniformBuffersMaps[m_currentFrame], &ubo, sizeof(UniformBufferObject));
 }
@@ -362,7 +364,7 @@ void RenderTarget::CreateDescriptorSetLayout()
 	uboLayoutBinding.binding = 0;
 	uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
 	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
+	uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
 
 	vk::DescriptorSetLayoutCreateInfo layoutInfo;
 	layoutInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;

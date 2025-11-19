@@ -321,9 +321,9 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Vector3.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\ObjectEditor.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourWidget.cpp" />
+    <ClCompile Include="Source Files\Editor\Windows\Widgets\ParameterTypes\Vector3.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\Widgets\ParameterWidget.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\DefaultDockManager.cpp" />
     <ClCompile Include="Source Files\Editor\Controllers\SceneViewController.cpp" />
@@ -357,7 +357,6 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Float.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\ParameterEditor.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\ParameterTypeRegistry.h" />
-    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Vector3.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterWidget.h" />
     <ClInclude Include="Header Files\SceneViewInputHandler.h" />
   </ItemGroup>

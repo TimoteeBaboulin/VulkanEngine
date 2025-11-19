@@ -1,7 +1,12 @@
-struct MVP_Matrices
+struct UniformBufferObject
 {
     matrix<float, 4, 4> viewMat;
     matrix<float, 4, 4> projMat;
+
+    float3 lightPos;
+    float padding;
+    float3 lightCol;
+    float padding2;
 }
 
 struct VertexInput
@@ -25,7 +30,7 @@ struct v2f
 
     float4 position : SV_POSITION;
 }
-[[vk_binding(0, 0)]] ConstantBuffer<MVP_Matrices> mvpMats;
+[[vk_binding(0, 0)]] ConstantBuffer<UniformBufferObject> ubo;
 [[vk_binding(0, 1)]] Sampler2D[32] textures;
 
 [shader("vertex")]
@@ -34,7 +39,7 @@ v2f vertexMain([[vk_location(0)]] VertexInput inVert, [[vk_location(3)]] Instanc
     v2f output;
 
     // Calculate the final matrix.
-    float4x4 finalMatrix = mul(mul(inInst.modelMat, mvpMats.viewMat), mvpMats.projMat);
+    float4x4 finalMatrix = mul(mul(inInst.modelMat, ubo.viewMat), ubo.projMat);
 
     output.position = mul(float4(inVert.position, 1.0f), finalMatrix);
     output.fragColor = inVert.color;
@@ -47,9 +52,11 @@ v2f vertexMain([[vk_location(0)]] VertexInput inVert, [[vk_location(3)]] Instanc
 [shader("fragment")]
 float4 fragmentMain(in v2f input) : SV_TARGET
 {
-    
     // Use the color from the vertex input.
     float4 color = textures[input.texIndex].Sample(input.texCoord);
+    color.rgb += ubo.lightCol;
+    color.rgb /= float3(2.0f, 2.0f, 2.0f);
+
     // Return the final color.
     return color;
 }

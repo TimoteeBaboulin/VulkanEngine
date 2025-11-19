@@ -2,134 +2,163 @@
 #include <slang/slang-com-ptr.h>
 #include "Engine/Renderer/Material/MaterialInstance.h"
 
+#include "Debug/Logger.h"
 
 
+//ShaderResource GetShaderResource(slang::VariableReflection* _var)
+//{
+//	ShaderResource resource;
+//
+//	auto type = _var->getType();
+//	auto name = _var->getName();
+//
+//	resource.Name = name;
+//
+//	slang::TypeReflection::Kind elementKind;
+//	slang::TypeReflection* elementType;
+//
+//	if (type->isArray())
+//	{
+//		resource.IsArray = true;
+//		resource.ArraySize = type->getTotalArrayElementCount();
+//		elementKind = type->getElementType()->getKind();
+//		elementType = type->getElementType();
+//	}
+//	else
+//	{
+//		resource.IsArray = false;
+//		resource.ArraySize = 0;
+//		elementKind = type->getKind();
+//		elementType = type;
+//	}
+//
+//	switch (elementKind)
+//	{
+//	case slang::TypeReflection::Kind::Resource:
+//		//TODO: Currently the engine expects any resource to be generic
+//		//TODO: Handle non-generic resources
+//
+//		switch (elementType->getResourceShape())
+//		{
+//		case SlangResourceShape::SLANG_TEXTURE_2D:
+//			resource.Type = ResourceType::Texture;
+//			break;
+//		default:
+//			break;
+//		}
+//		break;
+//		case slang::TypeReflection::Kind::TextureBuffer:
+//			resource.Type = ResourceType::Texture;
+//			break;
+//	default:
+//		break;
+//	}
+//
+//
+//	//Check if it's a resource type
+//	if (type->getKind() == slang::TypeReflection::Kind::)
+//	{
+//		auto resType = type->asResourceType();
+//		auto resShape = resType->getResourceShape();
+//		auto resAccess = resType->getResourceAccess();
+//		auto resElementType = resType->getElementType();
+//	}
+//}
 
-ShaderResource GetShaderResource(slang::VariableReflection* _var)
+std::vector<EntryPoint> GetEntryPoints(slang::IModule* _module,
+	Slang::ComPtr<slang::ISession> _session,
+	SlangSession* _globalSession)
 {
-	ShaderResource resource;
+	slang::DeclReflection* moduleRefPtr = _module->getModuleReflection();
+	auto funcList = moduleRefPtr->getChildrenOfKind<slang::DeclReflection::Kind::Func>();
 
-	auto type = _var->getType();
-	auto name = _var->getName();
+	std::vector<EntryPoint> entryPoints;
 
-	resource.Name = name;
+	// Add all entry points alongside the module to generate the code later on
+	std::vector<slang::IComponentType*> componentTypes;
+	componentTypes.push_back(_module);
 
-	slang::TypeReflection::Kind elementKind;
-	slang::TypeReflection* elementType;
-
-	if (type->isArray())
+	// Get every entry point
+	for (auto it = funcList.begin(); it != funcList.end(); ++it)
 	{
-		resource.IsArray = true;
-		resource.ArraySize = type->getTotalArrayElementCount();
-		elementKind = type->getElementType()->getKind();
-		elementType = type->getElementType();
-	}
-	else
-	{
-		resource.IsArray = false;
-		resource.ArraySize = 0;
-		elementKind = type->getKind();
-		elementType = type;
-	}
-
-	switch (elementKind)
-	{
-	case slang::TypeReflection::Kind::Resource:
-		//TODO: Currently the engine expects any resource to be generic
-		//TODO: Handle non-generic resources
-
-		switch (elementType->getResourceShape())
+		//Check if they are entry points
+		auto funcRefPtr = (*it)->asFunction();
+		Slang::ComPtr<slang::IEntryPoint> entryPoint;
+		const char* entryPointName = funcRefPtr->getName();
+		bool result = SLANG_SUCCEEDED(_module->findEntryPointByName(funcRefPtr->getName(), entryPoint.writeRef()));
+		if (result)
 		{
-		case SlangResourceShape::SLANG_TEXTURE_2D:
-			resource.Type = ResourceType::Texture;
-			break;
-		default:
-			break;
+			// Add the data to the vector
+			entryPoints.push_back(EntryPoint());
+			EntryPoint& currEntryPoint = entryPoints.back();
+
+			slang::Attribute* shaderAttr = funcRefPtr->findAttributeByName(_globalSession, "shader");
+			size_t nameLength = 0;
+			const char* stageName = shaderAttr->getArgumentValueString(0, &nameLength);
+			
+			if (strcmp(stageName, "vertex") == 0)
+			{
+				currEntryPoint.Stage = vk::ShaderStageFlagBits::eVertex;
+			}
+			else if (strcmp(stageName, "fragment") == 0)
+			{
+				currEntryPoint.Stage = vk::ShaderStageFlagBits::eFragment;
+			}
+			else if (strcmp(stageName, "compute") == 0)
+			{
+				currEntryPoint.Stage = vk::ShaderStageFlagBits::eCompute;
+			}
+			else
+			{
+				LOG_ERROR("Unsupported shader stage found in shader module.");
+			}
+			
+			ShaderFunction* func = new ShaderFunction();
+			func->Name = funcRefPtr->getName();
+
+			// Add the entry point to the component types for later linking
+			componentTypes.push_back(entryPoint);
+
+			//TODO: Find all the parameters to allow material to automatically
 		}
-		break;
-		case slang::TypeReflection::Kind::TextureBuffer:
-			resource.Type = ResourceType::Texture;
-			break;
-	default:
-		break;
 	}
 
+	// Create the linked program to start generating code for the entry points
+	Slang::ComPtr<slang::IComponentType> program;
 
-	//Check if it's a resource type
-	if (type->getKind() == slang::TypeReflection::Kind::)
+	_session.get()->createCompositeComponentType(componentTypes.data(),
+		componentTypes.size(), program.writeRef());
+
+	Slang::ComPtr<slang::IComponentType> linkedProgram;
+	Slang::ComPtr<slang::IBlob> diagnostics;
+	program.get()->link(linkedProgram.writeRef(), diagnostics.writeRef());
+
+	// Generate code for every entry point
+	ShaderCode* shaderCodes = new ShaderCode[entryPoints.size()];
+
+	for (size_t index = 0; index < entryPoints.size(); index++)
 	{
-		auto resType = type->asResourceType();
-		auto resShape = resType->getResourceShape();
-		auto resAccess = resType->getResourceAccess();
-		auto resElementType = resType->getElementType();
-	}
-}
-
-
-ShaderResource GetShaderResource(slang::VariableReflection* _var)
-{
-	ShaderResource resource;
-
-	auto type = _var->getType();
-	auto name = _var->getName();
-
-	resource.Name = name;
-
-	slang::TypeReflection::Kind elementKind;
-	slang::TypeReflection* elementType;
-
-	if (type->isArray())
-	{
-		resource.IsArray = true;
-		resource.ArraySize = type->getTotalArrayElementCount();
-		elementKind = type->getElementType()->getKind();
-		elementType = type->getElementType();
-	}
-	else
-	{
-		resource.IsArray = false;
-		resource.ArraySize = 0;
-		elementKind = type->getKind();
-		elementType = type;
-	}
-
-	switch (elementKind)
-	{
-	case slang::TypeReflection::Kind::Resource:
-		//TODO: Currently the engine expects any resource to be generic
-		//TODO: Handle non-generic resources
-
-		switch (elementType->getResourceShape())
+		Slang::ComPtr<slang::IBlob> blob;
+		linkedProgram.get()->getEntryPointCode(index, 0, blob.writeRef(), diagnostics.writeRef());
+		if (diagnostics)
 		{
-		case SlangResourceShape::SLANG_TEXTURE_2D:
-			resource.Type = ResourceType::Texture;
-			break;
-		default:
-			break;
+			fprintf(stderr, "%s\n", (const char*)diagnostics->getBufferPointer());
 		}
-		break;
-		case slang::TypeReflection::Kind::TextureBuffer:
-			resource.Type = ResourceType::Texture;
-			break;
-	default:
-		break;
+		shaderCodes[index].size = blob.get()->getBufferSize();
+		shaderCodes[index].code = malloc(shaderCodes[index].size);
+		memcpy(shaderCodes[index].code, blob.get()->getBufferPointer(),
+			shaderCodes[index].size);
+
+		entryPoints[index].Function->Code = &shaderCodes[index];
 	}
 
-
-	//Check if it's a resource type
-	if (type->getKind() == slang::TypeReflection::Kind::)
-	{
-		auto resType = type->asResourceType();
-		auto resShape = resType->getResourceShape();
-		auto resAccess = resType->getResourceAccess();
-		auto resElementType = resType->getElementType();
-	}
+	return entryPoints;
 }
 
 /// <summary>
 /// Function used to load a slang module and compile the shaders inside it to SPIR-V
 /// </summary>
-ShaderCode* GetModules(const char* filepath)
+ShaderData GetShaderData(const char* filepath)
 {
 	Slang::ComPtr<slang::IGlobalSession> globalSession;
 	SlangGlobalSessionDesc globalSessionDesc;
@@ -137,7 +166,6 @@ ShaderCode* GetModules(const char* filepath)
 
 	slang::SessionDesc sessionDesc;
 	sessionDesc.structureSize = sizeof(slang::SessionDesc);
-	//sessionDesc.defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_ROW_MAJOR;
 
 	//Targets
 	slang::TargetDesc targets[1];
@@ -164,82 +192,24 @@ ShaderCode* GetModules(const char* filepath)
 		fprintf(stderr, "%s\n", (const char*)diagnostics->getBufferPointer());
 	}
 
-	Slang::ComPtr<slang::IEntryPoint> vertEntryPoint;
-	Slang::ComPtr<slang::IEntryPoint> fragEntryPoint;
-
-	//Reflect to find all functions in the module
-	slang::DeclReflection* moduleRefPtr = module->getModuleReflection();
-	auto funcList = moduleRefPtr->getChildrenOfKind<slang::DeclReflection::Kind::Func>();
-
-	std::vector<Slang::ComPtr<slang::IEntryPoint>> entryPoints;
 	ShaderData shaderData;
+	shaderData.EntryPoints = GetEntryPoints(module, sessionPtr, globalSession);
 
-	for (auto it = funcList.begin(); it != funcList.end(); ++it)
-	{
-		//Check if they are entry points
-		auto funcRefPtr = (*it)->asFunction();
-		Slang::ComPtr<slang::IEntryPoint> entryPoint;
-		if (module->findEntryPointByName(funcRefPtr->getName(), entryPoint.writeRef()))
-		{
-			entryPoints.push_back(entryPoint);
-			shaderData.EntryPoints.push_back(ShaderFunction());
-			ShaderFunction& currEntryPoint = shaderData.EntryPoints.back();
-
-			//TODO: Find all the parameters to allow material to automatically
-			//TODO: Create the sets and their layouts
-			unsigned int paramCount = funcRefPtr->getParameterCount();
-
-			for (auto index = 0; index < paramCount; index++)
-			{
-				auto param = funcRefPtr->getParameterByIndex(index);
-				ShaderResource resource = GetShaderResource(param);
-			}
-		}
-	}
-
-	module->findEntryPointByName("vertexMain", vertEntryPoint.writeRef());
-	slang::FunctionReflection* vertFuncRef = vertEntryPoint.get()->getFunctionReflection();
-
-	module->findEntryPointByName("fragmentMain", fragEntryPoint.writeRef());
-
-	slang::IComponentType* componentTypes[] = { module, vertEntryPoint, fragEntryPoint };
-	Slang::ComPtr<slang::IComponentType> program;
-	sessionPtr.get()->createCompositeComponentType(componentTypes, 3, program.writeRef());
-
-
-	Slang::ComPtr<slang::IComponentType> linkedProgram;
-	program.get()->link(linkedProgram.writeRef(), diagnostics.writeRef());
-
-	Slang::ComPtr<slang::IBlob> blobs[2];
-
-	linkedProgram.get()->getEntryPointCode(0, 0, blobs[0].writeRef(), diagnostics.writeRef());
-	if (diagnostics)
-	{
-		fprintf(stderr, "%s\n", (const char*)diagnostics->getBufferPointer());
-	}
-	linkedProgram.get()->getEntryPointCode(1, 0, blobs[1].writeRef(), diagnostics.writeRef());
-	if (diagnostics)
-	{
-		fprintf(stderr, "%s\n", (const char*)diagnostics->getBufferPointer());
-	}
-
-	ShaderCode* shaderCodes = new ShaderCode[2];
-
-	shaderCodes[0].size = blobs[0].get()->getBufferSize();
-	shaderCodes[0].code = malloc(shaderCodes[0].size);
-	memcpy(shaderCodes[0].code, blobs[0].get()->getBufferPointer(), shaderCodes[0].size);
-
-	shaderCodes[1].size = blobs[1].get()->getBufferSize();
-	shaderCodes[1].code = malloc(shaderCodes[1].size);
-	memcpy(shaderCodes[1].code, blobs[1].get()->getBufferPointer(), shaderCodes[1].size);
-
-	return shaderCodes;
+	return shaderData;
 }
 
 Material::Material(std::string _shaderPath)
 {
 	m_shaderPath = _shaderPath;
-	m_shaderCode = GetModules(_shaderPath.c_str());
+
+	ShaderData data = GetShaderData(_shaderPath.c_str());
+	ShaderCode* shaderCodes = new ShaderCode[data.EntryPoints.size()];
+	for (int index = 0; index < data.EntryPoints.size(); index++)
+	{
+		shaderCodes[index] = *data.EntryPoints[index].Function->Code;
+	}
+
+	m_shaderCode = shaderCodes;
 }
 
 Material::~Material()

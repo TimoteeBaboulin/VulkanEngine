@@ -1,6 +1,8 @@
 #pragma once
 
 #include "common.h"
+#include "Engine/Renderer/CustomVulkanStructs.h"
+
 #include <vector>
 
 #include <string>
@@ -23,14 +25,6 @@ enum ResourceType
 	Texture = 4
 };
 
-struct ShaderFunction
-{
-	const char* Name;
-	std::vector<ShaderResource> InParameters;
-	std::vector<ShaderResource> OutParameters;
-
-	ShaderCode* Code;
-};
 
 struct ShaderResource
 {
@@ -40,9 +34,25 @@ struct ShaderResource
 	size_t ArraySize;
 };
 
+struct ShaderFunction
+{
+	const char* Name;
+	std::vector<ShaderResource> InParameters;
+	std::vector<ShaderResource> OutParameters;
+
+	ShaderCode* Code;
+};
+
+struct EntryPoint
+{
+	vk::ShaderStageFlags Stage;
+	ShaderFunction* Function;
+};
+// TODO: First, make it handle entry points.
+// TODO: Then, make it handle resources (textures, buffers, etc.) and their bindings.
 struct ShaderData
 {
-	std::vector<ShaderFunction> EntryPoints;
+	std::vector<EntryPoint> EntryPoints;
 	std::vector<ShaderResource> GlobalResources;
 };
 

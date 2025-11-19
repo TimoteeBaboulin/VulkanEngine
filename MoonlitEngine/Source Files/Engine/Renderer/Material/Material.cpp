@@ -65,6 +65,67 @@ ShaderResource GetShaderResource(slang::VariableReflection* _var)
 	}
 }
 
+
+ShaderResource GetShaderResource(slang::VariableReflection* _var)
+{
+	ShaderResource resource;
+
+	auto type = _var->getType();
+	auto name = _var->getName();
+
+	resource.Name = name;
+
+	slang::TypeReflection::Kind elementKind;
+	slang::TypeReflection* elementType;
+
+	if (type->isArray())
+	{
+		resource.IsArray = true;
+		resource.ArraySize = type->getTotalArrayElementCount();
+		elementKind = type->getElementType()->getKind();
+		elementType = type->getElementType();
+	}
+	else
+	{
+		resource.IsArray = false;
+		resource.ArraySize = 0;
+		elementKind = type->getKind();
+		elementType = type;
+	}
+
+	switch (elementKind)
+	{
+	case slang::TypeReflection::Kind::Resource:
+		//TODO: Currently the engine expects any resource to be generic
+		//TODO: Handle non-generic resources
+
+		switch (elementType->getResourceShape())
+		{
+		case SlangResourceShape::SLANG_TEXTURE_2D:
+			resource.Type = ResourceType::Texture;
+			break;
+		default:
+			break;
+		}
+		break;
+		case slang::TypeReflection::Kind::TextureBuffer:
+			resource.Type = ResourceType::Texture;
+			break;
+	default:
+		break;
+	}
+
+
+	//Check if it's a resource type
+	if (type->getKind() == slang::TypeReflection::Kind::)
+	{
+		auto resType = type->asResourceType();
+		auto resShape = resType->getResourceShape();
+		auto resAccess = resType->getResourceAccess();
+		auto resElementType = resType->getElementType();
+	}
+}
+
 /// <summary>
 /// Function used to load a slang module and compile the shaders inside it to SPIR-V
 /// </summary>

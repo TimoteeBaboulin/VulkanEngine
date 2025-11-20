@@ -77,7 +77,7 @@ struct BufferCreateInfo
 	vk::MemoryPropertyFlags properties;
 	vk::SharingMode sharingMode = vk::SharingMode::eExclusive;
 
-	uint64_t size;
+	uint64_t Size;
 };
 
 #endif // !CUSTOM_VULKAN_STRUCTS_H

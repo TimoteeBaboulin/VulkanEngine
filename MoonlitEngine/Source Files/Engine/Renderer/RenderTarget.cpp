@@ -164,7 +164,7 @@ void RenderTarget::CreateFrameBuffers()
 		framebufferInfo.height = m_extent.height;
 		framebufferInfo.width = m_extent.width;
 		framebufferInfo.layers = 1;
-		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.Size());
 		framebufferInfo.pAttachments = attachments.data();
 		m_swapChainFramebuffers[i] = m_deviceData.Device.createFramebuffer(framebufferInfo);
 	}
@@ -222,8 +222,12 @@ void RenderTarget::CreateSyncObjects()
 void RenderTarget::CreateRenderPass()
 {
 #pragma region Attachments
-	std::vector<vk::AttachmentDescription> attachments;
-	attachments.resize(2);
+
+	// TODO: Change to vector if dynamic number of attachments is needed
+	/*std::vector<vk::AttachmentDescription> attachments;
+	attachments.resize(2);*/
+
+	std::array<vk::AttachmentDescription, 2> attachments;
 	
 	// Depth Attachment
 	attachments[0].format = vk::Format::eD32Sfloat;
@@ -255,10 +259,13 @@ void RenderTarget::CreateRenderPass()
 #pragma endregion //Attachments
 
 #pragma region Subpasses
-	std::vector<vk::SubpassDescription> subpasses;
+	/*std::vector<vk::SubpassDescription> subpasses;
 	std::vector<vk::SubpassDependency> subpassDependencies;
 	subpasses.resize(2);
-	subpassDependencies.resize(2);
+	subpassDependencies.resize(2);*/
+
+	std::array<vk::SubpassDescription, 2> subpasses;
+	std::array<vk::SubpassDependency, 2> subpassDependencies;
 
 	// Depth Subpass
 	subpasses[0].pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
@@ -288,11 +295,11 @@ void RenderTarget::CreateRenderPass()
 
 	vk::RenderPassCreateInfo renderPassInfo;
 	renderPassInfo.sType = vk::StructureType::eRenderPassCreateInfo;
-	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.Size());
 	renderPassInfo.pAttachments = attachments.data();
-	renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+	renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.Size());
 	renderPassInfo.pSubpasses = subpasses.data();
-	renderPassInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
+	renderPassInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.Size());
 	renderPassInfo.pDependencies = subpassDependencies.data();
 
 	m_renderPass = m_deviceData.Device.createRenderPass(renderPassInfo);
@@ -338,7 +345,7 @@ void RenderTarget::CreateUniformBuffers()
 			.memory = m_uniformBuffersMemory[i],
 			.usage = vk::BufferUsageFlagBits::eUniformBuffer,
 			.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-			.size = bufferSize
+			.Size = bufferSize
 		};
 		vhf::CreateBuffer(m_deviceData.Device, m_deviceData.PhysicalDevice, bufferInfo);
 		m_uniformBuffersMaps[i] = m_deviceData.Device.mapMemory(m_uniformBuffersMemory[i], 0, bufferSize);
@@ -424,7 +431,7 @@ void RenderTarget::CreateDescriptorSets()
 		writeSets[i].pBufferInfo = &bufferInfos.data()[i];
 	}
 
-	m_deviceData.Device.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
+	m_deviceData.Device.updateDescriptorSets(writeSets.Size(), writeSets.data(), 0, nullptr);
 }
 
 void RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuffers)

@@ -42,7 +42,7 @@ void MoonlitRenderer::InitContext(ContextInfo& _info, std::vector<const char*> r
 {
 	m_context->Init();
 	vk::ApplicationInfo appInfo = GetAppInfo(_info.name);
-	m_instance = m_context->CreateInstance(appInfo, requiredExtensions.data(), requiredExtensions.size());
+	m_instance = m_context->CreateInstance(appInfo, requiredExtensions.data(), requiredExtensions.Size());
 	m_deviceManager = new RendererDeviceManager(*m_instance);
 	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&MoonlitRenderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
 }

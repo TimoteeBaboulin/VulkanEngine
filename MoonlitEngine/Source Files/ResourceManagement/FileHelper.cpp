@@ -17,7 +17,7 @@ std::vector<char> FileHelper::ReadFile(std::string _path)
 
 	buffer.resize((size_t)stream.tellg());
 	stream.seekg(0);
-	stream.read(buffer.data(), buffer.size());
+	stream.read(buffer.data(), buffer.Size());
 
 	stream.close();
 

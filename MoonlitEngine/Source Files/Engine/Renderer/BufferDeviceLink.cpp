@@ -90,7 +90,7 @@ void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,
 
 	auto meshEntries = m_parentBuffer->GetMeshEntries();
 
-	for (int i = 0; i < meshEntries.size(); i++)
+	for (int i = 0; i < meshEntries.Size(); i++)
 	{
 		size_t instanceCount = meshEntries[i].InstanceCount;
 		int indexCount = meshEntries[i].Data.triangleCount * 3;
@@ -125,7 +125,7 @@ TextureData BufferDeviceLink::GetTextureData(Image& _image)
 		.memory = stagingMemory,
 		.usage = vk::BufferUsageFlagBits::eTransferSrc,
 		.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-		.size = memorySize
+		.Size = memorySize
 	};
 
 	vhf::CreateBuffer(m_deviceData.Device, m_deviceData.PhysicalDevice, staging);
@@ -224,7 +224,7 @@ void BufferDeviceLink::UpdateTextures()
 
 void BufferDeviceLink::UpdateTextureSets()
 {
-	size_t textureCount = m_drawResources.textures.size();
+	size_t textureCount = m_drawResources.textures.Size();
 	vk::WriteDescriptorSet* writeSets = new vk::WriteDescriptorSet[textureCount];
 	vk::DescriptorImageInfo* imageInfos = new vk::DescriptorImageInfo[textureCount];
 
@@ -285,9 +285,9 @@ void BufferDeviceLink::GenerateBuffers()
 	std::vector<glm::mat4x4> modelData = m_parentBuffer->GetModelData();
 	std::vector<uint16_t> textureIndices = m_parentBuffer->GetTextureIndices();
 
-	uint32_t vertexCount = (uint32_t)vertexData.size();
-	uint32_t indexCount = (uint32_t)indexData.size();
-	uint32_t modelCount = (uint32_t)modelData.size();
+	uint32_t vertexCount = (uint32_t)vertexData.Size();
+	uint32_t indexCount = (uint32_t)indexData.Size();
+	uint32_t modelCount = (uint32_t)modelData.Size();
 
 	// If there's no data, we don't create the buffers
 	// So we need to be very wary about continuing the render loop if this happens
@@ -314,7 +314,7 @@ void BufferDeviceLink::GenerateBuffers()
 		.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
 		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
 		.sharingMode = vk::SharingMode::eExclusive,
-		.size = sizeof(Vertex) * vertexCount
+		.Size = sizeof(Vertex) * vertexCount
 	};
 	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
 		m_deviceData.Queues.graphicsQueue, vertexBufferInfo, vertexData.data());
@@ -326,7 +326,7 @@ void BufferDeviceLink::GenerateBuffers()
 		.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
 		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
 		.sharingMode = vk::SharingMode::eExclusive,
-		.size = sizeof(uint16_t) * indexCount
+		.Size = sizeof(uint16_t) * indexCount
 	};
 	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
 		m_deviceData.Queues.graphicsQueue, indexBufferInfo, indexData.data());
@@ -338,7 +338,7 @@ void BufferDeviceLink::GenerateBuffers()
 		.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
 		.properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
 		.sharingMode = vk::SharingMode::eExclusive,
-		.size = totalInstanceDataSize
+		.Size = totalInstanceDataSize
 	};
 	vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
 		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, instanceData);

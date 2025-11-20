@@ -3,9 +3,10 @@
 #include "Engine/Renderer/Material/Material.h"
 #include "Engine/Renderer/VulkanHelperFunctions.h"
 
-MaterialInstance::MaterialInstance(RenderTarget& _target, ShaderCode* _shaderCodes, Material* _material) 
-	: m_target(_target), m_shaderCodes(_shaderCodes), m_baseMaterial(_material)
+MaterialInstance::MaterialInstance(RenderTarget& _target, Material* _material) 
+	: m_target(_target), m_baseMaterial(_material)
 {
+	m_shaderData = m_baseMaterial->GetShaderData();
 	m_deviceData = m_target.GetDeviceData();
 	//TODO: Handle multiple textures
 	m_textureCount = 1;
@@ -81,17 +82,25 @@ void MaterialInstance::CreatePipelines()
 	vk::GraphicsPipelineCreateInfo pipelineInfo;
 	pipelineInfo.sType = vk::StructureType::eGraphicsPipelineCreateInfo;
 
+	
+
+
 #pragma region Stages
-	vk::PipelineShaderStageCreateInfo* shaderStages = new vk::PipelineShaderStageCreateInfo[2];
+	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
+	shaderStages.reserve(m_shaderData.EntryPoints.size());
 
-	//auto vertexShaderBytes = readFile("Shaders/vert.spv");
-	vk::ShaderModule module = vhf::WrapShader(m_deviceData.Device, m_shaderCodes[0].code, m_shaderCodes[0].size);
-	shaderStages[0].sType = vk::StructureType::ePipelineShaderStageCreateInfo;
-	shaderStages[0].stage = vk::ShaderStageFlagBits::eVertex;
-	shaderStages[0].module = module;
-	shaderStages[0].pName = "main";
+	for (const auto& entryPoint : m_shaderData.EntryPoints)
+	{
+		vk::ShaderModule module = vhf::WrapShader(m_deviceData.Device, entryPoint.Function.Code.CodePtr, entryPoint.Function.Code.Size);
+		vk::PipelineShaderStageCreateInfo shaderStageInfo;
+		shaderStageInfo.sType = vk::StructureType::ePipelineShaderStageCreateInfo;
+		shaderStageInfo.stage = entryPoint.Stage;
+		shaderStageInfo.module = module;
+		shaderStageInfo.pName = "main";
+		shaderStages.push_back(shaderStageInfo);
+	}
 
-	pipelineInfo.stageCount = 1;
+	pipelineInfo.stageCount = shaderStages.size();
 
 	pipelineInfo.pStages = shaderStages;
 #pragma endregion
@@ -267,7 +276,7 @@ void MaterialInstance::CreatePipelines()
 
 	m_pipelines[0] = m_deviceData.Device.createGraphicsPipeline(nullptr, pipelineInfo).value;
 
-	vk::ShaderModule fragModule = vhf::WrapShader(m_deviceData.Device, m_shaderCodes[1].code, m_shaderCodes[1].size);
+	vk::ShaderModule fragModule = vhf::WrapShader(m_deviceData.Device, m_shaderCodes[1].Code, m_shaderCodes[1].Size);
 	shaderStages[1].sType = vk::StructureType::ePipelineShaderStageCreateInfo;
 	shaderStages[1].stage = vk::ShaderStageFlagBits::eFragment;
 	shaderStages[1].module = fragModule;

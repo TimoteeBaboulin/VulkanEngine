@@ -16,7 +16,7 @@ struct ShaderCode;
 class MaterialInstance
 {
 public:
-	MaterialInstance(RenderTarget& _target, ShaderCode* _shaderCodes, Material* _material);
+	MaterialInstance(RenderTarget& _target, Material* _material);
 	~MaterialInstance();
 	void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint);
 
@@ -29,7 +29,7 @@ private:
 	// Data
 	int m_textureCount;
 	RenderTarget& m_target;
-	ShaderCode* m_shaderCodes;
+	ShaderData m_shaderData;
 	Material* m_baseMaterial;
 	DeviceData m_deviceData;
 

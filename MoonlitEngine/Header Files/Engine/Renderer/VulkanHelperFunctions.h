@@ -80,7 +80,7 @@ public:
 
 		vk::MemoryAllocateInfo allocInfo;
 		allocInfo.sType = vk::StructureType::eMemoryAllocateInfo;
-		allocInfo.allocationSize = memReqs.size;
+		allocInfo.allocationSize = memReqs.Size;
 		allocInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memReqs.memoryTypeBits, _properties, _physicalDevice);
 
 		_memory = _device.allocateMemory(allocInfo);
@@ -151,7 +151,7 @@ public:
 		vk::BufferCopy buffCopy;
 		buffCopy.srcOffset = 0;
 		buffCopy.dstOffset = 0;
-		buffCopy.size = _size;
+		buffCopy.Size = _size;
 
 		command.copyBuffer(_src, _dst, buffCopy);
 
@@ -194,7 +194,7 @@ public:
 	{
 		vk::BufferCreateInfo bufferInfo;
 		bufferInfo.sType = vk::StructureType::eBufferCreateInfo;
-		bufferInfo.size = _info.size;
+		bufferInfo.Size = _info.Size;
 		bufferInfo.usage = _info.usage;
 		bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
@@ -205,7 +205,7 @@ public:
 
 		vk::MemoryAllocateInfo memoryInfo;
 		memoryInfo.sType = vk::StructureType::eMemoryAllocateInfo;
-		memoryInfo.allocationSize = memoryReqs.size > 0 ? memoryReqs.size : vk::WholeSize;
+		memoryInfo.allocationSize = memoryReqs.Size > 0 ? memoryReqs.Size : vk::WholeSize;
 		memoryInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memoryReqs.memoryTypeBits, _info.properties, _physDevice);
 		_info.memory = _device.allocateMemory(memoryInfo);
 		_device.bindBufferMemory(_info.buffer, _info.memory, 0);
@@ -222,16 +222,16 @@ public:
 			.memory = stagingMemory,
 			.usage = vk::BufferUsageFlagBits::eTransferSrc,
 			.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-			.size = _info.size
+			.Size = _info.Size
 		};
 
 		CreateBuffer(_device, _physDevice, stagingBufferInfo);
-		void* stagingMap = _device.mapMemory(stagingBufferInfo.memory, 0, _info.size);
-		memcpy(stagingMap, _data, _info.size);
+		void* stagingMap = _device.mapMemory(stagingBufferInfo.memory, 0, _info.Size);
+		memcpy(stagingMap, _data, _info.Size);
 
 		//_info.usage |= vk::BufferUsageFlagBits::eTransferDst;
 		CreateBuffer(_device, _physDevice, _info);
-		CopyBufferToBuffer(_device, _commandPool, stagingBuffer, _info.buffer, _info.size, _graphicsQueue);
+		CopyBufferToBuffer(_device, _commandPool, stagingBuffer, _info.buffer, _info.Size, _graphicsQueue);
 
 		_device.unmapMemory(stagingMemory);
 		_device.freeMemory(stagingMemory);
@@ -251,7 +251,7 @@ public:
 
 	static vk::SurfaceFormatKHR GetFormat(vk::PhysicalDevice _physDevice, std::vector<vk::SurfaceFormatKHR>& _format)
 	{
-		for (int i = 0; i < _format.size(); i++)
+		for (int i = 0; i < _format.Size(); i++)
 		{
 			auto properties = _physDevice.getFormatProperties(_format[i].format);
 			auto value = properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment;

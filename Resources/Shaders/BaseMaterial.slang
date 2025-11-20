@@ -33,7 +33,7 @@ struct v2f
 [[vk_binding(0, 0)]] ConstantBuffer<UniformBufferObject> ubo;
 [[vk_binding(0, 1)]] Sampler2D[32] textures;
 
-[shader("vertex")]
+[renderPass("depth", "color")][shader("vertex")]
 v2f vertexMain([[vk_location(0)]] VertexInput inVert, [[vk_location(3)]] InstanceInput inInst)
 {
     v2f output;
@@ -49,7 +49,7 @@ v2f vertexMain([[vk_location(0)]] VertexInput inVert, [[vk_location(3)]] Instanc
     return output;
 }
 
-[shader("fragment")]
+[renderPass("color")][shader("fragment")]
 float4 fragmentMain(in v2f input) : SV_TARGET
 {
     // Use the color from the vertex input.

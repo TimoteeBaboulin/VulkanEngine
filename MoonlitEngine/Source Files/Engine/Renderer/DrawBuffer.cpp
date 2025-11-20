@@ -130,7 +130,7 @@ void DrawBuffer::LinkTarget(RenderTarget& _renderTarget)
 
 void DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, int _renderPass)
 {
-	if (m_meshEntries.size() == 0)
+	if (m_meshEntries.Size() == 0)
 	{
 		return;
 	}
@@ -244,7 +244,7 @@ uint16_t DrawBuffer::InsertTexture(std::shared_ptr<Image>& _image)
 
 	m_textureList.emplace_back(newEntry);
 
-	return m_textureList.size() - 1;
+	return m_textureList.Size() - 1;
 }
 
 void DrawBuffer::RemoveTexture(uint16_t _index)

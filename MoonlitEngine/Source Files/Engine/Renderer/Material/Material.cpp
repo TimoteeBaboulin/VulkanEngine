@@ -134,7 +134,7 @@ std::vector<EntryPoint> GetEntryPoints(slang::IModule* _module,
 	program.get()->link(linkedProgram.writeRef(), diagnostics.writeRef());
 
 	// Generate code for every entry point
-	ShaderCode* shaderCodes = new ShaderCode[entryPoints.size()];
+	//ShaderCode* shaderCodes = new ShaderCode[entryPoints.size()];
 
 	for (size_t index = 0; index < entryPoints.size(); index++)
 	{
@@ -144,12 +144,12 @@ std::vector<EntryPoint> GetEntryPoints(slang::IModule* _module,
 		{
 			fprintf(stderr, "%s\n", (const char*)diagnostics->getBufferPointer());
 		}
-		shaderCodes[index].size = blob.get()->getBufferSize();
-		shaderCodes[index].code = malloc(shaderCodes[index].size);
-		memcpy(shaderCodes[index].code, blob.get()->getBufferPointer(),
-			shaderCodes[index].size);
 
-		entryPoints[index].Function->Code = &shaderCodes[index];
+		size_t shaderSize = blob.get()->getBufferSize();
+		entryPoints[index].Function.Code.Size = shaderSize;
+		void* codePtr = malloc(shaderSize);
+		memcpy(codePtr, blob.get()->getBufferPointer(), shaderSize);
+		entryPoints[index].Function.Code.CodePtr = codePtr;
 	}
 
 	return entryPoints;
@@ -158,7 +158,7 @@ std::vector<EntryPoint> GetEntryPoints(slang::IModule* _module,
 /// <summary>
 /// Function used to load a slang module and compile the shaders inside it to SPIR-V
 /// </summary>
-ShaderData GetShaderData(const char* filepath)
+ShaderData ReadShaderData(const char* filepath)
 {
 	Slang::ComPtr<slang::IGlobalSession> globalSession;
 	SlangGlobalSessionDesc globalSessionDesc;
@@ -201,28 +201,29 @@ ShaderData GetShaderData(const char* filepath)
 Material::Material(std::string _shaderPath)
 {
 	m_shaderPath = _shaderPath;
-
-	ShaderData data = GetShaderData(_shaderPath.c_str());
-	ShaderCode* shaderCodes = new ShaderCode[data.EntryPoints.size()];
-	for (int index = 0; index < data.EntryPoints.size(); index++)
-	{
-		shaderCodes[index] = *data.EntryPoints[index].Function->Code;
-	}
-
-	m_shaderCode = shaderCodes;
+	m_shaderData = ReadShaderData(_shaderPath.c_str());
+	std::sort(m_shaderData.EntryPoints.begin(), m_shaderData.EntryPoints.end(),
+		[](const EntryPoint& a, const EntryPoint& b)
+		{
+			return a.Stage < b.Stage;
+		});
 }
 
 Material::~Material()
 {
-	delete[] m_shaderCode;
 }
 
 MaterialInstance* Material::CreateInstance(RenderTarget& _target)
 {
-	MaterialInstance* instance = new MaterialInstance(_target, m_shaderCode, this);
+	MaterialInstance* instance = new MaterialInstance(_target, this);
 	m_instances.push_back(instance);
 
 	return instance;
+}
+
+ShaderData Material::GetShaderData() const
+{
+	return m_shaderData;
 }
 
 void Material::RemoveInstance(MaterialInstance* _instance)

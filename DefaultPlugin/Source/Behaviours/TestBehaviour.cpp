@@ -20,7 +20,7 @@ void TestBehaviour::Update()
 
 	if (m_owner->TryGetBehavioursOfType(transforms, typeid(TransformBehaviour)))
 	{
-		std::string logMessage = "ObjectTest found " + std::to_string(transforms.size()) + " transforms.";
+		std::string logMessage = "ObjectTest found " + std::to_string(transforms.Size()) + " transforms.";
 		Logger::LogInfo(logMessage.c_str());
 
 		for (auto it = transforms.begin(); it != transforms.end(); it++)

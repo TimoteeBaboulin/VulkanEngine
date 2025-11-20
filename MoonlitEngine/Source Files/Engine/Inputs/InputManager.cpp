@@ -338,7 +338,7 @@ std::vector<InputHandler*> InputManager::GetInputHandlersForWindow(void* _winHan
 
 	std::vector<InputHandler*> handlersForWindow;
 	//Use this to avoid re-allocating new arrays often in case we have many input handlers
-	handlersForWindow.reserve(m_inputHandlers.size());
+	handlersForWindow.reserve(m_inputHandlers.Size());
 	for (auto& handler : m_inputHandlers)
 	{
 		if (handler->GetWindowHandle() == nullptr || handler->GetWindowHandle() == _winHandle)
@@ -460,13 +460,13 @@ void InputManager::PollEvents()
 
 void InputManager::WindowResize(int _width, int _height)
 {
-	int* size = new int[2];
-	size[0] = _width;
-	size[1] = _height;
+	int* Size = new int[2];
+	Size[0] = _width;
+	Size[1] = _height;
 
 	for (auto& callback : m_windowEventCallbacks)
 	{
-		callback(WINDOW_EVENT::WINDOW_RESIZE, size);
+		callback(WINDOW_EVENT::WINDOW_RESIZE, Size);
 	}
 }
 

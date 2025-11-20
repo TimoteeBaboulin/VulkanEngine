@@ -12,8 +12,8 @@ class RenderTarget;
 
 struct ShaderCode
 {
-	void* code;
-	size_t size;
+	void* CodePtr;
+	size_t Size;
 };
 
 enum ResourceType
@@ -40,13 +40,13 @@ struct ShaderFunction
 	std::vector<ShaderResource> InParameters;
 	std::vector<ShaderResource> OutParameters;
 
-	ShaderCode* Code;
+	ShaderCode Code;
 };
 
 struct EntryPoint
 {
-	vk::ShaderStageFlags Stage;
-	ShaderFunction* Function;
+	vk::ShaderStageFlagBits Stage;
+	ShaderFunction Function;
 };
 // TODO: First, make it handle entry points.
 // TODO: Then, make it handle resources (textures, buffers, etc.) and their bindings.
@@ -70,12 +70,14 @@ public:
 
 	MaterialInstance* CreateInstance(RenderTarget& _target);
 	int GetTextureCount() const { return m_textureCount; }
+	ShaderData GetShaderData() const;
 
 private:
 	void RemoveInstance(MaterialInstance* _instance);
 
 	std::string m_shaderPath;
-	ShaderCode* m_shaderCode;
+	ShaderData m_shaderData;
+	//ShaderCode* m_shaderCode;
 
 	std::vector<MaterialInstance*> m_instances;
 

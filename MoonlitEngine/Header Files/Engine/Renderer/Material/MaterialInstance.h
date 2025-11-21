@@ -3,12 +3,11 @@
 #include "common.h"
 #include "Engine/Renderer/CustomVulkanStructs.h"
 
+#include "Material.h"
+
 constexpr int TextureArrayCount = 32;
 
 class RenderTarget;
-class Material;
-
-struct ShaderCode;
 
 /// <summary>
 /// Represents an instance of a material, with a specific device in mind
@@ -18,7 +17,7 @@ class MaterialInstance
 public:
 	MaterialInstance(RenderTarget& _target, Material* _material);
 	~MaterialInstance();
-	void RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint);
+	void RecordCommandBuffer(vk::CommandBuffer _buffer, std::string _renderPass, vk::PipelineBindPoint _bindPoint);
 
 	//GETTERS
 	int GetTextureCount() const { return m_textureCount; }
@@ -34,7 +33,7 @@ private:
 	DeviceData m_deviceData;
 
 	// Vulkan Items
-	std::vector<vk::Pipeline> m_pipelines;
+	std::map<std::string, vk::Pipeline> m_pipelines;
 	std::vector<vk::PipelineLayout> m_pipelineLayouts;
 	std::vector<vk::DescriptorSetLayout> m_setLayouts;
 	vk::DescriptorPool m_descriptorPool;

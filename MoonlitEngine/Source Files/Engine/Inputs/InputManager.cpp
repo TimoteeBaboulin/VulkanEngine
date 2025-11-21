@@ -338,7 +338,7 @@ std::vector<InputHandler*> InputManager::GetInputHandlersForWindow(void* _winHan
 
 	std::vector<InputHandler*> handlersForWindow;
 	//Use this to avoid re-allocating new arrays often in case we have many input handlers
-	handlersForWindow.reserve(m_inputHandlers.Size());
+	handlersForWindow.reserve(m_inputHandlers.size());
 	for (auto& handler : m_inputHandlers)
 	{
 		if (handler->GetWindowHandle() == nullptr || handler->GetWindowHandle() == _winHandle)

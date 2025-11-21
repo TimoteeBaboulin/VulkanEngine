@@ -10,7 +10,7 @@
 
 static void WriteStringBinary(std::ofstream& s, const std::string& str)
 {
-    uint32_t len = static_cast<uint32_t>(str.Size());
+    uint32_t len = static_cast<uint32_t>(str.size());
     s.write(reinterpret_cast<const char*>(&len), sizeof(len));
     if (len)
         s.write(str.data(), static_cast<std::streamsize>(len));
@@ -51,7 +51,7 @@ void ObjectBehaviour::SetOwner(GameObject* _owner)
 void ObjectBehaviour::SaveToFile(std::ofstream& _stream)
 {
 	std::vector<ParameterRepositoryEntry> entries = GetParameterEntries();
-	uint32_t paramCount = static_cast<uint32_t>(entries.Size());
+	uint32_t paramCount = static_cast<uint32_t>(entries.size());
 	_stream.write(reinterpret_cast<const char*>(&paramCount), sizeof(paramCount));
 
 	for (const auto& entry : entries)

@@ -164,7 +164,7 @@ void RenderTarget::CreateFrameBuffers()
 		framebufferInfo.height = m_extent.height;
 		framebufferInfo.width = m_extent.width;
 		framebufferInfo.layers = 1;
-		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.Size());
+		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
 		m_swapChainFramebuffers[i] = m_deviceData.Device.createFramebuffer(framebufferInfo);
 	}
@@ -219,6 +219,51 @@ void RenderTarget::CreateSyncObjects()
 	}
 }
 
+void RenderTarget::AddSubpass(std::string name)
+{
+	int index = static_cast<int>(m_subpassInfos.size());
+	SubpassInfo info;
+	info.subpassIndex = index;
+	info.subpassName = name;
+	m_subpassInfos.emplace_back(info);
+	m_subpassNameToIndexMap[name] = index;
+}
+
+void RenderTarget::CreateDepthSubpass(vk::AttachmentReference* _inDepthAttPtr, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency)
+{
+	_outDesc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	_outDesc.colorAttachmentCount = 0;
+	_outDesc.pColorAttachments = nullptr;
+	_outDesc.pDepthStencilAttachment = _inDepthAttPtr;
+
+	_outDependency.srcSubpass = vk::SubpassExternal;
+	_outDependency.dstSubpass = 0;
+	_outDependency.srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	_outDependency.dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	_outDependency.srcAccessMask = vk::AccessFlagBits::eNone;
+	_outDependency.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+	AddSubpass("depth");
+}
+
+void RenderTarget::CreateColorSubpass(vk::AttachmentReference* _inDepthAttPtr, vk::AttachmentReference* _inColorAttPtr,
+	int _colorAttCount, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency)
+{
+	_outDesc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	_outDesc.colorAttachmentCount = _colorAttCount;
+	_outDesc.pColorAttachments = _inColorAttPtr;
+	_outDesc.pDepthStencilAttachment = _inDepthAttPtr;
+
+	_outDependency.srcSubpass = 0;
+	_outDependency.dstSubpass = 1;
+	_outDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	_outDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	_outDependency.srcAccessMask = vk::AccessFlagBits::eNone;
+	_outDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+
+	AddSubpass("color");
+}
+
 void RenderTarget::CreateRenderPass()
 {
 #pragma region Attachments
@@ -259,47 +304,21 @@ void RenderTarget::CreateRenderPass()
 #pragma endregion //Attachments
 
 #pragma region Subpasses
-	/*std::vector<vk::SubpassDescription> subpasses;
-	std::vector<vk::SubpassDependency> subpassDependencies;
-	subpasses.resize(2);
-	subpassDependencies.resize(2);*/
-
 	std::array<vk::SubpassDescription, 2> subpasses;
 	std::array<vk::SubpassDependency, 2> subpassDependencies;
 
-	// Depth Subpass
-	subpasses[0].pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-	subpasses[0].colorAttachmentCount = 0;
-	subpasses[0].pDepthStencilAttachment = &attachmentRefs[0];
-
-	subpassDependencies[0].srcSubpass = vk::SubpassExternal;
-	subpassDependencies[0].dstSubpass = 0;
-	subpassDependencies[0].srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-	subpassDependencies[0].dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-	subpassDependencies[0].srcAccessMask = vk::AccessFlagBits::eNone;
-	subpassDependencies[0].dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-
 	// Color Subpass
-	subpasses[1].pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-	subpasses[1].colorAttachmentCount = 1;
-	subpasses[1].pColorAttachments = &attachmentRefs[1];
-	subpasses[1].pDepthStencilAttachment = &attachmentRefs[0];
-
-	subpassDependencies[1].srcSubpass = 0;
-	subpassDependencies[1].dstSubpass = 1;
-	subpassDependencies[1].srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-	subpassDependencies[1].dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-	subpassDependencies[1].srcAccessMask = vk::AccessFlagBits::eNone;
-	subpassDependencies[1].dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+	CreateDepthSubpass(&attachmentRefs[0], subpasses[0], subpassDependencies[0]);
+	CreateColorSubpass(&attachmentRefs[0], &attachmentRefs[1], 1, subpasses[1], subpassDependencies[1]);
 #pragma endregion //Subpasses
 
 	vk::RenderPassCreateInfo renderPassInfo;
 	renderPassInfo.sType = vk::StructureType::eRenderPassCreateInfo;
-	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.Size());
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 	renderPassInfo.pAttachments = attachments.data();
-	renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.Size());
+	renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
 	renderPassInfo.pSubpasses = subpasses.data();
-	renderPassInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.Size());
+	renderPassInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
 	renderPassInfo.pDependencies = subpassDependencies.data();
 
 	m_renderPass = m_deviceData.Device.createRenderPass(renderPassInfo);
@@ -431,7 +450,7 @@ void RenderTarget::CreateDescriptorSets()
 		writeSets[i].pBufferInfo = &bufferInfos.data()[i];
 	}
 
-	m_deviceData.Device.updateDescriptorSets(writeSets.Size(), writeSets.data(), 0, nullptr);
+	m_deviceData.Device.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
 }
 
 void RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuffers)
@@ -503,8 +522,19 @@ void RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuffers)
 		RecreateSwapChain();
 		m_currentFrame = 0;
 	}
+}
 
-	
+uint16_t RenderTarget::GetSubpassIndexByName(const std::string& _name) const
+{
+	auto it = m_subpassNameToIndexMap.find(_name);
+	if (it != m_subpassNameToIndexMap.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		return UINT16_MAX; // Invalid index
+	}
 }
 
 void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers)
@@ -543,16 +573,15 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 	_buffer.setScissor(0, scissor);
 	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-	for (auto& drawBuffer : _drawBuffers)
+	for (int i = 0; i < m_subpassInfos.size(); ++i)
 	{
-		drawBuffer->RenderBuffer(*this, _buffer, 0);
-	}
+		if (i != 0)
+			_buffer.nextSubpass(vk::SubpassContents::eInline);
 
-	_buffer.nextSubpass(vk::SubpassContents::eInline);
-
-	for (auto& drawBuffer : _drawBuffers)
-	{
-		drawBuffer->RenderBuffer(*this, _buffer, 1);
+		for (auto& drawBuffer : _drawBuffers)
+		{
+			drawBuffer->RenderBuffer(*this, _buffer, m_subpassInfos[i].subpassName);
+		}
 	}
 
 	_buffer.endRenderPass();

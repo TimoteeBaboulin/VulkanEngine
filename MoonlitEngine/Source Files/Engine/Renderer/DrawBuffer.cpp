@@ -125,13 +125,20 @@ void DrawBuffer::LinkTarget(RenderTarget& _renderTarget)
 		return;
 	}
 
-	m_deviceLinks.emplace_back(_renderTarget.GetDeviceData(), m_material->CreateInstance(_renderTarget), this);
+	m_deviceLinks.emplace_back(_renderTarget.GetDeviceData(), m_material->GetOrCreateInstance(_renderTarget), this);
 }
 
-void DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, int _renderPass)
+void DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, std::string _renderPass)
 {
-	if (m_meshEntries.Size() == 0)
+	if (m_meshEntries.size() == 0)
 	{
+		return;
+	}
+
+	std::vector<std::string > includedSubpasses = m_material->GetIncludedSubpasses();
+	if (std::find(includedSubpasses.begin(), includedSubpasses.end(), _renderPass) == includedSubpasses.end())
+	{
+		// The material used in this draw buffer doesn't include the requested subpass
 		return;
 	}
 
@@ -244,7 +251,7 @@ uint16_t DrawBuffer::InsertTexture(std::shared_ptr<Image>& _image)
 
 	m_textureList.emplace_back(newEntry);
 
-	return m_textureList.Size() - 1;
+	return m_textureList.size() - 1;
 }
 
 void DrawBuffer::RemoveTexture(uint16_t _index)

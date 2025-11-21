@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <string>
+#include <map>
 
 class MaterialInstance;
 class RenderTarget;
@@ -46,6 +47,7 @@ struct ShaderFunction
 struct EntryPoint
 {
 	vk::ShaderStageFlagBits Stage;
+	std::vector<std::string> SubpassNames;
 	ShaderFunction Function;
 };
 // TODO: First, make it handle entry points.
@@ -68,18 +70,24 @@ public:
 	Material(std::string _shaderPath);
 	~Material();
 
-	MaterialInstance* CreateInstance(RenderTarget& _target);
+	std::shared_ptr<MaterialInstance> GetOrCreateInstance(RenderTarget& _target);
+	
 	int GetTextureCount() const { return m_textureCount; }
 	ShaderData GetShaderData() const;
+	std::vector<std::string> GetIncludedSubpasses() const { return m_includedSubpasses; }
 
 private:
 	void RemoveInstance(MaterialInstance* _instance);
 
+	MaterialInstance* CreateInstance(RenderTarget& _target);
+
 	std::string m_shaderPath;
 	ShaderData m_shaderData;
+
+	std::vector<std::string> m_includedSubpasses;
 	//ShaderCode* m_shaderCode;
 
-	std::vector<MaterialInstance*> m_instances;
+	std::map<RenderTarget*, std::shared_ptr<MaterialInstance>> m_instanceMap;
 
 	int m_textureCount = 1;
 };

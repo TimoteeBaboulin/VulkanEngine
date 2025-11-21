@@ -33,7 +33,7 @@ struct DrawBufferResources
 class MOONLIT_API BufferDeviceLink
 {
 public:
-	BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _materialInstance,
+	BufferDeviceLink(DeviceData _deviceData, std::shared_ptr<MaterialInstance> _materialInstance,
 		class DrawBuffer* _buffer);
 
 	// Forbid copy, explicitly implement move
@@ -48,17 +48,15 @@ public:
 	DrawBufferResources const GetBufferResources() { return m_drawResources; };
 	vk::Device const GetDevice() { return m_deviceData.Device; }
 
-	void Render(vk::CommandBuffer& _cmd, int _renderPass,
+	void Render(vk::CommandBuffer& _cmd, std::string _renderPass,
 		vk::DescriptorSet* _uboSet);
 
 	void SetDirty();
 
 private:
-
-	//TODO: Use it and pass it to private if possible
 	bool m_isDirty = false;
 
-	MaterialInstance* m_material;
+	std::shared_ptr<MaterialInstance> m_materialInstance;
 
 	class DrawBuffer* m_parentBuffer;
 

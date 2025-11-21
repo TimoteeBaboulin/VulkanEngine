@@ -16,7 +16,7 @@ QModelIndex MethodListModel::parent(const QModelIndex& index) const
 
 int MethodListModel::rowCount(const QModelIndex& parent) const
 {
-	return m_functionCallCounts.Size();
+	return m_functionCallCounts.size();
 }
 
 int MethodListModel::columnCount(const QModelIndex& parent) const
@@ -27,7 +27,7 @@ int MethodListModel::columnCount(const QModelIndex& parent) const
 
 QVariant MethodListModel::data(const QModelIndex& index, int role) const
 {
-	if (!index.isValid() || index.row() >= m_functionCallCounts.Size() || index.column() >= 2)
+	if (!index.isValid() || index.row() >= m_functionCallCounts.size() || index.column() >= 2)
 		return QVariant();
 
 	QVariant value;

@@ -1,3 +1,10 @@
+[__AttributeUsage(_AttributeTargets.Function)]
+struct RenderPassAttribute
+{
+    string passName;
+}
+
+
 struct UniformBufferObject
 {
     matrix<float, 4, 4> viewMat;
@@ -33,7 +40,8 @@ struct v2f
 [[vk_binding(0, 0)]] ConstantBuffer<UniformBufferObject> ubo;
 [[vk_binding(0, 1)]] Sampler2D[32] textures;
 
-[renderPass("depth", "color")][shader("vertex")]
+[RenderPass("depth")]
+[RenderPass("color")] [shader("vertex")]
 v2f vertexMain([[vk_location(0)]] VertexInput inVert, [[vk_location(3)]] InstanceInput inInst)
 {
     v2f output;
@@ -47,9 +55,9 @@ v2f vertexMain([[vk_location(0)]] VertexInput inVert, [[vk_location(3)]] Instanc
     output.texIndex = inInst.index;
 
     return output;
-}
+}   
 
-[renderPass("color")][shader("fragment")]
+[RenderPass("color")][shader("fragment")]
 float4 fragmentMain(in v2f input) : SV_TARGET
 {
     // Use the color from the vertex input.

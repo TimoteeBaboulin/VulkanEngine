@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <vector>
+#include <map>
 
 #include "CustomVulkanStructs.h"
 #include "RendererDeviceManager.h"
@@ -10,6 +11,12 @@
 class RendererContext;
 class DrawBuffer;
 class Material;
+
+struct SubpassInfo
+{
+	std::string subpassName;
+	uint32_t subpassIndex;
+};
 
 // TODO: Since render targets each have their own logical device, they are not device agnostic.
 // TODO: Material Instantiation should be made either here or in another abstraction layer
@@ -41,6 +48,8 @@ public:
 	vk::DescriptorSetLayout GetUBODescriptorSetLayout() const { return m_uboDescriptorSetLayout; }
 	vk::DescriptorSet* GetDescriptorSet() { return &m_descriptorSets[0]; }
 	vk::RenderPass GetRenderPass() const { return m_renderPass; }
+	uint16_t GetSubpassIndexByName(const std::string& _name) const;
+	std::vector<SubpassInfo> GetSubpassInfos() const { return m_subpassInfos; }
 #pragma endregion //Getters
 
 private:
@@ -76,7 +85,10 @@ private:
 	vk::DeviceMemory m_swapChainDepthMemory;
 
 	vk::Framebuffer* m_swapChainFramebuffers = nullptr;
+
 	vk::RenderPass m_renderPass;
+	std::vector<SubpassInfo> m_subpassInfos;
+	std::map<std::string, uint32_t> m_subpassNameToIndexMap;
 #pragma endregion //Swapchain Data
 
 #pragma region Synchronization Resources
@@ -123,6 +135,12 @@ private:
 #pragma endregion //Uniform Buffers Methods
 
 	void CreateSyncObjects();
+
+	void AddSubpass(std::string name);
+
+	void CreateDepthSubpass(vk::AttachmentReference* _inDepthAttPtr, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency);
+	void CreateColorSubpass(vk::AttachmentReference* _inDepthAttPtr, vk::AttachmentReference* _inColorAttPtr,
+		int _colorAttCount, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency);
 
 	void CreateRenderPass();
 

@@ -33,7 +33,7 @@ QModelIndex SceneHierarchyModel::index(int row, int column, const QModelIndex& p
 
 	if (!parent.isValid())
 	{
-		if (row < 0 || row >= m_rootObjects.Size())
+		if (row < 0 || row >= m_rootObjects.size())
 		{
 			return QModelIndex();
 		}
@@ -47,7 +47,7 @@ QModelIndex SceneHierarchyModel::index(int row, int column, const QModelIndex& p
 	}
 
 	std::vector<GameObject*> children = parentObject->GetChildren();
-	if (row < 0 || row >= children.Size())
+	if (row < 0 || row >= children.size())
 	{
 		return QModelIndex();
 	}
@@ -109,7 +109,7 @@ int SceneHierarchyModel::rowCount(const QModelIndex& parent) const
 
 	if (!parent.isValid())
 	{
-		return static_cast<int>(m_scene->GetRootGameObjects().Size());
+		return static_cast<int>(m_scene->GetRootGameObjects().size());
 	}
 
 	GameObject* parentObject = static_cast<GameObject*>(parent.internalPointer());
@@ -118,7 +118,7 @@ int SceneHierarchyModel::rowCount(const QModelIndex& parent) const
 		return 0;
 	}
 
-	return parentObject->GetChildren().Size();
+	return parentObject->GetChildren().size();
 }
 
 int SceneHierarchyModel::columnCount(const QModelIndex& parent) const

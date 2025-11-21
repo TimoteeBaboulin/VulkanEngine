@@ -48,6 +48,7 @@ struct RenderQueues
 	vk::Queue presentQueue;
 };
 
+// TODO: Make it lightweight by removing SwapChainSupportDetails and adding a way to query it if needed
 struct DeviceData
 {
 	vk::Device Device;

@@ -52,7 +52,7 @@ public:
 	void SetParent(GameObject* _parent) { m_parent = _parent; }
 
 	std::vector<GameObject*> GetChildren() const { return m_children; }
-	GameObject* GetChildAt(int index) const { return (index < 0 || index >= m_children.Size()) ? nullptr : m_children[index]; }
+	GameObject* GetChildAt(int index) const { return (index < 0 || index >= m_children.size()) ? nullptr : m_children[index]; }
 	
 	int GetId() const { return m_id; }
 

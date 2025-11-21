@@ -80,7 +80,7 @@ public:
 
 		vk::MemoryAllocateInfo allocInfo;
 		allocInfo.sType = vk::StructureType::eMemoryAllocateInfo;
-		allocInfo.allocationSize = memReqs.Size;
+		allocInfo.allocationSize = memReqs.size;
 		allocInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memReqs.memoryTypeBits, _properties, _physicalDevice);
 
 		_memory = _device.allocateMemory(allocInfo);
@@ -151,7 +151,7 @@ public:
 		vk::BufferCopy buffCopy;
 		buffCopy.srcOffset = 0;
 		buffCopy.dstOffset = 0;
-		buffCopy.Size = _size;
+		buffCopy.size = _size;
 
 		command.copyBuffer(_src, _dst, buffCopy);
 
@@ -194,7 +194,7 @@ public:
 	{
 		vk::BufferCreateInfo bufferInfo;
 		bufferInfo.sType = vk::StructureType::eBufferCreateInfo;
-		bufferInfo.Size = _info.Size;
+		bufferInfo.size = _info.Size;
 		bufferInfo.usage = _info.usage;
 		bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
@@ -205,7 +205,7 @@ public:
 
 		vk::MemoryAllocateInfo memoryInfo;
 		memoryInfo.sType = vk::StructureType::eMemoryAllocateInfo;
-		memoryInfo.allocationSize = memoryReqs.Size > 0 ? memoryReqs.Size : vk::WholeSize;
+		memoryInfo.allocationSize = memoryReqs.size > 0 ? memoryReqs.size : vk::WholeSize;
 		memoryInfo.memoryTypeIndex = VulkanHelperFunctions::FindMemoryTypeIndex(memoryReqs.memoryTypeBits, _info.properties, _physDevice);
 		_info.memory = _device.allocateMemory(memoryInfo);
 		_device.bindBufferMemory(_info.buffer, _info.memory, 0);
@@ -251,7 +251,7 @@ public:
 
 	static vk::SurfaceFormatKHR GetFormat(vk::PhysicalDevice _physDevice, std::vector<vk::SurfaceFormatKHR>& _format)
 	{
-		for (int i = 0; i < _format.Size(); i++)
+		for (int i = 0; i < _format.size(); i++)
 		{
 			auto properties = _physDevice.getFormatProperties(_format[i].format);
 			auto value = properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment;

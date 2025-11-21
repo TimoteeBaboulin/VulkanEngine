@@ -107,12 +107,12 @@ DeviceData RendererDeviceManager::PickPhysicalDevice(vk::SurfaceKHR _surface)
 	//List every physical devices on the target computer
 	std::vector<vk::PhysicalDevice> physDevices = m_vulkanInstance.enumeratePhysicalDevices();
 
-	if (physDevices.Size() == 0)
+	if (physDevices.size() == 0)
 		throw new std::runtime_error("Failed to find graphics card with Vulkan support");
 
 	DeviceData data;
 
-	for (int i = 0; i < physDevices.Size(); i++)
+	for (int i = 0; i < physDevices.size(); i++)
 	{
 		//CheckDeviceCompatibility will take care of updating the swapchain support details
 		//And the queue family indices field
@@ -232,9 +232,9 @@ void RendererDeviceManager::CreateLogicalDevice(DeviceData& _data)
 	vk::DeviceCreateInfo createInfo{};
 	createInfo.sType = vk::StructureType::eDeviceCreateInfo,
 	createInfo.pQueueCreateInfos = queueInfos.data();
-	createInfo.queueCreateInfoCount = (uint32_t) queueInfos.Size();
+	createInfo.queueCreateInfoCount = (uint32_t) queueInfos.size();
 	createInfo.pEnabledFeatures = &targetedFeatures;
-	createInfo.enabledExtensionCount = (uint32_t) m_extensionNames.Size();
+	createInfo.enabledExtensionCount = (uint32_t) m_extensionNames.size();
 	createInfo.ppEnabledExtensionNames = m_extensionNames.data();
 	createInfo.pNext = indexingFeatures;
 

@@ -82,7 +82,7 @@ vk::Instance* RendererContext::CreateInstance(vk::ApplicationInfo _appInfo, cons
 
 	if (RendererContext::ValidationLayersEnabled)
 	{
-		createInfo.enabledLayerCount = static_cast<uint32_t>(requiredLayers.Size());
+		createInfo.enabledLayerCount = static_cast<uint32_t>(requiredLayers.size());
 		createInfo.ppEnabledLayerNames = requiredLayers.data();
 	}
 	else

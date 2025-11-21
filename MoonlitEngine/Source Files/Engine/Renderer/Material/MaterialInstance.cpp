@@ -3,7 +3,7 @@
 #include "Engine/Renderer/Material/Material.h"
 #include "Engine/Renderer/VulkanHelperFunctions.h"
 
-MaterialInstance::MaterialInstance(RenderTarget& _target, Material* _material) 
+MaterialInstance::MaterialInstance(RenderTarget& _target, Material* _material)
 	: m_target(_target), m_baseMaterial(_material)
 {
 	m_shaderData = m_baseMaterial->GetShaderData();
@@ -11,7 +11,6 @@ MaterialInstance::MaterialInstance(RenderTarget& _target, Material* _material)
 	//TODO: Handle multiple textures
 	m_textureCount = 1;
 	CreatePipelineLayouts();
-	m_pipelines.resize(2);
 	CreatePipelines();
 	CreateDescriptorPool();
 }
@@ -20,7 +19,7 @@ MaterialInstance::~MaterialInstance()
 {
 	for (auto& pipeline : m_pipelines)
 	{
-		m_deviceData.Device.destroyPipeline(pipeline);
+		m_deviceData.Device.destroyPipeline(pipeline.second);
 	}
 	for (auto& layout : m_pipelineLayouts)
 	{
@@ -74,36 +73,36 @@ void MaterialInstance::CreatePipelineLayouts()
 	m_pipelineLayouts[0] = m_deviceData.Device.createPipelineLayout(pipelineLayout);
 }
 
+vk::PipelineDepthStencilStateCreateInfo GetDepthStencilState(std::string subpass)
+{
+	// Default depth stencil state
+	vk::PipelineDepthStencilStateCreateInfo depthStencil;
+	depthStencil.sType = vk::StructureType::ePipelineDepthStencilStateCreateInfo;
+	depthStencil.depthTestEnable = true;
+	depthStencil.depthWriteEnable = true;
+	depthStencil.depthCompareOp = vk::CompareOp::eLess;
+	depthStencil.depthBoundsTestEnable = false;
+	depthStencil.minDepthBounds = 0.0f;
+	depthStencil.maxDepthBounds = 1.0f;
+	depthStencil.stencilTestEnable = false;
+
+	// Modify based on subpass type
+	// We can create an override system later if needed
+	if (subpass == "color")
+		depthStencil.depthWriteEnable = false;
+
+	return depthStencil;
+}
+
 void MaterialInstance::CreatePipelines()
 {
 	vk::RenderPass _renderPass = m_target.GetRenderPass();
+	std::vector<std::string> subpassNames = m_baseMaterial->GetIncludedSubpasses();
+
 
 
 	vk::GraphicsPipelineCreateInfo pipelineInfo;
 	pipelineInfo.sType = vk::StructureType::eGraphicsPipelineCreateInfo;
-
-	
-
-
-#pragma region Stages
-	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
-	shaderStages.reserve(m_shaderData.EntryPoints.size());
-
-	for (const auto& entryPoint : m_shaderData.EntryPoints)
-	{
-		vk::ShaderModule module = vhf::WrapShader(m_deviceData.Device, entryPoint.Function.Code.CodePtr, entryPoint.Function.Code.Size);
-		vk::PipelineShaderStageCreateInfo shaderStageInfo;
-		shaderStageInfo.sType = vk::StructureType::ePipelineShaderStageCreateInfo;
-		shaderStageInfo.stage = entryPoint.Stage;
-		shaderStageInfo.module = module;
-		shaderStageInfo.pName = "main";
-		shaderStages.push_back(shaderStageInfo);
-	}
-
-	pipelineInfo.stageCount = shaderStages.size();
-
-	pipelineInfo.pStages = shaderStages;
-#pragma endregion
 
 #pragma region Inputs
 
@@ -250,48 +249,48 @@ void MaterialInstance::CreatePipelines()
 	pipelineInfo.pColorBlendState = &colorBlendState;
 #pragma endregion
 
-#pragma region Depth
-	vk::PipelineDepthStencilStateCreateInfo* _depthStates = new vk::PipelineDepthStencilStateCreateInfo[2];
-
-	_depthStates[0].sType = vk::StructureType::ePipelineDepthStencilStateCreateInfo;
-	_depthStates[0].depthCompareOp = vk::CompareOp::eLessOrEqual;
-	_depthStates[0].depthTestEnable = true;
-	_depthStates[0].depthWriteEnable = true;
-	_depthStates[0].stencilTestEnable = false;
-
-	_depthStates[1].sType = vk::StructureType::ePipelineDepthStencilStateCreateInfo;
-	_depthStates[1].depthCompareOp = vk::CompareOp::eLessOrEqual;
-	_depthStates[1].depthTestEnable = true;
-	_depthStates[1].depthWriteEnable = false;
-	_depthStates[1].stencilTestEnable = false;
-
-	pipelineInfo.pDepthStencilState = &_depthStates[0];
-#pragma endregion
-
-#pragma region PipelineCreation
-	pipelineInfo.layout = m_pipelineLayouts[0];
-	pipelineInfo.subpass = 0;
-
 	pipelineInfo.renderPass = _renderPass;
+	pipelineInfo.layout = m_pipelineLayouts[0];
 
-	m_pipelines[0] = m_deviceData.Device.createGraphicsPipeline(nullptr, pipelineInfo).value;
+#pragma region SubpassDependancy
+	// We know how many subpasses there are from the material
+	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
+	std::vector<vk::ShaderModule> shaderModules;
 
-	vk::ShaderModule fragModule = vhf::WrapShader(m_deviceData.Device, m_shaderCodes[1].Code, m_shaderCodes[1].Size);
-	shaderStages[1].sType = vk::StructureType::ePipelineShaderStageCreateInfo;
-	shaderStages[1].stage = vk::ShaderStageFlagBits::eFragment;
-	shaderStages[1].module = fragModule;
-	shaderStages[1].pName = "main";
+	for (auto& subpassName : subpassNames)
+	{
+		shaderStages.clear();
+		shaderModules.clear();
 
-	pipelineInfo.stageCount = 2;
+		for (auto& entryPoint : m_shaderData.EntryPoints)
+		{
+			auto it = std::find(entryPoint.SubpassNames.begin(), entryPoint.SubpassNames.end(), subpassName);
+			if (it == entryPoint.SubpassNames.end())
+				continue;
 
-	pipelineInfo.subpass = 1;
-	pipelineInfo.pDepthStencilState = &_depthStates[1];
+			shaderModules.emplace_back(vhf::WrapShader(m_deviceData.Device, entryPoint.Function.Code.CodePtr, entryPoint.Function.Code.Size));
+			vk::PipelineShaderStageCreateInfo shaderStageInfo;
+			shaderStageInfo.sType = vk::StructureType::ePipelineShaderStageCreateInfo;
+			shaderStageInfo.stage = entryPoint.Stage;
+			shaderStageInfo.module = shaderModules.back();
+			shaderStageInfo.pName = "main";
+			shaderStages.push_back(shaderStageInfo);
+		}
 
-	m_pipelines[1] = m_deviceData.Device.createGraphicsPipeline(nullptr, pipelineInfo).value;
+		vk::PipelineDepthStencilStateCreateInfo depthStencilState = GetDepthStencilState(subpassName);
+		pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+		pipelineInfo.pStages = shaderStages.data();
+		pipelineInfo.pDepthStencilState = &depthStencilState;
+		pipelineInfo.subpass = m_target.GetSubpassIndexByName(subpassName);
+
+		m_pipelines[subpassName] = m_deviceData.Device.createGraphicsPipeline(nullptr, pipelineInfo).value;
+
+		for (auto& module : shaderModules)
+		{
+			m_deviceData.Device.destroyShaderModule(module);
+		}
+	}
 #pragma endregion
-
-	m_deviceData.Device.destroyShaderModule(module);
-	m_deviceData.Device.destroyShaderModule(fragModule);
 }
 
 void MaterialInstance::CreateDescriptorPool()
@@ -302,13 +301,13 @@ void MaterialInstance::CreateDescriptorPool()
 
 	vk::DescriptorPoolCreateInfo poolInfo;
 	poolInfo.sType = vk::StructureType::eDescriptorPoolCreateInfo;
-	poolInfo.maxSets =1;
+	poolInfo.maxSets = 1;
 	poolInfo.poolSizeCount = 1;
 	poolInfo.pPoolSizes = &poolSize;
 	m_descriptorPool = m_deviceData.Device.createDescriptorPool(poolInfo);
 }
 
-void MaterialInstance::RecordCommandBuffer(vk::CommandBuffer _buffer, int _renderPass, vk::PipelineBindPoint _bindPoint)
+void MaterialInstance::RecordCommandBuffer(vk::CommandBuffer _buffer, std::string _renderPass, vk::PipelineBindPoint _bindPoint)
 {
 	_buffer.bindPipeline(_bindPoint, m_pipelines[_renderPass]);
 }

@@ -5,11 +5,10 @@
 
 #include "ResourceManagement/TextureData.h"
 
-BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, MaterialInstance* _materialInstance,
-	DrawBuffer* _drawBuffer) : m_parentBuffer(_drawBuffer)
+BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, std::shared_ptr<MaterialInstance> _materialInstance,
+	DrawBuffer* _drawBuffer) : m_parentBuffer(_drawBuffer), m_materialInstance(_materialInstance)
 {
 	m_deviceData = _deviceData;
-	m_material = _materialInstance;
 
 	AllocateCommandBuffer();
 	AllocateTextureSets();
@@ -23,11 +22,11 @@ BufferDeviceLink::BufferDeviceLink(BufferDeviceLink&& _src)
 	// We can't keep the source's resources, not only is it bad practice
 	// But using the same resources from multiple places will cause vulkan crashes that are hell to debug
 	m_deviceData = _src.m_deviceData;
-	m_material = _src.m_material;
+	m_materialInstance = _src.m_materialInstance;
 	m_commandPool = _src.m_commandPool;
 	m_commandBuffer = _src.m_commandBuffer;
 	m_drawResources = _src.m_drawResources;
-	_src.m_material = nullptr;
+	_src.m_materialInstance = nullptr;
 	_src.m_commandBuffer = nullptr;
 	_src.m_commandPool = nullptr;
 	_src.m_deviceData = {};
@@ -42,11 +41,11 @@ BufferDeviceLink& BufferDeviceLink::operator=(BufferDeviceLink&& _rhs)
 	if (this != &_rhs)
 	{
 		m_deviceData = _rhs.m_deviceData;
-		m_material = _rhs.m_material;
+		m_materialInstance = _rhs.m_materialInstance;
 		m_commandPool = _rhs.m_commandPool;
 		m_commandBuffer = _rhs.m_commandBuffer;
 		m_drawResources = _rhs.m_drawResources;
-		_rhs.m_material = nullptr;
+		_rhs.m_materialInstance = nullptr;
 		_rhs.m_commandBuffer = nullptr;
 		_rhs.m_commandPool = nullptr;
 		_rhs.m_deviceData = {};
@@ -62,11 +61,9 @@ BufferDeviceLink::~BufferDeviceLink()
 	ClearTextures();
 	m_deviceData.Device.freeCommandBuffers(m_commandPool, m_commandBuffer);
 	m_deviceData.Device.destroyCommandPool(m_commandPool);
-
-	delete m_material;
 }
 
-void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,
+void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, std::string _renderPass,
 	vk::DescriptorSet* _uboSet)
 {
 	if (m_isDirty)
@@ -80,17 +77,17 @@ void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, int _renderPass,
 	_cmd.bindVertexBuffers(1, m_drawResources.modelMatrixBuffer, offsets);
 	_cmd.bindIndexBuffer(m_drawResources.indexBuffer, 0, vk::IndexType::eUint16);
 
-	m_material->RecordCommandBuffer(_cmd, _renderPass, vk::PipelineBindPoint::eGraphics);
+	m_materialInstance->RecordCommandBuffer(_cmd, _renderPass, vk::PipelineBindPoint::eGraphics);
 
-	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_material->GetLayouts()[0], 0, 1, _uboSet, 0, nullptr);
-	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_material->GetLayouts()[0], 1, 1, m_drawResources.textureDescriptorSets.data(), 0, nullptr);
+	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_materialInstance->GetLayouts()[0], 0, 1, _uboSet, 0, nullptr);
+	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_materialInstance->GetLayouts()[0], 1, 1, m_drawResources.textureDescriptorSets.data(), 0, nullptr);
 
 	int currIndex = 0;
 	int currInstance = 0;
 
 	auto meshEntries = m_parentBuffer->GetMeshEntries();
 
-	for (int i = 0; i < meshEntries.Size(); i++)
+	for (int i = 0; i < meshEntries.size(); i++)
 	{
 		size_t instanceCount = meshEntries[i].InstanceCount;
 		int indexCount = meshEntries[i].Data.triangleCount * 3;
@@ -224,7 +221,7 @@ void BufferDeviceLink::UpdateTextures()
 
 void BufferDeviceLink::UpdateTextureSets()
 {
-	size_t textureCount = m_drawResources.textures.Size();
+	size_t textureCount = m_drawResources.textures.size();
 	vk::WriteDescriptorSet* writeSets = new vk::WriteDescriptorSet[textureCount];
 	vk::DescriptorImageInfo* imageInfos = new vk::DescriptorImageInfo[textureCount];
 
@@ -270,9 +267,9 @@ void BufferDeviceLink::AllocateTextureSets()
 {
 	vk::DescriptorSetAllocateInfo textureSetInfo;
 	textureSetInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
-	textureSetInfo.descriptorPool = m_material->GetDescriptorPool();
+	textureSetInfo.descriptorPool = m_materialInstance->GetDescriptorPool();
 	textureSetInfo.descriptorSetCount = 1;
-	textureSetInfo.pSetLayouts = &m_material->GetDescriptorSetLayouts()[1];
+	textureSetInfo.pSetLayouts = &m_materialInstance->GetDescriptorSetLayouts()[1];
 
 	m_drawResources.textureDescriptorSets = m_deviceData.Device.allocateDescriptorSets(textureSetInfo);
 }
@@ -285,9 +282,9 @@ void BufferDeviceLink::GenerateBuffers()
 	std::vector<glm::mat4x4> modelData = m_parentBuffer->GetModelData();
 	std::vector<uint16_t> textureIndices = m_parentBuffer->GetTextureIndices();
 
-	uint32_t vertexCount = (uint32_t)vertexData.Size();
-	uint32_t indexCount = (uint32_t)indexData.Size();
-	uint32_t modelCount = (uint32_t)modelData.Size();
+	uint32_t vertexCount = (uint32_t)vertexData.size();
+	uint32_t indexCount = (uint32_t)indexData.size();
+	uint32_t modelCount = (uint32_t)modelData.size();
 
 	// If there's no data, we don't create the buffers
 	// So we need to be very wary about continuing the render loop if this happens
@@ -295,7 +292,7 @@ void BufferDeviceLink::GenerateBuffers()
 	if (modelCount == 0)
 		return;
 
-	size_t textureCount = m_material->GetTextureCount();
+	size_t textureCount = m_materialInstance->GetTextureCount();
 	size_t instanceDataSize = sizeof(glm::mat4x4) + sizeof(uint16_t) * textureCount;
 	size_t totalInstanceDataSize = instanceDataSize * modelCount;
 	void* instanceData = new char[totalInstanceDataSize];

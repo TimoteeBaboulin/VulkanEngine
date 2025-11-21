@@ -105,7 +105,7 @@ void GameObject::AddComponent(ObjectBehaviour* _component)
 
 static void WriteStringBinary(std::ofstream& s, const std::string& str)
 {
-    uint32_t len = static_cast<uint32_t>(str.Size());
+    uint32_t len = static_cast<uint32_t>(str.size());
     s.write(reinterpret_cast<const char*>(&len), sizeof(len));
     if (len)
         s.write(str.data(), static_cast<std::streamsize>(len));
@@ -133,7 +133,7 @@ void GameObject::SaveToFile(std::ofstream& _stream)
 	uint32_t id = m_id;
 	_stream.write(reinterpret_cast<const char*>(&id), sizeof(id));
 
-	uint32_t compCount = static_cast<uint32_t>(m_behaviourWidgets.Size());
+	uint32_t compCount = static_cast<uint32_t>(m_behaviourWidgets.size());
 	_stream.write(reinterpret_cast<const char*>(&compCount), sizeof(compCount));
 
 	for (auto it = m_behaviourWidgets.begin(); it != m_behaviourWidgets.end(); it++)

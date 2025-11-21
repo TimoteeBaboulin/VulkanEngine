@@ -10,13 +10,6 @@ constexpr int MaxVertexCount = 100000;
 constexpr int MaxModelCount = 500;
 constexpr int MaxIndexCount = 1600000;
 
-//struct MeshEntry
-//{
-//	MeshData* Data;
-//	std::vector<glm::mat4x4> ModelMatrices;
-//	std::vector<int> TextureIndexes;
-//};
-
 struct InstanceData
 {
 	// This is the handle to the current entry
@@ -73,7 +66,7 @@ public:
 
 	//RENDER-------------------------------------------------------------------------------
 	
-	void RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, int _renderPass);
+	void RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, std::string _renderPass);
 
 	//GETTERS------------------------------------------------------------------------------
 	

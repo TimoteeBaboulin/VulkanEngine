@@ -65,6 +65,75 @@
 //	}
 //}
 
+bool TryGetShaderStageFromString(const char* _stageName, vk::ShaderStageFlagBits& _outStage)
+{
+	if (strcmp(_stageName, "vertex") == 0)
+	{
+		_outStage = vk::ShaderStageFlagBits::eVertex;
+		return true;
+	}
+	else if (strcmp(_stageName, "fragment") == 0)
+	{
+		_outStage = vk::ShaderStageFlagBits::eFragment;
+		return true;
+	}
+	else if (strcmp(_stageName, "compute") == 0)
+	{
+		_outStage = vk::ShaderStageFlagBits::eCompute;
+		return true;
+	}
+	else
+	{
+		LOG_ERROR("Unsupported shader stage found in shader module.");
+		return false; // Default return to avoid compiler warning
+	}
+}
+
+void ReadAttribute(EntryPoint& _entryPoint, slang::Attribute* _attr)
+{
+	std::string attrName = _attr->getName();
+
+	if (attrName == "shader")
+	{
+		size_t nameLength = 0;
+		const char* stageName = _attr->getArgumentValueString(0, &nameLength);
+		if (!TryGetShaderStageFromString(stageName, _entryPoint.Stage))
+		{
+			LOG_ERROR("Failed to get shader stage from entry point attribute.");
+			return;
+		}
+	}
+	else if (attrName == "RenderPass")
+	{
+		size_t subpassNameLength = 0;
+		const char* subpassName = _attr->getArgumentValueString(0, &subpassNameLength);
+		_entryPoint.SubpassNames.push_back(std::string(subpassName, subpassNameLength));
+	}
+}
+
+void ReadEntryPointData(EntryPoint& _entryPoint, SlangSession* _globalSession, 
+	slang::FunctionReflection* _funcPtr)
+{
+	int attributeCount = _funcPtr->getUserAttributeCount();
+
+	for (int i = 0; i < attributeCount; i++)
+	{
+		slang::Attribute* attr = _funcPtr->getUserAttributeByIndex(i);
+
+		ReadAttribute(_entryPoint, attr);
+	}
+
+	slang::Attribute* stageAttr = _funcPtr->findUserAttributeByName(_globalSession, "shader");
+	if (!stageAttr)
+	{
+		LOG_ERROR("Entry point is missing required 'shader' attribute.");
+		return;
+	}
+	ReadAttribute(_entryPoint, stageAttr);
+
+	_entryPoint.Function.Name = _funcPtr->getName();
+}
+
 std::vector<EntryPoint> GetEntryPoints(slang::IModule* _module,
 	Slang::ComPtr<slang::ISession> _session,
 	SlangSession* _globalSession)
@@ -92,37 +161,17 @@ std::vector<EntryPoint> GetEntryPoints(slang::IModule* _module,
 			entryPoints.push_back(EntryPoint());
 			EntryPoint& currEntryPoint = entryPoints.back();
 
-			slang::Attribute* shaderAttr = funcRefPtr->findAttributeByName(_globalSession, "shader");
-			size_t nameLength = 0;
-			const char* stageName = shaderAttr->getArgumentValueString(0, &nameLength);
-			
-			if (strcmp(stageName, "vertex") == 0)
-			{
-				currEntryPoint.Stage = vk::ShaderStageFlagBits::eVertex;
-			}
-			else if (strcmp(stageName, "fragment") == 0)
-			{
-				currEntryPoint.Stage = vk::ShaderStageFlagBits::eFragment;
-			}
-			else if (strcmp(stageName, "compute") == 0)
-			{
-				currEntryPoint.Stage = vk::ShaderStageFlagBits::eCompute;
-			}
-			else
-			{
-				LOG_ERROR("Unsupported shader stage found in shader module.");
-			}
-			
-			ShaderFunction* func = new ShaderFunction();
-			func->Name = funcRefPtr->getName();
+			ReadEntryPointData(currEntryPoint, _globalSession, funcRefPtr);
 
 			// Add the entry point to the component types for later linking
 			componentTypes.push_back(entryPoint);
 
-			//TODO: Find all the parameters to allow material to automatically
+			// TODO: Find all the parameters to allow material to automatically
+			// allocate descriptors
 		}
 	}
 
+	// TODO: Cut this function in two, probably cut it here
 	// Create the linked program to start generating code for the entry points
 	Slang::ComPtr<slang::IComponentType> program;
 
@@ -148,8 +197,15 @@ std::vector<EntryPoint> GetEntryPoints(slang::IModule* _module,
 		size_t shaderSize = blob.get()->getBufferSize();
 		entryPoints[index].Function.Code.Size = shaderSize;
 		void* codePtr = malloc(shaderSize);
-		memcpy(codePtr, blob.get()->getBufferPointer(), shaderSize);
-		entryPoints[index].Function.Code.CodePtr = codePtr;
+		if (!codePtr)
+		{
+			LOG_ERROR("Failed to allocate memory for shader code.");
+		}
+		else
+		{
+			memcpy(codePtr, blob.get()->getBufferPointer(), shaderSize);
+			entryPoints[index].Function.Code.CodePtr = codePtr;
+		}
 	}
 
 	return entryPoints;
@@ -202,6 +258,22 @@ Material::Material(std::string _shaderPath)
 {
 	m_shaderPath = _shaderPath;
 	m_shaderData = ReadShaderData(_shaderPath.c_str());
+
+	// Store all the included subpasses
+	// Make it easier to invalidate draw buffers for specific subpasses
+	// Or when creating a material instance
+	for (auto& entryPoint : m_shaderData.EntryPoints)
+	{
+		for (const auto& subpassName : entryPoint.SubpassNames)
+		{
+			auto it = std::find(m_includedSubpasses.begin(), m_includedSubpasses.end(), subpassName);
+			if (it == m_includedSubpasses.end())
+			{
+				m_includedSubpasses.push_back(subpassName);
+			}
+		}
+	}
+
 	std::sort(m_shaderData.EntryPoints.begin(), m_shaderData.EntryPoints.end(),
 		[](const EntryPoint& a, const EntryPoint& b)
 		{
@@ -213,12 +285,23 @@ Material::~Material()
 {
 }
 
-MaterialInstance* Material::CreateInstance(RenderTarget& _target)
+std::shared_ptr<MaterialInstance> Material::GetOrCreateInstance(RenderTarget& _target)
 {
-	MaterialInstance* instance = new MaterialInstance(_target, this);
-	m_instances.push_back(instance);
+	auto it = m_instanceMap.find(&_target);
+	if (it != m_instanceMap.end())
+	{
+		return it->second;
+	}
 
-	return instance;
+	MaterialInstance* instance = CreateInstance(_target);
+	if (instance)
+	{
+		std::shared_ptr<MaterialInstance> sharedInstance(instance);
+		m_instanceMap[&_target] = sharedInstance;
+		return sharedInstance;
+	}
+
+	throw std::runtime_error("Failed to create MaterialInstance.");
 }
 
 ShaderData Material::GetShaderData() const
@@ -228,6 +311,14 @@ ShaderData Material::GetShaderData() const
 
 void Material::RemoveInstance(MaterialInstance* _instance)
 {
-	auto it = std::find(m_instances.begin(), m_instances.end(), _instance);
-	m_instances.erase(it);
+	// This shouldn't be needed with the use of shared_ptr
+	// TODO: Add a check to remove unused instances from the map
+
+	/*auto it = std::find(m_instances.begin(), m_instances.end(), _instance);
+	m_instances.erase(it);*/
+}
+
+MaterialInstance* Material::CreateInstance(RenderTarget& _target)
+{
+	return new MaterialInstance(_target, this);
 }

@@ -280,7 +280,7 @@ void BufferDeviceLink::GenerateBuffers()
 	std::vector<Vertex> vertexData = m_parentBuffer->GetVertexData();
 	std::vector<uint16_t> indexData = m_parentBuffer->GetIndexData();
 	std::vector<glm::mat4x4> modelData = m_parentBuffer->GetModelData();
-	std::vector<uint16_t> textureIndices = m_parentBuffer->GetTextureIndices();
+	std::vector<uint32_t> textureIndices = m_parentBuffer->GetTextureIndices();
 
 	uint32_t vertexCount = (uint32_t)vertexData.size();
 	uint32_t indexCount = (uint32_t)indexData.size();
@@ -293,14 +293,14 @@ void BufferDeviceLink::GenerateBuffers()
 		return;
 
 	size_t textureCount = m_materialInstance->GetTextureCount();
-	size_t instanceDataSize = sizeof(glm::mat4x4) + sizeof(uint16_t) * textureCount;
+	size_t instanceDataSize = sizeof(glm::mat4x4) + sizeof(uint32_t) * textureCount;
 	size_t totalInstanceDataSize = instanceDataSize * modelCount;
 	void* instanceData = new char[totalInstanceDataSize];
 
 	for (uint32_t i = 0; i < modelCount; i++)
 	{
 		memcpy((char*)instanceData + i * instanceDataSize, &modelData[i], sizeof(glm::mat4x4));
-		memcpy((char*)instanceData + i * instanceDataSize + sizeof(glm::mat4x4), &textureIndices[i], sizeof(uint16_t) * textureCount);
+		memcpy((char*)instanceData + i * instanceDataSize + sizeof(glm::mat4x4), &textureIndices[i], sizeof(uint32_t) * textureCount);
 	}
 
 	//Create the buffers

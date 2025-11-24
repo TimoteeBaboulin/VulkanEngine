@@ -309,5 +309,6 @@ void MaterialInstance::CreateDescriptorPool()
 
 void MaterialInstance::RecordCommandBuffer(vk::CommandBuffer _buffer, std::string _renderPass, vk::PipelineBindPoint _bindPoint)
 {
-	_buffer.bindPipeline(_bindPoint, m_pipelines[_renderPass]);
+	vk::Pipeline _pipeline = m_pipelines[_renderPass];
+	_buffer.bindPipeline(_bindPoint, _pipeline);
 }

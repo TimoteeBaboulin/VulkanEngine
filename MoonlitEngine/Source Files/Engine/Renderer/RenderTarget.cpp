@@ -278,7 +278,7 @@ void RenderTarget::CreateRenderPass()
 	attachments[0].format = vk::Format::eD32Sfloat;
 	attachments[0].samples = vk::SampleCountFlagBits::e1;
 	attachments[0].loadOp = vk::AttachmentLoadOp::eClear;
-	attachments[0].storeOp = vk::AttachmentStoreOp::eDontCare;
+	attachments[0].storeOp = vk::AttachmentStoreOp::eStore;
 	attachments[0].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
 	attachments[0].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 	attachments[0].initialLayout = vk::ImageLayout::eUndefined;
@@ -310,6 +310,14 @@ void RenderTarget::CreateRenderPass()
 	// Color Subpass
 	CreateDepthSubpass(&attachmentRefs[0], subpasses[0], subpassDependencies[0]);
 	CreateColorSubpass(&attachmentRefs[0], &attachmentRefs[1], 1, subpasses[1], subpassDependencies[1]);
+
+	//subpassDependencies[2].srcSubpass = 1;
+	//subpassDependencies[2].dstSubpass = vk::SubpassExternal;
+	//subpassDependencies[2].srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	//subpassDependencies[2].dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe;
+	//subpassDependencies[2].srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+	//subpassDependencies[2].dstAccessMask = vk::AccessFlagBits::eNone;
+
 #pragma endregion //Subpasses
 
 	vk::RenderPassCreateInfo renderPassInfo;
@@ -544,7 +552,7 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 	_buffer.begin(beginInfo);
 
 	vk::ClearValue clearValues[2];
-	clearValues[0].depthStencil = vk::ClearDepthStencilValue(1, 1);
+	clearValues[0].depthStencil = vk::ClearDepthStencilValue(1, 0);
 	clearValues[1].color = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.25f, 0.25f, 1.0f});
 
 	vk::RenderPassBeginInfo renderPassInfo;

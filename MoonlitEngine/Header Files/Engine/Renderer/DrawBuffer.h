@@ -76,7 +76,7 @@ public:
 	std::vector<Vertex> GetVertexData() const { return m_vertexData; }
 	std::vector<uint16_t> GetIndexData() const { return m_indexData; }
 	std::vector<glm::mat4x4> GetModelData() const { return m_modelData; }
-	std::vector<uint16_t> GetTextureIndices() const { return m_textureIndices; }
+	std::vector<uint32_t> GetTextureIndices() const { return m_textureIndices; }
 
 	std::vector<MeshEntry> GetMeshEntries() const { return m_meshEntries; }
 	std::vector<std::shared_ptr<Image>> GetAllTextures() const;
@@ -103,7 +103,7 @@ private:
 	std::vector<Vertex> m_vertexData;
 	std::vector<uint16_t> m_indexData;
 	std::vector<glm::mat4x4> m_modelData;
-	std::vector<uint16_t> m_textureIndices;
+	std::vector<uint32_t> m_textureIndices;
 
 	//DATA COUNTS--------------------------------------------------------------------------
 	

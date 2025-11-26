@@ -89,7 +89,10 @@ vk::PipelineDepthStencilStateCreateInfo GetDepthStencilState(std::string subpass
 	// Modify based on subpass type
 	// We can create an override system later if needed
 	if (subpass == "color")
+	{
 		depthStencil.depthWriteEnable = false;
+		depthStencil.depthCompareOp = vk::CompareOp::eLessOrEqual;
+	}
 
 	return depthStencil;
 }

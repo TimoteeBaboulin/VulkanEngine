@@ -18,31 +18,34 @@ struct UniformBufferObject
 
 struct VertexInput
 {
-    float3 position;
-    float3 color;
-    float3 texCoord;
+    float3 position : POSITION;
+    float2 texCoord : TEXCOORD0;
+    float3 tangeant : TANGEANT;
+    float3 bitangeant : BITANGEANT;
 }
 
 struct InstanceInput
 {
-    float4x4 modelMat;
-    int index;
+    float4x4 modelMat : MODEL;
+    int index : TEXINDEX;
 }
 
 struct v2f
 {
-    float3 fragColor;
-    float2 texCoord;
-    int texIndex;
+    float4 position : POSITION;
+    float2 texCoord : TEXCOORD0;
+    float3 tangeant : TANGEANT;
+    float3 bitangeant : BITANGEANT;
 
-    float4 position : SV_POSITION;
+    int texIndex : TEXINDEX;
 }
+
 [[vk_binding(0, 0)]] ConstantBuffer<UniformBufferObject> ubo;
 [[vk_binding(0, 1)]] Sampler2D[32] textures;
 
 [RenderPass("depth")]
 [RenderPass("color")] [shader("vertex")]
-v2f vertexMain([[vk_location(0)]] VertexInput inVert, [[vk_location(3)]] InstanceInput inInst)
+v2f vertexMain(VertexInput inVert, [[vk_location(3)]] InstanceInput inInst)
 {
     v2f output;
 
@@ -50,7 +53,6 @@ v2f vertexMain([[vk_location(0)]] VertexInput inVert, [[vk_location(3)]] Instanc
     float4x4 finalMatrix = mul(mul(inInst.modelMat, ubo.viewMat), ubo.projMat);
 
     output.position = mul(float4(inVert.position, 1.0f), finalMatrix);
-    output.fragColor = inVert.color;
     output.texCoord = inVert.texCoord.xy;
     output.texIndex = inInst.index;
 

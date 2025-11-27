@@ -144,15 +144,15 @@ void MaterialInstance::CreatePipelines()
 	vertexAttributes[3].binding = 0;
 	vertexAttributes[3].format = vk::Format::eR32G32B32Sfloat;
 	vertexAttributes[3].location = 3;
-	vertexAttributes[3].offset = 44;
+	vertexAttributes[3].offset = 32;
 
 	//Bitangeant
 	vertexAttributes[4].binding = 0;
 	vertexAttributes[4].format = vk::Format::eR32G32B32Sfloat;
 	vertexAttributes[4].location = 4;
-	vertexAttributes[4].offset = 56;
+	vertexAttributes[4].offset = 44;
 
-	// Total size = 68 bytes
+	// Total size = 56 bytes
 
 	// Model Matrix
 	vertexAttributes[5].binding = 1;

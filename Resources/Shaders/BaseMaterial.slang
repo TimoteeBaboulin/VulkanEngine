@@ -33,7 +33,7 @@ struct InstanceInput
 
 struct v2f
 {
-    float4 position : POSITION;
+    float4 position : SV_Position;
     float2 texCoord : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangeant : TANGEANT;

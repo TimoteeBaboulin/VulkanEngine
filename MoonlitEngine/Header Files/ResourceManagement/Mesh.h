@@ -19,14 +19,11 @@ MOONLIT_API struct Image
 
 MOONLIT_API struct Vertex
 {
-	float x = 0.0f;
-	float y = 0.0f;
-	float z = 0.0f;
+	glm::vec3 position = { 0.0f, 0.0f, 0.0f };
 
-	float r = 1.0f;
-	float g = 1.0f;
-	float b = 1.0f;
+	glm::vec2 uv = { 0.0f, 0.0f };
 
-	float uvX = 0.0f;
-	float uvY = 0.0f;
+	glm::vec3 normal = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 tangeant = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 bitangeant = { 0.0f, 0.0f, 0.0f };
 };

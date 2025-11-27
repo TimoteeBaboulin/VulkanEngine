@@ -18,10 +18,26 @@ MeshData GetMesh(aiMesh* _mesh)
 
     for (int i = 0; i < _mesh->mNumVertices; i++)
     {
-        mesh.vertices[i] = Vertex(_mesh->mVertices[i].x, _mesh->mVertices[i].y, _mesh->mVertices[i].z);
+        mesh.vertices[i] = Vertex();
+		Vertex& vertex = mesh.vertices[i];
+        vertex.position.x = _mesh->mVertices[i].x;
+		vertex.position.y = _mesh->mVertices[i].y;
+		vertex.position.z = _mesh->mVertices[i].z;
 
-        mesh.vertices[i].uvX = _mesh->mTextureCoords[0][i].x;
-        mesh.vertices[i].uvY = _mesh->mTextureCoords[0][i].y;
+        vertex.uv.x = _mesh->mTextureCoords[0][i].x;
+        vertex.uv.y = _mesh->mTextureCoords[0][i].y;
+
+		vertex.normal.x = _mesh->mNormals[i].x;
+		vertex.normal.y = _mesh->mNormals[i].y;
+		vertex.normal.z = _mesh->mNormals[i].z;
+
+		vertex.tangeant.x = _mesh->mTangents[i].x;
+		vertex.tangeant.y = _mesh->mTangents[i].y;
+		vertex.tangeant.z = _mesh->mTangents[i].z;
+
+		vertex.bitangeant.x = _mesh->mBitangents[i].x;
+		vertex.bitangeant.y = _mesh->mBitangents[i].y;
+		vertex.bitangeant.z = _mesh->mBitangents[i].z;
     }
     mesh.triangleCount = _mesh->mNumFaces;
     mesh.indices = new uint16_t[mesh.triangleCount * 3];
@@ -56,7 +72,7 @@ bool MeshBank::TryLoad(std::string _filepath)
     }
 
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(_filepath, aiPostProcessSteps::aiProcess_OptimizeMeshes | aiPostProcessSteps::aiProcess_Triangulate | aiPostProcessSteps::aiProcess_FlipUVs);
+    const aiScene* scene = importer.ReadFile(_filepath, aiPostProcessSteps::aiProcess_OptimizeMeshes | aiPostProcessSteps::aiProcess_Triangulate | aiPostProcessSteps::aiProcess_FlipUVs | aiPostProcessSteps::aiProcess_CalcTangentSpace);
     if (scene == nullptr)
     {
         std::string errorMessage = importer.GetErrorString();

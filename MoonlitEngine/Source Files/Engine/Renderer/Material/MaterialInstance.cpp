@@ -119,46 +119,66 @@ void MaterialInstance::CreatePipelines()
 	vertexBinding[1].stride = 64 + 4 * m_textureCount;
 	vertexBinding[1].inputRate = vk::VertexInputRate::eInstance;
 
-	vk::VertexInputAttributeDescription* vertexAttributes = new vk::VertexInputAttributeDescription[7 + m_textureCount];
+	std::vector<vk::VertexInputAttributeDescription> vertexAttributes;
+	vertexAttributes.resize(9 + m_textureCount);
 
+	// Position
 	vertexAttributes[0].binding = 0;
 	vertexAttributes[0].format = vk::Format::eR32G32B32Sfloat;
 	vertexAttributes[0].location = 0;
 	vertexAttributes[0].offset = 0;
 
+	// UV
 	vertexAttributes[1].binding = 0;
-	vertexAttributes[1].format = vk::Format::eR32G32B32Sfloat;
+	vertexAttributes[1].format = vk::Format::eR32G32Sfloat;
 	vertexAttributes[1].location = 1;
 	vertexAttributes[1].offset = 12;
 
+	// Normal
 	vertexAttributes[2].binding = 0;
-	vertexAttributes[2].format = vk::Format::eR32G32Sfloat;
+	vertexAttributes[2].format = vk::Format::eR32G32B32Sfloat;
 	vertexAttributes[2].location = 2;
-	vertexAttributes[2].offset = 24;
+	vertexAttributes[2].offset = 20;
 
-	vertexAttributes[3].binding = 1;
-	vertexAttributes[3].format = vk::Format::eR32G32B32A32Sfloat;
+	// Tangeant
+	vertexAttributes[3].binding = 0;
+	vertexAttributes[3].format = vk::Format::eR32G32B32Sfloat;
 	vertexAttributes[3].location = 3;
-	vertexAttributes[3].offset = 0;
+	vertexAttributes[3].offset = 44;
 
-	vertexAttributes[4].binding = 1;
-	vertexAttributes[4].format = vk::Format::eR32G32B32A32Sfloat;
+	//Bitangeant
+	vertexAttributes[4].binding = 0;
+	vertexAttributes[4].format = vk::Format::eR32G32B32Sfloat;
 	vertexAttributes[4].location = 4;
-	vertexAttributes[4].offset = 16;
+	vertexAttributes[4].offset = 56;
 
+	// Total size = 68 bytes
+
+	// Model Matrix
 	vertexAttributes[5].binding = 1;
 	vertexAttributes[5].format = vk::Format::eR32G32B32A32Sfloat;
 	vertexAttributes[5].location = 5;
-	vertexAttributes[5].offset = 32;
+	vertexAttributes[5].offset = 0;
 
 	vertexAttributes[6].binding = 1;
 	vertexAttributes[6].format = vk::Format::eR32G32B32A32Sfloat;
 	vertexAttributes[6].location = 6;
-	vertexAttributes[6].offset = 48;
+	vertexAttributes[6].offset = 16;
+
+	vertexAttributes[7].binding = 1;
+	vertexAttributes[7].format = vk::Format::eR32G32B32A32Sfloat;
+	vertexAttributes[7].location = 7;
+	vertexAttributes[7].offset = 32;
+
+	vertexAttributes[8].binding = 1;
+	vertexAttributes[8].format = vk::Format::eR32G32B32A32Sfloat;
+	vertexAttributes[8].location = 8;
+	vertexAttributes[8].offset = 48;
 
 	int offset = 64;
 
-	for (size_t index = 7; index < 7 + m_textureCount; index++)
+	// Texture Indices
+	for (size_t index = 9; index < 9 + m_textureCount; index++)
 	{
 		vertexAttributes[index].binding = 1;
 		vertexAttributes[index].format = vk::Format::eR32Sint;
@@ -170,8 +190,8 @@ void MaterialInstance::CreatePipelines()
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
 	vertexInputInfo.vertexBindingDescriptionCount = 2;
-	vertexInputInfo.vertexAttributeDescriptionCount = 7 + m_textureCount;
-	vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes;
+	vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributes.size();
+	vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes.data();
 	vertexInputInfo.pVertexBindingDescriptions = vertexBinding;
 
 	pipelineInfo.pVertexInputState = &vertexInputInfo;

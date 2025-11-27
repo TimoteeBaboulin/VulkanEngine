@@ -20,6 +20,7 @@ struct VertexInput
 {
     float3 position : POSITION;
     float2 texCoord : TEXCOORD0;
+    float3 normal : NORMAL;
     float3 tangeant : TANGEANT;
     float3 bitangeant : BITANGEANT;
 }
@@ -34,6 +35,7 @@ struct v2f
 {
     float4 position : POSITION;
     float2 texCoord : TEXCOORD0;
+    float3 normal : NORMAL;
     float3 tangeant : TANGEANT;
     float3 bitangeant : BITANGEANT;
 
@@ -45,7 +47,7 @@ struct v2f
 
 [RenderPass("depth")]
 [RenderPass("color")] [shader("vertex")]
-v2f vertexMain(VertexInput inVert, [[vk_location(3)]] InstanceInput inInst)
+v2f vertexMain(in VertexInput inVert, in InstanceInput inInst)
 {
     v2f output;
 
@@ -54,6 +56,9 @@ v2f vertexMain(VertexInput inVert, [[vk_location(3)]] InstanceInput inInst)
 
     output.position = mul(float4(inVert.position, 1.0f), finalMatrix);
     output.texCoord = inVert.texCoord.xy;
+    output.normal = inVert.normal;
+    output.tangeant = inVert.tangeant;
+    output.bitangeant = inVert.bitangeant;
     output.texIndex = inInst.index;
 
     return output;

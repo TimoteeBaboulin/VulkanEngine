@@ -112,7 +112,7 @@ void MaterialInstance::CreatePipelines()
 #pragma region Vertex
 	vk::VertexInputBindingDescription* vertexBinding = new vk::VertexInputBindingDescription[2];
 	vertexBinding[0].binding = 0;
-	vertexBinding[0].stride = 32;
+	vertexBinding[0].stride = 56;
 	vertexBinding[0].inputRate = vk::VertexInputRate::eVertex;
 
 	vertexBinding[1].binding = 1;

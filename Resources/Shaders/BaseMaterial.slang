@@ -33,7 +33,7 @@ struct InstanceInput
 
 struct v2f
 {
-    float4 position : SV_Position;
+    float4 position : SV_POSITION;
     float2 texCoord : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangeant : TANGEANT;
@@ -52,9 +52,9 @@ v2f vertexMain(in VertexInput inVert, in InstanceInput inInst)
     v2f output;
 
     // Calculate the final matrix.
-    float4x4 finalMatrix = mul(mul(inInst.modelMat, ubo.viewMat), ubo.projMat);
+    float4x4 mvp = mul(mul(inInst.modelMat, ubo.viewMat), ubo.projMat);
 
-    output.position = mul(float4(inVert.position, 1.0f), finalMatrix);
+    output.position = mul(float4(inVert.position, 1.0f), mvp);
     output.texCoord = inVert.texCoord.xy;
     output.normal = inVert.normal;
     output.tangeant = inVert.tangeant;
@@ -69,8 +69,8 @@ float4 fragmentMain(in v2f input) : SV_TARGET
 {
     // Use the color from the vertex input.
     float4 color = textures[input.texIndex].Sample(input.texCoord);
-    color.rgb += ubo.lightCol;
-    color.rgb /= float3(2.0f, 2.0f, 2.0f);
+    //color.rgb += ubo.lightCol;
+    //color.rgb /= float3(2.0f, 2.0f, 2.0f);
 
     // Return the final color.
     return color;

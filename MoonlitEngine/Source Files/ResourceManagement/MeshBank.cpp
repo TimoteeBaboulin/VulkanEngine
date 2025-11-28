@@ -18,7 +18,6 @@ MeshData GetMesh(aiMesh* _mesh)
 
     for (int i = 0; i < _mesh->mNumVertices; i++)
     {
-        mesh.vertices[i] = Vertex();
 		Vertex& vertex = mesh.vertices[i];
         vertex.position.x = _mesh->mVertices[i].x;
 		vertex.position.y = _mesh->mVertices[i].y;
@@ -26,6 +25,18 @@ MeshData GetMesh(aiMesh* _mesh)
 
         vertex.uv.x = _mesh->mTextureCoords[0][i].x;
         vertex.uv.y = _mesh->mTextureCoords[0][i].y;
+
+        //vertex.normal.x = 0;
+        //vertex.normal.y = 0;
+        //vertex.normal.z = 0;
+
+        //vertex.tangeant.x = 0;
+        //vertex.tangeant.y = 0;
+        //vertex.tangeant.z = 0;
+
+        //vertex.bitangeant.x = 0;
+        //vertex.bitangeant.y = 0;
+        //vertex.bitangeant.z = 0;
 
 		vertex.normal.x = _mesh->mNormals[i].x;
 		vertex.normal.y = _mesh->mNormals[i].y;

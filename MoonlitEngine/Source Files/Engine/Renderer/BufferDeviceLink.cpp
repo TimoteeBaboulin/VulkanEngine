@@ -284,7 +284,7 @@ void BufferDeviceLink::GenerateBuffers()
 
 	uint32_t vertexCount = (uint32_t)vertexData.size();
 	uint32_t indexCount = (uint32_t)indexData.size();
-	uint32_t modelCount = (uint32_t)modelData.size();
+	uint32_t modelCount = (uint32_t)modelData.size() / 2;
 
 	// If there's no data, we don't create the buffers
 	// So we need to be very wary about continuing the render loop if this happens
@@ -293,14 +293,15 @@ void BufferDeviceLink::GenerateBuffers()
 		return;
 
 	size_t textureCount = m_materialInstance->GetTextureCount();
-	size_t instanceDataSize = sizeof(glm::mat4x4) + sizeof(uint32_t) * textureCount;
+	size_t instanceDataSize = sizeof(glm::mat4x4) * 2 + sizeof(uint32_t) * textureCount;
 	size_t totalInstanceDataSize = instanceDataSize * modelCount;
 	void* instanceData = new char[totalInstanceDataSize];
 
 	for (uint32_t i = 0; i < modelCount; i++)
 	{
-		memcpy((char*)instanceData + i * instanceDataSize, &modelData[i], sizeof(glm::mat4x4));
-		memcpy((char*)instanceData + i * instanceDataSize + sizeof(glm::mat4x4), &textureIndices[i], sizeof(uint32_t) * textureCount);
+		memcpy((char*)instanceData + i * instanceDataSize, &modelData[i * 2], sizeof(glm::mat4x4));
+		memcpy((char*)instanceData + i * instanceDataSize + sizeof(glm::mat4x4), &modelData[i * 2 + 1], sizeof(glm::mat4x4));
+		memcpy((char*)instanceData + i * instanceDataSize + 2 * sizeof(glm::mat4x4), &textureIndices[i], sizeof(uint32_t) * textureCount);
 	}
 
 	//Create the buffers

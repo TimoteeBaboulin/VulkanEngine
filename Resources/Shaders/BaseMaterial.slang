@@ -28,12 +28,14 @@ struct VertexInput
 struct InstanceInput
 {
     float4x4 modelMat : MODEL;
+    float4x4 inverseModelMat : INVERSEMODEL;
     int index : TEXINDEX;
 }
 
 struct v2f
 {
     float4 position : SV_POSITION;
+    float3 worldPos : WORLDPOS;
     float2 texCoord : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangeant : TANGEANT;
@@ -47,30 +49,49 @@ struct v2f
 
 [RenderPass("depth")]
 [RenderPass("color")] [shader("vertex")]
-v2f vertexMain(in VertexInput inVert, in InstanceInput inInst)
+v2f vertexMain(VertexInput inVert, InstanceInput inInst)
 {
     v2f output;
 
     // Calculate the final matrix.
     float4x4 mvp = mul(mul(inInst.modelMat, ubo.viewMat), ubo.projMat);
+    float3x3 normalMatrix = transpose(float3x3(inInst.inverseModelMat));
 
     output.position = mul(float4(inVert.position, 1.0f), mvp);
+    output.worldPos = mul(float4(inVert.position, 1.0f), inInst.modelMat).xyz;
     output.texCoord = inVert.texCoord.xy;
-    output.normal = inVert.normal;
-    output.tangeant = inVert.tangeant;
-    output.bitangeant = inVert.bitangeant;
+    output.normal = normalize(inVert.normal);
+    output.tangeant = normalize(inVert.tangeant);
+    output.bitangeant = normalize(inVert.bitangeant);
     output.texIndex = inInst.index;
 
     return output;
 }   
+
+void ApplyAmbientLighting(in float3 lightCol, inout float3 color)
+{
+    float3 ambient = 0.25f * lightCol;
+    color *= ambient;
+}
+
+void ApplyDiffuseLighting(in float3 lightCol, in float3 normal, in float3 lightDir, inout float3 color)
+{
+    float diffuseStrength = dot(normal, lightDir);
+    float3 diffuse = max(diffuseStrength, 0.0f) * lightCol;
+    color *= diffuse;
+}
 
 [RenderPass("color")][shader("fragment")]
 float4 fragmentMain(in v2f input) : SV_TARGET
 {
     // Use the color from the vertex input.
     float4 color = textures[input.texIndex].Sample(input.texCoord);
-    //color.rgb += ubo.lightCol;
-    //color.rgb /= float3(2.0f, 2.0f, 2.0f);
+    float3x3 TBN = float3x3(normalize(input.tangeant), normalize(input.bitangeant), normalize(input.normal));
+    float3 lightDir = normalize(input.worldPos - ubo.lightPos);
+    float3 normal = normalize(mul(TBN, float3(0.0f, 0.0f, 1.0f)));
+
+    //ApplyAmbientLighting(ubo.lightCol, color.rgb);
+    ApplyDiffuseLighting(ubo.lightCol, normal, lightDir, color.rgb);
 
     // Return the final color.
     return color;

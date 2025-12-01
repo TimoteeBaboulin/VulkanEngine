@@ -49,6 +49,5 @@ extern "C" __declspec(dllexport) std::vector<BehaviourRegistryEntry> GetRegistry
 	REGISTER_BEHAVIOUR(MeshRendererBehaviour, CreateMeshRenderer);
 	REGISTER_BEHAVIOUR(TransformBehaviour, CreateTransform);
 
-	LOG_INFO("Default Plugin behaviours registered.");
 	return entries;
 }

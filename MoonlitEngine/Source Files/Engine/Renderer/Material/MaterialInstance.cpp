@@ -115,20 +115,20 @@ void MaterialInstance::CreatePipelines()
 
 	VertexInputBuilder  vertexInputBuilder;
 	vertexInputBuilder.AddBinding(vk::VertexInputRate::eVertex)
-		.AddAttribute(vk::Format::eR32G32B32Sfloat, 12)   // Position
+		.AddAttribute(vk::Format::eR32G32B32Sfloat, 12)    // Position
 		.AddAttribute(vk::Format::eR32G32Sfloat, 8)        // UV
 		.AddAttribute(vk::Format::eR32G32B32Sfloat, 12)    // Normal
 		.AddAttribute(vk::Format::eR32G32B32Sfloat, 12)    // Tangent
 		.AddAttribute(vk::Format::eR32G32B32Sfloat, 12);   // Bitangent
 
 	vertexInputBuilder.AddBinding(vk::VertexInputRate::eInstance)
-		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16) // Model Matrix Row 0
-		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16) // Model Matrix Row 1
-		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16) // Model Matrix Row 2
-		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16) // Model Matrix Row 3
-		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16) // Inverse Model Matrix Row 0
-		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16) // Inverse Model Matrix Row 1
-		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16) // Inverse Model Matrix Row 2
+		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16)  // Model Matrix Row 0
+		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16)  // Model Matrix Row 1
+		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16)  // Model Matrix Row 2
+		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16)  // Model Matrix Row 3
+		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16)  // Inverse Model Matrix Row 0
+		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16)  // Inverse Model Matrix Row 1
+		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16)  // Inverse Model Matrix Row 2
 		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16); // Inverse Model Matrix Row 3
 
 	for (int i = 0; i < m_textureCount; i++)

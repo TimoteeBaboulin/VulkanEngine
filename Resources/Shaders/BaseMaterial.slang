@@ -60,25 +60,25 @@ v2f vertexMain(VertexInput inVert, InstanceInput inInst)
     output.position = mul(float4(inVert.position, 1.0f), mvp);
     output.worldPos = mul(float4(inVert.position, 1.0f), inInst.modelMat).xyz;
     output.texCoord = inVert.texCoord.xy;
-    output.normal = normalize(inVert.normal);
+    output.normal = normalize(mul(normalMatrix, inVert.normal));
     output.tangeant = normalize(inVert.tangeant);
     output.bitangeant = normalize(inVert.bitangeant);
     output.texIndex = inInst.index;
 
     return output;
-}   
-
-void ApplyAmbientLighting(in float3 lightCol, inout float3 color)
-{
-    float3 ambient = 0.25f * lightCol;
-    color *= ambient;
 }
 
-void ApplyDiffuseLighting(in float3 lightCol, in float3 normal, in float3 lightDir, inout float3 color)
+float3 CalculateAmbientLighting(in float3 lightCol)
+{
+    float3 ambient = 0.25f * lightCol;
+    return ambient;
+}
+
+float3 CalculateDiffuseLighting(in float3 lightCol, in float3 normal, in float3 lightDir)
 {
     float diffuseStrength = dot(normal, lightDir);
     float3 diffuse = max(diffuseStrength, 0.0f) * lightCol;
-    color *= diffuse;
+    return diffuse;
 }
 
 [RenderPass("color")][shader("fragment")]
@@ -90,8 +90,9 @@ float4 fragmentMain(in v2f input) : SV_TARGET
     float3 lightDir = normalize(input.worldPos - ubo.lightPos);
     float3 normal = normalize(mul(TBN, float3(0.0f, 0.0f, 1.0f)));
 
-    //ApplyAmbientLighting(ubo.lightCol, color.rgb);
-    ApplyDiffuseLighting(ubo.lightCol, normal, lightDir, color.rgb);
+    float3 lighting = CalculateAmbientLighting(ubo.lightCol);
+    lighting += CalculateDiffuseLighting(ubo.lightCol, normal, lightDir);
+    color.rgb *= lighting;
 
     // Return the final color.
     return color;

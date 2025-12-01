@@ -23,6 +23,8 @@ public:
 		bindingDesc.stride = 0; // Will be calculated based on attributes added
 		m_bindings.emplace_back(bindingDesc);
 
+		m_offset = 0;
+
 		return *this;
 	}
 

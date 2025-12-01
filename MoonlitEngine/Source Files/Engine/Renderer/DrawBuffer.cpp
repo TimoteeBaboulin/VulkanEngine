@@ -48,7 +48,8 @@ void DrawBuffer::RemoveMeshInstance(uint32_t _instanceId)
 		RemoveMesh(meshIt);
 	}
 
-	m_modelData.erase(m_modelData.begin() + index);
+	m_modelData.erase(m_modelData.begin() + (index * 2));
+	m_modelData.erase(m_modelData.begin() + (index * 2));
 	m_meshInstances.erase(m_meshInstances.begin() + index);
 
 	SetDeviceLinkDirty();
@@ -87,7 +88,8 @@ uint32_t DrawBuffer::AddMeshInstance(std::shared_ptr<MeshData> _mesh, std::vecto
 	std::vector<uint16_t> textureIndices = GetTextureIndices(_textures);
 
 	m_meshInstances.insert(m_meshInstances.begin() + instanceToSkip, instanceData);
-	m_modelData.insert(m_modelData.begin() + instanceToSkip, _model);
+	m_modelData.insert(m_modelData.begin() + (instanceToSkip * 2), _model);
+	m_modelData.insert(m_modelData.begin() + (instanceToSkip * 2) + 1, glm::inverse(_model));
 
 	m_textureIndices.insert(m_textureIndices.begin() + instanceToSkip * m_material->GetTextureCount(), 
 		std::make_move_iterator(textureIndices.begin()), std::make_move_iterator(textureIndices.end()));
@@ -111,7 +113,8 @@ void DrawBuffer::UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model)
 	}
 
 	size_t index = std::distance(m_meshInstances.begin(), it);
-	m_modelData[index] = _model;
+	m_modelData[index * 2] = _model;
+	m_modelData[index * 2 + 1] = glm::inverse(_model);
 
 	SetDeviceLinkDirty();
 }

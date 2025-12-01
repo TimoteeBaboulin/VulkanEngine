@@ -357,6 +357,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <Bscmake />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Header Files\Engine\Renderer\HelperClasses\VertexInputHelper.h" />
     <ClCompile Include="Source Files\Debug\Exceptions\PluginLoadException.cpp" />
     <ClCompile Include="Source Files\Debug\Profiler.cpp" />
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />

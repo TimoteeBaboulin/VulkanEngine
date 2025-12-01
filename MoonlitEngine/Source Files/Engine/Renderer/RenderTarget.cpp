@@ -387,7 +387,7 @@ void RenderTarget::UpdateUniformBuffer()
 	ubo.proj = glm::perspective(glm::radians(90.0f), m_extent.width / (float)m_extent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1; // Vulkan uses a different coordinate system for Y
 	ubo.lightPos = glm::vec3(2.0f, 4.0f, -2.0f);
-	ubo.lightColor = glm::vec3(0.0f, 1.0f, 0.0f);
+	ubo.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	memcpy(m_uniformBuffersMaps[m_currentFrame], &ubo, sizeof(UniformBufferObject));
 }

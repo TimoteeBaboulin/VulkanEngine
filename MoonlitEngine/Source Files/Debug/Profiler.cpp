@@ -145,7 +145,7 @@ std::vector<ThreadAddressSample> Profiler::GetStackAddresses()
 	{
 		CloseHandle(h_snapshot);
 		DWORD error = GetLastError();
-		LOG_ERROR(TEXTLOG("Profiler::GetProfileSample: Failed to get first thread in snapshot. Error: " + std::to_string(error)));
+		LOG_ERROR("Profiler::GetProfileSample: Failed to get first thread in snapshot. Error: " + std::to_string(error));
 		return stackAddresses;
 	}
 
@@ -168,14 +168,14 @@ std::vector<ThreadAddressSample> Profiler::GetStackAddresses()
 		HANDLE h_thread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadEntry.th32ThreadID);
 		if (!h_thread)
 		{
-			LOG_ERROR(TEXTLOG("Profiler::GetProfileSample: Failed to open thread with ID " + std::to_string(threadEntry.th32ThreadID) + "."));
+			LOG_ERROR("Profiler::GetProfileSample: Failed to open thread with ID " + std::to_string(threadEntry.th32ThreadID) + ".");
 			continue;
 		}
 
 		BOOL result = SuspendThread(h_thread);
 		if (result == (DWORD)-1)
 		{
-			LOG_ERROR(TEXTLOG("Profiler::GetProfileSample: Failed to suspend thread with ID " + std::to_string(threadEntry.th32ThreadID) + "."));
+			LOG_ERROR("Profiler::GetProfileSample: Failed to suspend thread with ID " + std::to_string(threadEntry.th32ThreadID) + ".");
 			CloseHandle(h_thread);
 			continue;
 		}
@@ -184,7 +184,7 @@ std::vector<ThreadAddressSample> Profiler::GetStackAddresses()
 		result = ResumeThread(h_thread);
 		if (result == (DWORD)-1)
 		{
-			LOG_ERROR(TEXTLOG("Profiler::GetProfileSample: Failed to resume thread with ID " + std::to_string(threadEntry.th32ThreadID) + "."));
+			LOG_ERROR("Profiler::GetProfileSample: Failed to resume thread with ID " + std::to_string(threadEntry.th32ThreadID) + ".");
 			CloseHandle(h_thread);
 			continue;
 		}

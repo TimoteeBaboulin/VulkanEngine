@@ -59,7 +59,7 @@ bool MeshBank::TryLoad(std::string _filepath)
     fs::path path(_filepath);
     if (!fs::is_regular_file(path))
     {
-        LOG_ERROR((_filepath + " is not a regular file").c_str());
+        LOG_ERROR(("Couldn't find the file at " + _filepath).c_str());
 		return false;
     }
 

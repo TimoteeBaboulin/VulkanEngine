@@ -35,7 +35,7 @@ void GameobjectChangedTest(GameObject* _obj)
 		Logger::LogInfo("Selected GameObject changed to nullptr");
 		return;
 	}
-	Logger::LogInfo(TEXTLOG("Selected GameObject changed to " + _obj->GetName()));
+	Logger::LogInfo("Selected GameObject changed to " + _obj->GetName());
 }
 
 MoonlitEditor::MoonlitEditor()

@@ -27,13 +27,13 @@ void Logger::LogMessage(const DebugMessage& debugMessage)
 		case DebugMessage::MessageType::Warning:
 		{
 			SetConsoleTextAttribute(_consoleHandle, FOREGROUND_BLUE | FOREGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
-			std::cout << "[WARNING]:\t";
+			std::cout << "[WARNING]\t\t";
 			break;
 		}
 		case DebugMessage::MessageType::Error:
 		{
 			SetConsoleTextAttribute(_consoleHandle, FOREGROUND_BLUE | FOREGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_INTENSITY);
-			std::cout << "[ERROR]:\t";
+			std::cout << "[ERROR]\t\t";
 			break;
 		}
 	}
@@ -52,6 +52,14 @@ void Logger::LogInfo(const char* message)
 	Logger::LogMessage(debugMessage);
 }
 
+void Logger::LogInfo(const std::string& _message)
+{
+	DebugMessage debugMessage;
+	debugMessage.Message = _message.c_str();
+	debugMessage.Type = DebugMessage::MessageType::Info;
+	Logger::LogMessage(debugMessage);
+}
+
 void Logger::LogWarning(const char* message)
 {
 	DebugMessage debugMessage;
@@ -61,11 +69,27 @@ void Logger::LogWarning(const char* message)
 	Logger::LogMessage(debugMessage);
 }
 
+void Logger::LogWarning(const std::string& _message)
+{
+	DebugMessage debugMessage;
+	debugMessage.Message = _message.c_str();
+	debugMessage.Type = DebugMessage::MessageType::Warning;
+	Logger::LogMessage(debugMessage);
+}
+
 void Logger::LogError(const char* message)
 {
 	DebugMessage debugMessage;
 	debugMessage.Message = message;
 	debugMessage.Type = DebugMessage::MessageType::Error;
 
+	Logger::LogMessage(debugMessage);
+}
+
+void Logger::LogError(const std::string& _message)
+{
+	DebugMessage debugMessage;
+	debugMessage.Message = _message.c_str();
+	debugMessage.Type = DebugMessage::MessageType::Error;
 	Logger::LogMessage(debugMessage);
 }

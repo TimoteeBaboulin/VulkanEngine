@@ -8,6 +8,8 @@
 
 #include "MoonlitExport.h"
 
+#include <string>
+
 struct MOONLIT_API DebugMessage
 {
 	const char* Message;
@@ -31,9 +33,12 @@ class MOONLIT_API Logger
 public:
 	static void LogMessage(const DebugMessage& debugMessage);
 
-	static void LogInfo(const char* message);
-	static void LogWarning(const char* message);
-	static void LogError(const char* message);
+	static void LogInfo(const char* _message);
+	static void LogInfo(const std::string& _message);
+	static void LogWarning(const char* _message);
+	static void LogWarning(const std::string& _message);
+	static void LogError(const char* _message);
+	static void LogError(const std::string& _message);
 
 	static void SetLoggerInstance(LoggerBase* loggerInstance) { m_loggerInstance = loggerInstance; }
 

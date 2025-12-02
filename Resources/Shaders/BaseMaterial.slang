@@ -116,6 +116,7 @@ float GeometrySchlickGGX(in float3 normal, in float3 view, in float roughness)
 
 float NormalDistributionGGX(in float3 normal, in float3 halfwayDir, in float roughness)
 {
+    // GGX / Trowbridge-Reitz normal distribution function
     float a = roughness * roughness;
     float NdotH = max(dot(normal, halfwayDir), 0.0f);
     float NdotH2 = NdotH * NdotH;

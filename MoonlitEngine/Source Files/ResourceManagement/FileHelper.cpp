@@ -11,7 +11,7 @@ std::vector<char> FileHelper::ReadFile(std::string _path)
 
 	if (!stream.is_open())
 	{
-		Logger::LogWarning(("Failed to open file: " + _path).c_str());
+		Logger::LogWarning("Failed to open file: " + _path);
 		return buffer;
 	}
 

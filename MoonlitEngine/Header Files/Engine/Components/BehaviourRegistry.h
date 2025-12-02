@@ -50,7 +50,7 @@ public:
 			}
 		}
 
-		LOG_ERROR(("Behaviour of type " + std::string(typeid(T).name()) + " not found in registry").c_str());
+		LOG_ERROR("Behaviour of type " + std::string(typeid(T).name()) + " not found in registry");
 		return nullptr;
 	}
 	static ObjectBehaviour* CreateBehaviour(const std::string& name, GameObject* _parent)
@@ -62,7 +62,7 @@ public:
 				return it->CreateFunction(_parent);
 			}
 		}
-		LOG_ERROR(("Behaviour of type " + name + " not found in registry").c_str());
+		LOG_ERROR("Behaviour of type " + name + " not found in registry");
 		return nullptr;
 	}
 	static ObjectBehaviour* CreateBehaviour(const std::type_info& _info, GameObject* _parent)
@@ -74,7 +74,7 @@ public:
 				return it->CreateFunction(_parent);
 			}
 		}
-		LOG_ERROR(("Behaviour of type " + std::string(_info.name()) + " not found in registry").c_str());
+		LOG_ERROR("Behaviour of type " + std::string(_info.name()) + " not found in registry");
 		return nullptr;
 	}
 

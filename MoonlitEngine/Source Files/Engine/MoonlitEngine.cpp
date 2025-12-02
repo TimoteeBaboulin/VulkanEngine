@@ -36,7 +36,7 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 	}
 	catch (PluginLoadException& e)
 	{
-		Logger::LogError(("Error loading plugin: " + std::string(e.what())).c_str());
+		Logger::LogError("Error loading plugin: " + std::string(e.what()));
 		if (e.Error() == PluginLoadError::REGISTER_FUNCTION_MISSING)
 		{
 			// Since this is the default plugin, freeing the library is our job
@@ -55,7 +55,7 @@ void MoonlitEngine::LoadPlugin(std::string _name)
 	if (pluginHandle == NULL)
 	{
 		DWORD error = GetLastError();
-		Logger::LogError(("Failed to load plugin: " + _name + " Error: " + std::to_string(error)).c_str());
+		Logger::LogError("Failed to load plugin: " + _name + " Error: " + std::to_string(error));
 		throw PluginLoadException(PluginLoadError::FILE_NOT_FOUND, _name);
 		return;
 	}
@@ -63,7 +63,7 @@ void MoonlitEngine::LoadPlugin(std::string _name)
 	FARPROC registerFunction = GetProcAddress(pluginHandle, "GetRegistry");
 	if (!registerFunction)
 	{
-		Logger::LogError(("Failed to find GetRegistry function in plugin: " + _name).c_str());
+		Logger::LogError("Failed to find GetRegistry function in plugin: " + _name);
 		throw PluginLoadException(PluginLoadError::REGISTER_FUNCTION_MISSING, _name, pluginHandle);
 		return;
 	}
@@ -74,7 +74,7 @@ void MoonlitEngine::LoadPlugin(std::string _name)
 	{
 		BehaviourRegistry::RegisterBehaviour((*it).Name, (*it).CreateFunction);
 	}
-	LOG_INFO(("Plugin loaded and behaviours registered: " + _name).c_str());
+	LOG_INFO("Plugin loaded and behaviours registered: " + _name);
 }
 
 void MoonlitEngine::Init()

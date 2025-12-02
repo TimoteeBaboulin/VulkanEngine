@@ -15,7 +15,7 @@ bool TextureBank::TryLoad(std::string _filepath)
     fs::path path(_filepath);
     if (!fs::is_regular_file(path))
     {
-		LOG_ERROR((_filepath + " is not a regular file").c_str());
+		LOG_ERROR(_filepath + " is not a regular file");
         return false;
     }
     std::string name = path.stem().string();
@@ -23,7 +23,7 @@ bool TextureBank::TryLoad(std::string _filepath)
 	
     if (Exist(name))
     {
-		Logger::LogWarning(("Mesh with name " + name + " already exist in MeshBank.").c_str());
+		Logger::LogWarning("Mesh with name " + name + " already exist in MeshBank.");
         return false;
     }
 

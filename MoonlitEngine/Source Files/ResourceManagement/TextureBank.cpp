@@ -19,13 +19,14 @@ bool TextureBank::TryLoad(std::string _filepath)
         return false;
     }
     std::string name = path.stem().string();
-	std::shared_ptr<Image> texturePtr = std::make_shared<Image>();
-	
+
     if (Exist(name))
     {
-		Logger::LogWarning("Mesh with name " + name + " already exist in MeshBank.");
+        Logger::LogWarning("Mesh with name " + name + " already exist in MeshBank.");
         return false;
     }
+
+	std::shared_ptr<Image> texturePtr = std::make_shared<Image>();
 
     *texturePtr.get() = ImageHelper::LoadFromFile(_filepath);
 

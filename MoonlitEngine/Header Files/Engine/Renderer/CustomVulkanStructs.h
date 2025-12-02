@@ -36,10 +36,12 @@ struct UniformBufferObject {
 	glm::mat4 view;
 	glm::mat4 proj;
 
-	glm::vec3 lightPos;
+	glm::vec3 cameraPos;
 	float padding = 0.0f;
-	glm::vec3 lightColor;
+	glm::vec3 lightPos;
 	float padding2 = 0.0f;
+	glm::vec3 lightColor;
+	float padding3 = 0.0f;
 };
 
 struct RenderQueues

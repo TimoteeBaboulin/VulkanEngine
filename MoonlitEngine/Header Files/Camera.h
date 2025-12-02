@@ -12,6 +12,8 @@ struct MOONLIT_API Camera
 	void Rotate(glm::vec3 _axis, float _amount);
 	void Translate(glm::vec3 _vec);
 
+	glm::vec3 GetPosition() const { return Position; };
+
 	glm::vec3 GetRightVector() const;
 	glm::vec3 GetForwardVector() const;
 	glm::vec3 GetUpVector() const;

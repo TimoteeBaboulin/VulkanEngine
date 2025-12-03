@@ -1,22 +1,32 @@
 #include "Editor/Windows/Widgets/BehaviourWidget.h"
 
 #include "Debug/Logger.h"
+#include "Engine/Components/BehaviourRegistry.h"
 
 #include <qboxlayout.h>
 
-BehaviourWidget::BehaviourWidget(ObjectBehaviour* _behaviour)
+BehaviourEditor::BehaviourEditor(ObjectBehaviour* _behaviour)
 	: QFrame()
 {
-	SetUI();
 	m_behaviour = _behaviour;
+
+	SetUI();
 	ReadParameters();
 }
 
-void BehaviourWidget::ReadParameters()
+BehaviourEditor::~BehaviourEditor()
 {
-	while (m_layout->itemAt(0))
+	for (auto& widget : m_widgets)
 	{
-		m_layout->removeItem(m_layout->itemAt(0));
+		delete widget;
+	}
+}
+
+void BehaviourEditor::ReadParameters()
+{
+	while (m_layout->itemAt(1))
+	{
+		m_layout->removeItem(m_layout->itemAt(1));
 	}
 
 	for (auto& widget : m_widgets)
@@ -38,7 +48,7 @@ void BehaviourWidget::ReadParameters()
 	}
 }
 
-void BehaviourWidget::SetUI()
+void BehaviourEditor::SetUI()
 {
 	setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 	setLineWidth(1);
@@ -48,6 +58,15 @@ void BehaviourWidget::SetUI()
 	m_layout->setSpacing(6);
 	m_layout->setContentsMargins(6, 6, 6, 6);
 	setLayout(m_layout);
+
+	m_name = new QLabel();
+	std::string typeName = typeid(*m_behaviour).name();
+	typeName = ClassNameFromTypeName(typeName.c_str());
+	QString behaviourName = QString::fromStdString(typeName);
+	m_name->setText(behaviourName);
+	m_name->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	m_name->setAlignment(Qt::AlignLeft);
+	m_layout->addWidget(m_name);
 
 	QSizePolicy policy;
 	//policy.setVerticalPolicy(QSizePolicy)

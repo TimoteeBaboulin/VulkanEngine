@@ -42,13 +42,6 @@ MoonlitEditor::MoonlitEditor()
 {
 	ads::CDockManager::setConfigFlags(ads::CDockManager::DefaultOpaqueConfig);
 
-	GameObject* testObj = GameObject::Create();
-	{
-		ScopedEventSubscriber<GameObject*> subscriber(MoonlitEditor::OnSelectionChanged(), GameobjectChangedTest);
-		MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
-	}
-	MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
-
 	Editor = this;
 
 	//Needed for application initialization
@@ -76,8 +69,6 @@ MoonlitEditor::MoonlitEditor()
 
 	m_editorWindows.push_back(new SceneHierarchy(m_dockManager));
 	m_editorWindows.push_back(new ObjectInspector(*m_dockManager));
-
-	MoonlitEditor::OnSelectionChanged().Invoke(nullptr, testObj);
 
 	m_updateCallback = std::bind(&MoonlitEngine::Update, m_engine);
 

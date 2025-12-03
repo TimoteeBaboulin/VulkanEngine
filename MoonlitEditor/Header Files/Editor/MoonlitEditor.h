@@ -33,6 +33,7 @@ public:
 
 	MoonlitEngine& GetEngine() { return *m_engine; }
 	QApplication& GetApplication() { return *m_app; }
+
 private:
 	EditorMainWindow* m_mainWindow = nullptr;
 	MoonlitEngine* m_engine = nullptr;

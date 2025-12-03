@@ -1,13 +1,16 @@
 #pragma once
 
 #include <qwidget.h>
+#include <qlabel.h>
+
 #include "Engine/Components/ObjectBehaviour.h"
 #include "ParameterWidget.h"
 
-class BehaviourWidget : public QFrame
+class BehaviourEditor : public QFrame
 {
 public:
-	BehaviourWidget(ObjectBehaviour* _behaviour);
+	BehaviourEditor(ObjectBehaviour* _behaviour);
+	~BehaviourEditor();
 
 private:
 	void ReadParameters();
@@ -15,5 +18,6 @@ private:
 
 	ObjectBehaviour* m_behaviour = nullptr;
 	QLayout* m_layout = nullptr;
+	QLabel* m_name = nullptr;
 	std::vector<ParameterWidget*> m_widgets;
 };

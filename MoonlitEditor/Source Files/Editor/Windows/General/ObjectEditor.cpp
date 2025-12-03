@@ -11,6 +11,7 @@ ObjectInspector::ObjectInspector(IDockManager& _manager)
 	: EditorWindowBase(nullptr)
 	, m_selectionChangedSubscriber(MoonlitEditor::OnSelectionChanged(), std::bind(&ObjectInspector::OnSelectedObjectChanged, this, std::placeholders::_1))
 {
+	m_newBehaviourWidget = nullptr;
 	_manager.AddWidget(this, "Object Inspector", ads::DockWidgetArea::RightDockWidgetArea);
 	SetUI();
 }
@@ -28,6 +29,16 @@ void ObjectInspector::OnSelectedObjectChanged(GameObject* _obj)
 	}
 	m_behaviourWidgets.clear();
 
+	if (m_newBehaviourWidget)
+	{
+		m_contentLayout->removeWidget(m_newBehaviourWidget);
+		m_newBehaviourWidget->SetGameObject(_obj);
+	}
+	else
+	{
+		m_newBehaviourWidget = new BehaviourCreationWidget(_obj, m_contentWidget);
+	}
+
 	if (!_obj)
 		return;
 
@@ -36,12 +47,14 @@ void ObjectInspector::OnSelectedObjectChanged(GameObject* _obj)
 	// Add new behaviour widgets to the content layout
 	for (auto& behaviour : behaviours)
 	{
-		BehaviourWidget* bw = new BehaviourWidget(behaviour);
+		BehaviourEditor* bw = new BehaviourEditor(behaviour);
 		m_behaviourWidgets.push_back(bw);
 		if (m_contentLayout)
 			m_contentLayout->addWidget(bw);
 	}
 
+	if (m_contentLayout)
+		m_contentLayout->addWidget(m_newBehaviourWidget);
 	// optional: push a stretch at the end to keep them at the top if needed
 	// (not required if alignment is Qt::AlignTop and the content widget height fits)
 	// static_cast<QVBoxLayout*>(m_contentLayout)->addStretch();

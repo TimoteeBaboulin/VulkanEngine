@@ -5,6 +5,7 @@
 
 #include "Engine/Events/EventUtility.h"
 #include "Editor/Windows/Widgets/BehaviourWidget.h"
+#include "Editor/Windows/Widgets/BehaviourCreationWidget.h"
 
 #include <qscrollarea.h>
 
@@ -27,5 +28,6 @@ private:
 	QLayout* m_contentLayout = nullptr;
 
 	// store behaviour widgets by pointer (owned and deleted by this inspector)
-	std::vector<BehaviourWidget*> m_behaviourWidgets;
+	std::vector<BehaviourEditor*> m_behaviourWidgets;
+	BehaviourCreationWidget* m_newBehaviourWidget = nullptr;
 };

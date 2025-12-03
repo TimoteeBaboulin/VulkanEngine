@@ -11,7 +11,8 @@ public:
 	Vector3ParameterEditor(const ParameterRepositoryEntry& _entry, QWidget* _parent = nullptr);
 	~Vector3ParameterEditor();
 
-	void AddToLayout(QLayout* _layout);
+	void AddToLayout(QLayout* _layout) override;
+	void RemoveFromLayout(QLayout* _layout) override;
 
 private:
 	void SetUpUI();

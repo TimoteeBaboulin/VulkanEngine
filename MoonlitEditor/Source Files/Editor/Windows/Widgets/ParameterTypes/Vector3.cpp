@@ -28,6 +28,15 @@ void Vector3ParameterEditor::AddToLayout(QLayout* _layout)
 	}
 }
 
+void Vector3ParameterEditor::RemoveFromLayout(QLayout* _layout)
+{
+	for (int i = 0; i < 3; ++i)
+	{
+		_layout->removeWidget(m_labels[i]);
+		_layout->removeWidget(m_lineEdits[i]);
+	}
+}
+
 void Vector3ParameterEditor::SetUpUI()
 {
 	QRegularExpression* regex = new QRegularExpression("^[\-0-9,\.]*$");

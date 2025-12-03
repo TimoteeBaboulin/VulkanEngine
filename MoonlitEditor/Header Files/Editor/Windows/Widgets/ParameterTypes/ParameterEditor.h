@@ -31,6 +31,7 @@ public:
 	}
 
 	virtual void AddToLayout(QLayout* _layout) = 0;
+	virtual void RemoveFromLayout(QLayout* _layout) = 0;
 
 protected:
 	ParameterRepositoryEntry m_entry;

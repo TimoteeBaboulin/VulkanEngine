@@ -19,6 +19,7 @@ protected:
 	const ParameterRepositoryEntry& m_entry;
 	ObjectBehaviour* m_behaviour;
 	QLayout* m_layout;
+	QLabel* m_name;
 
 	std::vector<class ParameterEditor*> m_parameterEditors;
 };

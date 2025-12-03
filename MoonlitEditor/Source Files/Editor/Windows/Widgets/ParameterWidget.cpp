@@ -27,23 +27,22 @@ ParameterWidget::ParameterWidget(const ParameterWidget& _toCopy)
 
 ParameterWidget::~ParameterWidget()
 {
-	QWidget::~QWidget();
-
 	for (ParameterEditor* editor : m_parameterEditors)
 	{
 		delete editor;
 	}
 
+	delete m_name;
 	delete m_layout;
 }
 
 void ParameterWidget::SetUI()
 {
 	m_layout = new QBoxLayout(QBoxLayout::LeftToRight);
-	QLabel* name = new QLabel(QString::fromStdString(m_entry.Name));
-	name->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	name->setAlignment(Qt::AlignLeft);
-	m_layout->addWidget(name);
+	m_name = new QLabel(QString::fromStdString(m_entry.Name));
+	m_name->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	m_name->setAlignment(Qt::AlignLeft);
+	m_layout->addWidget(m_name);
 	m_layout->setSpacing(6);
 	m_layout->setContentsMargins(6, 6, 6, 6);
 	m_layout->setAlignment(Qt::AlignLeft);

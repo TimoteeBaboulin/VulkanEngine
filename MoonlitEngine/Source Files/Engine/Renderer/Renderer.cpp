@@ -98,6 +98,11 @@ void MoonlitRenderer::UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _mod
 	m_drawBuffers[0]->UpdateInstanceModel(_instanceId, _model);
 }
 
+void MoonlitRenderer::UpdateInstanceMesh(uint32_t _instanceId, std::shared_ptr<MeshData> _mesh)
+{
+	m_drawBuffers[0]->UpdateInstanceMesh(_instanceId, _mesh);
+}
+
 void MoonlitRenderer::RemoveMeshInstance(uint32_t _instanceId)
 {
 	m_drawBuffers[0]->RemoveMeshInstance(_instanceId);

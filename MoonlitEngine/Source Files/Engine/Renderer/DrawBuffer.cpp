@@ -119,6 +119,53 @@ void DrawBuffer::UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model)
 	SetDeviceLinkDirty();
 }
 
+void DrawBuffer::UpdateInstanceMesh(uint32_t _instanceId, std::shared_ptr<MeshData> _mesh)
+{
+	// Find the instance data
+	auto it = std::find_if(m_meshInstances.begin(), m_meshInstances.end(),
+		[_instanceId](const InstanceData& _data)
+		{
+			return _data.Id == _instanceId;
+		});
+
+	if (it == m_meshInstances.end())
+	{
+		LOG_WARNING("Trying to update mesh instance that isn't in the draw buffer.");
+		return;
+	}
+
+	auto meshIt = FindMeshEntry((*it).MeshHandle);
+	if (meshIt == m_meshEntries.end())
+	{
+		LOG_ERROR("No corresponding Mesh loaded despite the instance existing");
+		throw std::runtime_error("Mesh entry not found!");
+	}
+
+	// Decrease the instance count of the old mesh
+	(*meshIt).InstanceCount--;
+
+	// Remove the old mesh if it is no longer used in order to keep the buffers clean
+	if ((*meshIt).InstanceCount == 0)
+	{
+		RemoveMesh(meshIt);
+	}
+
+	// Get the new mesh handle and entry
+	intptr_t newMeshHandle = reinterpret_cast<intptr_t>(_mesh.get());
+	auto newMeshIt = FindMeshEntry(newMeshHandle);
+
+	// Insert the new mesh in case it doesn't already exist
+	if (newMeshIt == m_meshEntries.end())
+	{
+		InsertMesh(_mesh);
+		newMeshIt = m_meshEntries.end() - 1;
+	}
+	(*newMeshIt).InstanceCount++;
+	(*it).MeshHandle = newMeshHandle;
+
+	SetDeviceLinkDirty();
+}
+
 void DrawBuffer::LinkTarget(RenderTarget& _renderTarget)
 {
 	auto it = FindDeviceLink(_renderTarget);
@@ -204,9 +251,42 @@ void DrawBuffer::InsertMesh(std::shared_ptr<MeshData> _mesh)
 	newEntry.Data.triangleCount = _mesh->triangleCount;
 }
 
-void DrawBuffer::RemoveMesh(std::vector<MeshEntry>::iterator _instanceIt)
+void DrawBuffer::RemoveMesh(std::vector<MeshEntry>::iterator _meshIt)
 {
-	//TODO: add mesh removal
+	// Ensure no instances are using this mesh anymore
+	assert((*_meshIt).InstanceCount == 0);
+
+	// Remove vertex and index data from the buffers
+	auto vertexStartIt = m_vertexData.begin();
+	for (auto it = m_meshEntries.begin(); it != _meshIt; it++)
+	{
+		vertexStartIt += (*it).Data.vertexCount;
+	}
+
+	m_vertexData.erase(vertexStartIt, vertexStartIt + (*_meshIt).Data.vertexCount);
+
+	auto indexStartIt = m_indexData.begin();
+	size_t indexOffset = 0;
+	for (auto it = m_meshEntries.begin(); it != _meshIt; it++)
+	{
+		indexStartIt += (*it).Data.triangleCount * 3;
+		indexOffset += (*it).Data.triangleCount * 3;
+	}
+	m_indexData.erase(indexStartIt, indexStartIt + (*_meshIt).Data.triangleCount * 3);
+	// Fix indices after the removed mesh
+	while (indexOffset < m_indexData.size())
+	{
+		m_indexData[indexOffset] -= static_cast<uint16_t>((*_meshIt).Data.vertexCount);
+		indexOffset++;
+	}
+
+	m_vertexCount -= (*_meshIt).Data.vertexCount;
+	m_indexCount -= (*_meshIt).Data.triangleCount * 3;
+
+	delete[](*_meshIt).Data.vertices;
+	delete[](*_meshIt).Data.indices;
+
+	m_meshEntries.erase(_meshIt);
 	return;
 }
 

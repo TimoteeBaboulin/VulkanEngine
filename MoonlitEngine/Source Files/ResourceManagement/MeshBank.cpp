@@ -76,22 +76,17 @@ bool MeshBank::TryLoad(std::string _filepath)
     }
 
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(_filepath, aiPostProcessSteps::aiProcess_OptimizeMeshes | aiPostProcessSteps::aiProcess_Triangulate | aiPostProcessSteps::aiProcess_FlipUVs | aiPostProcessSteps::aiProcess_GenNormals | aiPostProcessSteps::aiProcess_CalcTangentSpace);
+    const aiScene* scene = importer.ReadFile(_filepath, 
+        aiPostProcessSteps::aiProcess_Triangulate | 
+        aiPostProcessSteps::aiProcess_OptimizeMeshes | 
+        aiPostProcessSteps::aiProcess_GenNormals | 
+        aiPostProcessSteps::aiProcess_CalcTangentSpace |
+        aiPostProcessSteps::aiProcess_ImproveCacheLocality);
     if (scene == nullptr)
     {
         std::string errorMessage = importer.GetErrorString();
         throw new std::runtime_error(errorMessage);
     }
-
-    if (!scene->mMeshes[0]->HasNormals())
-    {
-        scene = importer.ApplyPostProcessing(aiPostProcessSteps::aiProcess_GenNormals);
-    }
-
-    if (scene->mMeshes[0]->mTangents == nullptr)
-    {
-        scene = importer.ApplyPostProcessing(aiPostProcessSteps::aiProcess_CalcTangentSpace);
-	}
 
     std::shared_ptr<MeshData> meshPtr = std::make_shared<MeshData>();
     *meshPtr = GetMesh(scene->mMeshes[0]);

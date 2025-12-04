@@ -14,11 +14,15 @@ public:
 
 	~MeshRendererBehaviour();
 
+	std::vector<ParameterRepositoryEntry> GetParameterEntries() override;
+
 private:
 	void LookForTransformComponent();
 	void UpdateMeshInstanceModel();
 
 	class TransformBehaviour* m_transformComponent = nullptr;
+
+	std::shared_ptr<MeshData> m_meshData = nullptr;
 
 	ScopedEventSubscriber<>* m_transformChangedSubscriber = nullptr;
 	uint32_t m_instanceId = 0;

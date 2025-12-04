@@ -19,9 +19,8 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner)
 	m_transformChangedSubscriber = new ScopedEventSubscriber(m_transformComponent->OnTransformChanged,
 		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
-	std::shared_ptr<MeshData> defaultMesh;
 	ResourceManager* m_manager = ResourceManager::Get();
-	if (!m_manager->TryGetResource<MeshData>("barstool", defaultMesh))
+	if (!m_manager->TryGetResource<MeshData>("Corpo_Model", m_meshData))
 	{
 		LOG_ERROR("Failed to load default mesh barstool_mesh from ResourceManager.");
 		throw std::runtime_error("Failed to load default mesh barstool_mesh from ResourceManager.");
@@ -37,7 +36,15 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner)
 	std::vector<std::shared_ptr<Image>> textures;
 	textures.push_back(firstTexture);
 
-	m_instanceId = MoonlitEngine::GetInstance()->Renderer->AddMeshInstance(defaultMesh, textures, m_transformComponent->GetModelMat());
+	m_instanceId = MoonlitEngine::GetInstance()->Renderer->AddMeshInstance(m_meshData, textures, m_transformComponent->GetModelMat());
+
+	//if (!m_manager->TryGetResource<MeshData>("Corpo_Model", m_meshData))
+	//{
+	//	LOG_ERROR("Failed to load default mesh barstool_mesh from ResourceManager.");
+	//	throw std::runtime_error("Failed to load default mesh barstool_mesh from ResourceManager.");
+	//}
+
+	//MoonlitEngine::GetInstance()->Renderer->UpdateInstanceMesh(m_instanceId, m_meshData);
 }
 
 MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner, std::shared_ptr<MeshData> _mesh) : ObjectBehaviour(_owner)
@@ -46,6 +53,8 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner, std::shared_ptr
 
 	m_transformChangedSubscriber = new ScopedEventSubscriber(m_transformComponent->OnTransformChanged,
 		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
+
+	m_meshData = _mesh;
 
 	std::shared_ptr<Image> firstTexture;
 	std::vector<std::shared_ptr<Image>> textures;
@@ -63,6 +72,19 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner, std::shared_ptr
 MeshRendererBehaviour::~MeshRendererBehaviour()
 {
 	delete m_transformChangedSubscriber;
+}
+
+std::vector<ParameterRepositoryEntry> MeshRendererBehaviour::GetParameterEntries()
+{
+	std::vector<ParameterRepositoryEntry> entries = ObjectBehaviour::GetParameterEntries();
+	entries.push_back(ParameterRepositoryEntry{
+		"Model",
+		typeid(m_meshData).name(),
+		sizeof(std::shared_ptr<MeshData>),
+		&m_meshData
+		});
+
+	return entries;
 }
 
 void MeshRendererBehaviour::LookForTransformComponent()

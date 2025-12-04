@@ -59,6 +59,7 @@ public:
 		std::vector<std::shared_ptr<Image>> _textures,
 		glm::mat4x4 _model);
 	void UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model);
+	void UpdateInstanceMesh(uint32_t _instanceId, std::shared_ptr<MeshData> _mesh);
 
 	//TODO: Add a remove target function
 	

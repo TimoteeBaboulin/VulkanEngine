@@ -49,7 +49,7 @@ class RenderTarget;
 class DrawBuffer
 {
 public:
-	DrawBuffer(Material* _material);
+	DrawBuffer(Material* _material, DeviceData _deviceData);
 	~DrawBuffer();
 
 	//DATA MANAGEMENT----------------------------------------------------------------------
@@ -60,10 +60,6 @@ public:
 		glm::mat4x4 _model);
 	void UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model);
 	void UpdateInstanceMesh(uint32_t _instanceId, std::shared_ptr<MeshData> _mesh);
-
-	//TODO: Add a remove target function
-	
-	void LinkTarget(RenderTarget& _renderTarget);
 
 	//RENDER-------------------------------------------------------------------------------
 	
@@ -85,7 +81,7 @@ public:
 private:
 	//DATA---------------------------------------------------------------------------------
 	
-	std::vector<BufferDeviceLink> m_deviceLinks;
+	DrawBufferDeviceBridge m_deviceBridge;
 	Material* m_material;
 
 	////Mesh Entries
@@ -106,7 +102,7 @@ private:
 	std::vector<glm::mat4x4> m_modelData;
 	std::vector<uint32_t> m_textureIndices;
 
-	//DATA COUNTS--------------------------------------------------------------------------
+	//COUNTERS--------------------------------------------------------------------------
 	
 	uint32_t m_vertexCount;
 	uint32_t m_indexCount;
@@ -130,5 +126,4 @@ private:
 	std::vector<TextureSlot>::iterator FindTexture(intptr_t _texHandle);
 
 	void SetDeviceLinkDirty();
-	std::vector<BufferDeviceLink>::iterator FindDeviceLink(RenderTarget& _target);
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Inputs/InputManager.h"
+#include "CustomVulkanStructs.h"
 #include "common.h"
 
 #include <string>
@@ -45,6 +46,8 @@ public:
 private:
 	RendererContext* m_context;
 	RendererDeviceManager* m_deviceManager;
+
+	DeviceData m_deviceData;
 
 	std::vector<RenderTarget*> m_renderTargets;
 

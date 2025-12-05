@@ -17,6 +17,8 @@ MeshData GetMesh(aiMesh* _mesh)
     mesh.vertices = new Vertex[mesh.vertexCount];
 
 	bool hasUVs = _mesh->HasTextureCoords(0);
+	bool hasNormals = _mesh->HasNormals();
+	bool hasTangentsAndBitangents = _mesh->HasTangentsAndBitangents();
 
     for (int i = 0; i < _mesh->mNumVertices; i++)
     {
@@ -31,17 +33,23 @@ MeshData GetMesh(aiMesh* _mesh)
             vertex.uv.y = _mesh->mTextureCoords[0][i].y;
         }
 
-		vertex.normal.x = _mesh->mNormals[i].x;
-		vertex.normal.y = _mesh->mNormals[i].y;
-		vertex.normal.z = _mesh->mNormals[i].z;
+        if (hasNormals)
+        {
+            vertex.normal.x = _mesh->mNormals[i].x;
+            vertex.normal.y = _mesh->mNormals[i].y;
+            vertex.normal.z = _mesh->mNormals[i].z;
+        }
 
-		vertex.tangeant.x = _mesh->mTangents[i].x;
-		vertex.tangeant.y = _mesh->mTangents[i].y;
-		vertex.tangeant.z = _mesh->mTangents[i].z;
+        if (hasTangentsAndBitangents)
+        {
+            vertex.tangeant.x = _mesh->mTangents[i].x;
+            vertex.tangeant.y = _mesh->mTangents[i].y;
+            vertex.tangeant.z = _mesh->mTangents[i].z;
 
-		vertex.bitangeant.x = _mesh->mBitangents[i].x;
-		vertex.bitangeant.y = _mesh->mBitangents[i].y;
-		vertex.bitangeant.z = _mesh->mBitangents[i].z;
+            vertex.bitangeant.x = _mesh->mBitangents[i].x;
+            vertex.bitangeant.y = _mesh->mBitangents[i].y;
+            vertex.bitangeant.z = _mesh->mBitangents[i].z;
+        }
     }
     mesh.triangleCount = _mesh->mNumFaces;
     mesh.indices = new uint16_t[mesh.triangleCount * 3];
@@ -77,11 +85,9 @@ bool MeshBank::TryLoad(std::string _filepath)
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(_filepath, 
-        aiPostProcessSteps::aiProcess_Triangulate | 
-        aiPostProcessSteps::aiProcess_OptimizeMeshes | 
-        aiPostProcessSteps::aiProcess_GenNormals | 
-        aiPostProcessSteps::aiProcess_CalcTangentSpace |
-        aiPostProcessSteps::aiProcess_ImproveCacheLocality);
+        aiPostProcessSteps::aiProcess_Triangulate |
+        aiPostProcessSteps::aiProcess_GenNormals |
+        aiPostProcessSteps::aiProcess_CalcTangentSpace);
     if (scene == nullptr)
     {
         std::string errorMessage = importer.GetErrorString();

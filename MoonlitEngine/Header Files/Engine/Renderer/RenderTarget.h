@@ -47,7 +47,7 @@ public:
 	DeviceData GetDeviceData() const { return m_deviceData; }
 	vk::DescriptorSetLayout GetUBODescriptorSetLayout() const { return m_uboDescriptorSetLayout; }
 	vk::DescriptorSet* GetDescriptorSet() { return &m_descriptorSets[0]; }
-	vk::RenderPass GetRenderPass() const { return m_renderPass; }
+	//vk::RenderPass GetRenderPass() const { return m_renderPass; }
 	uint16_t GetSubpassIndexByName(const std::string& _name) const;
 	std::vector<SubpassInfo> GetSubpassInfos() const { return m_subpassInfos; }
 #pragma endregion //Getters
@@ -84,9 +84,8 @@ private:
 	vk::ImageView* m_swapChainDepthImageViews = nullptr;
 	vk::DeviceMemory m_swapChainDepthMemory;
 
-	vk::Framebuffer* m_swapChainFramebuffers = nullptr;
+	//vk::Framebuffer* m_swapChainFramebuffers = nullptr;
 
-	vk::RenderPass m_renderPass;
 	std::vector<SubpassInfo> m_subpassInfos;
 	std::map<std::string, uint32_t> m_subpassNameToIndexMap;
 #pragma endregion //Swapchain Data

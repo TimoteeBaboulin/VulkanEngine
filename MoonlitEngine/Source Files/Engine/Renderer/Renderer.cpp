@@ -44,6 +44,7 @@ void MoonlitRenderer::InitContext(ContextInfo& _info, std::vector<const char*> r
 	vk::ApplicationInfo appInfo = GetAppInfo(_info.name);
 	m_instance = m_context->CreateInstance(appInfo, requiredExtensions.data(), requiredExtensions.size());
 	m_deviceManager = new RendererDeviceManager(*m_instance);
+	m_deviceData = m_deviceManager->GetDeviceData();
 	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&MoonlitRenderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
 }
 
@@ -62,7 +63,7 @@ void MoonlitRenderer::InitRenderer()
 
 	// TODO: Make the resource manager handle loading the material
 	Material* defaultMaterial = new Material("Shaders/BaseMaterial.slang");
-	m_drawBuffers.push_back(new DrawBuffer(defaultMaterial));
+	m_drawBuffers.push_back(new DrawBuffer(defaultMaterial, m_deviceData));
 }
 
 void MoonlitRenderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensions)
@@ -74,7 +75,6 @@ void MoonlitRenderer::Init(ContextInfo& _info, std::vector<const char*> required
 
 void MoonlitRenderer::Cleanup()
 {
-	m_deviceManager->WaitIdleDevices();
 
 	for (auto& renderTarget : m_renderTargets)
 	{
@@ -111,10 +111,6 @@ void MoonlitRenderer::RemoveMeshInstance(uint32_t _instanceId)
 RenderTarget* MoonlitRenderer::AddRenderTarget(void* _handle, Camera* _camera)
 {
 	m_renderTargets.push_back(new RenderTarget(3, (HWND)_handle, *m_instance, _camera, m_deviceManager));
-	for (auto it = m_drawBuffers.begin(); it != m_drawBuffers.end(); it++)
-	{
-		(*it)->LinkTarget(*m_renderTargets.back());
-	}
 	return m_renderTargets.back();
 }
 

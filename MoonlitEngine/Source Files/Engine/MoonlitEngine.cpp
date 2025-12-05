@@ -26,7 +26,13 @@ MoonlitEngine::MoonlitEngine(void* _handle)
 	Renderer = new MoonlitRenderer();
 	ContextInfo contextInfo;
 	contextInfo.name = "Moonlit Engine";
-	Renderer->Init(contextInfo, {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_win32_surface"});
+
+	std::vector<const char*> requiredExtensions;
+	requiredExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+	requiredExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+	//requiredExtensions.push_back(VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME);
+
+	Renderer->Init(contextInfo, requiredExtensions);
 
 	Logger::LogInfo("Moonlit Engine initialized successfully.");
 

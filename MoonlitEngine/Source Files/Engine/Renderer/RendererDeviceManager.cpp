@@ -5,9 +5,24 @@
 #include "Engine/Renderer/CustomVulkanStructs.h"
 #include "Engine/Renderer/RenderTarget.h"
 
+#include "Debug/Logger.h"
+
 RendererDeviceManager::RendererDeviceManager(vk::Instance _instance)
 {
 	m_vulkanInstance = _instance;
+	PickPhysicalDevice();
+
+	vk::Win32SurfaceCreateInfoKHR surfaceCreateInfo{};
+	surfaceCreateInfo.sType = vk::StructureType::eWin32SurfaceCreateInfoKHR;
+	surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
+	surfaceCreateInfo.hwnd = GetConsoleWindow();
+
+	vk::SurfaceKHR headlessSurface = m_vulkanInstance.createWin32SurfaceKHR(surfaceCreateInfo);
+
+	InitKHRQueues(headlessSurface);
+	CreateLogicalDevice(m_selectedDeviceData);
+	GetQueueHandles(m_selectedDeviceData);
+	m_vulkanInstance.destroySurfaceKHR(headlessSurface);
 }
 
 RendererDeviceManager::~RendererDeviceManager()
@@ -15,94 +30,32 @@ RendererDeviceManager::~RendererDeviceManager()
 	Cleanup();
 }
 
+void RendererDeviceManager::InitKHRQueues(vk::SurfaceKHR _surface)
+{
+	vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_selectedPhysicalDevice.getSurfaceCapabilitiesKHR(_surface);
+	bool swapChainAdequate = false;
+	SwapChainSupportDetails swapChainSupportDetails;
+
+	GetKHRPresentQueue(_surface);
+
+	swapChainSupportDetails = QuerySwapChainSupportDetails(_surface, m_selectedPhysicalDevice);
+	swapChainAdequate = !swapChainSupportDetails.formats.empty() && !swapChainSupportDetails.presentModes.empty();
+
+	if (swapChainAdequate)
+		m_selectedDeviceData.SwapChainSupportDetails = swapChainSupportDetails;
+}
+
 void RendererDeviceManager::Cleanup()
 {
-	m_renderTargets.clear();
-
-	for (auto& deviceData : m_devices)
-	{
-		deviceData.Device.destroy();
-	}
-
-	m_devices.clear();
-
-	m_physicalDevices.clear();
+	m_selectedLogicalDevice.waitIdle();
+	m_selectedLogicalDevice.destroy();
 }
 
 /// <summary>
-/// This is used to add a target and automatically pick a fitting physical device and create a new logical device
-/// </summary>
-DeviceData RendererDeviceManager::AddTarget(RenderTarget* _target)
-{
-	DeviceData data;
-	vk::SurfaceKHR surface = _target->GetSurfaceKHR();
-	bool foundMatchingPhysicalDevice = false;
-
-	// Check if a physical device already exist that can handle the surface
-	for (auto deviceDataIt = m_devices.begin(); deviceDataIt != m_devices.end(); deviceDataIt++)
-	{
-		if (CheckDeviceCompatibility((*deviceDataIt).PhysicalDevice, surface , data))
-		{
-			data = (*deviceDataIt);
-
-			foundMatchingPhysicalDevice = true;
-			
-			break;
-		}
-	}
-
-	// Need to pick a new physical device for the surface
-	if (!foundMatchingPhysicalDevice)
-	{
-		data = PickPhysicalDevice(surface);
-		m_physicalDevices.push_back(data.PhysicalDevice);
-	}
-	
-	//TODO: Create the queues as well
-	CreateLogicalDevice(data);
-	data.Queues.graphicsQueue = data.Device.getQueue(data.QueueIndices.graphicsFamily.value(), 0);
-	data.Queues.presentQueue = data.Device.getQueue(data.QueueIndices.khrPresentFamily.value(), 0);
-
-	return data;
-}
-
-void RendererDeviceManager::RemoveTarget(RenderTarget* _target)
-{
-	DeviceData data = _target->GetDeviceData();
-
-	for (auto it = m_devices.begin(); it != m_devices.end(); it++)
-	{
-		if ((*it).Device == data.Device)
-		{
-			m_devices.erase(it);
-			break;
-		}
-	}
-
-	for (auto it = m_renderTargets.begin(); it != m_renderTargets.end(); it++)
-	{
-		if ((*it) == _target)
-		{
-			m_renderTargets.erase(it);
-			m_targetCount--;
-			break;
-		}
-	}
-}
-
-void RendererDeviceManager::WaitIdleDevices()
-{
-	for (auto& deviceData : m_devices)
-	{
-		deviceData.Device.waitIdle();
-	}
-}
-
-/// <summary>
-/// Method used to pick a new physical device for use by a new surface
+/// Method used to pick a new physical device for use by the renderer
 /// </summary>
 /// <returns> Returns a DeviceData struct with Swapchain support details, physical device and queue family indices</returns>
-DeviceData RendererDeviceManager::PickPhysicalDevice(vk::SurfaceKHR _surface)
+void RendererDeviceManager::PickPhysicalDevice()
 {
 	//List every physical devices on the target computer
 	std::vector<vk::PhysicalDevice> physDevices = m_vulkanInstance.enumeratePhysicalDevices();
@@ -110,43 +63,44 @@ DeviceData RendererDeviceManager::PickPhysicalDevice(vk::SurfaceKHR _surface)
 	if (physDevices.size() == 0)
 		throw new std::runtime_error("Failed to find graphics card with Vulkan support");
 
-	DeviceData data;
-
 	for (int i = 0; i < physDevices.size(); i++)
 	{
 		//CheckDeviceCompatibility will take care of updating the swapchain support details
 		//And the queue family indices field
-		if (CheckDeviceCompatibility(physDevices[i], _surface, data))
+		if (CheckDeviceCompatibility(physDevices[i]))
 		{
-			data.PhysicalDevice = physDevices[i];
-			return data;
+			m_selectedPhysicalDevice = physDevices[i];
+			m_selectedDeviceData.PhysicalDevice = physDevices[i];
+			return;
 		}
 	}
 
+	LOG_ERROR("RendererDeviceManager::PickPhysicalDevice - Couldn't find a suitable graphics card");
 	throw new std::runtime_error("Couldn't find a suitable graphics card");
 }
 
-bool RendererDeviceManager::CheckDeviceCompatibility(vk::PhysicalDevice& _device, vk::SurfaceKHR& _surface, DeviceData& _deviceData)
+void RendererDeviceManager::GetQueueHandles(DeviceData& _data)
+{
+	_data.Queues.graphicsQueue = _data.Device.getQueue(_data.QueueIndices.graphicsFamily.value(), 0);
+	_data.Queues.presentQueue = _data.Device.getQueue(_data.QueueIndices.khrPresentFamily.value(), 0);
+}
+
+bool RendererDeviceManager::CheckDeviceCompatibility(vk::PhysicalDevice& _device)
 {
 	vk::PhysicalDeviceProperties properties = _device.getProperties();
 	vk::PhysicalDeviceFeatures features = _device.getFeatures();
-	vk::SurfaceCapabilitiesKHR surfaceCapabilities = _device.getSurfaceCapabilitiesKHR(_surface);
 
-	QueueFamilyIndices familyIndices = GetQueueFamilies(_device, _surface);
-	SwapChainSupportDetails swapChainSupportDetails;
+	QueueFamilyIndices familyIndices = GetQueueFamilies(_device);
 	bool haveExtensions = CheckDeviceExtensions(_device);
 	
-	bool swapChainAdequate = false;
-	if (haveExtensions) {
-
-		swapChainSupportDetails = QuerySwapChainSupportDetails(_surface, _device);
-		swapChainAdequate = !swapChainSupportDetails.formats.empty() && !swapChainSupportDetails.presentModes.empty();
+	if (!haveExtensions)
+	{
+		return false;
 	}
 
-	_deviceData.QueueIndices = familyIndices;
-	_deviceData.SwapChainSupportDetails = swapChainSupportDetails;
+	m_selectedDeviceData.QueueIndices = familyIndices;
 
-	return familyIndices.IsComplete() && haveExtensions && swapChainAdequate;
+	return familyIndices.HasGraphicsComputeTransferFamilies() && haveExtensions;
 }
 
 bool RendererDeviceManager::CheckDeviceExtensions(vk::PhysicalDevice& _device)
@@ -161,7 +115,7 @@ bool RendererDeviceManager::CheckDeviceExtensions(vk::PhysicalDevice& _device)
 	return requiredExtensions.empty();
 }
 
-QueueFamilyIndices RendererDeviceManager::GetQueueFamilies(vk::PhysicalDevice& _device, vk::SurfaceKHR _surfaceKHR)
+QueueFamilyIndices RendererDeviceManager::GetQueueFamilies(vk::PhysicalDevice& _device)
 {
 	QueueFamilyIndices indices;
 	auto queueProperties = _device.getQueueFamilyProperties();
@@ -169,19 +123,40 @@ QueueFamilyIndices RendererDeviceManager::GetQueueFamilies(vk::PhysicalDevice& _
 
 	for (const auto& property : queueProperties)
 	{
-		if (property.queueFlags & vk::QueueFlagBits::eGraphics)
+		if (property.queueFlags & vk::QueueFlagBits::eGraphics && !indices.graphicsFamily.has_value())
 		{
 			indices.graphicsFamily = i;
 		}
-		if (_device.getSurfaceSupportKHR(i, _surfaceKHR))
-			indices.khrPresentFamily = i;
+		else if (property.queueFlags & vk::QueueFlagBits::eCompute && !indices.computeFamily.has_value())
+		{
+			indices.computeFamily = i;
+		}
+		else if (property.queueFlags & vk::QueueFlagBits::eTransfer && !indices.transferFamily.has_value())
+		{
+			indices.transferFamily = i;
+		}
 
-		if (indices.IsComplete())
+		if (indices.HasGraphicsComputeTransferFamilies())
 			break;
 		i++;
 	}
 
 	return indices;
+}
+
+void RendererDeviceManager::GetKHRPresentQueue(vk::SurfaceKHR _surface)
+{
+	auto queueProperties = m_selectedPhysicalDevice.getQueueFamilyProperties();
+	int i = 0;
+
+	for (const auto& property : queueProperties)
+	{
+		if (m_selectedPhysicalDevice.getSurfaceSupportKHR(i, _surface) && m_selectedDeviceData.QueueIndices.FamilyAlreadyUsed(i))
+		{
+			m_selectedDeviceData.QueueIndices.khrPresentFamily = i;
+			return;
+		}
+	}
 }
 
 SwapChainSupportDetails RendererDeviceManager::QuerySwapChainSupportDetails(vk::SurfaceKHR& _surface, vk::PhysicalDevice _device)
@@ -206,7 +181,7 @@ void RendererDeviceManager::CreateLogicalDevice(DeviceData& _data)
 		queuePriority[i] = 1.0f;
 	}
 	std::vector<vk::DeviceQueueCreateInfo> queueInfos;
-	std::set<unsigned int> familyIndices{ _data.QueueIndices.graphicsFamily.value(), _data.QueueIndices.khrPresentFamily.value() };
+	std::vector<unsigned int> familyIndices = _data.QueueIndices.GetUniqueFamilies();
 
 	//Create a single queue of each family (One graphical queue, one KHRPresentQueue for exemple)
 	//Since every render target uses its own Device, 
@@ -229,6 +204,11 @@ void RendererDeviceManager::CreateLogicalDevice(DeviceData& _data)
 	indexingFeatures.descriptorBindingPartiallyBound = true;
 	indexingFeatures.shaderSampledImageArrayNonUniformIndexing = true;
 
+	vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
+	dynamicRenderingFeatures.sType = vk::StructureType::ePhysicalDeviceDynamicRenderingFeatures;
+	dynamicRenderingFeatures.pNext = &indexingFeatures;
+	dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+
 	vk::DeviceCreateInfo createInfo{};
 	createInfo.sType = vk::StructureType::eDeviceCreateInfo,
 	createInfo.pQueueCreateInfos = queueInfos.data();
@@ -236,7 +216,7 @@ void RendererDeviceManager::CreateLogicalDevice(DeviceData& _data)
 	createInfo.pEnabledFeatures = &targetedFeatures;
 	createInfo.enabledExtensionCount = (uint32_t) m_extensionNames.size();
 	createInfo.ppEnabledExtensionNames = m_extensionNames.data();
-	createInfo.pNext = indexingFeatures;
+	createInfo.pNext = dynamicRenderingFeatures;
 
 	_data.Device = _data.PhysicalDevice.createDevice(createInfo);
 }

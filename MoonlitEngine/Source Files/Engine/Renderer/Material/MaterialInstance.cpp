@@ -5,11 +5,12 @@
 
 #include "Engine/Renderer/HelperClasses/VertexInputHelper.h"
 
-MaterialInstance::MaterialInstance(RenderTarget& _target, Material* _material)
-	: m_target(_target), m_baseMaterial(_material)
+MaterialInstance::MaterialInstance(vk::Device _device, Material* _material)
 {
+	m_baseMaterial = _material;
+	m_device = _device;
 	m_shaderData = m_baseMaterial->GetShaderData();
-	m_deviceData = m_target.GetDeviceData();
+
 	//TODO: Handle multiple textures
 	m_textureCount = 1;
 	CreatePipelineLayouts();
@@ -21,30 +22,41 @@ MaterialInstance::~MaterialInstance()
 {
 	for (auto& pipeline : m_pipelines)
 	{
-		m_deviceData.Device.destroyPipeline(pipeline.second);
+		m_device.destroyPipeline(pipeline.second);
 	}
 	for (auto& layout : m_pipelineLayouts)
 	{
-		m_deviceData.Device.destroyPipelineLayout(layout);
+		m_device.destroyPipelineLayout(layout);
 	}
 	for (auto& setLayout : m_setLayouts)
 	{
-		m_deviceData.Device.destroyDescriptorSetLayout(setLayout);
+		m_device.destroyDescriptorSetLayout(setLayout);
 	}
-	m_deviceData.Device.destroyDescriptorPool(m_descriptorPool);
+	m_device.destroyDescriptorPool(m_descriptorPool);
 
 	m_baseMaterial->RemoveInstance(this);
 }
 
-void MaterialInstance::CreatePipelineLayouts()
+void MaterialInstance::CreateUboDescriptorSetLayout()
 {
-	vk::DescriptorSetLayout uboLayout = m_target.GetUBODescriptorSetLayout();
+	vk::DescriptorSetLayoutBinding uboLayoutBinding;
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
+	uboLayoutBinding.pImmutableSamplers = nullptr;
 
-	m_pipelineLayouts.resize(1);
+	vk::DescriptorSetLayoutCreateInfo uboLayoutCreateInfo;
+	uboLayoutCreateInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
+	uboLayoutCreateInfo.bindingCount = 1;
+	uboLayoutCreateInfo.pBindings = &uboLayoutBinding;
 
-	m_setLayouts.resize(2);
-	m_setLayouts[0] = uboLayout;
+	m_setLayouts.emplace_back(m_device.createDescriptorSetLayout(uboLayoutCreateInfo));
+}
 
+void MaterialInstance::CreateTextureDescriptorSetLayout()
+{
+	// Texture sampler array
 	vk::DescriptorSetLayoutBinding textureLayoutBinding;
 	textureLayoutBinding.binding = 0;
 	textureLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
@@ -52,27 +64,36 @@ void MaterialInstance::CreatePipelineLayouts()
 	textureLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
 	textureLayoutBinding.pImmutableSamplers = nullptr;
 
-	vk::DescriptorSetLayoutCreateInfo setLayoutCreateInfo;
-	setLayoutCreateInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
-	setLayoutCreateInfo.bindingCount = 1;
-	setLayoutCreateInfo.pBindings = &textureLayoutBinding;
+	vk::DescriptorSetLayoutCreateInfo textureLayoutCreateInfo;
+	textureLayoutCreateInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
+	textureLayoutCreateInfo.bindingCount = 1;
+	textureLayoutCreateInfo.pBindings = &textureLayoutBinding;
 
+	// Make sure you can bind less than the full array size
 	const vk::DescriptorBindingFlags flags = vk::DescriptorBindingFlagBits::ePartiallyBound;
 
 	vk::DescriptorSetLayoutBindingFlagsCreateInfo flagsCreateInfo = vk::DescriptorSetLayoutBindingFlagsCreateInfo();
 	flagsCreateInfo.sType = vk::StructureType::eDescriptorSetLayoutBindingFlagsCreateInfo;
 	flagsCreateInfo.bindingCount = 1;
 	flagsCreateInfo.pBindingFlags = &flags;
+	textureLayoutCreateInfo.pNext = &flagsCreateInfo;
 
-	setLayoutCreateInfo.pNext = &flagsCreateInfo;
+	m_setLayouts.emplace_back(m_device.createDescriptorSetLayout(textureLayoutCreateInfo));
+}
 
-	m_setLayouts[1] = m_deviceData.Device.createDescriptorSetLayout(setLayoutCreateInfo);
+void MaterialInstance::CreatePipelineLayouts()
+{
+	m_pipelineLayouts.resize(1);
+
+	m_setLayouts.reserve(2);
+	CreateUboDescriptorSetLayout();
+	CreateTextureDescriptorSetLayout();
 
 	vk::PipelineLayoutCreateInfo pipelineLayout{};
 	pipelineLayout.sType = vk::StructureType::ePipelineLayoutCreateInfo;
 	pipelineLayout.pSetLayouts = m_setLayouts.data();
 	pipelineLayout.setLayoutCount = 2;
-	m_pipelineLayouts[0] = m_deviceData.Device.createPipelineLayout(pipelineLayout);
+	m_pipelineLayouts[0] = m_device.createPipelineLayout(pipelineLayout);
 }
 
 vk::PipelineDepthStencilStateCreateInfo GetDepthStencilState(std::string subpass)
@@ -101,10 +122,8 @@ vk::PipelineDepthStencilStateCreateInfo GetDepthStencilState(std::string subpass
 
 void MaterialInstance::CreatePipelines()
 {
-	vk::RenderPass _renderPass = m_target.GetRenderPass();
+	//vk::RenderPass _renderPass = m_target.GetRenderPass();
 	std::vector<std::string> subpassNames = m_baseMaterial->GetIncludedSubpasses();
-
-
 
 	vk::GraphicsPipelineCreateInfo pipelineInfo;
 	pipelineInfo.sType = vk::StructureType::eGraphicsPipelineCreateInfo;
@@ -136,13 +155,7 @@ void MaterialInstance::CreatePipelines()
 		vertexInputBuilder.AddAttribute(vk::Format::eR32Sint, 4); // Texture Indices
 	}
 
-	VertexInputDescription vertexInputDescription = vertexInputBuilder.Build();
-
-	vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
-	vertexInputInfo.vertexBindingDescriptionCount = vertexInputDescription.Bindings.size();
-	vertexInputInfo.vertexAttributeDescriptionCount = vertexInputDescription.Attributes.size();
-	vertexInputInfo.pVertexAttributeDescriptions = vertexInputDescription.Attributes.data();
-	vertexInputInfo.pVertexBindingDescriptions = vertexInputDescription.Bindings.data();
+	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vertexInputBuilder.BuildPipelineInfo();
 
 	pipelineInfo.pVertexInputState = &vertexInputInfo;
 #pragma endregion
@@ -222,8 +235,18 @@ void MaterialInstance::CreatePipelines()
 	pipelineInfo.pColorBlendState = &colorBlendState;
 #pragma endregion
 
-	pipelineInfo.renderPass = _renderPass;
+	//pipelineInfo.renderPass = _renderPass;
 	pipelineInfo.layout = m_pipelineLayouts[0];
+
+	vk::Format colorFormat = vk::Format::eR16G16B16A16Sfloat;
+
+	vk::PipelineRenderingCreateInfoKHR renderingCreateInfo;
+	renderingCreateInfo.sType = vk::StructureType::ePipelineRenderingCreateInfoKHR;
+	renderingCreateInfo.colorAttachmentCount = 1;
+	renderingCreateInfo.pColorAttachmentFormats = &colorFormat;
+	renderingCreateInfo.depthAttachmentFormat = vk::Format::eD32Sfloat;
+	renderingCreateInfo.stencilAttachmentFormat = vk::Format::eUndefined;
+	pipelineInfo.pNext = &renderingCreateInfo;
 
 #pragma region SubpassDependancy
 	// We know how many subpasses there are from the material
@@ -241,7 +264,7 @@ void MaterialInstance::CreatePipelines()
 			if (it == entryPoint.SubpassNames.end())
 				continue;
 
-			shaderModules.emplace_back(vhf::WrapShader(m_deviceData.Device, entryPoint.Function.Code.CodePtr, entryPoint.Function.Code.Size));
+			shaderModules.emplace_back(vhf::WrapShader(m_device, entryPoint.Function.Code.CodePtr, entryPoint.Function.Code.Size));
 			vk::PipelineShaderStageCreateInfo shaderStageInfo;
 			shaderStageInfo.sType = vk::StructureType::ePipelineShaderStageCreateInfo;
 			shaderStageInfo.stage = entryPoint.Stage;
@@ -254,13 +277,12 @@ void MaterialInstance::CreatePipelines()
 		pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
 		pipelineInfo.pStages = shaderStages.data();
 		pipelineInfo.pDepthStencilState = &depthStencilState;
-		pipelineInfo.subpass = m_target.GetSubpassIndexByName(subpassName);
 
-		m_pipelines[subpassName] = m_deviceData.Device.createGraphicsPipeline(nullptr, pipelineInfo).value;
+		m_pipelines[subpassName] = m_device.createGraphicsPipeline(nullptr, pipelineInfo).value;
 
 		for (auto& module : shaderModules)
 		{
-			m_deviceData.Device.destroyShaderModule(module);
+			m_device.destroyShaderModule(module);
 		}
 	}
 #pragma endregion
@@ -277,11 +299,11 @@ void MaterialInstance::CreateDescriptorPool()
 	poolInfo.maxSets = 1;
 	poolInfo.poolSizeCount = 1;
 	poolInfo.pPoolSizes = &poolSize;
-	m_descriptorPool = m_deviceData.Device.createDescriptorPool(poolInfo);
+	m_descriptorPool = m_device.createDescriptorPool(poolInfo);
 }
 
-void MaterialInstance::RecordCommandBuffer(vk::CommandBuffer _buffer, std::string _renderPass, vk::PipelineBindPoint _bindPoint)
+void MaterialInstance::BindPipeline(vk::CommandBuffer _buffer, std::string _renderPass)
 {
 	vk::Pipeline _pipeline = m_pipelines[_renderPass];
-	_buffer.bindPipeline(_bindPoint, _pipeline);
+	_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 }

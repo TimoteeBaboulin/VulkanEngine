@@ -15,9 +15,9 @@ class RenderTarget;
 class MaterialInstance
 {
 public:
-	MaterialInstance(RenderTarget& _target, Material* _material);
+	MaterialInstance(vk::Device _device, Material* _material);
 	~MaterialInstance();
-	void RecordCommandBuffer(vk::CommandBuffer _buffer, std::string _renderPass, vk::PipelineBindPoint _bindPoint);
+	void BindPipeline(vk::CommandBuffer _buffer, std::string _renderPass);
 
 	//GETTERS
 	int GetTextureCount() const { return m_textureCount; }
@@ -27,10 +27,9 @@ public:
 private:
 	// Data
 	int m_textureCount;
-	RenderTarget& m_target;
 	ShaderData m_shaderData;
 	Material* m_baseMaterial;
-	DeviceData m_deviceData;
+	vk::Device m_device;
 
 	// Vulkan Items
 	std::map<std::string, vk::Pipeline> m_pipelines;
@@ -38,6 +37,9 @@ private:
 	std::vector<vk::DescriptorSetLayout> m_setLayouts;
 	vk::DescriptorPool m_descriptorPool;
 	
+	void CreateUboDescriptorSetLayout();
+	void CreateTextureDescriptorSetLayout();
+
 	void CreatePipelineLayouts();
 	void CreatePipelines();
 	void CreateDescriptorPool();

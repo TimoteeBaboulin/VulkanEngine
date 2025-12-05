@@ -3,6 +3,7 @@
 #include "common.h"
 #include "CustomVulkanStructs.h"
 #include "ResourceManagement/TextureData.h"
+#include "Material/Material.h"
 
 class RendererDeviceManager;
 class MaterialInstance;
@@ -28,23 +29,24 @@ struct DrawBufferResources
 };
 
 /// <summary>
-/// Class interfacing between the batching system and the render targets
+/// This class owns the GPU resources for a DrawBuffer
+/// It handles the creation, updating, and destruction of these resources
 /// </summary>
-class MOONLIT_API BufferDeviceLink
+class MOONLIT_API DrawBufferDeviceBridge
 {
 public:
-	BufferDeviceLink(DeviceData _deviceData, std::shared_ptr<MaterialInstance> _materialInstance,
+	DrawBufferDeviceBridge(DeviceData _deviceData, Material& _baseMaterial,
 		class DrawBuffer* _buffer);
 
 	// Forbid copy, explicitly implement move
 	// (Don't forget rule of five)
 
-	BufferDeviceLink(BufferDeviceLink const&) = delete;
-	BufferDeviceLink& operator=(BufferDeviceLink const&) = delete;
-	BufferDeviceLink(BufferDeviceLink&& _src);
-	BufferDeviceLink& operator=(BufferDeviceLink&& _rhs);
+	DrawBufferDeviceBridge(DrawBufferDeviceBridge const&) = delete;
+	DrawBufferDeviceBridge& operator=(DrawBufferDeviceBridge const&) = delete;
+	DrawBufferDeviceBridge(DrawBufferDeviceBridge&& _src);
+	DrawBufferDeviceBridge& operator=(DrawBufferDeviceBridge&& _rhs);
 
-	~BufferDeviceLink();
+	~DrawBufferDeviceBridge();
 	DrawBufferResources const GetBufferResources() { return m_drawResources; };
 	vk::Device const GetDevice() { return m_deviceData.Device; }
 
@@ -72,7 +74,7 @@ private:
 	// Helper function to create a TextureData from an Image
 	TextureData GetTextureData(Image& _image);
 
-	// This is used if the buffer is dirty at render time
+	// This is used if the buffer is dirty to manually update resources
 	void UpdateData();
 	void UpdateBuffers();
 	void UpdateTextures();

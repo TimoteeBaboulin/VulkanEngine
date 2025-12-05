@@ -14,7 +14,15 @@ RenderTarget::RenderTarget(int _framesInFlight, HWND _surface,
 	//The device manager need the surface to pick a physical device
 	//So we can only link after creating the surface
 	CreateSurfaceKHR();
-	m_deviceData = _deviceManager->AddTarget(this);
+	m_deviceData = _deviceManager->GetDeviceData();
+	if (m_deviceData.QueueIndices.khrPresentFamily.has_value() == false)
+	{
+		_deviceManager->InitKHRQueues(m_surfaceKHR);
+		m_deviceData = _deviceManager->GetDeviceData();
+	}
+
+	AddSubpass("depth");
+	AddSubpass("color");
 
 	//Get the format as its gonna be used in the renderpass
 	SwapChainSupportDetails swapChainSupport = m_deviceData.SwapChainSupportDetails;
@@ -46,7 +54,7 @@ void RenderTarget::Init()
 
 void RenderTarget::SetRenderPass(vk::RenderPass _renderPass)
 {
-	m_renderPass = _renderPass;
+	//m_renderPass = _renderPass;
 }
 
 void RenderTarget::CalculateExtent()
@@ -153,7 +161,7 @@ void RenderTarget::CreateDepthResources()
 
 void RenderTarget::CreateFrameBuffers()
 {
-	m_swapChainFramebuffers = new vk::Framebuffer[m_framesInFlight];
+	/*m_swapChainFramebuffers = new vk::Framebuffer[m_framesInFlight];
 	for (int i = 0; i < m_framesInFlight; ++i)
 	{
 		std::vector<vk::ImageView> attachments = {m_swapChainDepthImageViews[i], m_swapChainImageViews[i]};
@@ -167,7 +175,7 @@ void RenderTarget::CreateFrameBuffers()
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
 		m_swapChainFramebuffers[i] = m_deviceData.Device.createFramebuffer(framebufferInfo);
-	}
+	}*/
 }
 
 void RenderTarget::RecreateSwapChain()
@@ -190,14 +198,14 @@ void RenderTarget::DestroySwapChain()
 	{
 		device.destroyImageView(m_swapChainDepthImageViews[i]);
 		device.destroyImage(m_swapChainDepthImages[i]);
-		device.destroyFramebuffer(m_swapChainFramebuffers[i]);
+		//device.destroyFramebuffer(m_swapChainFramebuffers[i]);
 	}
 
 	m_swapChainImages.clear();
 	delete[] m_swapChainImageViews;
 	delete[] m_swapChainDepthImageViews;
 	delete[] m_swapChainDepthImages;
-	delete[] m_swapChainFramebuffers;
+	//delete[] m_swapChainFramebuffers;
 }
 
 void RenderTarget::CreateSyncObjects()
@@ -266,6 +274,8 @@ void RenderTarget::CreateColorSubpass(vk::AttachmentReference* _inDepthAttPtr, v
 
 void RenderTarget::CreateRenderPass()
 {
+
+	return;
 #pragma region Attachments
 
 	// TODO: Change to vector if dynamic number of attachments is needed
@@ -320,16 +330,16 @@ void RenderTarget::CreateRenderPass()
 
 #pragma endregion //Subpasses
 
-	vk::RenderPassCreateInfo renderPassInfo;
-	renderPassInfo.sType = vk::StructureType::eRenderPassCreateInfo;
-	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-	renderPassInfo.pAttachments = attachments.data();
-	renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
-	renderPassInfo.pSubpasses = subpasses.data();
-	renderPassInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
-	renderPassInfo.pDependencies = subpassDependencies.data();
+	//vk::RenderPassCreateInfo renderPassInfo;
+	//renderPassInfo.sType = vk::StructureType::eRenderPassCreateInfo;
+	//renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	//renderPassInfo.pAttachments = attachments.data();
+	//renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+	//renderPassInfo.pSubpasses = subpasses.data();
+	//renderPassInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
+	//renderPassInfo.pDependencies = subpassDependencies.data();
 
-	m_renderPass = m_deviceData.Device.createRenderPass(renderPassInfo);
+	//m_renderPass = m_deviceData.Device.createRenderPass(renderPassInfo);
 }
 
 void RenderTarget::CreateCommandPool()
@@ -548,6 +558,24 @@ uint16_t RenderTarget::GetSubpassIndexByName(const std::string& _name) const
 
 void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers)
 {
+	TransitionInfo beginTransitionInfo;
+	beginTransitionInfo.srcStage = vk::PipelineStageFlagBits::eBottomOfPipe;
+	beginTransitionInfo.dstStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	beginTransitionInfo.srcAccessFlags = vk::AccessFlagBits::eNone;
+	beginTransitionInfo.dstAccessFlags = vk::AccessFlagBits::eColorAttachmentWrite;
+
+	vhf::TransitionImageLayout(
+		m_deviceData.Device,
+		m_commandPool,
+		m_deviceData.Queues.graphicsQueue,
+		m_swapChainImages[m_currentFrame],
+		m_format.format,
+		vk::ImageAspectFlagBits::eColor,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		beginTransitionInfo
+	);
+
 	vk::CommandBufferBeginInfo beginInfo;
 	beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
 	_buffer.begin(beginInfo);
@@ -556,14 +584,41 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 	clearValues[0].depthStencil = vk::ClearDepthStencilValue(1, 0);
 	clearValues[1].color = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.25f, 0.25f, 1.0f});
 
-	vk::RenderPassBeginInfo renderPassInfo;
-	renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
-	renderPassInfo.renderPass = m_renderPass;
-	renderPassInfo.framebuffer = m_swapChainFramebuffers[m_currentFrame];
+	//vk::RenderPassBeginInfo renderPassInfo;
+	//renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
+	//renderPassInfo.renderPass = m_renderPass;
+	//renderPassInfo.framebuffer = m_swapChainFramebuffers[m_currentFrame];
+	//renderPassInfo.renderArea.offset = vk::Offset2D{ 0, 0 };
+	//renderPassInfo.renderArea.extent = m_extent;
+	//renderPassInfo.clearValueCount = 2;
+	//renderPassInfo.pClearValues = clearValues;
+
+	vk::RenderingAttachmentInfoKHR colorAttachment;
+	colorAttachment.sType = vk::StructureType::eRenderingAttachmentInfoKHR;
+	colorAttachment.imageView = m_swapChainImageViews[m_currentFrame];
+	colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+	colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+	colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+	colorAttachment.clearValue = clearValues[1];
+
+	vk::RenderingAttachmentInfoKHR depthAttachment;
+	depthAttachment.sType = vk::StructureType::eRenderingAttachmentInfoKHR;
+	depthAttachment.imageView = m_swapChainDepthImageViews[m_currentFrame];
+	depthAttachment.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+	depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+	depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+	depthAttachment.clearValue = clearValues[0];
+
+	vk::RenderingInfoKHR renderPassInfo;
+	renderPassInfo.sType = vk::StructureType::eRenderingInfoKHR;
 	renderPassInfo.renderArea.offset = vk::Offset2D{ 0, 0 };
 	renderPassInfo.renderArea.extent = m_extent;
-	renderPassInfo.clearValueCount = 2;
-	renderPassInfo.pClearValues = clearValues;
+	renderPassInfo.layerCount = 1;
+	renderPassInfo.colorAttachmentCount = 1;
+	renderPassInfo.pColorAttachments = &colorAttachment;
+	renderPassInfo.pDepthAttachment = &depthAttachment;
+
+
 
 	vk::Viewport viewport;
 	viewport.x = 0.0f;
@@ -580,12 +635,19 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 	scissor.extent = m_extent;
 
 	_buffer.setScissor(0, scissor);
-	_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+	//_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+	PFN_vkCmdBeginRenderingKHR fnPtr = (PFN_vkCmdBeginRenderingKHR) vkGetDeviceProcAddr(m_deviceData.Device, "vkCmdBeginRenderingKHR");
+	
+	fnPtr(_buffer,
+		reinterpret_cast<const VkRenderingInfoKHR*>(&renderPassInfo)
+	);
+
+	//_buffer.beginRenderingKHR(renderPassInfo);
 
 	for (int i = 0; i < m_subpassInfos.size(); ++i)
 	{
-		if (i != 0)
-			_buffer.nextSubpass(vk::SubpassContents::eInline);
+		//if (i != 0)
+		//	_buffer.nextSubpass(vk::SubpassContents::eInline);
 
 		for (auto& drawBuffer : _drawBuffers)
 		{
@@ -593,7 +655,31 @@ void RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<D
 		}
 	}
 
-	_buffer.endRenderPass();
+	PFN_vkCmdEndRenderingKHR fnEndPtr = (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_deviceData.Device, "vkCmdEndRenderingKHR");
+	
+	TransitionInfo transitionInfo;
+	transitionInfo.srcStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	transitionInfo.dstStage = vk::PipelineStageFlagBits::eBottomOfPipe;
+	transitionInfo.srcAccessFlags = vk::AccessFlagBits::eColorAttachmentWrite;
+	transitionInfo.dstAccessFlags = vk::AccessFlagBits::eNone;
+	
+	vhf::TransitionImageLayout(
+		m_deviceData.Device,
+		m_commandPool,
+		m_deviceData.Queues.graphicsQueue,
+		m_swapChainImages[m_currentFrame],
+		m_format.format,
+		vk::ImageAspectFlagBits::eColor,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		transitionInfo
+	);
+	fnEndPtr(
+		_buffer
+	);
+
+	//_buffer.endRenderingKHR();
+	//_buffer.endRenderPass();
 
 	_buffer.end();
 }

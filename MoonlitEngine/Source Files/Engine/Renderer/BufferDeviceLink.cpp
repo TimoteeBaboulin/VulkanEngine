@@ -5,10 +5,11 @@
 
 #include "ResourceManagement/TextureData.h"
 
-BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, std::shared_ptr<MaterialInstance> _materialInstance,
-	DrawBuffer* _drawBuffer) : m_parentBuffer(_drawBuffer), m_materialInstance(_materialInstance)
+DrawBufferDeviceBridge::DrawBufferDeviceBridge(DeviceData _deviceData, Material& _baseMaterial,
+	DrawBuffer* _drawBuffer) : m_parentBuffer(_drawBuffer)
 {
 	m_deviceData = _deviceData;
+	m_materialInstance = _baseMaterial.GetOrCreateInstance(m_deviceData.Device);
 
 	AllocateCommandBuffer();
 	AllocateTextureSets();
@@ -17,7 +18,7 @@ BufferDeviceLink::BufferDeviceLink(DeviceData _deviceData, std::shared_ptr<Mater
 	UpdateData();
 }
 
-BufferDeviceLink::BufferDeviceLink(BufferDeviceLink&& _src)
+DrawBufferDeviceBridge::DrawBufferDeviceBridge(DrawBufferDeviceBridge&& _src)
 {
 	// We can't keep the source's resources, not only is it bad practice
 	// But using the same resources from multiple places will cause vulkan crashes that are hell to debug
@@ -33,7 +34,7 @@ BufferDeviceLink::BufferDeviceLink(BufferDeviceLink&& _src)
 	_src.m_drawResources = {};
 }
 
-BufferDeviceLink& BufferDeviceLink::operator=(BufferDeviceLink&& _rhs)
+DrawBufferDeviceBridge& DrawBufferDeviceBridge::operator=(DrawBufferDeviceBridge&& _rhs)
 {
 	// We can't keep the source's resources, not only is it bad practice
 	// But using the same resources from multiple places will cause vulkan crashes that are hell to debug
@@ -55,7 +56,7 @@ BufferDeviceLink& BufferDeviceLink::operator=(BufferDeviceLink&& _rhs)
 	return *this;
 }
 
-BufferDeviceLink::~BufferDeviceLink()
+DrawBufferDeviceBridge::~DrawBufferDeviceBridge()
 {
 	ClearBuffers();
 	ClearTextures();
@@ -63,7 +64,7 @@ BufferDeviceLink::~BufferDeviceLink()
 	m_deviceData.Device.destroyCommandPool(m_commandPool);
 }
 
-void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, std::string _renderPass,
+void DrawBufferDeviceBridge::Render(vk::CommandBuffer& _cmd, std::string _renderPass,
 	vk::DescriptorSet* _uboSet)
 {
 	if (m_isDirty)
@@ -73,11 +74,11 @@ void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, std::string _renderPass,
 
 	vk::DeviceSize offsets[] = { 0 };
 
+	m_materialInstance->BindPipeline(_cmd, _renderPass);
+
 	_cmd.bindVertexBuffers(0, m_drawResources.vertexBuffer, offsets);
 	_cmd.bindVertexBuffers(1, m_drawResources.modelMatrixBuffer, offsets);
 	_cmd.bindIndexBuffer(m_drawResources.indexBuffer, 0, vk::IndexType::eUint16);
-
-	m_materialInstance->RecordCommandBuffer(_cmd, _renderPass, vk::PipelineBindPoint::eGraphics);
 
 	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_materialInstance->GetLayouts()[0], 0, 1, _uboSet, 0, nullptr);
 	_cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_materialInstance->GetLayouts()[0], 1, 1, m_drawResources.textureDescriptorSets.data(), 0, nullptr);
@@ -99,14 +100,14 @@ void BufferDeviceLink::Render(vk::CommandBuffer& _cmd, std::string _renderPass,
 	}
 }
 
-void BufferDeviceLink::SetDirty()
+void DrawBufferDeviceBridge::SetDirty()
 {
 	m_isDirty = true;
 }
 
 // Helper functions
 
-TextureData BufferDeviceLink::GetTextureData(Image& _image)
+TextureData DrawBufferDeviceBridge::GetTextureData(Image& _image)
 {
 	vk::Buffer stagingBuffer;
 	vk::DeviceMemory stagingMemory;
@@ -195,13 +196,13 @@ TextureData BufferDeviceLink::GetTextureData(Image& _image)
 
 // Update functions
 
-void BufferDeviceLink::UpdateData()
+void DrawBufferDeviceBridge::UpdateData()
 {
 	UpdateBuffers();
 	UpdateTextures();
 }
 
-void BufferDeviceLink::UpdateBuffers()
+void DrawBufferDeviceBridge::UpdateBuffers()
 {
 	// Make sure to clear previous buffers if they exist
 	if (m_resourcesGenerated)
@@ -210,7 +211,7 @@ void BufferDeviceLink::UpdateBuffers()
 	GenerateBuffers();
 }
 
-void BufferDeviceLink::UpdateTextures()
+void DrawBufferDeviceBridge::UpdateTextures()
 {
 	std::vector<std::shared_ptr<Image>> textures = m_parentBuffer->GetAllTextures();
 	//Load the textures to the device
@@ -219,7 +220,7 @@ void BufferDeviceLink::UpdateTextures()
 	UpdateTextureSets();
 }
 
-void BufferDeviceLink::UpdateTextureSets()
+void DrawBufferDeviceBridge::UpdateTextureSets()
 {
 	size_t textureCount = m_drawResources.textures.size();
 	vk::WriteDescriptorSet* writeSets = new vk::WriteDescriptorSet[textureCount];
@@ -246,7 +247,7 @@ void BufferDeviceLink::UpdateTextureSets()
 
 // Memory management functions
 
-void BufferDeviceLink::AllocateCommandBuffer()
+void DrawBufferDeviceBridge::AllocateCommandBuffer()
 {
 	vk::CommandPoolCreateInfo poolInfo;
 	poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
@@ -263,7 +264,7 @@ void BufferDeviceLink::AllocateCommandBuffer()
 	m_commandBuffer = result.at(0);
 }
 
-void BufferDeviceLink::AllocateTextureSets()
+void DrawBufferDeviceBridge::AllocateTextureSets()
 {
 	vk::DescriptorSetAllocateInfo textureSetInfo;
 	textureSetInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
@@ -274,7 +275,7 @@ void BufferDeviceLink::AllocateTextureSets()
 	m_drawResources.textureDescriptorSets = m_deviceData.Device.allocateDescriptorSets(textureSetInfo);
 }
 
-void BufferDeviceLink::GenerateBuffers()
+void DrawBufferDeviceBridge::GenerateBuffers()
 {
 	// Copy the data from the parent buffer
 	std::vector<Vertex> vertexData = m_parentBuffer->GetVertexData();
@@ -344,7 +345,7 @@ void BufferDeviceLink::GenerateBuffers()
 	m_isDirty = false;
 }
 
-void BufferDeviceLink::GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures)
+void DrawBufferDeviceBridge::GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures)
 {
 	for (auto it = _textures.begin(); it != _textures.end(); it++)
 	{
@@ -361,7 +362,7 @@ void BufferDeviceLink::GenerateTextures(std::vector<std::shared_ptr<Image>>& _te
 	UpdateTextureSets();
 }
 
-void BufferDeviceLink::ClearBuffers()
+void DrawBufferDeviceBridge::ClearBuffers()
 {
 	vk::Device device = m_deviceData.Device;
 	device.waitIdle();
@@ -377,7 +378,7 @@ void BufferDeviceLink::ClearBuffers()
 	device.destroyBuffer(m_drawResources.modelMatrixBuffer);
 }
 
-void BufferDeviceLink::ClearTextures()
+void DrawBufferDeviceBridge::ClearTextures()
 {
 	for (auto it = m_drawResources.textures.begin(); it != m_drawResources.textures.end(); it++)
 	{

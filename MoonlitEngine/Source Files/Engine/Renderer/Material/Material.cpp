@@ -285,19 +285,19 @@ Material::~Material()
 {
 }
 
-std::shared_ptr<MaterialInstance> Material::GetOrCreateInstance(RenderTarget& _target)
+std::shared_ptr<MaterialInstance> Material::GetOrCreateInstance(vk::Device _device)
 {
-	auto it = m_instanceMap.find(&_target);
+	auto it = m_instanceMap.find(_device);
 	if (it != m_instanceMap.end())
 	{
 		return it->second;
 	}
 
-	MaterialInstance* instance = CreateInstance(_target);
+	MaterialInstance* instance = CreateInstance(_device);
 	if (instance)
 	{
 		std::shared_ptr<MaterialInstance> sharedInstance(instance);
-		m_instanceMap[&_target] = sharedInstance;
+		m_instanceMap[_device] = sharedInstance;
 		return sharedInstance;
 	}
 
@@ -318,7 +318,7 @@ void Material::RemoveInstance(MaterialInstance* _instance)
 	m_instances.erase(it);*/
 }
 
-MaterialInstance* Material::CreateInstance(RenderTarget& _target)
+MaterialInstance* Material::CreateInstance(vk::Device _device)
 {
-	return new MaterialInstance(_target, this);
+	return new MaterialInstance(_device, this);
 }

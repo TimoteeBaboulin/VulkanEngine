@@ -70,7 +70,7 @@ public:
 	Material(std::string _shaderPath);
 	~Material();
 
-	std::shared_ptr<MaterialInstance> GetOrCreateInstance(RenderTarget& _target);
+	std::shared_ptr<MaterialInstance> GetOrCreateInstance(vk::Device _device);
 	
 	int GetTextureCount() const { return m_textureCount; }
 	ShaderData GetShaderData() const;
@@ -79,7 +79,7 @@ public:
 private:
 	void RemoveInstance(MaterialInstance* _instance);
 
-	MaterialInstance* CreateInstance(RenderTarget& _target);
+	MaterialInstance* CreateInstance(vk::Device _device);
 
 	std::string m_shaderPath;
 	ShaderData m_shaderData;
@@ -87,7 +87,7 @@ private:
 	std::vector<std::string> m_includedSubpasses;
 	//ShaderCode* m_shaderCode;
 
-	std::map<RenderTarget*, std::shared_ptr<MaterialInstance>> m_instanceMap;
+	std::map<vk::Device, std::shared_ptr<MaterialInstance>> m_instanceMap;
 
 	int m_textureCount = 1;
 };

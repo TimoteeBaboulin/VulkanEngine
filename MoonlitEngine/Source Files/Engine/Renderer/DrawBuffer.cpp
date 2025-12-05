@@ -5,7 +5,8 @@
 
 #include "Debug/Logger.h"
 
-DrawBuffer::DrawBuffer(Material* _material)
+DrawBuffer::DrawBuffer(Material* _material, DeviceData _deviceData)
+	: m_deviceBridge(_deviceData, *_material, this)
 {
 	m_material = _material;
 
@@ -16,7 +17,6 @@ DrawBuffer::DrawBuffer(Material* _material)
 
 DrawBuffer::~DrawBuffer()
 {
-	m_deviceLinks.clear();
 }
 
 void DrawBuffer::RemoveMeshInstance(uint32_t _instanceId)
@@ -166,18 +166,6 @@ void DrawBuffer::UpdateInstanceMesh(uint32_t _instanceId, std::shared_ptr<MeshDa
 	SetDeviceLinkDirty();
 }
 
-void DrawBuffer::LinkTarget(RenderTarget& _renderTarget)
-{
-	auto it = FindDeviceLink(_renderTarget);
-	if (it != m_deviceLinks.end())
-	{
-		LOG_WARNING("Trying to link a target that's already subscribed");
-		return;
-	}
-
-	m_deviceLinks.emplace_back(_renderTarget.GetDeviceData(), m_material->GetOrCreateInstance(_renderTarget), this);
-}
-
 void DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, std::string _renderPass)
 {
 	if (m_meshEntries.size() == 0)
@@ -192,14 +180,12 @@ void DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, st
 		return;
 	}
 
-	auto it = FindDeviceLink(_target);
+	// Get the device bridge
+	// Since the render targets are now only on a single logical device
+	// We only have a single device bridge per draw buffer
+	// As such it is now statically allocated
 
-	if (it == m_deviceLinks.end())
-	{
-		return;
-	}
-
-	(*it).Render(_cmd, _renderPass, _target.GetDescriptorSet());
+	m_deviceBridge.Render(_cmd, _renderPass, _target.GetDescriptorSet());
 }
 
 std::vector<std::shared_ptr<Image>> DrawBuffer::GetAllTextures() const
@@ -353,21 +339,5 @@ std::vector<TextureSlot>::iterator DrawBuffer::FindTexture(intptr_t _texHandle)
 
 void DrawBuffer::SetDeviceLinkDirty()
 {
-	for (auto it = m_deviceLinks.begin(); it != m_deviceLinks.end(); it++)
-	{
-		(*it).SetDirty();
-	}
-}
-
-std::vector<BufferDeviceLink>::iterator DrawBuffer::FindDeviceLink(RenderTarget& _target)
-{
-	for (auto it = m_deviceLinks.begin(); it != m_deviceLinks.end(); it++)
-	{
-		if ((*it).GetDevice() == _target.GetDevice())
-		{
-			return it;
-		}
-	}
-
-	return m_deviceLinks.end();
+	m_deviceBridge.SetDirty();
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+
 #include "Engine/Renderer/CustomVulkanStructs.h"
 
 struct VertexInputDescription
@@ -48,6 +49,17 @@ public:
 	{
 		VertexInputDescription description(m_bindings, m_attributes);
 		return description;
+	}
+
+	vk::PipelineVertexInputStateCreateInfo BuildPipelineInfo()
+	{
+		vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
+		vertexInputInfo.sType = vk::StructureType::ePipelineVertexInputStateCreateInfo;
+		vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(m_bindings.size());
+		vertexInputInfo.pVertexBindingDescriptions = m_bindings.data();
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_attributes.size());
+		vertexInputInfo.pVertexAttributeDescriptions = m_attributes.data();
+		return vertexInputInfo;
 	}
 
 private:

@@ -10,11 +10,32 @@
 struct QueueFamilyIndices
 {
 	std::optional<unsigned int> graphicsFamily;
+	std::optional<unsigned int> computeFamily;
+	std::optional<unsigned int> transferFamily;
 	std::optional<unsigned int> khrPresentFamily;
 
-	bool IsComplete()
+	bool HasGraphicsComputeTransferFamilies()
 	{
-		return graphicsFamily.has_value() && khrPresentFamily.has_value();
+		return graphicsFamily.has_value() && computeFamily.has_value() && transferFamily.has_value();
+	}
+
+	bool FamilyAlreadyUsed(int i)
+	{
+		return	(graphicsFamily.has_value() && graphicsFamily.value()	== i) ||
+				(computeFamily.has_value()  && computeFamily.value()	== i) ||
+				(transferFamily.has_value() && transferFamily.value()	== i);
+	}
+
+	std::vector<unsigned int> GetUniqueFamilies()
+	{
+		std::vector<unsigned int> uniqueFamilies;
+		if (graphicsFamily.has_value())
+			uniqueFamilies.push_back(graphicsFamily.value());
+		if (computeFamily.has_value() && computeFamily.value() != graphicsFamily.value())
+			uniqueFamilies.push_back(computeFamily.value());
+		if (transferFamily.has_value() && transferFamily.value() != graphicsFamily.value() && transferFamily.value() != computeFamily.value())
+			uniqueFamilies.push_back(transferFamily.value());
+		return uniqueFamilies;
 	}
 };
 

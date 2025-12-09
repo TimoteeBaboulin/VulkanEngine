@@ -44,7 +44,6 @@ void MoonlitRenderer::InitContext(ContextInfo& _info, std::vector<const char*> r
 	vk::ApplicationInfo appInfo = GetAppInfo(_info.name);
 	m_instance = m_context->CreateInstance(appInfo, requiredExtensions.data(), requiredExtensions.size());
 	m_deviceManager = new RendererDeviceManager(*m_instance);
-	m_deviceData = m_deviceManager->GetDeviceData();
 	std::function<void(WINDOW_EVENT, void*)> windowCallback = std::bind(&MoonlitRenderer::HandleWindowEvents, this, std::placeholders::_1, std::placeholders::_2);
 }
 
@@ -63,7 +62,7 @@ void MoonlitRenderer::InitRenderer()
 
 	// TODO: Make the resource manager handle loading the material
 	Material* defaultMaterial = new Material("Shaders/BaseMaterial.slang");
-	m_drawBuffers.push_back(new DrawBuffer(defaultMaterial, m_deviceData));
+	m_drawBuffers.push_back(new DrawBuffer(defaultMaterial, m_deviceManager->GetDeviceData()));
 }
 
 void MoonlitRenderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensions)
@@ -114,76 +113,6 @@ RenderTarget* MoonlitRenderer::AddRenderTarget(void* _handle, Camera* _camera)
 	return m_renderTargets.back();
 }
 
-void MoonlitRenderer::LoadMesh(std::string name)
-{
-	////TODO: Don't load the mesh in the renderer, it should be done by the engine itself through gameobjects
-	//std::shared_ptr<MeshData> testMesh;
-	//if (!ResourceManager::TryGetResource<MeshData>(name, testMesh))
-	//{
-	//	std::string errorMsg = "Mesh " + name + " not found in ResourceManager.";
-	//	LOG_ERROR(errorMsg.c_str());
-	//	throw std::runtime_error(errorMsg);
-	//}
-
-	//glm::mat4x4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//glm::mat4x4 rotate = glm::rotate(0.0f, glm::vec3(0, 1, 0));
-	//glm::mat4x4 translate = glm::translate(glm::vec3(0, 0, 0));
-
-	//glm::mat4x4 model = translate * rotate * scale;
-
-	//std::shared_ptr<Image> firstTexture;
-	//std::vector<std::shared_ptr<Image>> m_textures;
-	//if (ResourceManager::TryGetResource<Image>("barstool_albedo", firstTexture))
-	//{
-	//	m_textures.push_back(firstTexture);
-	//}
-	//else
-	//{
-	//	LOG_ERROR("Failed to load texture barstool_albedo.png from ResourceManager.");
-	//}
-
-	//std::shared_ptr<Image> secondTexture;
-	//std::vector<std::shared_ptr<Image>> secondaryTextures;
-	//if (ResourceManager::TryGetResource<Image>("sniper_albedo", secondTexture))
-	//{
-	//	secondaryTextures.push_back(secondTexture);
-	//}
-	//else
-	//{
-	//	LOG_ERROR("Failed to load texture sniper_albedo.png from ResourceManager.");
-	//}
-
-	//if (!test)
-	//{
-	//	for (int i = -5; i < 6; i++)
-	//	{
-	//		glm::vec3 vec = glm::vec3(i, -i, i);
-	//		translate = glm::translate(glm::vec3(i, -i, i));
-
-	//		glm::mat4x4 model = translate * rotate * scale;
-	//		//MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
-
-	//		//m_drawBuffers[0]->TryAddMesh(instance);
-	//	}
-	//	
-	//}
-	//else
-	//{
-	//	for (int i = -5; i < 6; i++)
-	//	{
-	//		translate = glm::translate(glm::vec3(i, 0, 0));
-
-	//		glm::mat4x4 model = translate * rotate * scale;
-	//		//MeshInstance* instance = new MeshInstance{ testMesh.get(), m_textures, model};
-
-	//		//m_drawBuffers[0]->TryAddMesh(instance);
-	//	}
-	//}
-	//test = !test;
-
-	//m_drawBuffers[0]->UpdateBuffers();
-}
-
 void MoonlitRenderer::Render()
 {
 	//std::cout << "Rendering frame " << m_currentFrame << std::endl;
@@ -192,40 +121,6 @@ void MoonlitRenderer::Render()
 		if (!renderTarget->IsPaused())
 			renderTarget->Render(m_drawBuffers);
 	}
-
-	//std::cout << "Frame rendered" << std::endl;
-
-// Those have not been added to the render target layer yet
-// TODO: Add them to the render target layer
-//	if (m_windowClosed)
-//	{
-//		return;
-//	}
-//
-//#ifdef RENDER_DEBUG_INFORMATION_QUERY
-//	uint64_t* timestamps = new uint64_t[2];
-//	m_device.getQueryPoolResults(
-//		m_timestampQueryPool, 
-//		0, 
-//		2, 
-//		2 * sizeof(uint64_t), 
-//		timestamps, 
-//		sizeof(uint64_t), 
-//		vk::QueryResultFlagBits::e64 | vk::QueryResultFlagBits::eWait);
-//
-//	float delta_in_ms = float(timestamps[1] - timestamps[0]) * m_timeStampPeriods / 1000000.0f;
-//	std::cout << "Rendering " << m_drawBuffers[0].GetTriangleCount() << " triangles" << std::endl;
-//	std::cout << "Frame time: " << delta_in_ms << std::endl;
-//#endif
-//
-//	try
-//	{
-//		m_graphicsQueue.presentKHR(presentInfo);
-//	}
-//	catch (vk::OutOfDateKHRError err)
-//	{
-//		m_swapchainOutOfDate = true;
-//	}
 }
 
 #ifdef RENDER_DEBUG_INFORMATION_QUERY
@@ -239,92 +134,6 @@ void MoonlitRenderer::InitQueryPool()
 	//m_timestampQueryPool = m_device.createQueryPool(createInfo);
 }
 #endif
-
-//void Renderer::CreateRenderPasses(vk::Format _format)
-//{
-//#pragma region Color
-//	vk::AttachmentDescription colorAttachment;
-//	colorAttachment.format = _format;
-//	colorAttachment.samples = vk::SampleCountFlagBits::e1;
-//	colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-//	colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-//	colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-//	colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-//	colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-//	colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
-//
-//	vk::AttachmentReference colorRef{};
-//	colorRef.attachment = 1;
-//	colorRef.layout = vk::ImageLayout::ePresentSrcKHR;
-//#pragma endregion
-//
-//#pragma region Depth
-//	colorRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
-//
-//	vk::AttachmentDescription depthAttachment;
-//	depthAttachment.format = vk::Format::eD32Sfloat;
-//	depthAttachment.samples = vk::SampleCountFlagBits::e1;
-//	depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-//	depthAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-//	depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eClear;
-//	depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-//	depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
-//	depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-//
-//	vk::AttachmentReference depthRef;
-//	depthRef.attachment = 0;
-//	depthRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-//#pragma endregion
-//
-//#pragma region Depth Subpass
-//	vk::SubpassDescription depthSubpass;
-//	depthSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-//	depthSubpass.colorAttachmentCount = 0;
-//	depthSubpass.pDepthStencilAttachment = &depthRef;
-//
-//	vk::SubpassDependency depthSubDep;
-//	depthSubDep.srcSubpass = vk::SubpassExternal;
-//	depthSubDep.dstSubpass = 0;
-//
-//	depthSubDep.srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-//	depthSubDep.dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-//
-//	depthSubDep.srcAccessMask = vk::AccessFlagBits::eNone;
-//	depthSubDep.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-//#pragma endregion
-//
-//#pragma region MainSubpass
-//	vk::SubpassDescription colorSubpass{};
-//	colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-//	colorSubpass.colorAttachmentCount = 1;
-//	colorSubpass.pColorAttachments = &colorRef;
-//	colorSubpass.pDepthStencilAttachment = &depthRef;
-//
-//	vk::SubpassDependency dependency;
-//	dependency.srcSubpass = 0;
-//	dependency.dstSubpass = 1;
-//
-//	dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-//	dependency.srcAccessMask = vk::AccessFlagBits::eNone;
-//	dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-//	dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-//#pragma endregion
-//
-//	std::vector <vk::AttachmentDescription> attachments = { depthAttachment, colorAttachment };
-//	std::vector <vk::SubpassDescription> subpasses = { depthSubpass, colorSubpass };
-//	std::vector <vk::SubpassDependency> dependencies = { depthSubDep, dependency };
-//
-//	vk::RenderPassCreateInfo renderpass{};
-//	renderpass.sType = vk::StructureType::eRenderPassCreateInfo;
-//	renderpass.attachmentCount = attachments.size();
-//	renderpass.pAttachments = attachments.data();
-//	renderpass.subpassCount = 2;
-//	renderpass.pSubpasses = subpasses.data();
-//	renderpass.dependencyCount = 2;
-//	renderpass.pDependencies = dependencies.data();
-//
-//	m_mainRenderPass = m_device.createRenderPass(renderpass);
-//}
 
 void MoonlitRenderer::HandleWindowEvents(WINDOW_EVENT _event, void* _data)
 {

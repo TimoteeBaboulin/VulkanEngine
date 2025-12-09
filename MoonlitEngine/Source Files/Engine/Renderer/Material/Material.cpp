@@ -260,6 +260,5 @@ void Material::RemoveInstance(MaterialInstance* _instance)
 
 MaterialInstance* Material::CreateInstance(DeviceData _deviceData)
 {
-	auto surfaceFormat = vhf::GetFormat(_deviceData.PhysicalDevice, _deviceData.SwapChainSupportDetails.formats);
-	return new MaterialInstance(_deviceData.Device, this, surfaceFormat.format);
+	return new MaterialInstance(_deviceData.Device, this, _deviceData.SurfaceFormat.format);
 }

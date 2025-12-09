@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32825.248
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11222.16 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MoonlitEngine", "MoonlitEngine\MoonlitEngine.vcxproj", "{2705F8B3-2589-495F-A15C-85DADB598173}"
 EndProject
@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MoonlitEditor", "MoonlitEdi
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DefaultPlugin", "DefaultPlugin\DefaultPlugin.vcxproj", "{FF04EA05-BE74-4FA6-B92C-3DD07ED61478}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine Unit Tests", "Engine Unit Tests\Engine Unit Tests.vcxproj", "{E5F81F97-427B-4900-8D19-24FEB1F234C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,6 +74,22 @@ Global
 		{FF04EA05-BE74-4FA6-B92C-3DD07ED61478}.Release|x64.Build.0 = Release|x64
 		{FF04EA05-BE74-4FA6-B92C-3DD07ED61478}.Release|x86.ActiveCfg = Release|Win32
 		{FF04EA05-BE74-4FA6-B92C-3DD07ED61478}.Release|x86.Build.0 = Release|Win32
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.Debug|x64.ActiveCfg = Debug|x64
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.Debug|x64.Build.0 = Debug|x64
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.Debug|x86.ActiveCfg = Debug|Win32
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.Debug|x86.Build.0 = Debug|Win32
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.EditorDebug|x64.ActiveCfg = Release|x64
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.EditorDebug|x64.Build.0 = Release|x64
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.EditorDebug|x86.ActiveCfg = Release|Win32
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.EditorDebug|x86.Build.0 = Release|Win32
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.EditorRelease|x64.ActiveCfg = Release|x64
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.EditorRelease|x64.Build.0 = Release|x64
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.EditorRelease|x86.ActiveCfg = Release|Win32
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.EditorRelease|x86.Build.0 = Release|Win32
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.Release|x64.ActiveCfg = Release|x64
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.Release|x64.Build.0 = Release|x64
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.Release|x86.ActiveCfg = Release|Win32
+		{E5F81F97-427B-4900-8D19-24FEB1F234C5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

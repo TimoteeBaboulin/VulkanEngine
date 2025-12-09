@@ -25,8 +25,7 @@ RenderTarget::RenderTarget(int _framesInFlight, HWND _surface,
 	AddSubpass("color");
 
 	//Get the format as its gonna be used in the renderpass
-	SwapChainSupportDetails swapChainSupport = m_deviceData.SwapChainSupportDetails;
-	m_format = vhf::GetFormat(m_deviceData.PhysicalDevice, swapChainSupport.formats);
+	m_format = m_deviceData.SurfaceFormat.format;
 
 	Init();
 }

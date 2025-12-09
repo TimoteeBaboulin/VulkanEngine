@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Engine/Inputs/InputManager.h"
-#include "CustomVulkanStructs.h"
 #include "common.h"
 
 #include <string>
@@ -39,15 +38,10 @@ public:
 	void RemoveMeshInstance(uint32_t _instanceId);
 	RenderTarget* AddRenderTarget(void* _handle, Camera* _camera);
 
-	[[deprecated("This function is deprecated in favor of meshrenderers")]]
-	void LoadMesh(std::string name);
-
 	void Render();
 private:
 	RendererContext* m_context;
 	RendererDeviceManager* m_deviceManager;
-
-	DeviceData m_deviceData;
 
 	std::vector<RenderTarget*> m_renderTargets;
 
@@ -83,11 +77,7 @@ private:
 	void InitVulkan();
 	void InitRenderer();
 
-	//void CreateRenderPasses(vk::Format _format);
-
 #pragma region Inputs
 	void HandleWindowEvents(WINDOW_EVENT _event, void* _data);
 #pragma endregion
-	//void RecordCommandBuffer(vk::CommandBuffer& _buffer, int _imageIndex);
-	//void CreateUboDescriptorSetLayout();
 };

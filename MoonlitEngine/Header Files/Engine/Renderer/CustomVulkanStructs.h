@@ -79,7 +79,8 @@ struct DeviceData
 
 	QueueFamilyIndices QueueIndices;
 	RenderQueues Queues;
-	SwapChainSupportDetails SwapChainSupportDetails;
+	vk::SurfaceFormatKHR SurfaceFormat;
+	//SwapChainSupportDetails SwapChainSupportDetails;
 	float TimeStampPeriods;
 };
 

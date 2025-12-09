@@ -22,8 +22,6 @@ public:
 private:
 	vk::Instance m_vulkanInstance;
 	
-	size_t m_targetCount = 0;
-
 	vk::PhysicalDevice m_selectedPhysicalDevice;
 	vk::Device m_selectedLogicalDevice;
 	DeviceData m_selectedDeviceData;

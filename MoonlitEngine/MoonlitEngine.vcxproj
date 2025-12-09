@@ -358,6 +358,8 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Header Files\Engine\Renderer\HelperClasses\VertexInputHelper.h" />
+    <ClCompile Include="Source Files\Engine\Tasks\TaskManager.cpp" />
+    <ClCompile Include="Source Files\Engine\Tasks\Worker.cpp" />
     <ClCompile Include="Source Files\Debug\Exceptions\PluginLoadException.cpp" />
     <ClCompile Include="Source Files\Debug\Profiler.cpp" />
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
@@ -404,6 +406,9 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\Engine\Renderer\Material\MaterialInstance.h" />
     <ClInclude Include="Header Files\Engine\Renderer\RenderTarget.h" />
     <ClInclude Include="Header Files\Engine\Scene\Scene.h" />
+    <ClInclude Include="Header Files\Engine\Tasks\Task.h" />
+    <ClInclude Include="Header Files\Engine\Tasks\TaskManager.h" />
+    <ClInclude Include="Header Files\Engine\Tasks\Worker.h" />
     <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
     <ClInclude Include="Header Files\ResourceManagement\ImageHelper.h" />
     <ClInclude Include="Header Files\MoonlitExport.h" />

@@ -7,6 +7,8 @@
 
 #include "Debug/Logger.h"
 
+#include "Engine/Renderer/VulkanHelperFunctions.h"
+
 RendererDeviceManager::RendererDeviceManager(vk::Instance _instance)
 {
 	m_vulkanInstance = _instance;
@@ -42,7 +44,10 @@ void RendererDeviceManager::InitKHRQueues(vk::SurfaceKHR _surface)
 	swapChainAdequate = !swapChainSupportDetails.formats.empty() && !swapChainSupportDetails.presentModes.empty();
 
 	if (swapChainAdequate)
-		m_selectedDeviceData.SwapChainSupportDetails = swapChainSupportDetails;
+	{
+		auto surfaceFormat = vhf::GetFormat(m_selectedPhysicalDevice, swapChainSupportDetails.formats);
+		m_selectedDeviceData.SurfaceFormat = surfaceFormat;
+	}
 }
 
 void RendererDeviceManager::Cleanup()
@@ -165,6 +170,7 @@ SwapChainSupportDetails RendererDeviceManager::QuerySwapChainSupportDetails(vk::
 	unsigned int formatCount = 0;
 	unsigned int presentModeCount = 0;
 
+	// TODO: Add a way to get those capabilities if needed
 	details.capabilities = _device.getSurfaceCapabilitiesKHR(_surface);
 	details.formats = _device.getSurfaceFormatsKHR(_surface);
 	details.presentModes = _device.getSurfacePresentModesKHR(_surface);

@@ -44,7 +44,7 @@ public:
 	DrawBufferDeviceBridge(DrawBufferDeviceBridge const&) = delete;
 	DrawBufferDeviceBridge& operator=(DrawBufferDeviceBridge const&) = delete;
 	DrawBufferDeviceBridge(DrawBufferDeviceBridge&& _src);
-	DrawBufferDeviceBridge& operator=(DrawBufferDeviceBridge&& _rhs);
+	DrawBufferDeviceBridge& operator=(DrawBufferDeviceBridge&& _rhs) noexcept;
 
 	~DrawBufferDeviceBridge();
 	DrawBufferResources const GetBufferResources() { return m_drawResources; };

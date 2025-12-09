@@ -70,7 +70,7 @@ public:
 	Material(std::string _shaderPath);
 	~Material();
 
-	std::shared_ptr<MaterialInstance> GetOrCreateInstance(vk::Device _device);
+	std::shared_ptr<MaterialInstance> GetOrCreateInstance(DeviceData& _device);
 	
 	int GetTextureCount() const { return m_textureCount; }
 	ShaderData GetShaderData() const;
@@ -79,7 +79,7 @@ public:
 private:
 	void RemoveInstance(MaterialInstance* _instance);
 
-	MaterialInstance* CreateInstance(vk::Device _device);
+	MaterialInstance* CreateInstance(DeviceData _device);
 
 	std::string m_shaderPath;
 	ShaderData m_shaderData;

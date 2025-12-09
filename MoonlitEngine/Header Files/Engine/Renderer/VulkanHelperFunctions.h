@@ -253,6 +253,8 @@ public:
 	{
 		for (int i = 0; i < _format.size(); i++)
 		{
+			if (_format[i].format != vk::Format::eR16G16B16A16Sfloat)
+				continue;
 			auto properties = _physDevice.getFormatProperties(_format[i].format);
 			auto value = properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment;
 			if ((properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment) == vk::FormatFeatureFlagBits::eDepthStencilAttachment)

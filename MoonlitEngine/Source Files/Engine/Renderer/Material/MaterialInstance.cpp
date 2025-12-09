@@ -5,7 +5,7 @@
 
 #include "Engine/Renderer/HelperClasses/VertexInputHelper.h"
 
-MaterialInstance::MaterialInstance(vk::Device _device, Material* _material)
+MaterialInstance::MaterialInstance(vk::Device _device, Material* _material, vk::Format _colorOutputFormat)
 {
 	m_baseMaterial = _material;
 	m_device = _device;
@@ -13,6 +13,8 @@ MaterialInstance::MaterialInstance(vk::Device _device, Material* _material)
 
 	//TODO: Handle multiple textures
 	m_textureCount = 1;
+	m_colorOutputFormat = _colorOutputFormat;
+
 	CreatePipelineLayouts();
 	CreatePipelines();
 	CreateDescriptorPool();
@@ -238,12 +240,10 @@ void MaterialInstance::CreatePipelines()
 	//pipelineInfo.renderPass = _renderPass;
 	pipelineInfo.layout = m_pipelineLayouts[0];
 
-	vk::Format colorFormat = vk::Format::eR16G16B16A16Sfloat;
-
 	vk::PipelineRenderingCreateInfoKHR renderingCreateInfo;
 	renderingCreateInfo.sType = vk::StructureType::ePipelineRenderingCreateInfoKHR;
 	renderingCreateInfo.colorAttachmentCount = 1;
-	renderingCreateInfo.pColorAttachmentFormats = &colorFormat;
+	renderingCreateInfo.pColorAttachmentFormats = &m_colorOutputFormat;
 	renderingCreateInfo.depthAttachmentFormat = vk::Format::eD32Sfloat;
 	renderingCreateInfo.stencilAttachmentFormat = vk::Format::eUndefined;
 	pipelineInfo.pNext = &renderingCreateInfo;

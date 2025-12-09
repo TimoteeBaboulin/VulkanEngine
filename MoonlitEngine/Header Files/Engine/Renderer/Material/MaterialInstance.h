@@ -15,7 +15,7 @@ class RenderTarget;
 class MaterialInstance
 {
 public:
-	MaterialInstance(vk::Device _device, Material* _material);
+	MaterialInstance(vk::Device _device, Material* _material, vk::Format _colorOutputFormat);
 	~MaterialInstance();
 	void BindPipeline(vk::CommandBuffer _buffer, std::string _renderPass);
 
@@ -30,6 +30,7 @@ private:
 	ShaderData m_shaderData;
 	Material* m_baseMaterial;
 	vk::Device m_device;
+	vk::Format m_colorOutputFormat;
 
 	// Vulkan Items
 	std::map<std::string, vk::Pipeline> m_pipelines;

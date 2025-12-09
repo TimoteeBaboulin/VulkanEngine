@@ -9,7 +9,7 @@ DrawBufferDeviceBridge::DrawBufferDeviceBridge(DeviceData _deviceData, Material&
 	DrawBuffer* _drawBuffer) : m_parentBuffer(_drawBuffer)
 {
 	m_deviceData = _deviceData;
-	m_materialInstance = _baseMaterial.GetOrCreateInstance(m_deviceData.Device);
+	m_materialInstance = _baseMaterial.GetOrCreateInstance(_deviceData);
 
 	AllocateCommandBuffer();
 	AllocateTextureSets();
@@ -27,14 +27,16 @@ DrawBufferDeviceBridge::DrawBufferDeviceBridge(DrawBufferDeviceBridge&& _src)
 	m_commandPool = _src.m_commandPool;
 	m_commandBuffer = _src.m_commandBuffer;
 	m_drawResources = _src.m_drawResources;
+	m_parentBuffer = _src.m_parentBuffer;
 	_src.m_materialInstance = nullptr;
 	_src.m_commandBuffer = nullptr;
 	_src.m_commandPool = nullptr;
 	_src.m_deviceData = {};
 	_src.m_drawResources = {};
+	_src.m_parentBuffer = nullptr;
 }
 
-DrawBufferDeviceBridge& DrawBufferDeviceBridge::operator=(DrawBufferDeviceBridge&& _rhs)
+DrawBufferDeviceBridge& DrawBufferDeviceBridge::operator=(DrawBufferDeviceBridge&& _rhs) noexcept
 {
 	// We can't keep the source's resources, not only is it bad practice
 	// But using the same resources from multiple places will cause vulkan crashes that are hell to debug
@@ -46,11 +48,13 @@ DrawBufferDeviceBridge& DrawBufferDeviceBridge::operator=(DrawBufferDeviceBridge
 		m_commandPool = _rhs.m_commandPool;
 		m_commandBuffer = _rhs.m_commandBuffer;
 		m_drawResources = _rhs.m_drawResources;
+		m_parentBuffer = _rhs.m_parentBuffer;
 		_rhs.m_materialInstance = nullptr;
 		_rhs.m_commandBuffer = nullptr;
 		_rhs.m_commandPool = nullptr;
 		_rhs.m_deviceData = {};
 		_rhs.m_drawResources = {};
+		_rhs.m_parentBuffer = nullptr;
 	}
 
 	return *this;

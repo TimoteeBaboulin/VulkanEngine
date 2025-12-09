@@ -42,5 +42,5 @@ std::vector<std::string> FileHelper::ListFilesInDirectory(const std::string& _di
 		}
 	}
 
-	return std::vector<std::string>();
+	return fileList;
 }

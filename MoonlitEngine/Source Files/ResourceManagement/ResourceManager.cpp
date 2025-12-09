@@ -14,11 +14,13 @@ ResourceManager::ResourceManager()
 	m_resourceBanks[std::type_index(typeid(MeshData))] = MeshBank::GetInstance();
 	m_resourceBanks[std::type_index(typeid(Image))] = TextureBank::GetInstance();
 
-	std::vector<std::string> meshFiles = FileHelper::ListFilesInDirectory("Assets/Meshes/");
+	std::vector<std::string> meshFiles = FileHelper::ListFilesInDirectory("./Meshes/");
 	for (const std::string& meshFile : meshFiles)
 	{
 		if (!TryLoadResourceInstance<MeshData>(meshFile))
 			LOG_ERROR("ResourceManager::ResourceManager - Failed to load mesh: " + meshFile);
+		else
+			LOG_INFO("ResourceManager::ResourceManager - Loaded mesh: " + meshFile);
 	}
 }
 

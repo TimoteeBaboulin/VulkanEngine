@@ -75,6 +75,12 @@ bool MeshBank::TryLoad(std::string _filepath)
 		return false;
     }
 
+	std::string extension = path.extension().string();
+    if (extension != ".fbx" && extension != ".obj" && extension != ".dae" && extension != ".3ds" && extension != ".gltf" && extension != ".glb")
+    {
+        return false;
+    }
+
     std::string name = path.stem().string();
 
     if (Exist(name))
@@ -95,7 +101,8 @@ bool MeshBank::TryLoad(std::string _filepath)
         if (scene == nullptr)
         {
             std::string errorMessage = importer.GetErrorString();
-            throw new std::runtime_error(errorMessage);
+			LOG_ERROR("MeshBank::TryLoad - Assimp failed to load mesh at " + _filepath + ". Error: " + errorMessage);
+			return false;
         }
 
         std::shared_ptr<MeshData> meshPtr = std::make_shared<MeshData>();
@@ -112,5 +119,5 @@ bool MeshBank::TryLoad(std::string _filepath)
         return false;
 	}
     
-    return false;
+    return true;
 }

@@ -20,28 +20,20 @@ public:
 	template <class T>
 	static void RegisterResourceBank(ResourceBank<T>* _bank)
 	{
-		ResourceManager* instance = Get();
-		instance->m_resourceBanks[std::type_index(typeid(T))] = _bank;
+		Instance()->m_resourceBanks[std::type_index(typeid(T))] = _bank;
 	}
 	template <class T>
 	static bool TryGetResource(std::string _name, std::shared_ptr<T>& _outResource)
 	{
-		ResourceManager* instance = Get();
-		return instance->TryGetResourceInstance<T>(_name, _outResource);
+		return Instance()->TryGetResourceInstance<T>(_name, _outResource);
 	}
 	template <class T>
 	static bool TryLoadResource(std::string _path)
 	{
-		ResourceManager* instance = Get();
-		return instance->TryLoadResourceInstance<T>(_path);
+		return Instance()->TryLoadResourceInstance<T>(_path);
 	}
 
-	static ResourceManager* Get();
-
-
-private:
-
-	static ResourceManager* m_instance;
+	static ResourceManager* Instance();
 
 // Instance
 public:
@@ -74,6 +66,8 @@ private:
 
 		return false;
 	}
+
+	void Init();
 
 	//Link the resource type to its bank
 	std::map<std::type_index, void*> m_resourceBanks;

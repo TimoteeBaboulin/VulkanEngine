@@ -27,9 +27,16 @@ public:
 	static inline ResourceBank<T>* Instance;
 
 	ResourceBank();
+
+	// Getters
+
+	std::vector<ResourcePair<T>> GetAllResources() { return m_resources; }
 	std::shared_ptr<T> Get(std::string _name);
-	virtual bool TryLoad(std::string _filepath) = 0;
 	bool Exist(std::string _name);
+	
+	// Load/Unload
+
+	virtual bool TryLoad(std::string _filepath) = 0;
 	void TryUnloadUnusedResources();
 
 protected:

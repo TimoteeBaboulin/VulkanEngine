@@ -19,7 +19,7 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner)
 	m_transformChangedSubscriber = new ScopedEventSubscriber(m_transformComponent->OnTransformChanged,
 		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
-	ResourceManager* m_manager = ResourceManager::Get();
+	ResourceManager* m_manager = ResourceManager::Instance();
 	if (!m_manager->TryGetResource<MeshData>("Corpo_Model", m_meshData))
 	{
 		LOG_ERROR("Failed to load default mesh barstool_mesh from ResourceManager.");

@@ -84,23 +84,33 @@ bool MeshBank::TryLoad(std::string _filepath)
     }
 
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(_filepath, 
-        aiPostProcessSteps::aiProcess_Triangulate |
-        aiPostProcessSteps::aiProcess_GenNormals |
-        aiPostProcessSteps::aiProcess_CalcTangentSpace);
-    if (scene == nullptr)
+
+    try
     {
-        std::string errorMessage = importer.GetErrorString();
-        throw new std::runtime_error(errorMessage);
+        const aiScene* scene = importer.ReadFile(_filepath,
+            aiPostProcessSteps::aiProcess_Triangulate |
+            aiPostProcessSteps::aiProcess_GenNormals |
+            aiPostProcessSteps::aiProcess_CalcTangentSpace);
+
+        if (scene == nullptr)
+        {
+            std::string errorMessage = importer.GetErrorString();
+            throw new std::runtime_error(errorMessage);
+        }
+
+        std::shared_ptr<MeshData> meshPtr = std::make_shared<MeshData>();
+        *meshPtr = GetMesh(scene->mMeshes[0]);
+
+        m_resources.push_back(ResourcePair<MeshData>{
+            name,
+                meshPtr
+        });
     }
-
-    std::shared_ptr<MeshData> meshPtr = std::make_shared<MeshData>();
-    *meshPtr = GetMesh(scene->mMeshes[0]);
-
-    m_resources.push_back(ResourcePair<MeshData>{
-        name,
-        meshPtr
-    });
-
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("MeshBank::TryLoad - Failed to load mesh at " + _filepath + ". Error: " + e.what());
+        return false;
+	}
+    
     return false;
 }

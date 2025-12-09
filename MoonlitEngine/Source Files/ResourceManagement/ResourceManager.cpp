@@ -2,25 +2,28 @@
 
 #include "ResourceManagement/MeshBank.h"
 #include "ResourceManagement/TextureBank.h"
+#include "ResourceManagement/FileHelper.h"
 
-MOONLIT_API ResourceManager* ResourceManager::m_instance = nullptr;
+#include "Debug/Logger.h"
 
 ResourceManager::ResourceManager()
 {
-	m_instance = this;
-
 	MeshBank::Initialize();
 	TextureBank::Initialize();
 
-	ResourceManager::RegisterResourceBank<MeshData>(MeshBank::GetInstance());
-	ResourceManager::RegisterResourceBank<Image>(TextureBank::GetInstance());
+	m_resourceBanks[std::type_index(typeid(MeshData))] = MeshBank::GetInstance();
+	m_resourceBanks[std::type_index(typeid(Image))] = TextureBank::GetInstance();
+
+	std::vector<std::string> meshFiles = FileHelper::ListFilesInDirectory("Assets/Meshes/");
+	for (const std::string& meshFile : meshFiles)
+	{
+		if (!TryLoadResourceInstance<MeshData>(meshFile))
+			LOG_ERROR("ResourceManager::ResourceManager - Failed to load mesh: " + meshFile);
+	}
 }
 
-ResourceManager* ResourceManager::Get()
+ResourceManager* ResourceManager::Instance()
 {
-	if (m_instance == nullptr)
-	{
-		m_instance = new ResourceManager();
-	}
-	return m_instance;
+	static ResourceManager* Instance = new ResourceManager();
+	return Instance;
 }

@@ -45,4 +45,6 @@ private:
 	std::vector<EditorWindowBase*> m_editorWindows;
 
 	class DefaultDockManager* m_dockManager;
+
+	void LoadDefaultLayout();
 };

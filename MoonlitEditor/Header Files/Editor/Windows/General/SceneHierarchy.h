@@ -13,6 +13,9 @@ public:
 	SceneHierarchy(QWidget* parent = nullptr);
 private:
 	void SetModel();
+	void ContextMenuClicked(QAction* _action);
+	void ShowContextMenu(const QPoint& _pos);
 
 	SceneHierarchyModel* m_model;
+	QMenu* m_contextMenu;
 };

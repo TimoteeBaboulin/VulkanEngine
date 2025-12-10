@@ -103,6 +103,19 @@ void Scene::ClearScene()
 	m_rootGameObjects.clear();
 }
 
+void Scene::AddGameObject(GameObject* _gameObject, GameObject* _parent)
+{
+	if (_parent == nullptr)
+	{
+		m_rootGameObjects.emplace_back(_gameObject);
+	}
+	else
+	{
+		_parent->AddChild(_gameObject);
+		_gameObject->SetParent(_parent);
+	}
+}
+
 GameObject* Scene::GetGameObjectById(uint64_t _id) const
 {
 	auto it = std::find_if(m_rootGameObjects.begin(), m_rootGameObjects.end(), [_id](GameObject* obj) {

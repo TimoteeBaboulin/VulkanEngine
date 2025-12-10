@@ -9,7 +9,7 @@
 #include "Debug/Logger.h"
 
 
-SceneViewWindow::SceneViewWindow(IDockManager* _dockManager)
+SceneView::SceneView(IDockManager* _dockManager)
 	: EditorWindowBase(), m_camera(glm::vec3(0.0f, 0.0f, 40.0f), glm::vec3(0.0, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 {
 	_dockManager->AddWidget(this, "Scene View", ads::CenterDockWidgetArea);
@@ -29,7 +29,7 @@ SceneViewWindow::SceneViewWindow(IDockManager* _dockManager)
 		});
 }
 
-SceneViewWindow::SceneViewWindow(QWidget* _parent) :
+SceneView::SceneView(QWidget* _parent) :
 	EditorWindowBase(_parent), m_camera(glm::vec3(0.0f, 0.0f, 40.0f), glm::vec3(0.0, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 {
 	SetQtData();
@@ -52,7 +52,7 @@ SceneViewWindow::SceneViewWindow(QWidget* _parent) :
 	//InputManager::GetInstance()->AddInputHandler(m_inputHandler);
 }
 
-bool SceneViewWindow::event(QEvent* _event)
+bool SceneView::event(QEvent* _event)
 {
 	if (_event->type() == QEvent::Resize)
 	{
@@ -62,7 +62,7 @@ bool SceneViewWindow::event(QEvent* _event)
 	return QWidget::event(_event);
 }
 
-void SceneViewWindow::SetQtData()
+void SceneView::SetQtData()
 {
 	//The attribute and resize are needed to make sure the docked widget has a its own HWND
 	//And with a valid size before show/creation
@@ -87,7 +87,7 @@ void SceneViewWindow::SetQtData()
 	//TODO: Add connect to update timer here
 }
 
-void SceneViewWindow::StartResizing()
+void SceneView::StartResizing()
 {
 	if (!m_renderTarget)
 		return;
@@ -95,7 +95,7 @@ void SceneViewWindow::StartResizing()
 	m_resizeTimer->start();
 }
 
-void SceneViewWindow::StopResizing()
+void SceneView::StopResizing()
 {
 	if (!m_renderTarget)
 		return;

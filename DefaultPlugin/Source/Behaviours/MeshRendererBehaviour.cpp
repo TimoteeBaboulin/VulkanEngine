@@ -20,7 +20,7 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner)
 		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
 	ResourceManager* m_manager = ResourceManager::Instance();
-	if (!m_manager->TryGetResource<MeshData>("Corpo_Model", m_meshData))
+	if (!m_manager->TryGetResource<MeshData>("barstool", m_meshData))
 	{
 		LOG_ERROR("Failed to load default mesh barstool_mesh from ResourceManager.");
 		throw std::runtime_error("Failed to load default mesh barstool_mesh from ResourceManager.");
@@ -37,14 +37,6 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner)
 	textures.push_back(firstTexture);
 
 	m_instanceId = MoonlitEngine::GetInstance()->Renderer->AddMeshInstance(m_meshData, textures, m_transformComponent->GetModelMat());
-
-	//if (!m_manager->TryGetResource<MeshData>("Corpo_Model", m_meshData))
-	//{
-	//	LOG_ERROR("Failed to load default mesh barstool_mesh from ResourceManager.");
-	//	throw std::runtime_error("Failed to load default mesh barstool_mesh from ResourceManager.");
-	//}
-
-	//MoonlitEngine::GetInstance()->Renderer->UpdateInstanceMesh(m_instanceId, m_meshData);
 }
 
 MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner, std::shared_ptr<MeshData> _mesh) : ObjectBehaviour(_owner)

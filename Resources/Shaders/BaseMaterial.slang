@@ -60,8 +60,8 @@ v2f vertexMain(VertexInput inVert, InstanceInput inInst)
     output.worldPos = mul(float4(inVert.position, 1.0f), inInst.modelMat).xyz;
     output.texCoord = inVert.texCoord.xy;
     output.normal = normalize(mul(normalMatrix, inVert.normal));
-    output.tangeant = normalize(inVert.tangeant);
-    output.bitangeant = normalize(inVert.bitangeant);
+    output.tangeant = normalize(mul(normalMatrix, inVert.tangeant));
+    output.bitangeant = normalize(mul(normalMatrix, inVert.bitangeant   ));
     output.texIndex = inInst.index;
 
     return output;

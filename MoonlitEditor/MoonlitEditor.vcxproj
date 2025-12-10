@@ -333,7 +333,6 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClCompile Include="Source Files\Editor\Windows\Debug\ProfilerWindow.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\SceneHierarchy.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\FileExplorer.cpp" />
-    <ClCompile Include="Source Files\SceneViewInputHandler.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\EditorWindowBase.cpp" />
     <ClCompile Include="Source Files\Editor\MoonlitEditor.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\EditorMainWindow.cpp" />

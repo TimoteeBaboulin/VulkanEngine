@@ -10,11 +10,11 @@ class QTimer;
 class SceneViewInputHandler;
 class RenderTarget;
 
-class SceneViewWindow : public EditorWindowBase
+class SceneView : public EditorWindowBase
 {
 public:
-	SceneViewWindow(IDockManager* _dockManager);
-	SceneViewWindow(QWidget* _parent = nullptr);
+	SceneView(IDockManager* _dockManager);
+	SceneView(QWidget* _parent = nullptr);
 
 	bool event(QEvent* _event) override;
 
@@ -25,8 +25,6 @@ private:
 	HWND m_windowHandle = nullptr;
 	MoonlitEngine* m_engine = nullptr;
 
-	QTimer* m_updateTimer = nullptr;
-	std::function<void()> m_updateCallback = nullptr;
 	Camera m_camera;
 
 	SceneViewInputHandler* m_inputHandler = nullptr;

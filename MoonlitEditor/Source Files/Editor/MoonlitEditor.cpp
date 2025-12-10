@@ -60,10 +60,20 @@ MoonlitEditor::MoonlitEditor()
 	m_engine = new MoonlitEngine((void*)mainHandle);
 	m_engine->Init();
 
-	//By default, the main window already has a scene view docked to the left
-	m_editorWindows.push_back(new SceneViewWindow(m_dockManager));
-	
-	SceneViewWindow* sceneView = static_cast<SceneViewWindow*>(m_editorWindows.back());
+	LoadDefaultLayout();
+
+	InputManager::GetInstance()->LinkQtApplication(m_app);
+
+	m_app->processEvents();
+
+	m_app->exec();
+}
+
+void MoonlitEditor::LoadDefaultLayout()
+{
+	m_editorWindows.push_back(new SceneView(m_dockManager));
+
+	SceneView* sceneView = static_cast<SceneView*>(m_editorWindows.back());
 
 	m_editorWindows.push_back(new FileExplorer(m_dockManager));
 
@@ -76,12 +86,6 @@ MoonlitEditor::MoonlitEditor()
 	m_updateTimer->setInterval(16);
 	m_updateTimer->setSingleShot(false);
 	m_updateTimer->start();
+
 	QObject::connect(m_updateTimer, &QTimer::timeout, m_mainWindow, m_updateCallback);
-	sceneView->connect(m_updateTimer, &QTimer::timeout, sceneView, m_updateCallback);
-
-	InputManager::GetInstance()->LinkQtApplication(m_app);
-
-	m_app->processEvents();
-
-	m_app->exec();
 }

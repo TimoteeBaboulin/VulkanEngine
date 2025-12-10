@@ -9,6 +9,8 @@
 #include "Debug/Logger.h"
 #include "Engine/Components/BehaviourRegistry.h"
 
+#include "Engine/MoonlitEngine.h"
+
 std::map<uint64_t, GameObject*> GameObject::m_gameObjects = std::map<uint64_t, GameObject*>();
 
 GameObject* GameObject::Create()

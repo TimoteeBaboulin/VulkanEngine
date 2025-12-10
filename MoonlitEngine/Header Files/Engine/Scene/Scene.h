@@ -19,6 +19,8 @@ public:
 
 	void ClearScene();
 
+	void AddGameObject(class GameObject* _gameObject, class GameObject* _parent = nullptr);
+
 	class GameObject* GetGameObjectById(uint64_t _id) const;
 	class GameObject* GetGameObjectByName(const std::string& _name) const;
 

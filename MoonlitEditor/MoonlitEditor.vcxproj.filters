@@ -39,9 +39,6 @@
     <ClCompile Include="Source Files\Editor\Windows\EditorWindowBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\SceneViewInputHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Editor\Windows\General\FileExplorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -85,12 +85,14 @@ void MoonlitEngine::LoadPlugin(std::string _name)
 
 void MoonlitEngine::Init()
 {
-	ResourceManager::TryLoadResource<MeshData>("Meshes/barstool.gltf");
-	ResourceManager::TryLoadResource<MeshData>("Meshes/Corpo_Model.fbx");
-	ResourceManager::TryLoadResource<Image>("Textures/barstool_albedo.png");
-	ResourceManager::TryLoadResource<Image>("Textures/Sniper.png");
+	ResourceManager::Instance();
 
 	m_activeScene = new Scene();
+	if (!m_activeScene)
+	{
+		LOG_ERROR("MoonlitEngine Init: Failed to create active scene");
+		return;
+	}
 }
 void MoonlitEngine::Update()
 {

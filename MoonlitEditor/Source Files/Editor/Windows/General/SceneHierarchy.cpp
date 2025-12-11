@@ -41,6 +41,9 @@ void SceneHierarchy::SetModel()
 		GameObject* obj = static_cast<GameObject*>(selected.internalPointer());
 		MoonlitEditor::OnSelectionChanged().Invoke(this, obj);
 		});
+
+	treeview->setContextMenuPolicy(Qt::CustomContextMenu);
+	treeview->connect(treeview, &QTreeView::customContextMenuRequested, this, &SceneHierarchy::ShowContextMenu);
 }
 
 void SceneHierarchy::ContextMenuClicked(QAction* _action)
@@ -50,6 +53,7 @@ void SceneHierarchy::ContextMenuClicked(QAction* _action)
 		GameObject* newObj = GameObject::CreateAt(glm::vec3(0.0f));
 		MoonlitEngine::GetInstance()->GetScene().AddGameObject(newObj);
 		newObj->SetName("New GameObject");
+		m_model->Refresh();
 		m_model->layoutChanged();
 	}
 
@@ -61,4 +65,5 @@ void SceneHierarchy::ShowContextMenu(const QPoint& _pos)
 	m_contextMenu = new QMenu(this);
 	m_contextMenu->addAction("Create Empty GameObject");
 	m_contextMenu->connect(m_contextMenu, &QMenu::triggered, this, &SceneHierarchy::ContextMenuClicked);
+	m_contextMenu->popup(mapToGlobal(_pos));
 }

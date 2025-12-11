@@ -16,6 +16,8 @@ public:
 
 	std::vector<ParameterRepositoryEntry> GetParameterEntries() override;
 
+	virtual void ParameterChanged() override;
+
 private:
 	void LookForTransformComponent();
 	void UpdateMeshInstanceModel();

@@ -14,7 +14,8 @@ template <class T>
 struct ResourcePair
 {
 	std::string Name;
-	std::shared_ptr<T> Resource;
+	T Resource;
+	std::shared_ptr<T> ResourcePtr;
 };
 
 /// <summary>
@@ -56,7 +57,7 @@ inline std::shared_ptr<T> ResourceBank<T>::Get(std::string _name)
 	{
 		if ((*it).Name == _name)
 		{
-			return (*it).Resource;
+			return (*it).ResourcePtr;
 		}
 	}
 
@@ -79,9 +80,10 @@ inline void ResourceBank<T>::TryUnloadUnusedResources()
 {
 	for (auto it = m_resources.begin(); it != m_resources.end(); it++)
 	{
-		if ((*it).Resource.use_count() == 1)
+		if ((*it).ResourcePtr.use_count() == 1)
 		{
 			//TODO: Handle resource unloading properly
+			m_resources.erase(it);
 		}
 	}
 }

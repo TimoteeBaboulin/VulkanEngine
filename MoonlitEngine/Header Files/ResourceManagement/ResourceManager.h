@@ -33,6 +33,19 @@ public:
 		return Instance()->TryLoadResourceInstance<T>(_path);
 	}
 
+	template <class T>
+	std::vector<ResourcePair<T>> GetAllResourcesOfType()
+	{
+		std::vector<ResourcePair<T>> resources;
+		auto it = m_resourceBanks.find(std::type_index(typeid(T)));
+		if (it != m_resourceBanks.end())
+		{
+			ResourceBank<T>* bank = static_cast<ResourceBank<T>*>(it->second);
+			return bank->GetAllResources();
+		}
+		return resources;
+	}
+
 	static ResourceManager* Instance();
 
 // Instance
@@ -67,7 +80,7 @@ private:
 		return false;
 	}
 
-	void Init();
+	void LoadFileResource(std::string _filepath);
 
 	//Link the resource type to its bank
 	std::map<std::type_index, void*> m_resourceBanks;

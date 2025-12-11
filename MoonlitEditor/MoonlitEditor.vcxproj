@@ -321,6 +321,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterTypes\MeshData.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourCreationWidget.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\ObjectEditor.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourWidget.cpp" />
@@ -356,6 +357,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     <ClInclude Include="Header Files\Editor\Windows\Widgets\BehaviourWidget.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\BehaviourCreationWidget.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\Float.h" />
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\MeshData.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\ParameterEditor.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\ParameterTypeRegistry.h" />
     <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterWidget.h" />

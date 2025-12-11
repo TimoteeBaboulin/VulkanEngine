@@ -26,14 +26,12 @@ bool TextureBank::TryLoad(std::string _filepath)
         return false;
     }
 
-	std::shared_ptr<Image> texturePtr = std::make_shared<Image>();
-
-    *texturePtr.get() = ImageHelper::LoadFromFile(_filepath);
-
 	m_resources.push_back(ResourcePair<Image>{
 		name,
-		texturePtr
+		ImageHelper::LoadFromFile(_filepath),
 	});
+
+	m_resources.back().ResourcePtr = std::shared_ptr<Image>(&m_resources.back().Resource);
 
     return true;
 }

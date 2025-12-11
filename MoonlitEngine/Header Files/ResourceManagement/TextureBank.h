@@ -24,5 +24,4 @@ public:
 	bool TryLoad(std::string _filepath) override;
 
 private:
-	//Image GetTextureData(Image _image);
 };

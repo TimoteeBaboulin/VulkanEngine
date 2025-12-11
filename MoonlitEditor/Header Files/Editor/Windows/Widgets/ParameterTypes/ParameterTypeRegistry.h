@@ -4,6 +4,8 @@
 
 #include "Vector3.h"
 #include "Float.h"
+#include "MeshData.h"
+#include "common.h"
 
 #include <glm/vec3.hpp>
 
@@ -34,6 +36,11 @@ public:
 			[](ParameterRepositoryEntry entry) -> ParameterEditor*
 			{
 				return new Vector3ParameterEditor(entry);
+			});
+		RegisterParameterType(typeid(std::shared_ptr<MeshData>).name(),
+			[](ParameterRepositoryEntry entry) -> ParameterEditor*
+			{
+				return new Editor::Widgets::MeshDataParameterEditor(entry);
 			});
 	}
 

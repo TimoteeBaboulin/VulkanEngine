@@ -211,7 +211,7 @@ void DrawBuffer::InsertMesh(std::shared_ptr<MeshData> _mesh)
 	// Pre-calculate the final size to avoid causing multiple resizes
 	size_t vertexCount = (*_mesh).vertexCount;
 	size_t indexCount = (*_mesh).triangleCount * 3;
-	size_t baseIndex = m_indexCount;
+	size_t baseIndex = m_vertexCount;
 	m_vertexCount += vertexCount;
 	m_indexCount += indexCount;
 	m_vertexData.reserve(m_vertexCount);
@@ -227,7 +227,6 @@ void DrawBuffer::InsertMesh(std::shared_ptr<MeshData> _mesh)
 		m_indexData.emplace_back((*_mesh).indices[i] + baseIndex);
 	}
 
-	// Create a copy in case the mesh is unloaded despite still existing in the draw buffer
 	MeshEntry& newEntry = m_meshEntries.back();
 	newEntry.Data.vertices = new Vertex[_mesh->vertexCount];
 	memcpy(newEntry.Data.vertices, _mesh->vertices, sizeof(Vertex) * _mesh->vertexCount);
@@ -256,8 +255,9 @@ void DrawBuffer::RemoveMesh(std::vector<MeshEntry>::iterator _meshIt)
 	for (auto it = m_meshEntries.begin(); it != _meshIt; it++)
 	{
 		indexStartIt += (*it).Data.triangleCount * 3;
-		indexOffset += (*it).Data.triangleCount * 3;
 	}
+
+	indexOffset = std::distance(m_indexData.begin(), indexStartIt);
 	m_indexData.erase(indexStartIt, indexStartIt + (*_meshIt).Data.triangleCount * 3);
 	// Fix indices after the removed mesh
 	while (indexOffset < m_indexData.size())

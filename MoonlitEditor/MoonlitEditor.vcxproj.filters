@@ -75,6 +75,9 @@
     <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourCreationWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterTypes\MeshData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Editor\Windows\EditorMainWindow.h">
@@ -135,6 +138,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Editor\Windows\Widgets\BehaviourCreationWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Editor\Windows\Widgets\ParameterTypes\MeshData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

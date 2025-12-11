@@ -20,7 +20,7 @@ MeshRendererBehaviour::MeshRendererBehaviour(GameObject* _owner)
 		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
 	ResourceManager* m_manager = ResourceManager::Instance();
-	if (!m_manager->TryGetResource<MeshData>("barstool", m_meshData))
+	if (!m_manager->TryGetResource<MeshData>("Cube", m_meshData))
 	{
 		LOG_ERROR("Failed to load default mesh barstool_mesh from ResourceManager.");
 		throw std::runtime_error("Failed to load default mesh barstool_mesh from ResourceManager.");
@@ -79,6 +79,11 @@ std::vector<ParameterRepositoryEntry> MeshRendererBehaviour::GetParameterEntries
 	return entries;
 }
 
+void MeshRendererBehaviour::ParameterChanged()
+{
+	UpdateMeshInstanceModel();
+}
+
 void MeshRendererBehaviour::LookForTransformComponent()
 {
 	TransformBehaviour* transform;
@@ -93,4 +98,5 @@ void MeshRendererBehaviour::LookForTransformComponent()
 void MeshRendererBehaviour::UpdateMeshInstanceModel()
 {
 	MoonlitEngine::GetInstance()->Renderer->UpdateInstanceModel(m_instanceId, m_transformComponent->GetModelMat());
+	MoonlitEngine::GetInstance()->Renderer->UpdateInstanceMesh(m_instanceId, m_meshData);
 }

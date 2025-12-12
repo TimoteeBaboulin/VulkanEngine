@@ -8,7 +8,7 @@
 //TODO: Clean up this file and remove unused stuff
 using MeshCountType = uint32_t;
 
-MOONLIT_API struct MeshData
+struct MOONLIT_API MeshData
 {
 	int vertexCount = 0;
 	Vertex* vertices = nullptr;

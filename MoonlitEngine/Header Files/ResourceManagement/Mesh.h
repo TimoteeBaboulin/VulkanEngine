@@ -4,11 +4,10 @@
 #include <vector>
 #include <memory>
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
+#include "GLMExport.h"
 
 //TODO: Move out of mesh.h
-MOONLIT_API struct Image
+struct MOONLIT_API Image
 {
 	unsigned char* pixels;
 
@@ -17,7 +16,7 @@ MOONLIT_API struct Image
 	int channels;
 };
 
-MOONLIT_API struct Vertex
+struct MOONLIT_API Vertex
 {
 	glm::vec3 position = { 0.0f, 0.0f, 0.0f };
 

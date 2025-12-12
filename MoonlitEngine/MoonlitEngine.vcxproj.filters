@@ -140,6 +140,7 @@
     <ClInclude Include="Header Files\Engine\Tasks\TaskManager.h" />
     <ClInclude Include="Header Files\Engine\Tasks\Worker.h" />
     <ClInclude Include="Header Files\Engine\Tasks\Task.h" />
+    <ClInclude Include="Header Files\GLMExport.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">

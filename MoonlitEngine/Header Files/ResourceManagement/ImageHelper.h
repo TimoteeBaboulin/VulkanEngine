@@ -5,7 +5,7 @@
 
 #include <string>
 
-MOONLIT_API class ImageHelper
+class MOONLIT_API ImageHelper
 {
 public:
 	static Image LoadFromFile(std::string _path);

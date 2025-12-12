@@ -4,7 +4,7 @@
 #include <string>
 #include "MoonlitExport.h"
 
-MOONLIT_API class FileHelper
+class MOONLIT_API FileHelper
 {
 public:
 	static std::vector<char> ReadFile(std::string _path);

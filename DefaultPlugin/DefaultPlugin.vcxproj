@@ -126,6 +126,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Builds/DLL/$(Platform)/Editor$(Configuration);$(SolutionDir)Libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>MoonlitEngine.lib;glfw3.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(OutDir)*.dll" "$(SolutionDir)Libraries/DLLs/Release"  /v /y /s</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -169,6 +172,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Builds/DLL/$(Platform)/Editor$(Configuration);$(SolutionDir)Libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>MoonlitEngine.lib;glfw3.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(OutDir)*.dll" "$(SolutionDir)Libraries/DLLs/Release"  /v /y /s</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Headers\framework.h" />

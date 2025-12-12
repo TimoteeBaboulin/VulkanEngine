@@ -473,7 +473,13 @@ void RenderTarget::CreateDescriptorSets()
 
 void RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuffers)
 {
-	m_deviceData.Device.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
+	vk::Result result = m_deviceData.Device.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
+
+	if (result != vk::Result::eSuccess)
+	{
+		LOG_ERROR("RenderTarget::Render\tFailed to wait for fence");
+		throw std::runtime_error("Failed to wait for fence!");
+	}
 
 	m_deviceData.Device.resetFences(m_waitForPreviousFrame[m_currentFrame]);
 
@@ -516,7 +522,7 @@ void RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuffers)
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphore;
 
-	auto result = m_deviceData.Queues.graphicsQueue.submit(1, &submitInfo, m_waitForPreviousFrame[m_currentFrame]);
+	result = m_deviceData.Queues.graphicsQueue.submit(1, &submitInfo, m_waitForPreviousFrame[m_currentFrame]);
 
 	vk::SwapchainKHR* swapChain = &m_swapChain;
 
@@ -532,7 +538,19 @@ void RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuffers)
 
 	try
 	{
-		m_deviceData.Queues.presentQueue.presentKHR(presentInfo);
+		result = m_deviceData.Queues.presentQueue.presentKHR(presentInfo);
+		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+		{
+			RecreateSwapChain();
+			m_currentFrame = 0;
+			return;
+		}
+		else if (result != vk::Result::eSuccess)
+		{
+			LOG_ERROR("RenderTarget::Render\tFailed to present swap chain image");
+			throw std::runtime_error("Failed to present swap chain image!");
+		}
+
 		m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 	}
 	catch (vk::OutOfDateKHRError e)

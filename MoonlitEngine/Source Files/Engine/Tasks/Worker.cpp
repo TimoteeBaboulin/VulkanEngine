@@ -23,6 +23,7 @@ bool MoonlitEngine::Tasks::Worker::TryGetTask()
 	
 	m_task = manager.m_taskQueue.front();
 	manager.m_taskQueue.pop();
+	return true;
 }
 
 void MoonlitEngine::Tasks::Worker::UpdateWorkerCount(TaskManager& _manager, bool _increment)

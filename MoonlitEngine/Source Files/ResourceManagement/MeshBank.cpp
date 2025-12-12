@@ -105,11 +105,10 @@ bool MeshBank::TryLoad(std::string _filepath)
 			return false;
         }
 
-        m_resources.push_back(ResourcePair<MeshData>{
-            name,
-            GetMesh(scene->mMeshes[0])
-        });
-		m_resources.back().ResourcePtr = std::shared_ptr<MeshData>(&m_resources.back().Resource);
+        m_resources.push_back(ResourcePair<MeshData>{ name});
+		ResourcePair<MeshData>& resource = m_resources.back();
+		resource.ResourcePtr = std::make_shared<MeshData>();
+		*resource.ResourcePtr.get() = GetMesh(scene->mMeshes[0]);
     }
     catch (const std::exception& e)
     {

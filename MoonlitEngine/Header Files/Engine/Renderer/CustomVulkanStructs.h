@@ -4,7 +4,7 @@
 #include "CustomVulkanImport.h"
 
 #include <optional>
-#include <glm/glm.hpp>
+#include "GLMExport.h"
 
 
 struct QueueFamilyIndices

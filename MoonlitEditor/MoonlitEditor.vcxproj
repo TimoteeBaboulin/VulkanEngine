@@ -114,10 +114,11 @@
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|Win32'">
-    <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
-    <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)\</OutDir>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
@@ -126,10 +127,10 @@
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">
-    <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
-    <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
@@ -205,7 +206,8 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s</Command>
+      <Command>xcopy "$(SolutionDir)Libraries\DLLs\Common" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Libraries\DLLs\Release" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -279,31 +281,13 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
       <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)ExternalLibraries" "$(OutDir)" /v /y /s</Command>
+      <Command>xcopy "$(SolutionDir)Libraries\DLLs\Common" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Libraries\DLLs\Release" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;;EDITOR_BUILD</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
-      <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
-      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
-    </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
-      <AdditionalDependencies>qtadvanceddocking-qt6_static.lib;Qt6Widgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
-    </Link>
-    <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)Libraries/DLLs/Common" "$(OutDir)" /v /y /s
-xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
-    <ClCompile>
-      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;;EDITOR_BUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;WIN32;</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
@@ -317,6 +301,27 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)Libraries/DLLs/Common" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Libraries/DLLs/Release" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>EDITOR_BUILD;ADS_STATIC;</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries/Include/QtWidgets;$(SolutionDir)Libraries/Include/QtGui;$(SolutionDir)Libraries/Include/QtCore;$(SolutionDir)Libraries/Include;$(SolutionDir)MoonlitEngine/Header Files;C:\VulkanSDK\1.4.313.0\Include;$(ProjectDir)/Header Files</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zc:__cplusplus -DQT_NO_VERSION_TAGGING %(AdditionalOptions)</AdditionalOptions>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries/lib;$(SolutionDir)ExternalLibraries</AdditionalLibraryDirectories>
+      <AdditionalDependencies>qtadvanceddocking-qt6.lib;Qt6Widgets.lib;Qt6Core.lib;Qt6Gui.lib;%(AdditionalDependencies);MoonlitEngine.lib</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)Libraries/DLLs/Common" "$(OutDir)" /v /y /s
+xcopy "$(SolutionDir)Libraries/DLLs/Release" "$(OutDir)" /v /y /s
 xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

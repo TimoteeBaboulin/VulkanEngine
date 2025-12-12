@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include "common.h"
+#include "Debug/Logger.h"
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -53,7 +54,13 @@ public:
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &_buffer;
 
-		_queue.submit(1, &submitInfo, nullptr);
+		vk::Result result = _queue.submit(1, &submitInfo, nullptr);
+		if (result != vk::Result::eSuccess)
+		{
+			LOG_ERROR("Failed to submit command buffer!");
+			throw std::runtime_error("failed to submit command buffer!");
+		}
+
 		_queue.waitIdle();
 
 		_device.freeCommandBuffers(_commandPool, 1, &_buffer);

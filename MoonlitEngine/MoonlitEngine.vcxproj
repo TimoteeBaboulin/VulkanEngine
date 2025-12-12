@@ -116,7 +116,7 @@
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|Win32'">
-    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
@@ -125,16 +125,16 @@
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">
-    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Builds\$(Platform)\$(Configuration)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
-    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
-    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)Builds\DLL/$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -409,6 +409,7 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\Engine\Tasks\Task.h" />
     <ClInclude Include="Header Files\Engine\Tasks\TaskManager.h" />
     <ClInclude Include="Header Files\Engine\Tasks\Worker.h" />
+    <ClInclude Include="Header Files\GLMExport.h" />
     <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
     <ClInclude Include="Header Files\ResourceManagement\ImageHelper.h" />
     <ClInclude Include="Header Files\MoonlitExport.h" />

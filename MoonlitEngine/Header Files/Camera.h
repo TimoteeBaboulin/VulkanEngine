@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "GLMExport.h"
 #include "MoonlitExport.h"
 
 // TODO: Add a dirty flag to avoid recalculating the view matrix on every call

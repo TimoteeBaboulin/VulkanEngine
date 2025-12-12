@@ -22,7 +22,7 @@ public:
 class ParameterEditor : public QWidget
 {
 public:
-	Event<void> OnParameterChanged;
+	Event<void, const ParameterRepositoryEntry&> OnParameterChanged;
 
 	// Default constructor
 	ParameterEditor(const ParameterRepositoryEntry& _entry, QWidget* _parent = nullptr)

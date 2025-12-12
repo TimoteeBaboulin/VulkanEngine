@@ -28,7 +28,7 @@ std::vector<ParameterRepositoryEntry> TransformBehaviour::GetParameterEntries()
 	return entries;
 }
 
-void TransformBehaviour::ParameterChanged()
+void TransformBehaviour::ParameterChanged(const ParameterRepositoryEntry& _parameter)
 {
 	m_translationMatrix = glm::translate(glm::mat4(1), m_position);
 

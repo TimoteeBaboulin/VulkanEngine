@@ -16,7 +16,7 @@ public:
 
 	std::vector<ParameterRepositoryEntry> GetParameterEntries() override;
 
-	virtual void ParameterChanged() override;
+	virtual void ParameterChanged(const ParameterRepositoryEntry& _parameter) override;
 
 private:
 	void LookForTransformComponent();

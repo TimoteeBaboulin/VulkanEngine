@@ -36,7 +36,7 @@ public:
 	void LoadFromFile(std::ifstream& _stream);
 
 	virtual void SubscribeToFunctions();
-	virtual void ParameterChanged() {};
+	virtual void ParameterChanged(const ParameterRepositoryEntry& _parameter) {};
 
 	/// <summary>
 	/// Attempts to set a parameter value by name

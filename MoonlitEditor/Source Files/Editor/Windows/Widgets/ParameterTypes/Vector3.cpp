@@ -63,7 +63,7 @@ void Vector3ParameterEditor::SetUpUI()
 				m_lineEdits[i]->setText(QString::fromStdString(ParameterEditorHelper::GetPrettiestFloat((*data)[i])));
 				
 				// Notify that the parameter has changed
-				OnParameterChanged.Invoke(this);
+				OnParameterChanged.Invoke(this, m_entry);
 			});
 	}
 

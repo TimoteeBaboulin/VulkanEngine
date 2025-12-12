@@ -89,6 +89,7 @@ void DrawBufferDeviceBridge::Render(vk::CommandBuffer& _cmd, std::string _render
 
 	int currIndex = 0;
 	int currInstance = 0;
+	int currVertex = 0;
 
 	auto meshEntries = m_parentBuffer->GetMeshEntries();
 
@@ -97,10 +98,11 @@ void DrawBufferDeviceBridge::Render(vk::CommandBuffer& _cmd, std::string _render
 		size_t instanceCount = meshEntries[i].InstanceCount;
 		int indexCount = meshEntries[i].Data.triangleCount * 3;
 
-		_cmd.drawIndexed(indexCount, (uint32_t) instanceCount, currIndex, 0, currInstance);
+		_cmd.drawIndexed(indexCount, (uint32_t) instanceCount, currIndex, currVertex, currInstance);
 
 		currInstance += (int)instanceCount;
 		currIndex += indexCount;
+		currVertex += meshEntries[i].Data.vertexCount;
 	}
 }
 

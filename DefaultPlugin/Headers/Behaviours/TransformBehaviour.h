@@ -27,7 +27,7 @@ public:
 
 	void SubscribeToFunctions() override;
 	virtual std::vector<ParameterRepositoryEntry> GetParameterEntries() override;
-	virtual void ParameterChanged() override;
+	virtual void ParameterChanged(const ParameterRepositoryEntry& _parameter) override;
 
 	//Setters
 	void SetPosition(glm::vec3 _position);

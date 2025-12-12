@@ -79,9 +79,22 @@ std::vector<ParameterRepositoryEntry> MeshRendererBehaviour::GetParameterEntries
 	return entries;
 }
 
-void MeshRendererBehaviour::ParameterChanged()
+void MeshRendererBehaviour::ParameterChanged(const ParameterRepositoryEntry& _parameter)
 {
-	UpdateMeshInstanceModel();
+	if (_parameter.Name == "Model")
+	{
+		if (m_meshData == nullptr)
+		{
+			LOG_WARNING("MeshRendererBehaviour has no valid mesh assigned.");
+			return;
+		}
+
+		MoonlitEngine::GetInstance()->Renderer->UpdateInstanceMesh(m_instanceId, m_meshData);
+	}
+	else if (_parameter.Name == "Transform")
+	{
+		UpdateMeshInstanceModel();
+	}
 }
 
 void MeshRendererBehaviour::LookForTransformComponent()
@@ -98,5 +111,4 @@ void MeshRendererBehaviour::LookForTransformComponent()
 void MeshRendererBehaviour::UpdateMeshInstanceModel()
 {
 	MoonlitEngine::GetInstance()->Renderer->UpdateInstanceModel(m_instanceId, m_transformComponent->GetModelMat());
-	MoonlitEngine::GetInstance()->Renderer->UpdateInstanceMesh(m_instanceId, m_meshData);
 }

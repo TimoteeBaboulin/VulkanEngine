@@ -114,6 +114,8 @@ private:
 	// MESH MANAGEMENT---------------------------------------------------------------------
 
 	void InsertMesh(std::shared_ptr<MeshData> _mesh);
+	void RemoveMeshInstance(std::vector<InstanceData>::iterator _instanceIt);
+	void InsertMeshInstance(intptr_t _meshHandle, glm::mat4x4 _model, uint32_t _instanceId);
 	void RemoveMesh(std::vector<MeshEntry>::iterator _instanceIt);
 	std::vector<MeshEntry>::iterator FindMeshEntry(intptr_t _handle);
 

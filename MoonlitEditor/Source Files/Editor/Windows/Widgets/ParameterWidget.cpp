@@ -51,7 +51,7 @@ void ParameterWidget::SetUI()
 	if (factory != nullptr)
 	{
 		ParameterEditor* editor = factory(m_entry);
-		editor->OnParameterChanged += std::bind(&ObjectBehaviour::ParameterChanged, m_behaviour);
+		editor->OnParameterChanged += std::bind(&ObjectBehaviour::ParameterChanged, m_behaviour, std::placeholders::_1);
 		editor->AddToLayout(m_layout);
 	}
 

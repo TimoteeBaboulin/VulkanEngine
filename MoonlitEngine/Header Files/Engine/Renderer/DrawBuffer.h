@@ -40,7 +40,6 @@ struct TextureSlot
 
 class RenderTarget;
 
-// TODO: Currently index data is written in uint16_t, but index size is written in uint32_t
 // This should be fixed to avoid confusion
 
 /// <summary>

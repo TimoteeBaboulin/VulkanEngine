@@ -76,6 +76,10 @@ void DrawBufferDeviceBridge::Render(vk::CommandBuffer& _cmd, std::string _render
 		UpdateData();
 	}
 
+	// If resources haven't been generated after the update, it means there's nothing to draw
+	if (!m_resourcesGenerated)
+		return;
+
 	vk::DeviceSize offsets[] = { 0 };
 
 	m_materialInstance->BindPipeline(_cmd, _renderPass);
@@ -285,6 +289,13 @@ void DrawBufferDeviceBridge::GenerateBuffers()
 {
 	// Copy the data from the parent buffer
 	std::vector<Vertex> vertexData = m_parentBuffer->GetVertexData();
+
+	// If there's no data, we don't create the buffers
+	// So we need to be very wary about continuing the render loop if this happens
+	// If there's no models, the DrawBuffer should be deleted to clear up resources
+	if (vertexData.size() == 0)
+		return;
+
 	std::vector<uint16_t> indexData = m_parentBuffer->GetIndexData();
 	std::vector<glm::mat4x4> modelData = m_parentBuffer->GetModelData();
 	std::vector<uint32_t> textureIndices = m_parentBuffer->GetTextureIndices();
@@ -292,12 +303,6 @@ void DrawBufferDeviceBridge::GenerateBuffers()
 	uint32_t vertexCount = (uint32_t)vertexData.size();
 	uint32_t indexCount = (uint32_t)indexData.size();
 	uint32_t modelCount = (uint32_t)modelData.size() / 2;
-
-	// If there's no data, we don't create the buffers
-	// So we need to be very wary about continuing the render loop if this happens
-	// If there's no models, the DrawBuffer should be deleted to clear up resources
-	if (modelCount == 0)
-		return;
 
 	size_t textureCount = m_materialInstance->GetTextureCount();
 	size_t instanceDataSize = sizeof(glm::mat4x4) * 2 + sizeof(uint32_t) * textureCount;
@@ -349,6 +354,7 @@ void DrawBufferDeviceBridge::GenerateBuffers()
 		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, instanceData);
 
 	m_isDirty = false;
+	m_resourcesGenerated = true;
 }
 
 void DrawBufferDeviceBridge::GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures)
@@ -382,6 +388,8 @@ void DrawBufferDeviceBridge::ClearBuffers()
 	device.destroyBuffer(m_drawResources.vertexBuffer);
 	device.destroyBuffer(m_drawResources.indexBuffer);
 	device.destroyBuffer(m_drawResources.modelMatrixBuffer);
+
+	m_resourcesGenerated = false;
 }
 
 void DrawBufferDeviceBridge::ClearTextures()

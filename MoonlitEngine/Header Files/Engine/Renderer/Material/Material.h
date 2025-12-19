@@ -50,8 +50,8 @@ struct EntryPoint
 	std::vector<std::string> SubpassNames;
 	ShaderFunction Function;
 };
-// TODO: First, make it handle entry points.
-// TODO: Then, make it handle resources (textures, buffers, etc.) and their bindings.
+
+// TODO: Make it handle resources (textures, buffers, etc.) and their bindings.
 struct ShaderData
 {
 	std::vector<EntryPoint> EntryPoints;

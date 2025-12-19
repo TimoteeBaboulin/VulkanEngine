@@ -107,7 +107,7 @@ std::vector<EntryPoint> GetEntryPoints(slang::IModule* _module,
 			componentTypes.push_back(entryPoint);
 
 			// TODO: Find all the parameters to allow material to automatically
-			// allocate descriptors
+			// TODO: allocate descriptors
 		}
 	}
 

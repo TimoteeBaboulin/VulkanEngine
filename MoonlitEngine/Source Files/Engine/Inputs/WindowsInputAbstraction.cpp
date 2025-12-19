@@ -317,7 +317,6 @@ void WindowsInputAbstraction::PollEvents()
 			}
 			else
 			{
-				//TODO: This is for debugging purposes only, remove later
 				//std::cout << "Gamepad input with code: " << keystroke.VirtualKey << std::endl;
 			}
 		}

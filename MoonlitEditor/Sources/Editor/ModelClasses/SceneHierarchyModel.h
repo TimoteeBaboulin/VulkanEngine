@@ -1,13 +1,13 @@
 #pragma once
 
-#include <QtCore/qabstractitemmodel.h>
+#include <QtGui/qstandarditemmodel.h>
 
 #include "Engine/Scene/Scene.h"
 #include "Engine/Component/GameObject.h"
 
 using GameObject = Moonlit::GameObject;
 
-class SceneHierarchyModel : public QAbstractListModel
+class SceneHierarchyModel : public QStandardItemModel
 {
 public:
 	SceneHierarchyModel(Moonlit::Scene* scener);
@@ -26,6 +26,7 @@ public:
 private:
 	QModelIndex GetIndexForGameObject(GameObject* object) const;
 	void BuildModel();
+	void CountRows(GameObject* _parent, int& count) const;
 
 	std::vector<GameObject*> m_rootObjects;
 

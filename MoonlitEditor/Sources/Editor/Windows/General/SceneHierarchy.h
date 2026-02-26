@@ -22,4 +22,5 @@ private:
 	SceneHierarchyModel* m_model;
 	QMenu* m_contextMenu;
 	GameObject* m_currentSelected = nullptr;
+	GameObject* m_actionTarget = nullptr;
 };

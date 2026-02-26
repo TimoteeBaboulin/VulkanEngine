@@ -196,6 +196,7 @@ void Moonlit::GameObject::AddChild(GameObject *_child) {
 	}
 
 	m_children.push_back(_child);
+	_child->SetParent(this);
 }
 
 void Moonlit::GameObject::RemoveChild(GameObject* _child)

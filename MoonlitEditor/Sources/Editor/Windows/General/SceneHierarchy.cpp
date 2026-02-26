@@ -76,9 +76,19 @@ void SceneHierarchy::ContextMenuClicked(QAction* _action)
 	}
 	else if (actionText == "Delete")
 	{
-		if (m_currentSelected)
+		if (m_actionTarget)
 		{
 			GameObject::Destroy(*m_currentSelected);
+			m_model->Refresh();
+			m_model->layoutChanged();
+		}
+	}
+	else if (actionText == "Create Empty Child") {
+		if (m_actionTarget)
+		{
+			GameObject* newObj = GameObject::CreateAt(glm::vec3(0.0f));
+			m_currentSelected->AddChild(newObj);
+			newObj->SetName("New Child");
 			m_model->Refresh();
 			m_model->layoutChanged();
 		}
@@ -98,6 +108,8 @@ void SceneHierarchy::ShowContextMenu(const QPoint& _pos)
 void SceneHierarchy::ShowContextMenu(const QPoint &_pos, GameObject *_obj) {
 	m_contextMenu = new QMenu(this);
 	m_contextMenu->addAction("Delete");
+	m_contextMenu->addAction("Create Empty Child");
+	m_actionTarget = _obj;
 	m_contextMenu->connect(m_contextMenu, &QMenu::triggered, this, &SceneHierarchy::ContextMenuClicked);
 	m_contextMenu->popup(mapToGlobal(_pos));
 }

@@ -118,7 +118,10 @@ int SceneHierarchyModel::rowCount(const QModelIndex& parent) const
 		return 0;
 	}
 
-	return parentObject->GetChildren().size();
+	int rowCount = 0;
+	CountRows(parentObject, rowCount);
+
+	return rowCount;
 }
 
 int SceneHierarchyModel::columnCount(const QModelIndex& parent) const
@@ -180,4 +183,17 @@ void SceneHierarchyModel::BuildModel()
 	}
 
 	m_rootObjects = m_scene->GetRootGameObjects();
+}
+
+void SceneHierarchyModel::CountRows(GameObject *_parent, int &count) const {
+	if (!_parent)
+	{
+		return;
+	}
+
+	count += static_cast<int>(_parent->GetChildren().size());
+	for (auto child : _parent->GetChildren())
+	{
+		CountRows(child, count);
+	}
 }

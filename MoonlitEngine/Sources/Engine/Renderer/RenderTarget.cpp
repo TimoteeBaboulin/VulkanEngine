@@ -1,0 +1,702 @@
+#include "RenderTarget.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include "Engine/Renderer/Helpers/VulkanHelperFunctions.h"
+#include "DrawBuffer.h"
+
+Moonlit::Renderer::RenderTarget::RenderTarget(int _framesInFlight, HWND _surface,
+                                              vk::Instance _instance, Camera* _camera,
+                                              RendererDeviceManager* _deviceManager) : m_instance(_instance), m_camera(_camera)
+{
+	m_targetWindow = _surface;
+	m_framesInFlight = _framesInFlight;
+	m_deviceManager = _deviceManager;
+
+	//The device manager need the surface to pick a physical device
+	//So we can only link after creating the surface
+	CreateSurfaceKHR();
+	m_deviceData = _deviceManager->GetDeviceData();
+	if (m_deviceData.QueueIndices.khrPresentFamily.has_value() == false)
+	{
+		_deviceManager->InitKHRQueues(m_surfaceKHR);
+		m_deviceData = _deviceManager->GetDeviceData();
+	}
+
+	AddSubpass("depth");
+	AddSubpass("color");
+
+	//Get the format as its gonna be used in the renderpass
+	m_format = m_deviceData.SurfaceFormat.format;
+
+	Init();
+}
+
+void Moonlit::Renderer::RenderTarget::Init()
+{	
+	//Create the renderpass before the material as the material needs the renderpass
+	CreateRenderPass();
+	CreateDescriptorSetLayout();
+
+	m_defaultMaterial = new Moonlit::Material("Resources/Shaders/BaseMaterial.slang");
+	
+	CalculateExtent();
+
+	CreateSwapChainResources();
+	CreateCommandPool();
+	CreateCommandBuffers();
+	CreateUniformBuffers();
+
+	CreateDescriptorPool();
+	CreateDescriptorSets();
+
+	CreateSyncObjects();
+}
+
+void Moonlit::Renderer::RenderTarget::SetRenderPass(vk::RenderPass _renderPass)
+{
+	//m_renderPass = _renderPass;
+}
+
+void Moonlit::Renderer::RenderTarget::CalculateExtent()
+{
+	RECT windowRect;
+	GetClientRect(m_targetWindow, &windowRect);
+
+	m_extent.width = static_cast<uint32_t>(windowRect.right - windowRect.left);
+	m_extent.height = static_cast<uint32_t>(windowRect.bottom - windowRect.top);
+
+	m_capabilities = m_deviceData.PhysicalDevice.getSurfaceCapabilitiesKHR(m_surfaceKHR);
+
+	if (m_capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+	{
+		m_extent.width = std::clamp(m_extent.width, m_capabilities.minImageExtent.width, m_capabilities.maxImageExtent.width);
+		m_extent.height = std::clamp(m_extent.height, m_capabilities.minImageExtent.height, m_capabilities.maxImageExtent.height);
+	}
+}
+
+void Moonlit::Renderer::RenderTarget::CreateSurfaceKHR()
+{
+	vk::Win32SurfaceCreateInfoKHR createInfo;
+	createInfo.sType = vk::StructureType::eWin32SurfaceCreateInfoKHR;
+	createInfo.hinstance = GetModuleHandle(nullptr);
+	createInfo.hwnd = m_targetWindow;
+
+	m_surfaceKHR = m_instance.createWin32SurfaceKHR(createInfo);
+}
+
+void Moonlit::Renderer::RenderTarget::CreateSwapChainResources()
+{
+	CreateSwapChain();
+	CreateImageViews();
+	CreateDepthResources();
+	CreateFrameBuffers();
+}
+
+void Moonlit::Renderer::RenderTarget::CreateSwapChain()
+{
+	SwapChainSupportDetails swapChainSupport = m_deviceManager->QuerySwapChainSupportDetails(m_surfaceKHR, m_deviceData.PhysicalDevice);
+
+	if (m_capabilities.maxImageCount != 0)
+	{
+		if (m_capabilities.maxImageCount < m_framesInFlight)
+		{
+			m_framesInFlight = m_capabilities.maxImageCount;
+		}
+		else if (m_capabilities.minImageCount > m_framesInFlight)
+		{
+			m_framesInFlight = m_capabilities.minImageCount;
+		}
+	}
+
+	vk::SwapchainCreateInfoKHR createInfo;
+	createInfo.sType = vk::StructureType::eSwapchainCreateInfoKHR;
+	createInfo.surface = m_surfaceKHR;
+	createInfo.minImageCount = m_framesInFlight;
+	createInfo.imageFormat = m_format.format;
+	createInfo.imageColorSpace = m_format.colorSpace;
+	createInfo.imageExtent = m_extent;
+	createInfo.imageArrayLayers = 1;
+	createInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+
+	QueueFamilyIndices queueFamilyIndices = m_deviceData.QueueIndices;
+
+	createInfo.imageSharingMode = vk::SharingMode::eExclusive;
+	createInfo.queueFamilyIndexCount = 1;
+	createInfo.pQueueFamilyIndices = &queueFamilyIndices.graphicsFamily.value();
+
+	createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+	createInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+	createInfo.presentMode = swapChainSupport.presentModes[0];
+	createInfo.clipped = VK_TRUE;
+	createInfo.oldSwapchain = nullptr;
+
+	m_swapChain = m_deviceData.Device.createSwapchainKHR(createInfo);
+	m_swapChainImages = m_deviceData.Device.getSwapchainImagesKHR(m_swapChain);
+}
+
+void Moonlit::Renderer::RenderTarget::CreateImageViews()
+{
+	m_swapChainImageViews = new vk::ImageView[m_framesInFlight];
+	for (int i = 0; i < m_framesInFlight; ++i)
+	{
+		m_swapChainImageViews[i] = Moonlit::Renderer::HelperClasses::vhf::CreateImageView(m_deviceData.Device, m_swapChainImages[i], m_format.format, vk::ImageAspectFlagBits::eColor);
+	}
+}
+
+void Moonlit::Renderer::RenderTarget::CreateDepthResources()
+{
+	vk::Format depthFormat = vk::Format::eD32Sfloat;
+	uint32_t queueFamilyIndex = m_deviceData.QueueIndices.graphicsFamily.value();
+
+	m_swapChainDepthImages = new vk::Image[m_framesInFlight];
+	m_swapChainDepthImageViews = new vk::ImageView[m_framesInFlight];
+
+	for (int i = 0; i < m_framesInFlight; ++i)
+	{
+		Moonlit::Renderer::HelperClasses::vhf::CreateImage(m_deviceData.Device, m_deviceData.PhysicalDevice, m_extent, depthFormat, vk::ImageTiling::eOptimal,
+			vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_swapChainDepthImages[i], m_swapChainDepthMemory, vk::ImageLayout::eUndefined);
+		m_swapChainDepthImageViews[i] = Moonlit::Renderer::HelperClasses::vhf::CreateImageView(m_deviceData.Device, m_swapChainDepthImages[i], depthFormat, vk::ImageAspectFlagBits::eDepth);
+	}
+}
+
+void Moonlit::Renderer::RenderTarget::CreateFrameBuffers()
+{
+	/*m_swapChainFramebuffers = new vk::Framebuffer[m_framesInFlight];
+	for (int i = 0; i < m_framesInFlight; ++i)
+	{
+		std::vector<vk::ImageView> attachments = {m_swapChainDepthImageViews[i], m_swapChainImageViews[i]};
+
+		vk::FramebufferCreateInfo framebufferInfo;
+		framebufferInfo.sType = vk::StructureType::eFramebufferCreateInfo;
+		framebufferInfo.renderPass = m_renderPass;
+		framebufferInfo.height = m_extent.height;
+		framebufferInfo.width = m_extent.width;
+		framebufferInfo.layers = 1;
+		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferInfo.pAttachments = attachments.data();
+		m_swapChainFramebuffers[i] = m_deviceData.Device.createFramebuffer(framebufferInfo);
+	}*/
+}
+
+void Moonlit::Renderer::RenderTarget::RecreateSwapChain()
+{
+	m_deviceData.Device.waitIdle();
+
+	DestroySwapChain();
+
+	CalculateExtent();
+
+	CreateSwapChainResources();
+}
+
+void Moonlit::Renderer::RenderTarget::DestroySwapChain()
+{
+	vk::Device device = m_deviceData.Device;
+
+	device.destroySwapchainKHR(m_swapChain);
+	for (int i = 0; i < m_framesInFlight; ++i)
+	{
+		device.destroyImageView(m_swapChainDepthImageViews[i]);
+		device.destroyImage(m_swapChainDepthImages[i]);
+		//device.destroyFramebuffer(m_swapChainFramebuffers[i]);
+	}
+
+	m_swapChainImages.clear();
+	delete[] m_swapChainImageViews;
+	delete[] m_swapChainDepthImageViews;
+	delete[] m_swapChainDepthImages;
+	//delete[] m_swapChainFramebuffers;
+}
+
+void Moonlit::Renderer::RenderTarget::CreateSyncObjects()
+{
+	m_imageAvailableSemaphores = new vk::Semaphore[m_framesInFlight];
+	m_renderFinishedSemaphores = new vk::Semaphore[m_framesInFlight];
+	m_waitForPreviousFrame = new vk::Fence[m_framesInFlight];
+
+	for (size_t i = 0; i < m_framesInFlight; ++i)
+	{
+		vk::SemaphoreCreateInfo semaphoreInfo;
+		semaphoreInfo.sType = vk::StructureType::eSemaphoreCreateInfo;
+		vk::FenceCreateInfo fenceInfo;
+		fenceInfo.sType = vk::StructureType::eFenceCreateInfo;
+		fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+		m_imageAvailableSemaphores[i] = m_deviceData.Device.createSemaphore(semaphoreInfo);
+		m_renderFinishedSemaphores[i] = m_deviceData.Device.createSemaphore(semaphoreInfo);
+		m_waitForPreviousFrame[i] = m_deviceData.Device.createFence(fenceInfo);
+	}
+}
+
+void Moonlit::Renderer::RenderTarget::AddSubpass(std::string name)
+{
+	int index = static_cast<int>(m_subpassInfos.size());
+	SubpassInfo info;
+	info.subpassIndex = index;
+	info.subpassName = name;
+	m_subpassInfos.emplace_back(info);
+	m_subpassNameToIndexMap[name] = index;
+}
+
+void Moonlit::Renderer::RenderTarget::CreateDepthSubpass(vk::AttachmentReference* _inDepthAttPtr, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency)
+{
+	_outDesc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	_outDesc.colorAttachmentCount = 0;
+	_outDesc.pColorAttachments = nullptr;
+	_outDesc.pDepthStencilAttachment = _inDepthAttPtr;
+
+	_outDependency.srcSubpass = vk::SubpassExternal;
+	_outDependency.dstSubpass = 0;
+	_outDependency.srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	_outDependency.dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	_outDependency.srcAccessMask = vk::AccessFlagBits::eNone;
+	_outDependency.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+	AddSubpass("depth");
+}
+
+void Moonlit::Renderer::RenderTarget::CreateColorSubpass(vk::AttachmentReference* _inDepthAttPtr, vk::AttachmentReference* _inColorAttPtr,
+	int _colorAttCount, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency)
+{
+	_outDesc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+	_outDesc.colorAttachmentCount = _colorAttCount;
+	_outDesc.pColorAttachments = _inColorAttPtr;
+	_outDesc.pDepthStencilAttachment = _inDepthAttPtr;
+
+	_outDependency.srcSubpass = 0;
+	_outDependency.dstSubpass = 1;
+	_outDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	_outDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	_outDependency.srcAccessMask = vk::AccessFlagBits::eNone;
+	_outDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+
+	AddSubpass("color");
+}
+
+void Moonlit::Renderer::RenderTarget::CreateRenderPass()
+{
+
+	return;
+#pragma region Attachments
+
+	// TODO: Change to vector if dynamic number of attachments is needed
+	/*std::vector<vk::AttachmentDescription> attachments;
+	attachments.resize(2);*/
+
+	std::array<vk::AttachmentDescription, 2> attachments;
+	
+	// Depth Attachment
+	attachments[0].format = vk::Format::eD32Sfloat;
+	attachments[0].samples = vk::SampleCountFlagBits::e1;
+	attachments[0].loadOp = vk::AttachmentLoadOp::eClear;
+	attachments[0].storeOp = vk::AttachmentStoreOp::eStore;
+	attachments[0].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+	attachments[0].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+	attachments[0].initialLayout = vk::ImageLayout::eUndefined;
+	attachments[0].finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+	// Color Attachment
+	attachments[1].format = m_format.format;
+	attachments[1].samples = vk::SampleCountFlagBits::e1;
+	attachments[1].loadOp = vk::AttachmentLoadOp::eClear;
+	attachments[1].storeOp = vk::AttachmentStoreOp::eStore;
+	attachments[1].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+	attachments[1].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+	attachments[1].initialLayout = vk::ImageLayout::eUndefined;
+	attachments[1].finalLayout = vk::ImageLayout::ePresentSrcKHR;
+
+	vk::AttachmentReference* attachmentRefs = new vk::AttachmentReference[2];
+	attachmentRefs[0].attachment = 0;
+	attachmentRefs[0].layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+	attachmentRefs[1].attachment = 1;
+	attachmentRefs[1].layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+#pragma endregion //Attachments
+
+#pragma region Subpasses
+	std::array<vk::SubpassDescription, 2> subpasses;
+	std::array<vk::SubpassDependency, 2> subpassDependencies;
+
+	// Color Subpass
+	CreateDepthSubpass(&attachmentRefs[0], subpasses[0], subpassDependencies[0]);
+	CreateColorSubpass(&attachmentRefs[0], &attachmentRefs[1], 1, subpasses[1], subpassDependencies[1]);
+
+	//subpassDependencies[2].srcSubpass = 1;
+	//subpassDependencies[2].dstSubpass = vk::SubpassExternal;
+	//subpassDependencies[2].srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	//subpassDependencies[2].dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe;
+	//subpassDependencies[2].srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+	//subpassDependencies[2].dstAccessMask = vk::AccessFlagBits::eNone;
+
+#pragma endregion //Subpasses
+
+	//vk::RenderPassCreateInfo renderPassInfo;
+	//renderPassInfo.sType = vk::StructureType::eRenderPassCreateInfo;
+	//renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	//renderPassInfo.pAttachments = attachments.data();
+	//renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+	//renderPassInfo.pSubpasses = subpasses.data();
+	//renderPassInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
+	//renderPassInfo.pDependencies = subpassDependencies.data();
+
+	//m_renderPass = m_deviceData.Device.createRenderPass(renderPassInfo);
+}
+
+void Moonlit::Renderer::RenderTarget::CreateCommandPool()
+{
+	vk::CommandPoolCreateInfo poolInfo;
+	poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
+	poolInfo.queueFamilyIndex = m_deviceData.QueueIndices.graphicsFamily.value();
+	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+	m_commandPool = m_deviceData.Device.createCommandPool(poolInfo);
+}
+
+void Moonlit::Renderer::RenderTarget::CreateCommandBuffers()
+{
+	m_commandBuffers = new vk::CommandBuffer[m_framesInFlight];
+
+	vk::CommandBufferAllocateInfo allocInfo;
+	allocInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
+	allocInfo.commandPool = m_commandPool;
+	allocInfo.level = vk::CommandBufferLevel::ePrimary;
+	allocInfo.commandBufferCount = m_framesInFlight;
+	auto result = m_deviceData.Device.allocateCommandBuffers(allocInfo);
+	vk::CommandBuffer* commandBuffers = result.data();
+	for (int i = 0; i < m_framesInFlight; ++i)
+	{
+		m_commandBuffers[i] = commandBuffers[i];
+	}
+}
+
+void Moonlit::Renderer::RenderTarget::CreateUniformBuffers()
+{
+	uint64_t bufferSize = sizeof(UniformBufferObject);
+	m_uniformBuffers = new vk::Buffer[m_framesInFlight];
+	m_uniformBuffersMemory = new vk::DeviceMemory[m_framesInFlight];
+	m_uniformBuffersMaps = new void* [m_framesInFlight];
+
+	for (int i = 0; i < m_framesInFlight; ++i)
+	{
+		BufferCreateInfo bufferInfo = {
+			.buffer = m_uniformBuffers[i],
+			.memory = m_uniformBuffersMemory[i],
+			.usage = vk::BufferUsageFlagBits::eUniformBuffer,
+			.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			.Size = bufferSize
+		};
+		Moonlit::Renderer::HelperClasses::vhf::CreateBuffer(m_deviceData.Device, m_deviceData.PhysicalDevice, bufferInfo);
+		m_uniformBuffersMaps[i] = m_deviceData.Device.mapMemory(m_uniformBuffersMemory[i], 0, bufferSize);
+	}
+}
+
+void Moonlit::Renderer::RenderTarget::UpdateUniformBuffer()
+{
+	UniformBufferObject ubo;
+
+	ubo.view = m_camera->GetViewMatrix();
+	ubo.proj = glm::perspective(glm::radians(90.0f), m_extent.width / (float)m_extent.height, 0.1f, 100.0f);
+	ubo.proj[1][1] *= -1; // Vulkan uses a different coordinate system for Y
+	ubo.cameraPos = m_camera->GetPosition();
+	ubo.lightPos = glm::vec3(2.0f, 4.0f, -2.0f);
+	ubo.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	memcpy(m_uniformBuffersMaps[m_currentFrame], &ubo, sizeof(UniformBufferObject));
+}
+
+void Moonlit::Renderer::RenderTarget::CreateDescriptorSetLayout()
+{
+	vk::DescriptorSetLayoutBinding uboLayoutBinding;
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
+
+	vk::DescriptorSetLayoutCreateInfo layoutInfo;
+	layoutInfo.sType = vk::StructureType::eDescriptorSetLayoutCreateInfo;
+	layoutInfo.bindingCount = 1;
+	layoutInfo.pBindings = &uboLayoutBinding;
+
+	m_uboDescriptorSetLayout = m_deviceData.Device.createDescriptorSetLayout(layoutInfo);
+}
+
+void Moonlit::Renderer::RenderTarget::CreateDescriptorPool()
+{
+	vk::DescriptorPoolSize poolSize;
+	poolSize.type = vk::DescriptorType::eUniformBuffer;
+	poolSize.descriptorCount = 16;
+
+	vk::DescriptorPoolCreateInfo poolInfo;
+	poolInfo.sType = vk::StructureType::eDescriptorPoolCreateInfo;
+	poolInfo.maxSets = 16;
+	poolInfo.poolSizeCount = 1;
+	poolInfo.pPoolSizes = &poolSize;
+
+	m_descriptorPool = m_deviceData.Device.createDescriptorPool(poolInfo);
+}
+
+void Moonlit::Renderer::RenderTarget::CreateDescriptorSets()
+{
+	std::vector<vk::DescriptorSetLayout> setLayouts;
+	for (size_t i = 0; i < m_framesInFlight; ++i)
+	{
+		setLayouts.push_back(m_uboDescriptorSetLayout);
+	}
+
+	vk::DescriptorSetAllocateInfo allocInfo;
+	allocInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
+	allocInfo.descriptorPool = m_descriptorPool;
+	allocInfo.descriptorSetCount = m_framesInFlight;
+	allocInfo.pSetLayouts = setLayouts.data();
+
+	m_descriptorSets = m_deviceData.Device.allocateDescriptorSets(allocInfo);
+
+	std::vector<vk::WriteDescriptorSet> writeSets;
+	std::vector<vk::DescriptorBufferInfo> bufferInfos;
+	writeSets.resize(m_framesInFlight);
+	bufferInfos.resize(m_framesInFlight);
+	for (int i = 0; i < m_framesInFlight; ++i)
+	{
+		writeSets[i].sType = vk::StructureType::eWriteDescriptorSet;
+		writeSets[i].dstSet = m_descriptorSets[i];
+		writeSets[i].dstBinding = 0;
+		writeSets[i].dstArrayElement = 0;
+		writeSets[i].descriptorType = vk::DescriptorType::eUniformBuffer;
+		writeSets[i].descriptorCount = 1;
+
+		bufferInfos[i].buffer = m_uniformBuffers[i];
+		bufferInfos[i].offset = 0;
+		bufferInfos[i].range = sizeof(UniformBufferObject);
+		writeSets[i].pBufferInfo = &bufferInfos.data()[i];
+	}
+
+	m_deviceData.Device.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
+}
+
+void Moonlit::Renderer::RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuffers)
+{
+	vk::Result result = m_deviceData.Device.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
+
+	if (result != vk::Result::eSuccess)
+	{
+		LOG_ERROR("RenderTarget::Render\tFailed to wait for fence");
+		throw std::runtime_error("Failed to wait for fence!");
+	}
+
+	m_deviceData.Device.resetFences(m_waitForPreviousFrame[m_currentFrame]);
+
+	UpdateUniformBuffer();
+
+	uint32_t index;
+	//Might be an artifact from the old code
+	//TODO: Check if it's fine to remove this
+	//index = m_device.acquireNextImageKHR(m_swapChain, 
+	//	std::numeric_limits<uint64_t>::max(), m_imageAvailableSemaphores[m_currentFrame]).value;
+
+	vk::Semaphore* waitSemaphore = &m_imageAvailableSemaphores[m_currentFrame];
+	
+	vk::ResultValue<uint32_t> resultValue = m_deviceData.Device.acquireNextImageKHR(m_swapChain, std::numeric_limits<uint64_t>::max(), *waitSemaphore);
+
+	if (resultValue.result == vk::Result::eErrorOutOfDateKHR)
+	{
+		RecreateSwapChain();
+		m_currentFrame = 0;
+		return;
+	}
+	index = resultValue.value;
+	
+	vk::Semaphore* signalSemaphore = &m_renderFinishedSemaphores[index];
+
+	vk::CommandBuffer& buffer = m_commandBuffers[m_currentFrame];
+	buffer.reset();
+
+	RecordCommandBuffer(buffer, _drawBuffers);
+	
+	vk::PipelineStageFlags* waitStages = new vk::PipelineStageFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+
+	vk::SubmitInfo submitInfo;
+	submitInfo.sType = vk::StructureType::eSubmitInfo;
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphore;
+	submitInfo.pWaitDstStageMask = waitStages;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &buffer;
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphore;
+
+	result = m_deviceData.Queues.graphicsQueue.submit(1, &submitInfo, m_waitForPreviousFrame[m_currentFrame]);
+
+	vk::SwapchainKHR* swapChain = &m_swapChain;
+
+	uint32_t signalIndex = index;
+
+	vk::PresentInfoKHR presentInfo;
+	presentInfo.sType = vk::StructureType::ePresentInfoKHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphore;
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChain;
+	presentInfo.pImageIndices = &index;
+
+	try
+	{
+		result = m_deviceData.Queues.presentQueue.presentKHR(presentInfo);
+		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+		{
+			RecreateSwapChain();
+			m_currentFrame = 0;
+			return;
+		}
+		else if (result != vk::Result::eSuccess)
+		{
+			LOG_ERROR("RenderTarget::Render\tFailed to present swap chain image");
+			throw std::runtime_error("Failed to present swap chain image!");
+		}
+
+		m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
+	}
+	catch (vk::OutOfDateKHRError e)
+	{
+		RecreateSwapChain();
+		m_currentFrame = 0;
+	}
+}
+
+uint16_t Moonlit::Renderer::RenderTarget::GetSubpassIndexByName(const std::string& _name) const
+{
+	auto it = m_subpassNameToIndexMap.find(_name);
+	if (it != m_subpassNameToIndexMap.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		return UINT16_MAX; // Invalid index
+	}
+}
+
+void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers)
+{
+	TransitionInfo beginTransitionInfo;
+	beginTransitionInfo.srcStage = vk::PipelineStageFlagBits::eBottomOfPipe;
+	beginTransitionInfo.dstStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	beginTransitionInfo.srcAccessFlags = vk::AccessFlagBits::eNone;
+	beginTransitionInfo.dstAccessFlags = vk::AccessFlagBits::eColorAttachmentWrite;
+
+	Moonlit::Renderer::HelperClasses::vhf::TransitionImageLayout(
+		m_deviceData.Device,
+		m_commandPool,
+		m_deviceData.Queues.graphicsQueue,
+		m_swapChainImages[m_currentFrame],
+		m_format.format,
+		vk::ImageAspectFlagBits::eColor,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		beginTransitionInfo
+	);
+
+	vk::CommandBufferBeginInfo beginInfo;
+	beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
+	_buffer.begin(beginInfo);
+
+	vk::ClearValue clearValues[2];
+	clearValues[0].depthStencil = vk::ClearDepthStencilValue(1, 0);
+	clearValues[1].color = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.25f, 0.25f, 1.0f});
+
+	//vk::RenderPassBeginInfo renderPassInfo;
+	//renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
+	//renderPassInfo.renderPass = m_renderPass;
+	//renderPassInfo.framebuffer = m_swapChainFramebuffers[m_currentFrame];
+	//renderPassInfo.renderArea.offset = vk::Offset2D{ 0, 0 };
+	//renderPassInfo.renderArea.extent = m_extent;
+	//renderPassInfo.clearValueCount = 2;
+	//renderPassInfo.pClearValues = clearValues;
+
+	vk::RenderingAttachmentInfoKHR colorAttachment;
+	colorAttachment.sType = vk::StructureType::eRenderingAttachmentInfoKHR;
+	colorAttachment.imageView = m_swapChainImageViews[m_currentFrame];
+	colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+	colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+	colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+	colorAttachment.clearValue = clearValues[1];
+
+	vk::RenderingAttachmentInfoKHR depthAttachment;
+	depthAttachment.sType = vk::StructureType::eRenderingAttachmentInfoKHR;
+	depthAttachment.imageView = m_swapChainDepthImageViews[m_currentFrame];
+	depthAttachment.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+	depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+	depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+	depthAttachment.clearValue = clearValues[0];
+
+	vk::RenderingInfoKHR renderPassInfo;
+	renderPassInfo.sType = vk::StructureType::eRenderingInfoKHR;
+	renderPassInfo.renderArea.offset = vk::Offset2D{ 0, 0 };
+	renderPassInfo.renderArea.extent = m_extent;
+	renderPassInfo.layerCount = 1;
+	renderPassInfo.colorAttachmentCount = 1;
+	renderPassInfo.pColorAttachments = &colorAttachment;
+	renderPassInfo.pDepthAttachment = &depthAttachment;
+
+
+
+	vk::Viewport viewport;
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = m_extent.width;
+	viewport.height = m_extent.height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+
+	_buffer.setViewport(0, viewport);
+
+	vk::Rect2D scissor;
+	scissor.offset = vk::Offset2D{ 0, 0 };
+	scissor.extent = m_extent;
+
+	_buffer.setScissor(0, scissor);
+	//_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+	PFN_vkCmdBeginRenderingKHR fnPtr = (PFN_vkCmdBeginRenderingKHR) vkGetDeviceProcAddr(m_deviceData.Device, "vkCmdBeginRenderingKHR");
+	
+	fnPtr(_buffer,
+		reinterpret_cast<const VkRenderingInfoKHR*>(&renderPassInfo)
+	);
+
+	//_buffer.beginRenderingKHR(renderPassInfo);
+
+	for (int i = 0; i < m_subpassInfos.size(); ++i)
+	{
+		//if (i != 0)
+		//	_buffer.nextSubpass(vk::SubpassContents::eInline);
+
+		for (auto& drawBuffer : _drawBuffers)
+		{
+			drawBuffer->RenderBuffer(*this, _buffer, m_subpassInfos[i].subpassName);
+		}
+	}
+
+	PFN_vkCmdEndRenderingKHR fnEndPtr = (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_deviceData.Device, "vkCmdEndRenderingKHR");
+	
+	TransitionInfo transitionInfo;
+	transitionInfo.srcStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	transitionInfo.dstStage = vk::PipelineStageFlagBits::eBottomOfPipe;
+	transitionInfo.srcAccessFlags = vk::AccessFlagBits::eColorAttachmentWrite;
+	transitionInfo.dstAccessFlags = vk::AccessFlagBits::eNone;
+	
+	Moonlit::Renderer::HelperClasses::vhf::TransitionImageLayout(
+		m_deviceData.Device,
+		m_commandPool,
+		m_deviceData.Queues.graphicsQueue,
+		m_swapChainImages[m_currentFrame],
+		m_format.format,
+		vk::ImageAspectFlagBits::eColor,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		transitionInfo
+	);
+	fnEndPtr(
+		_buffer
+	);
+
+	//_buffer.endRenderingKHR();
+	//_buffer.endRenderPass();
+
+	_buffer.end();
+}

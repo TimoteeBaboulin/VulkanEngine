@@ -75,7 +75,7 @@
     <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourCreationWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterTypes\MeshData.cpp">
+    <ClCompile Include="Source Files\Editor\Windows\Widgets\ParameterTypes\MeshData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

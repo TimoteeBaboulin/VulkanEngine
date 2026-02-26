@@ -357,27 +357,27 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <Bscmake />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Header Files\Engine\Renderer\HelperClasses\VertexInputHelper.h" />
+    <ClCompile Include="Header Files\Engine\Renderer\Helpers\VertexInputHelper.h" />
     <ClCompile Include="Source Files\Engine\Tasks\TaskManager.cpp" />
     <ClCompile Include="Source Files\Engine\Tasks\Worker.cpp" />
     <ClCompile Include="Source Files\Debug\Exceptions\PluginLoadException.cpp" />
     <ClCompile Include="Source Files\Debug\Profiler.cpp" />
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
-    <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
+    <ClCompile Include="Source Files\Engine\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
     <ClCompile Include="Source Files\Debug\Logger.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\QtEventReader.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\BufferDeviceLink.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\Material\MaterialInstance.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\RenderTarget.cpp" />
-    <ClCompile Include="Source Files\ResourceManagement\FileHelper.cpp" />
-    <ClCompile Include="Source Files\ResourceManagement\ImageHelper.cpp" />
+    <ClCompile Include="Source Files\Engine\ResourceManagement\FileHelper.cpp" />
+    <ClCompile Include="Source Files\Engine\ResourceManagement\ImageHelper.cpp" />
     <ClCompile Include="Source Files\Engine\MoonlitEngine.cpp" />
-    <ClCompile Include="Source Files\ResourceManagement\TextureBank.cpp" />
+    <ClCompile Include="Source Files\Engine\ResourceManagement\TextureBank.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\DrawBuffer.cpp" />
-    <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp" />
+    <ClCompile Include="Source Files\Engine\ResourceManagement\MeshBank.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
-    <ClCompile Include="Source Files\Engine\GameObject.cpp" />
+    <ClCompile Include="Source Files\Engine\Component\GameObject.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\InputManager.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\PlatformInputAbstraction.cpp" />
     <ClCompile Include="Source Files\Engine\Inputs\WindowsInputAbstraction.cpp" />
@@ -389,7 +389,8 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClCompile Include="Source Files\Engine\Renderer\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header Files\Camera.h" />
+    <ClInclude Include="Header Files\Engine\Entity\Entity.h" />
+    <ClInclude Include="Header Files\Engine\Renderer\Camera.h" />
     <ClInclude Include="Header Files\common.h" />
     <ClInclude Include="Header Files\Debug\Exceptions\MoonlitExceptions.h" />
     <ClInclude Include="Header Files\Debug\Exceptions\PluginLoadException.h" />
@@ -405,15 +406,16 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanStructs.h" />
     <ClInclude Include="Header Files\Engine\Renderer\Material\MaterialInstance.h" />
     <ClInclude Include="Header Files\Engine\Renderer\RenderTarget.h" />
-    <ClInclude Include="Header Files\Engine\Scene\Scene.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\Resources\Image.h" />
+    <ClInclude Include="Header Files\Engine\SceneManagement\Scene.h" />
     <ClInclude Include="Header Files\Engine\Tasks\Task.h" />
     <ClInclude Include="Header Files\Engine\Tasks\TaskManager.h" />
     <ClInclude Include="Header Files\Engine\Tasks\Worker.h" />
     <ClInclude Include="Header Files\GLMExport.h" />
-    <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
-    <ClInclude Include="Header Files\ResourceManagement\ImageHelper.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\Helpers\FileHelper.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\Helpers\ImageHelper.h" />
     <ClInclude Include="Header Files\MoonlitExport.h" />
-    <ClInclude Include="Header Files\Engine\GameObject.h" />
+    <ClInclude Include="Header Files\Engine\Components\GameObject.h" />
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h" />
     <ClInclude Include="Header Files\Engine\Inputs\Inputs.h" />
     <ClInclude Include="Header Files\Engine\Inputs\PlatformInputAbstraction.h" />
@@ -427,14 +429,14 @@ xcopy "$(OutDir)*.dll" "$(SolutionDir)Builds/$(Platform)/$(Configuration)\" /v /
     <ClInclude Include="Header Files\Engine\Renderer\DrawBuffer.h" />
     <ClInclude Include="Header Files\Engine\Renderer\Material\Material.h" />
     <ClInclude Include="Header Files\Engine\Renderer\RendererDeviceManager.h" />
-    <ClInclude Include="Header Files\Engine\Renderer\VulkanHelperFunctions.h" />
+    <ClInclude Include="Header Files\Engine\Renderer\Helpers\VulkanHelperFunctions.h" />
     <ClInclude Include="Header Files\Engine\Renderer\Renderer.h" />
-    <ClInclude Include="Header Files\ResourceManagement\Mesh.h" />
-    <ClInclude Include="Header Files\ResourceManagement\MeshBank.h" />
-    <ClInclude Include="Header Files\ResourceManagement\ResourceBank.h" />
-    <ClInclude Include="Header Files\ResourceManagement\ResourceManager.h" />
-    <ClInclude Include="Header Files\ResourceManagement\TextureBank.h" />
-    <ClInclude Include="Header Files\ResourceManagement\TextureData.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\Resources\Mesh.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\MeshBank.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\ResourceBank.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\ResourceManager.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\TextureBank.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\TextureData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BaseMaterial.slang" />

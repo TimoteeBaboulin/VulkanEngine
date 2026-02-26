@@ -57,7 +57,7 @@
     <ClCompile Include="Source Files\Engine\Renderer\Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Engine\GameObject.cpp">
+    <ClCompile Include="Source Files\Engine\Component\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Engine\MoonlitEngine.cpp">
@@ -69,12 +69,12 @@
     <ClCompile Include="Source Files\Engine\Renderer\DrawBuffer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\ResourceManagement\MeshBank.cpp">
+    <ClCompile Include="Source Files\Engine\ResourceManagement\MeshBank.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\ResourceManagement\TextureBank.cpp" />
-    <ClCompile Include="Source Files\ResourceManagement\ImageHelper.cpp" />
-    <ClCompile Include="Source Files\ResourceManagement\FileHelper.cpp" />
+    <ClCompile Include="Source Files\Engine\ResourceManagement\TextureBank.cpp" />
+    <ClCompile Include="Source Files\Engine\ResourceManagement\ImageHelper.cpp" />
+    <ClCompile Include="Source Files\Engine\ResourceManagement\FileHelper.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\RenderTarget.cpp" />
     <ClCompile Include="Source Files\Engine\Renderer\BufferDeviceLink.cpp">
       <Filter>Source Files\Renderer</Filter>
@@ -83,16 +83,16 @@
     <ClCompile Include="Source Files\Engine\Inputs\QtEventReader.cpp" />
     <ClCompile Include="Source Files\Debug\Logger.cpp" />
     <ClCompile Include="Source Files\Engine\Scene\Scene.cpp" />
-    <ClCompile Include="Source Files\ResourceManagement\ResourceManager.cpp" />
+    <ClCompile Include="Source Files\Engine\ResourceManagement\ResourceManager.cpp" />
     <ClCompile Include="Source Files\Engine\Component\BehaviourRegistry.cpp" />
     <ClCompile Include="Source Files\Debug\Profiler.cpp" />
     <ClCompile Include="Source Files\Debug\Exceptions\PluginLoadException.cpp" />
-    <ClCompile Include="Header Files\Engine\Renderer\HelperClasses\VertexInputHelper.h" />
+    <ClCompile Include="Header Files\Engine\Renderer\Helpers\VertexInputHelper.h" />
     <ClCompile Include="Source Files\Engine\Tasks\Worker.cpp" />
     <ClCompile Include="Source Files\Engine\Tasks\TaskManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header Files\Engine\GameObject.h">
+    <ClInclude Include="Header Files\Engine\Components\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\MoonlitEngine.h">
@@ -101,10 +101,10 @@
     <ClInclude Include="Header Files\Engine\Components\ObjectBehaviour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ResourceManagement\ResourceBank.h">
+    <ClInclude Include="Header Files\Engine\ResourceManagement\ResourceBank.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ResourceManagement\ResourceManager.h">
+    <ClInclude Include="Header Files\Engine\ResourceManagement\ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Interfaces\ISingleton.h">
@@ -113,23 +113,23 @@
     <ClInclude Include="Header Files\Engine\Renderer\DrawBuffer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ResourceManagement\MeshBank.h">
+    <ClInclude Include="Header Files\Engine\ResourceManagement\MeshBank.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ResourceManagement\TextureData.h" />
-    <ClInclude Include="Header Files\ResourceManagement\TextureBank.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\TextureData.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\TextureBank.h" />
     <ClInclude Include="Header Files\Engine\MoonlitEngine.h" />
     <ClInclude Include="Header Files\MoonlitExport.h" />
-    <ClInclude Include="Header Files\ResourceManagement\ImageHelper.h" />
-    <ClInclude Include="Header Files\ResourceManagement\FileHelper.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\Helpers\ImageHelper.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\Helpers\FileHelper.h" />
     <ClInclude Include="Header Files\Engine\Renderer\RenderTarget.h" />
     <ClInclude Include="Header Files\Engine\Renderer\BufferDeviceLink.h" />
     <ClInclude Include="Header Files\Engine\Renderer\Material\MaterialInstance.h" />
     <ClInclude Include="Header Files\Engine\Inputs\QtEventReader.h" />
     <ClInclude Include="Header Files\Debug\Logger.h" />
-    <ClInclude Include="Header Files\Engine\Scene\Scene.h" />
+    <ClInclude Include="Header Files\Engine\SceneManagement\Scene.h" />
     <ClInclude Include="Header Files\Engine\Components\BehaviourRegistry.h" />
-    <ClInclude Include="Header Files\ResourceManagement\Mesh.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\Resources\Mesh.h" />
     <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanStructs.h" />
     <ClInclude Include="Header Files\Engine\Renderer\CustomVulkanImport.h" />
     <ClInclude Include="Header Files\Debug\Profiler.h" />
@@ -141,6 +141,8 @@
     <ClInclude Include="Header Files\Engine\Tasks\Worker.h" />
     <ClInclude Include="Header Files\Engine\Tasks\Task.h" />
     <ClInclude Include="Header Files\GLMExport.h" />
+    <ClInclude Include="Header Files\Engine\ResourceManagement\Resources\Image.h" />
+    <ClInclude Include="Header Files\Engine\Entity\Entity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Engine\Inputs\InputManager.h">
@@ -164,13 +166,13 @@
     <ClInclude Include="Header Files\Engine\Renderer\RendererDeviceManager.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Engine\Renderer\VulkanHelperFunctions.h">
+    <ClInclude Include="Header Files\Engine\Renderer\Helpers\VulkanHelperFunctions.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Engine\Renderer\Renderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Camera.h">
+    <ClInclude Include="Header Files\Engine\Renderer\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\common.h">

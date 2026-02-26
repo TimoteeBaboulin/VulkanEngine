@@ -326,7 +326,7 @@ xcopy "$(SolutionDir)Resources" "$(OutDir)" /v /y /s</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Header Files\Editor\Windows\Widgets\ParameterTypes\MeshData.cpp" />
+    <ClCompile Include="Source Files\Editor\Windows\Widgets\ParameterTypes\MeshData.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourCreationWidget.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\General\ObjectEditor.cpp" />
     <ClCompile Include="Source Files\Editor\Windows\Widgets\BehaviourWidget.cpp" />

@@ -1,0 +1,67 @@
+#pragma once
+
+#include <vector>
+#include <fstream>
+
+#include "MoonlitExport.h"
+#include "Debug/Logger.h"
+
+namespace Moonlit
+{
+	class GameObject;
+
+	/// <summary>
+	/// Struct representing a member of an object behaviour.
+	/// This is used for load/read operations as well as automated serialisation.
+	/// </summary>
+	struct ParameterRepositoryEntry
+	{
+		const char* Name;
+		const char* TypeName;
+		size_t Size;
+
+		void* Data;
+	};
+
+	/// <summary>
+	/// Base class for GameObject Behaviours
+	/// </summary>
+	class MOONLIT_API ObjectBehaviour
+	{
+	public:
+		ObjectBehaviour() = delete;
+		ObjectBehaviour(GameObject* _owner);
+
+		void SetOwner(GameObject* _owner);
+		void SaveToFile(std::ofstream& _stream);
+		void LoadFromFile(std::ifstream& _stream);
+
+		virtual void Init() {};
+		virtual void OnSpawn() {};
+		virtual void OnEnable() {};
+		virtual void Update(const float _deltaTime) {};
+		virtual void LateUpdate(const float _deltaTime) {};
+		virtual void PrePhysics() {};
+		virtual void PostPhysics() {};
+		virtual void PreRender() {};
+		virtual void PostRender() {};
+		virtual void OnDisable() {};
+		virtual void OnDestroy() {};
+
+		virtual void SubscribeToFunctions();
+		virtual void ParameterChanged(const ParameterRepositoryEntry& _parameter) {LOG_INFO("Default parameter changed");}
+
+		/// <summary>
+		/// Attempts to set a parameter value by name
+		/// There is no type or size checking, so error handling should be done by the caller
+		/// </summary>
+		void SetParameterValue(const std::string& _name, void* _data);
+		virtual std::vector<ParameterRepositoryEntry> GetParameterEntries() { return std::vector<ParameterRepositoryEntry>(); };
+
+	protected:
+		GameObject* m_owner;
+	};
+
+	template <typename T>
+	concept IsBehaviour = std::derived_from<T, ObjectBehaviour>;
+}

@@ -4,8 +4,8 @@
 #include "../IDockManager.h"
 
 #include "Engine/Events/EventUtility.h"
-#include "../Widgets/BehaviourWidget.h"
-#include "../Widgets/BehaviourCreationWidget.h"
+#include "../../Widgets/BehaviourWidget.h"
+#include "../../Widgets/BehaviourCreationWidget.h"
 
 #include <qscrollarea.h>
 

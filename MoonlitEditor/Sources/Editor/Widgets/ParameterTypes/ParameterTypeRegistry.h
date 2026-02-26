@@ -5,7 +5,7 @@
 #include "Vector3.h"
 #include "Float.h"
 #include "MeshData.h"
-#include "../../../../../../MoonlitEngine/Sources/common.h"
+#include "common.h"
 
 #include <glm/vec3.hpp>
 

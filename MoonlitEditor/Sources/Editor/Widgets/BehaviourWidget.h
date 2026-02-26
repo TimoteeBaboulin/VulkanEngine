@@ -3,7 +3,7 @@
 #include <qwidget.h>
 #include <qlabel.h>
 
-#include "../../../../../MoonlitEngine/Sources/Engine/Component/ObjectBehaviour.h"
+#include "Engine/Component/ObjectBehaviour.h"
 #include "ParameterWidget.h"
 
 class BehaviourEditor : public QFrame

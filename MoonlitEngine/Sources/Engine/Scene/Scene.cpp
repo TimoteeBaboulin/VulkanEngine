@@ -12,22 +12,6 @@
 
 Moonlit::Scene::Scene()
 {
-	GameObject* testObject = GameObject::CreateAt(glm::vec3(0, 0, 0));
-	if (!testObject)
-	{
-		LOG_ERROR("Scene Constructor: Failed to create test GameObject");
-		return;
-	}
-
-	ObjectBehaviour* meshRenderer = BehaviourRegistry::CreateBehaviour("MeshRendererBehaviour", testObject);
-	if (!meshRenderer)
-	{
-		LOG_ERROR("Scene Constructor: Failed to create MeshRendererBehaviour for test GameObject");
-		delete testObject;
-		return;
-	}
-
-	m_rootGameObjects.push_back(testObject);
 }
 
 Moonlit::Scene::~Scene()
@@ -86,7 +70,7 @@ void Moonlit::Scene::Load(std::string _filePath)
 			break;
 
 		// create empty GameObject and let it load the rest
-		GameObject* newObject = new GameObject(id);
+		GameObject* newObject = new GameObject(id, *this);
 		m_rootGameObjects.push_back(newObject);
 		newObject->LoadFromFile(fileStream);
 	}
@@ -113,6 +97,22 @@ void Moonlit::Scene::AddGameObject(GameObject* _gameObject, GameObject* _parent)
 	{
 		_parent->AddChild(_gameObject);
 		_gameObject->SetParent(_parent);
+	}
+}
+
+void Moonlit::Scene::RemoveGameObject(GameObject *_gameObject) {
+	auto it = std::find(m_rootGameObjects.begin(), m_rootGameObjects.end(), _gameObject);
+	if (it != m_rootGameObjects.end()) {
+		m_rootGameObjects.erase(it);
+	}
+	else
+	{
+		GameObject* parent = _gameObject->GetParent();
+		if (parent)
+		{
+			parent->RemoveChild(_gameObject);
+			_gameObject->SetParent(nullptr);
+		}
 	}
 }
 

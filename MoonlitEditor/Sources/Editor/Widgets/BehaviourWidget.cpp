@@ -69,7 +69,5 @@ void BehaviourEditor::SetUI()
 	m_layout->addWidget(m_name);
 
 	QSizePolicy policy;
-	//policy.setVerticalPolicy(QSizePolicy)
-	//setSizePolicy()
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }

@@ -17,7 +17,8 @@ std::vector<Moonlit::GameObjectId> Moonlit::GameObject::m_freeIds = std::vector<
 Moonlit::GameObject* Moonlit::GameObject::Create()
 {
 	uint64_t id = GetIndex();
-	GameObject* newObject = new GameObject(id);
+	Scene& scene = MoonlitEngine::GetInstance()->GetScene();
+	GameObject* newObject = new GameObject(id, scene);
 
 	return newObject;
 }
@@ -41,6 +42,7 @@ Moonlit::GameObject* Moonlit::GameObject::CreateAt(glm::vec3 _pos)
 
 void Moonlit::GameObject::Destroy(GameObject &_obj) {
 	m_freeIds.push_back(_obj.m_id);
+	_obj.m_scene.RemoveGameObject(&_obj);
 	delete &_obj;
 }
 
@@ -62,16 +64,17 @@ Moonlit::GameObjectId Moonlit::GameObject::GetIndex()
 	return id;
 }
 
-Moonlit::GameObject::GameObject(GameObjectId _id) : m_id(_id)
+Moonlit::GameObject::GameObject(GameObjectId _id, Scene& _scene) : m_id(_id), m_scene(_scene)
 {
 	m_name = "GameObject_" + static_cast<std::string>(m_id);
 	m_gameObjects[m_id] = this;
 }
 
-Moonlit::GameObject::GameObject(const GameObject& _toCopy)
+Moonlit::GameObject::GameObject(const GameObject& _toCopy) : m_scene(_toCopy.m_scene)
 {
 	m_id = GetIndex();
 	m_gameObjects[m_id] = this;
+	m_scene.AddGameObject(this);
 }
 
 Moonlit::GameObject::~GameObject()

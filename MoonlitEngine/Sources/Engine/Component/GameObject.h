@@ -17,6 +17,7 @@ using GameEventFunction = std::function<void(void)>;
 
 namespace Moonlit
 {
+	class Scene;
 	class ObjectBehaviour;
 
 	struct GameObjectId {
@@ -60,7 +61,7 @@ namespace Moonlit
 
 		// Default
 	public:
-		GameObject(GameObjectId _id);
+		GameObject(GameObjectId _id, Scene& _scene);
 		GameObject(const GameObject& _toCopy);
 
 		virtual ~GameObject();
@@ -136,6 +137,8 @@ namespace Moonlit
 		std::vector<GameObject*> m_children;
 		std::vector<ObjectBehaviour*> m_behaviours;
 		GameObject* m_parent = nullptr;
+
+		Scene& m_scene;
 	};
 
 	template<IsBehaviour BEHAVIOUR_TYPE>

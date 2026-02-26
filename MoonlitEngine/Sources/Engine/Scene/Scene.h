@@ -23,6 +23,7 @@ namespace Moonlit
 		void ClearScene();
 
 		void AddGameObject(class GameObject* _gameObject, class GameObject* _parent = nullptr);
+		void RemoveGameObject(class GameObject* _gameObject);
 
 		class GameObject* GetGameObjectById(uint64_t _id) const;
 		class GameObject* GetGameObjectByName(const std::string& _name) const;

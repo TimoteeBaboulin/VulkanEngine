@@ -1,8 +1,8 @@
 #include "BehaviourCreationWidget.h"
 
 #include "Engine/Component/BehaviourRegistry.h"
-#include "../../MoonlitEditor.h"
-#include "../../../../../MoonlitEngine/Sources/Engine/Component/GameObject.h"
+#include "Editor/MoonlitEditor.h"
+#include "Engine/Component/GameObject.h"
 
 bool BehaviourAlreadyExists(const std::string& _behaviourName, Moonlit::GameObject& _gameObject) {
 	for (auto behaviour : _gameObject.GetAllBehaviours())

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <qcombobox.h>
-#include "../../../../../../MoonlitEngine/Sources/Engine/ResourceManagement/ResourceManager.h"
+#include "Engine/ResourceManagement/ResourceManager.h"
 #include "ParameterEditor.h"
-#include "../../../../../../MoonlitEngine/Sources/common.h"
+#include "common.h"
 
 using MeshData = Moonlit::MeshData;
 

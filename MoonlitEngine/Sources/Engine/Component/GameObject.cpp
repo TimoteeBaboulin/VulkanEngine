@@ -40,7 +40,8 @@ Moonlit::GameObject* Moonlit::GameObject::CreateAt(glm::vec3 _pos)
 }
 
 void Moonlit::GameObject::Destroy(GameObject &_obj) {
-
+	m_freeIds.push_back(_obj.m_id);
+	delete &_obj;
 }
 
 Moonlit::GameObjectId Moonlit::GameObject::GetIndex()
@@ -178,6 +179,20 @@ void Moonlit::GameObject::LoadFromFile(std::ifstream& _stream)
 		m_behaviours.push_back(component);
 		component->LoadFromFile(_stream);
 	}
+}
+
+void Moonlit::GameObject::Destroy() {
+	GameObject::Destroy(*this);
+}
+
+void Moonlit::GameObject::AddChild(GameObject *_child) {
+	auto it = std::find(m_children.begin(), m_children.end(), _child);
+	if (it != m_children.end()) {
+		LOG_WARNING("Trying to add " + _child->GetName() + " as a child of " + GetName() + ", but it's already a child.");
+		return;
+	}
+
+	m_children.push_back(_child);
 }
 
 void Moonlit::GameObject::RemoveChild(GameObject* _child)

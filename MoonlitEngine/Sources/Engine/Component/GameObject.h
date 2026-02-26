@@ -82,9 +82,9 @@ namespace Moonlit
 
 		GameObjectId GetId() const { return m_id; }
 
-		// TODO : Add checks to avoid adding a child multiple times
+		void Destroy();
 
-		void AddChild(GameObject* _child) { m_children.push_back(_child); }
+		void AddChild(GameObject* _child);
 		void RemoveChild(GameObject* _child);
 
 		void SetName(const std::string& _name) { m_name = _name; }

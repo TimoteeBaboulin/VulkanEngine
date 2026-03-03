@@ -27,11 +27,14 @@ TARGET_LINK_LIBRARIES(MoonlitEngine PRIVATE
         Qt6::Core
         Qt6::Gui
         Qt6::Widgets
-        glm
         stb
         assimp
         slang
         xinput
+)
+
+TARGET_LINK_LIBRARIES(MoonlitEngine PUBLIC
+        glm
 )
 
 TARGET_COMPILE_DEFINITIONS(MoonlitEngine PRIVATE ENGINE_DLL_EXPORT)

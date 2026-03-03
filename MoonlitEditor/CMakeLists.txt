@@ -3,7 +3,7 @@ FILE(GLOB_RECURSE EditorSource CONFIGURE_DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/Headers/*.h
 )
 
-ADD_EXECUTABLE(MoonlitEditor ${EditorSource})
+QT_ADD_EXECUTABLE(MoonlitEditor ${EditorSource})
 
 SET_TARGET_PROPERTIES(MoonlitEditor PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${RUNTIME_DIR}"
@@ -40,4 +40,21 @@ ADD_CUSTOM_COMMAND(TARGET MoonlitEditor POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:DefaultPlugin>
     $<TARGET_FILE_DIR:MoonlitEditor>/Modules/$<TARGET_FILE_NAME:DefaultPlugin>
+)
+
+INSTALL(TARGETS MoonlitEditor
+        BUNDLE DESTINATION .
+        RUNTIME DESTINATION $<TARGET_FILE_DIR:MoonlitEditor>
+)
+
+QT_GENERATE_DEPLOY_APP_SCRIPT(
+        TARGET MoonlitEditor
+        OUTPUT_SCRIPT deploy_script
+        NO_UNSUPPORTED_PLATFORM_ERROR
+)
+INSTALL(SCRIPT ${deploy_script})
+
+add_custom_command(TARGET MoonlitEditor POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:MoonlitEditor> $<TARGET_FILE_DIR:MoonlitEditor>
+        COMMAND_EXPAND_LISTS
 )

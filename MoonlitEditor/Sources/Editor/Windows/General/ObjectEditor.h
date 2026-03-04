@@ -22,6 +22,9 @@ public:
 private:
 	void OnSelectedObjectChanged(Moonlit::GameObject* _obj);
 
+	void ResetUI();
+	void Clear();
+
 	void SetUI();
 
 	Moonlit::Events::ScopedEventSubscriber<Moonlit::GameObject* > m_selectionChangedSubscriber;

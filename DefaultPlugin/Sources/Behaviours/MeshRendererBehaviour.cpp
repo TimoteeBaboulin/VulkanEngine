@@ -66,6 +66,8 @@ MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner, std::s
 
 MeshRendererBehaviour::~MeshRendererBehaviour()
 {
+	Moonlit::MoonlitEngine::GetInstance()->Renderer->RemoveMeshInstance(m_instanceId);
+
 	delete m_transformChangedSubscriber;
 }
 

@@ -18,29 +18,14 @@ ObjectInspector::ObjectInspector(IDockManager& _manager)
 
 void ObjectInspector::OnSelectedObjectChanged(Moonlit::GameObject* _obj)
 {
-	// remove existing widgets from the content layout and delete them
-	for (auto widget : m_behaviourWidgets)
-	{
-		if (m_contentLayout)
-		{
-			m_contentLayout->removeWidget(widget);
-		}
-		delete widget;
-	}
-	m_behaviourWidgets.clear();
-
-	if (m_newBehaviourWidget)
-	{
-		m_contentLayout->removeWidget(m_newBehaviourWidget);
-		m_newBehaviourWidget->SetGameObject(_obj);
-	}
-	else
-	{
-		m_newBehaviourWidget = new BehaviourCreationWidget(_obj, m_contentWidget);
-	}
-
-	if (!_obj)
+	if (!_obj) {
+		Clear();
 		return;
+	}
+
+	ResetUI();
+
+	m_newBehaviourWidget = new BehaviourCreationWidget(_obj, m_contentWidget);
 
 	std::vector<Moonlit::ObjectBehaviour*> behaviours = _obj->GetAllBehaviours();
 
@@ -61,6 +46,29 @@ void ObjectInspector::OnSelectedObjectChanged(Moonlit::GameObject* _obj)
 
 	// ensure UI updates
 	m_contentWidget->adjustSize();
+}
+
+void ObjectInspector::ResetUI() {
+	// remove existing widgets from the content layout and delete them
+	for (auto widget : m_behaviourWidgets)
+	{
+		if (m_contentLayout)
+		{
+			m_contentLayout->removeWidget(widget);
+		}
+		delete widget;
+	}
+	m_behaviourWidgets.clear();
+}
+
+void ObjectInspector::Clear() {
+	if (m_newBehaviourWidget) {
+		m_contentLayout->removeWidget(m_newBehaviourWidget);
+		delete m_newBehaviourWidget;
+		m_newBehaviourWidget = nullptr;
+	}
+
+	ResetUI();
 }
 
 void ObjectInspector::SetUI()

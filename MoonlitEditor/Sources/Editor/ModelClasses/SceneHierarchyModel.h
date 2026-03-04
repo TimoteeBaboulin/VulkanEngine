@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QtCore/qabstractitemmodel.h>
 #include <QtGui/qstandarditemmodel.h>
 
 #include "Engine/Scene/Scene.h"
@@ -7,7 +8,7 @@
 
 using GameObject = Moonlit::GameObject;
 
-class SceneHierarchyModel : public QStandardItemModel
+class SceneHierarchyModel : public QAbstractListModel
 {
 public:
 	SceneHierarchyModel(Moonlit::Scene* scener);

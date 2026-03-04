@@ -3,10 +3,10 @@
 #include <QtWidgets/qtreeview.h>
 #include <vector>
 
-#include "../../../../../MoonlitEngine/Sources/Engine/Scene/Scene.h"
-#include "../../MoonlitEditor.h"
-#include "../../../../../MoonlitEngine/Sources/Engine/MoonlitEngine.h"
-#include "../../../../../MoonlitEngine/Sources/Engine/Component/GameObject.h"
+#include "Engine/Scene/Scene.h"
+#include "Editor/MoonlitEditor.h"
+#include "Engine/MoonlitEngine.h"
+#include "Engine/Component/GameObject.h"
 
 #include <qboxlayout.h>
 #include <qmenu.h>
@@ -78,7 +78,12 @@ void SceneHierarchy::ContextMenuClicked(QAction* _action)
 	{
 		if (m_actionTarget)
 		{
-			GameObject::Destroy(*m_currentSelected);
+			if (m_actionTarget == m_currentSelected) {
+				m_currentSelected = nullptr;
+				MoonlitEditor::OnSelectionChanged().Invoke(this, m_currentSelected);
+			}
+
+			GameObject::Destroy(*m_actionTarget);
 			m_model->Refresh();
 			m_model->layoutChanged();
 		}

@@ -79,6 +79,10 @@ Moonlit::GameObject::GameObject(const GameObject& _toCopy) : m_scene(_toCopy.m_s
 
 Moonlit::GameObject::~GameObject()
 {
+	for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++) {
+		delete *it;
+	}
+
 	m_gameObjects.erase(m_id);
 }
 

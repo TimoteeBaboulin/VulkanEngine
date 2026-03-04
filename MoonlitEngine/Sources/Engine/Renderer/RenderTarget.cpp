@@ -581,7 +581,7 @@ void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _bu
 	beginTransitionInfo.srcAccessFlags = vk::AccessFlagBits::eNone;
 	beginTransitionInfo.dstAccessFlags = vk::AccessFlagBits::eColorAttachmentWrite;
 
-	Moonlit::Renderer::HelperClasses::vhf::TransitionImageLayout(
+	HelperClasses::vhf::TransitionImageLayout(
 		m_deviceData.Device,
 		m_commandPool,
 		m_deviceData.Queues.graphicsQueue,
@@ -600,15 +600,6 @@ void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _bu
 	vk::ClearValue clearValues[2];
 	clearValues[0].depthStencil = vk::ClearDepthStencilValue(1, 0);
 	clearValues[1].color = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.25f, 0.25f, 1.0f});
-
-	//vk::RenderPassBeginInfo renderPassInfo;
-	//renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
-	//renderPassInfo.renderPass = m_renderPass;
-	//renderPassInfo.framebuffer = m_swapChainFramebuffers[m_currentFrame];
-	//renderPassInfo.renderArea.offset = vk::Offset2D{ 0, 0 };
-	//renderPassInfo.renderArea.extent = m_extent;
-	//renderPassInfo.clearValueCount = 2;
-	//renderPassInfo.pClearValues = clearValues;
 
 	vk::RenderingAttachmentInfoKHR colorAttachment;
 	colorAttachment.sType = vk::StructureType::eRenderingAttachmentInfoKHR;
@@ -635,8 +626,6 @@ void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _bu
 	renderPassInfo.pColorAttachments = &colorAttachment;
 	renderPassInfo.pDepthAttachment = &depthAttachment;
 
-
-
 	vk::Viewport viewport;
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
@@ -652,35 +641,27 @@ void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _bu
 	scissor.extent = m_extent;
 
 	_buffer.setScissor(0, scissor);
-	//_buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+
 	PFN_vkCmdBeginRenderingKHR fnPtr = (PFN_vkCmdBeginRenderingKHR) vkGetDeviceProcAddr(m_deviceData.Device, "vkCmdBeginRenderingKHR");
-	
 	fnPtr(_buffer,
 		reinterpret_cast<const VkRenderingInfoKHR*>(&renderPassInfo)
 	);
 
-	//_buffer.beginRenderingKHR(renderPassInfo);
-
 	for (int i = 0; i < m_subpassInfos.size(); ++i)
 	{
-		//if (i != 0)
-		//	_buffer.nextSubpass(vk::SubpassContents::eInline);
-
 		for (auto& drawBuffer : _drawBuffers)
 		{
 			drawBuffer->RenderBuffer(*this, _buffer, m_subpassInfos[i].subpassName);
 		}
 	}
 
-	PFN_vkCmdEndRenderingKHR fnEndPtr = (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_deviceData.Device, "vkCmdEndRenderingKHR");
-	
 	TransitionInfo transitionInfo;
 	transitionInfo.srcStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 	transitionInfo.dstStage = vk::PipelineStageFlagBits::eBottomOfPipe;
 	transitionInfo.srcAccessFlags = vk::AccessFlagBits::eColorAttachmentWrite;
 	transitionInfo.dstAccessFlags = vk::AccessFlagBits::eNone;
 	
-	Moonlit::Renderer::HelperClasses::vhf::TransitionImageLayout(
+	HelperClasses::vhf::TransitionImageLayout(
 		m_deviceData.Device,
 		m_commandPool,
 		m_deviceData.Queues.graphicsQueue,
@@ -691,12 +672,11 @@ void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _bu
 		vk::ImageLayout::ePresentSrcKHR,
 		transitionInfo
 	);
+
+	PFN_vkCmdEndRenderingKHR fnEndPtr = (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_deviceData.Device, "vkCmdEndRenderingKHR");
 	fnEndPtr(
 		_buffer
 	);
-
-	//_buffer.endRenderingKHR();
-	//_buffer.endRenderPass();
 
 	_buffer.end();
 }

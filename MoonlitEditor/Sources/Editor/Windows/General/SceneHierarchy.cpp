@@ -1,120 +1,121 @@
 #include "SceneHierarchy.h"
 
-#include <QtWidgets/qtreeview.h>
-#include <vector>
-
 #include "Engine/Scene/Scene.h"
 #include "Editor/MoonlitEditor.h"
 #include "Engine/MoonlitEngine.h"
 #include "Engine/Component/GameObject.h"
 
+#include <QtWidgets/qtreeview.h>
 #include <qboxlayout.h>
 #include <qmenu.h>
 
-SceneHierarchy::SceneHierarchy(IDockManager* _dockManager)
-	: EditorWindowBase()
+SceneHierarchy::SceneHierarchy(IDockManager *_dockManager)
+    : EditorWindowBase()
 {
-	_dockManager->AddWidget(this, "Scene Hierarchy", ads::LeftDockWidgetArea);
-	SetModel();
+    _dockManager->AddWidget(this, "Scene Hierarchy", ads::LeftDockWidgetArea);
+    SetModel();
 }
 
-SceneHierarchy::SceneHierarchy(QWidget* parent)
-	: EditorWindowBase(parent)
+SceneHierarchy::SceneHierarchy(QWidget *parent)
+    : EditorWindowBase(parent)
 {
-	SetModel();
+    SetModel();
 }
 
-void SceneHierarchy::Select(GameObject *selected) {
-	if (m_currentSelected == selected) return;
+void SceneHierarchy::Select(GameObject *selected)
+{
+    if (m_currentSelected == selected) return;
 
-	m_currentSelected = selected;
-	MoonlitEditor::OnSelectionChanged().Invoke(this, selected);
+    m_currentSelected = selected;
+    MoonlitEditor::OnSelectionChanged().Invoke(this, selected);
 }
 
 void SceneHierarchy::SetModel()
 {
-	QTreeView* treeview = new QTreeView(this);
-	Moonlit::Scene& scene = MoonlitEditor::Editor->GetEngine().GetScene();
+    QTreeView *treeview = new QTreeView(this);
+    Moonlit::Scene &scene = MoonlitEditor::Editor->GetEngine().GetScene();
 
-	m_model = new SceneHierarchyModel(&scene);
-	treeview->setModel(m_model);
+    m_model = new SceneHierarchyModel(&scene);
+    treeview->setModel(m_model);
 
-	QLayout* layout = new QBoxLayout(QBoxLayout::TopToBottom);
-	layout->addWidget(treeview);
-	setLayout(layout);
+    QLayout *layout = new QBoxLayout(QBoxLayout::TopToBottom);
+    layout->addWidget(treeview);
+    setLayout(layout);
 
-	treeview->connect(treeview, &QTreeView::clicked, this, [this, treeview]() {
-		auto selected = treeview->currentIndex();
-		GameObject* obj = static_cast<GameObject*>(selected.internalPointer());
-		Select(obj);
-		});
+    treeview->connect(treeview, &QTreeView::clicked, this, [this, treeview]() {
+        auto selected = treeview->currentIndex();
+        GameObject *obj = static_cast<GameObject *>(selected.internalPointer());
+        Select(obj);
+    });
 
-	treeview->connect(treeview, &QTreeView::customContextMenuRequested, this, [this, treeview](const QPoint& _pos) {
-		auto selected = treeview->indexAt(_pos);
-		GameObject* obj = static_cast<GameObject*>(selected.internalPointer());
-		if (!obj) {
-			ShowContextMenu(_pos);
-			return;
-		}
+    treeview->connect(treeview, &QTreeView::customContextMenuRequested, this, [this, treeview](const QPoint &_pos) {
+        auto selected = treeview->indexAt(_pos);
+        GameObject *obj = static_cast<GameObject *>(selected.internalPointer());
+        if (!obj)
+        {
+            ShowContextMenu(_pos);
+            return;
+        }
 
-		ShowContextMenu(_pos, obj);
-		});
+        ShowContextMenu(_pos, obj);
+    });
 
-	treeview->setContextMenuPolicy(Qt::CustomContextMenu);
+    treeview->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-void SceneHierarchy::ContextMenuClicked(QAction* _action)
+void SceneHierarchy::ContextMenuClicked(QAction *_action)
 {
-	std::string actionText = _action->text().toStdString();
-	if (actionText == "Create Empty GameObject")
-	{
-		GameObject* newObj = GameObject::CreateAt(glm::vec3(0.0f));
-		Moonlit::MoonlitEngine::GetInstance()->GetScene().AddGameObject(newObj);
-		newObj->SetName("New GameObject");
-		m_model->Refresh();
-		m_model->layoutChanged();
-	}
-	else if (actionText == "Delete")
-	{
-		if (m_actionTarget)
-		{
-			if (m_actionTarget == m_currentSelected) {
-				m_currentSelected = nullptr;
-				MoonlitEditor::OnSelectionChanged().Invoke(this, m_currentSelected);
-			}
+    std::string actionText = _action->text().toStdString();
+    if (actionText == "Create Empty GameObject")
+    {
+        GameObject *newObj = GameObject::CreateAt(glm::vec3(0.0f));
+        Moonlit::MoonlitEngine::GetInstance()->GetScene().AddGameObject(newObj);
+        newObj->SetName("New GameObject");
+        m_model->Refresh();
+        m_model->layoutChanged();
+    } else if (actionText == "Delete")
+    {
+        if (m_actionTarget)
+        {
+            if (m_actionTarget == m_currentSelected)
+            {
+                m_currentSelected = nullptr;
+                MoonlitEditor::OnSelectionChanged().Invoke(this, m_currentSelected);
+            }
 
-			GameObject::Destroy(*m_actionTarget);
-			m_model->Refresh();
-			m_model->layoutChanged();
-		}
-	}
-	else if (actionText == "Create Empty Child") {
-		if (m_actionTarget)
-		{
-			GameObject* newObj = GameObject::CreateAt(glm::vec3(0.0f));
-			m_currentSelected->AddChild(newObj);
-			newObj->SetName("New Child");
-			m_model->Refresh();
-			m_model->layoutChanged();
-		}
-	}
+            GameObject::Destroy(*m_actionTarget);
+            m_model->Refresh();
+            m_model->layoutChanged();
+        }
+    } else if (actionText == "Create Empty Child")
+    {
+        if (m_actionTarget)
+        {
+            GameObject *newObj = GameObject::CreateAt(glm::vec3(0.0f));
+            m_currentSelected->AddChild(newObj);
+            newObj->SetName("New Child");
+            m_model->Refresh();
+            m_model->layoutChanged();
+        }
+    }
 
-	m_contextMenu->deleteLater();
+    m_contextMenu->deleteLater();
 }
 
-void SceneHierarchy::ShowContextMenu(const QPoint& _pos)
+void SceneHierarchy::ShowContextMenu(const QPoint &_pos)
 {
-	m_contextMenu = new QMenu(this);
-	m_contextMenu->addAction("Create Empty GameObject");
-	m_contextMenu->connect(m_contextMenu, &QMenu::triggered, this, &SceneHierarchy::ContextMenuClicked);
-	m_contextMenu->popup(mapToGlobal(_pos));
+    m_contextMenu = new QMenu(this);
+    m_contextMenu->addAction("Create Empty GameObject");
+    m_contextMenu->connect(m_contextMenu, &QMenu::triggered, this, &SceneHierarchy::ContextMenuClicked);
+    m_contextMenu->popup(mapToGlobal(_pos));
 }
 
-void SceneHierarchy::ShowContextMenu(const QPoint &_pos, GameObject *_obj) {
-	m_contextMenu = new QMenu(this);
-	m_contextMenu->addAction("Delete");
-	m_contextMenu->addAction("Create Empty Child");
-	m_actionTarget = _obj;
-	m_contextMenu->connect(m_contextMenu, &QMenu::triggered, this, &SceneHierarchy::ContextMenuClicked);
-	m_contextMenu->popup(mapToGlobal(_pos));
+void SceneHierarchy::ShowContextMenu(const QPoint &_pos, GameObject *_obj)
+{
+    m_contextMenu = new QMenu(this);
+    m_contextMenu->addAction("Delete");
+    m_contextMenu->addAction("Create Empty Child");
+    m_actionTarget = _obj;
+    m_contextMenu->connect(m_contextMenu, &QMenu::triggered, this, &SceneHierarchy::ContextMenuClicked);
+    m_contextMenu->popup(mapToGlobal(_pos));
 }

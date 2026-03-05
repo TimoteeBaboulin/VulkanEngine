@@ -31,6 +31,7 @@ namespace Moonlit
 	public:
 		ObjectBehaviour() = delete;
 		ObjectBehaviour(GameObject* _owner);
+		virtual ~ObjectBehaviour();
 
 		void SetOwner(GameObject* _owner);
 		void SaveToFile(std::ofstream& _stream);

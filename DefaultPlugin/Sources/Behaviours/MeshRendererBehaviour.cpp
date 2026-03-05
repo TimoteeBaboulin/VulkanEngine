@@ -68,6 +68,8 @@ MeshRendererBehaviour::~MeshRendererBehaviour()
 {
 	Moonlit::MoonlitEngine::GetInstance()->Renderer->RemoveMeshInstance(m_instanceId);
 
+	LOG_INFO("MeshRendererBehaviour destroyed.");
+
 	delete m_transformChangedSubscriber;
 }
 

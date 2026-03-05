@@ -16,6 +16,11 @@ TransformBehaviour::TransformBehaviour(GameObject* _owner, glm::vec3 _position, 
 	m_transformMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
 }
 
+TransformBehaviour::~TransformBehaviour()
+{
+	LOG_INFO("TransformBehaviour::~TransformBehaviour called");
+}
+
 void TransformBehaviour::SubscribeToFunctions()
 {
 }

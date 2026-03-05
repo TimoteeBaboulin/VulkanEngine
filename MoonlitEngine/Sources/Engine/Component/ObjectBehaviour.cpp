@@ -35,6 +35,11 @@ Moonlit::ObjectBehaviour::ObjectBehaviour(GameObject* _owner) : m_owner(_owner)
 	m_owner->AddComponent(this);
 }
 
+Moonlit::ObjectBehaviour::~ObjectBehaviour()
+{
+	LOG_INFO("ObjectBehaviour::~ObjectBehaviour");
+}
+
 void Moonlit::ObjectBehaviour::SetOwner(GameObject* _owner)
 {
 	m_owner = _owner;

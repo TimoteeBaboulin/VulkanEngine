@@ -2,18 +2,17 @@
 
 #undef min
 #undef max
-#include <glm/common.hpp>
 
+#include "Engine/Component/ObjectBehaviour.h"
+#include "Engine/Events/Event.h"
+
+#include <glm/common.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
-
 #include <memory>
 #include <vector>
-
-#include "../../../MoonlitEngine/Sources/Engine/Component/ObjectBehaviour.h"
-#include "Engine/Events/Event.h"
 
 class TransformBehaviour : public Moonlit::ObjectBehaviour
 {
@@ -24,6 +23,7 @@ public:
 	                   glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f),
 	                   glm::vec3 _scale = glm::vec3(1.0, 1.0f, 1.0f),
 	                   glm::fquat _rotation = glm::fquat(glm::vec3(0.0f, 0.0f, 0.0f)));
+	virtual ~TransformBehaviour();
 
 	void SubscribeToFunctions() override;
 	std::vector<Moonlit::ParameterRepositoryEntry> GetParameterEntries() override;

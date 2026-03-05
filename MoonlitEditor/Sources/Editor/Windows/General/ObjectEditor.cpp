@@ -25,7 +25,9 @@ void ObjectInspector::OnSelectedObjectChanged(Moonlit::GameObject* _obj)
 
 	ResetUI();
 
-	m_newBehaviourWidget = new BehaviourCreationWidget(_obj, m_contentWidget);
+	if (!m_newBehaviourWidget) {
+		m_newBehaviourWidget = new BehaviourCreationWidget(_obj, m_contentWidget);
+	}
 
 	std::vector<Moonlit::ObjectBehaviour*> behaviours = _obj->GetAllBehaviours();
 
@@ -59,16 +61,19 @@ void ObjectInspector::ResetUI() {
 		delete widget;
 	}
 	m_behaviourWidgets.clear();
+
+	if (m_newBehaviourWidget) {
+		m_contentLayout->removeWidget(m_newBehaviourWidget);
+	}
 }
 
 void ObjectInspector::Clear() {
+	ResetUI();
+
 	if (m_newBehaviourWidget) {
-		m_contentLayout->removeWidget(m_newBehaviourWidget);
 		delete m_newBehaviourWidget;
 		m_newBehaviourWidget = nullptr;
 	}
-
-	ResetUI();
 }
 
 void ObjectInspector::SetUI()

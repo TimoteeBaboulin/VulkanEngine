@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../EditorWindowBase.h"
-#include "../IDockManager.h"
-
+#include "Editor/Windows/EditorWindowBase.h"
+#include "Editor/Windows/IDockManager.h"
+#include "Editor/Widgets/BehaviourWidget.h"
+#include "Editor/Widgets/BehaviourCreationWidget.h"
 #include "Engine/Events/EventUtility.h"
-#include "../../Widgets/BehaviourWidget.h"
-#include "../../Widgets/BehaviourCreationWidget.h"
 
 #include <qscrollarea.h>
 

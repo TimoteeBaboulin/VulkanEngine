@@ -43,7 +43,7 @@ void TransformBehaviour::ParameterChanged(const Moonlit::ParameterRepositoryEntr
 	m_translationMatrix = glm::translate(glm::mat4(1), m_position);
 
 	m_isDirty = true;
-	OnTransformChanged.Invoke(this);
+	OnTransformChanged(this);
 }
 
 void TransformBehaviour::SetPosition(glm::vec3 _position)
@@ -51,7 +51,7 @@ void TransformBehaviour::SetPosition(glm::vec3 _position)
 	m_position = _position;
 
 	m_isDirty = true;
-	OnTransformChanged.Invoke(this);
+	OnTransformChanged(this);
 }
 
 glm::mat4 TransformBehaviour::GetModelMat()

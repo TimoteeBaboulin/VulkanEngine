@@ -27,7 +27,7 @@ void SceneHierarchy::Select(GameObject *selected)
     if (m_currentSelected == selected) return;
 
     m_currentSelected = selected;
-    MoonlitEditor::OnSelectionChanged().Invoke(this, selected);
+    MoonlitEditor::OnSelectionChanged()(this, selected);
 }
 
 void SceneHierarchy::SetModel()
@@ -80,7 +80,7 @@ void SceneHierarchy::ContextMenuClicked(QAction *_action)
             if (m_actionTarget == m_currentSelected)
             {
                 m_currentSelected = nullptr;
-                MoonlitEditor::OnSelectionChanged().Invoke(this, m_currentSelected);
+                MoonlitEditor::OnSelectionChanged()(this, m_currentSelected);
             }
 
             GameObject::Destroy(*m_actionTarget);

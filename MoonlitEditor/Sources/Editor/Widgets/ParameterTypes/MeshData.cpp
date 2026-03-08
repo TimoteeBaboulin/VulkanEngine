@@ -34,7 +34,7 @@ void Editor::Widgets::MeshDataParameterEditor::OnMeshSelectionChanged(int _index
 
 	std::shared_ptr<Moonlit::MeshData> selectedMesh = m_meshes[_index].ResourcePtr;
 	*reinterpret_cast<std::shared_ptr<Moonlit::MeshData>*>(m_entry.Data) = selectedMesh;
-	OnParameterChanged.Invoke(this, m_entry);
+	OnParameterChanged(this, m_entry);
 }
 
 void Editor::Widgets::MeshDataParameterEditor::ConnectSignals()

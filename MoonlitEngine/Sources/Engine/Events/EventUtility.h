@@ -23,7 +23,7 @@ namespace Moonlit::Events
 
 	private:
 		EventT& m_event;
-		EventEntryHandle m_handle = 0;
+		std::shared_ptr<EventEntryHandle> m_handle = 0;
 	};
 
 	// Used to avoid having to specify template parameters when creating a ScopedEventSubscriber

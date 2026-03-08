@@ -19,6 +19,7 @@ void SceneHierarchyModel::Refresh()
 {
 	beginResetModel();
 
+
 	BuildModel();
 
 	endResetModel();

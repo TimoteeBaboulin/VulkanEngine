@@ -31,7 +31,7 @@ void BehaviourCreationWidget::PickBehaviour()
 
 	std::string behaviourName = m_model->data(index, Qt::DisplayRole).toString().toStdString();
 	Moonlit::ObjectBehaviour* behaviour = Moonlit::BehaviourRegistry::CreateBehaviour(behaviourName, m_gameObject);
-	MoonlitEditor::OnSelectionChanged().Invoke(nullptr, m_gameObject);
+	MoonlitEditor::OnSelectionChanged()(0, m_gameObject);
 }
 
 void BehaviourCreationWidget::SetGameObject(Moonlit::GameObject *_gameObject) {

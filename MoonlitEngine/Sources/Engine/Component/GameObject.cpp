@@ -10,9 +10,8 @@
 #include <random>
 #include <stdexcept>
 
-std::map<uint64_t, Moonlit::GameObject *> Moonlit::GameObject::m_gameObjects = std::map<uint64_t, Moonlit::GameObject
-    *>();
-std::vector<Moonlit::GameObjectId> Moonlit::GameObject::m_freeIds = std::vector<Moonlit::GameObjectId>();
+std::map<uint64_t, Moonlit::GameObject *> Moonlit::GameObject::m_gameObjects = std::map<uint64_t, GameObject*>();
+std::vector<Moonlit::GameObjectId> Moonlit::GameObject::m_freeIds = std::vector<GameObjectId>();
 
 Moonlit::GameObject *Moonlit::GameObject::Create()
 {
@@ -68,13 +67,13 @@ Moonlit::GameObjectId Moonlit::GameObject::GetIndex()
 Moonlit::GameObject::GameObject(GameObjectId _id, Scene &_scene) : m_id(_id), m_scene(_scene)
 {
     m_name = "GameObject_" + static_cast<std::string>(m_id);
-    m_gameObjects[m_id] = this;
+    m_gameObjects[m_id.index] = this;
 }
 
 Moonlit::GameObject::GameObject(const GameObject &_toCopy) : m_scene(_toCopy.m_scene)
 {
     m_id = GetIndex();
-    m_gameObjects[m_id] = this;
+    m_gameObjects[m_id.index] = this;
     m_scene.AddGameObject(this);
 }
 
@@ -105,7 +104,7 @@ void Moonlit::GameObject::Update()
             (*it)();
         } catch (const std::exception &err)
         {
-            Moonlit::Debug::Logger::LogError("Mistake while updating a component");
+            Debug::Logger::LogError("Mistake while updating a component");
             throw (err);
         }
     }
@@ -116,7 +115,7 @@ void Moonlit::GameObject::BindToUpdate(GameEventFunction _func)
     m_updates.push_back(_func);
 }
 
-void Moonlit::GameObject::AddComponent(ObjectBehaviour *_component)
+void Moonlit::GameObject::AddComponent(ObjectBehaviour* _component)
 {
     m_behaviours.push_back(_component);
 

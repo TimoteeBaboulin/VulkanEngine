@@ -39,7 +39,7 @@ void BehaviourEditor::ReadParameters()
 	if (!m_behaviour)
 		return;
 
-	std::vector<Moonlit::ParameterRepositoryEntry> parameters = m_behaviour->GetParameters();
+	std::vector<ParameterBase*> parameters = m_behaviour->GetParameters();
 
 	for (auto& parameter : parameters)
 	{

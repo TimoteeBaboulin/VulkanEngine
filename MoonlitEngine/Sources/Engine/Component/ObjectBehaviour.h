@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "MoonlitExport.h"
+#include "Parameter.h"
 #include "Debug/Logger.h"
 
 namespace Moonlit
@@ -57,10 +58,11 @@ namespace Moonlit
 		/// There is no type or size checking, so error handling should be done by the caller
 		/// </summary>
 		void SetParameterValue(const std::string& _name, void* _data);
-		virtual std::vector<ParameterRepositoryEntry> GetParameterEntries() { return std::vector<ParameterRepositoryEntry>(); };
+		virtual std::vector<ParameterBase*> GetParameters() { return std::vector<ParameterBase*>(); };
 
 	protected:
 		GameObject* m_owner;
+		std::vector<ParameterBase*> parameters;
 	};
 
 	template <typename T>

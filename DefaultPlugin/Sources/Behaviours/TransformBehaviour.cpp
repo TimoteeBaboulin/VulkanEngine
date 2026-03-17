@@ -25,9 +25,9 @@ void TransformBehaviour::SubscribeToFunctions()
 {
 }
 
-std::vector<Moonlit::ParameterRepositoryEntry> TransformBehaviour::GetParameterEntries()
+std::vector<Moonlit::ParameterRepositoryEntry> TransformBehaviour::GetParameters()
 {
-	std::vector<Moonlit::ParameterRepositoryEntry> entries = ObjectBehaviour::GetParameterEntries();
+	std::vector<Moonlit::ParameterRepositoryEntry> entries = ObjectBehaviour::GetParameters();
 
 	entries.push_back(Moonlit::ParameterRepositoryEntry{ "Position", typeid(m_position).name(), sizeof(m_position), &m_position});
 	entries.push_back(Moonlit::ParameterRepositoryEntry{ "Scale", typeid(m_scale).name(), sizeof(m_scale), &m_scale });

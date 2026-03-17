@@ -14,7 +14,7 @@ public:
 
 	virtual ~MeshRendererBehaviour();
 
-	std::vector<Moonlit::ParameterRepositoryEntry> GetParameterEntries() override;
+	std::vector<Moonlit::ParameterRepositoryEntry> GetParameters() override;
 	void ParameterChanged(const Moonlit::ParameterRepositoryEntry& _parameter) override;
 
 private:

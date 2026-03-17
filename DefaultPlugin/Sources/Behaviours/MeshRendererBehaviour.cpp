@@ -73,9 +73,9 @@ MeshRendererBehaviour::~MeshRendererBehaviour()
 	delete m_transformChangedSubscriber;
 }
 
-std::vector<Moonlit::ParameterRepositoryEntry> MeshRendererBehaviour::GetParameterEntries()
+std::vector<Moonlit::ParameterRepositoryEntry> MeshRendererBehaviour::GetParameters()
 {
-	std::vector<Moonlit::ParameterRepositoryEntry> entries = ObjectBehaviour::GetParameterEntries();
+	std::vector<Moonlit::ParameterRepositoryEntry> entries = ObjectBehaviour::GetParameters();
 	entries.push_back(Moonlit::ParameterRepositoryEntry{
 		"Model",
 		typeid(m_meshData).name(),

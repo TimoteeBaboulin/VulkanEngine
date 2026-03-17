@@ -55,7 +55,7 @@ void Moonlit::ObjectBehaviour::SetOwner(GameObject* _owner)
 // }
 void Moonlit::ObjectBehaviour::SaveToFile(std::ofstream& _stream)
 {
-	std::vector<ParameterRepositoryEntry> entries = GetParameterEntries();
+	std::vector<ParameterRepositoryEntry> entries = GetParameters();
 	uint32_t paramCount = static_cast<uint32_t>(entries.size());
 	_stream.write(reinterpret_cast<const char*>(&paramCount), sizeof(paramCount));
 
@@ -74,7 +74,7 @@ void Moonlit::ObjectBehaviour::SaveToFile(std::ofstream& _stream)
 
 void Moonlit::ObjectBehaviour::LoadFromFile(std::ifstream& _stream)
 {
-	std::vector<ParameterRepositoryEntry> entries = this->GetParameterEntries();
+	std::vector<ParameterRepositoryEntry> entries = this->GetParameters();
 
 	uint32_t paramCount = 0;
 	if (!_stream.read(reinterpret_cast<char*>(&paramCount), sizeof(paramCount)))
@@ -124,7 +124,7 @@ void Moonlit::ObjectBehaviour::SubscribeToFunctions()
 
 void Moonlit::ObjectBehaviour::SetParameterValue(const std::string& _name, void* _data)
 {
-	std::vector<ParameterRepositoryEntry> entries = GetParameterEntries();
+	std::vector<ParameterRepositoryEntry> entries = GetParameters();
 	for (auto it = entries.begin(); it != entries.end(); it++)
 	{
 		ParameterRepositoryEntry entry = (*it);

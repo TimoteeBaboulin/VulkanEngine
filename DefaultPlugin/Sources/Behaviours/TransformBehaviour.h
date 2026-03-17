@@ -26,7 +26,7 @@ public:
 	virtual ~TransformBehaviour();
 
 	void SubscribeToFunctions() override;
-	std::vector<Moonlit::ParameterRepositoryEntry> GetParameterEntries() override;
+	std::vector<Moonlit::ParameterRepositoryEntry> GetParameters() override;
 	void ParameterChanged(const Moonlit::ParameterRepositoryEntry& _parameter) override;
 
 	//Setters

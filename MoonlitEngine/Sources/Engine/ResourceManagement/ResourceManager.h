@@ -34,6 +34,18 @@ namespace Moonlit::ResourceManagement
 			return Instance()->TryLoadResourceInstance<T>(_path);
 		}
 
+		template <class BANK_TYPE>
+		BANK_TYPE* GetBank(std::string _bankName) // _bankName is not used yet but it's planned to be used to discriminate between different banks for similar resources
+		{
+			auto it = m_resourceBanks.find(std::type_index(typeid(BANK_TYPE)));
+			if (it != m_resourceBanks.end())
+			{
+				return static_cast<BANK_TYPE*>(it->second);
+			}
+
+			return nullptr;
+		}
+
 		template <class T>
 		std::vector<ResourcePair<T>> GetAllResourcesOfType()
 		{

@@ -4,7 +4,7 @@
 #include <qlabel.h>
 
 #include "Engine/Component/ObjectBehaviour.h"
-#include "ParameterWidget.h"
+#include "ParameterEditorBase.h"
 
 class BehaviourEditor : public QFrame
 {
@@ -19,5 +19,5 @@ private:
 	Moonlit::ObjectBehaviour* m_behaviour = nullptr;
 	QLayout* m_layout = nullptr;
 	QLabel* m_name = nullptr;
-	std::vector<ParameterWidget*> m_widgets;
+	std::vector<ParameterEditorBase*> m_widgets;
 };

@@ -55,67 +55,67 @@ void Moonlit::ObjectBehaviour::SetOwner(GameObject* _owner)
 // }
 void Moonlit::ObjectBehaviour::SaveToFile(std::ofstream& _stream)
 {
-	std::vector<ParameterRepositoryEntry> entries = GetParameters();
-	uint32_t paramCount = static_cast<uint32_t>(entries.size());
-	_stream.write(reinterpret_cast<const char*>(&paramCount), sizeof(paramCount));
-
-	for (const auto& entry : entries)
-	{
-		WriteStringBinary(_stream, entry.Name);
-		WriteStringBinary(_stream, entry.TypeName);
-		uint64_t sz = static_cast<uint64_t>(entry.Size);
-		_stream.write(reinterpret_cast<const char*>(&sz), sizeof(sz));
-		if (sz > 0 && entry.Data != nullptr)
-		{
-			_stream.write(reinterpret_cast<const char*>(entry.Data), static_cast<std::streamsize>(sz));
-		}
-	}
+	// std::vector<ParameterRepositoryEntry> entries = GetParameters();
+	// uint32_t paramCount = static_cast<uint32_t>(entries.size());
+	// _stream.write(reinterpret_cast<const char*>(&paramCount), sizeof(paramCount));
+	//
+	// for (const auto& entry : entries)
+	// {
+	// 	WriteStringBinary(_stream, entry.Name);
+	// 	WriteStringBinary(_stream, entry.TypeName);
+	// 	uint64_t sz = static_cast<uint64_t>(entry.Size);
+	// 	_stream.write(reinterpret_cast<const char*>(&sz), sizeof(sz));
+	// 	if (sz > 0 && entry.Data != nullptr)
+	// 	{
+	// 		_stream.write(reinterpret_cast<const char*>(entry.Data), static_cast<std::streamsize>(sz));
+	// 	}
+	// }
 }
 
 void Moonlit::ObjectBehaviour::LoadFromFile(std::ifstream& _stream)
 {
-	std::vector<ParameterRepositoryEntry> entries = this->GetParameters();
-
-	uint32_t paramCount = 0;
-	if (!_stream.read(reinterpret_cast<char*>(&paramCount), sizeof(paramCount)))
-	{
-		LOG_ERROR("Behaviour Load: Couldn't read data from file");
-		return;
-	}
-
-	for (uint32_t i = 0; i < paramCount; ++i)
-	{
-		std::string name;
-		std::string typeName;
-		if (!ReadStringBinary(_stream, name))
-			return;
-		if (!ReadStringBinary(_stream, typeName))
-			return;
-
-		uint64_t sz = 0;
-		if (!_stream.read(reinterpret_cast<char*>(&sz), sizeof(sz)))
-			return;
-
-		//Need to find what entry we're referring to
-		for (auto it = entries.begin(); it != entries.end(); ++it)
-		{
-			ParameterRepositoryEntry entry = (*it);
-			if (name == entry.Name)
-			{
-				// If sizes mismatch, only copy the minimum of available and expected to avoid overflow.
-				size_t toCopy = static_cast<size_t>(std::min<uint64_t>(entry.Size, sz));
-				if (toCopy > 0 && entry.Data != nullptr)
-				{
-					_stream.read(reinterpret_cast<char*>(entry.Data), static_cast<std::streamsize>(toCopy));
-				}
-				else if (sz > 0)
-				{
-					_stream.seekg(static_cast<std::streamoff>(sz), std::ios::cur);
-				}
-				break;
-			}
-		}
-	}
+	// std::vector<ParameterRepositoryEntry> entries = this->GetParameters();
+	//
+	// uint32_t paramCount = 0;
+	// if (!_stream.read(reinterpret_cast<char*>(&paramCount), sizeof(paramCount)))
+	// {
+	// 	LOG_ERROR("Behaviour Load: Couldn't read data from file");
+	// 	return;
+	// }
+	//
+	// for (uint32_t i = 0; i < paramCount; ++i)
+	// {
+	// 	std::string name;
+	// 	std::string typeName;
+	// 	if (!ReadStringBinary(_stream, name))
+	// 		return;
+	// 	if (!ReadStringBinary(_stream, typeName))
+	// 		return;
+	//
+	// 	uint64_t sz = 0;
+	// 	if (!_stream.read(reinterpret_cast<char*>(&sz), sizeof(sz)))
+	// 		return;
+	//
+	// 	//Need to find what entry we're referring to
+	// 	for (auto it = entries.begin(); it != entries.end(); ++it)
+	// 	{
+	// 		ParameterRepositoryEntry entry = (*it);
+	// 		if (name == entry.Name)
+	// 		{
+	// 			// If sizes mismatch, only copy the minimum of available and expected to avoid overflow.
+	// 			size_t toCopy = static_cast<size_t>(std::min<uint64_t>(entry.Size, sz));
+	// 			if (toCopy > 0 && entry.Data != nullptr)
+	// 			{
+	// 				_stream.read(reinterpret_cast<char*>(entry.Data), static_cast<std::streamsize>(toCopy));
+	// 			}
+	// 			else if (sz > 0)
+	// 			{
+	// 				_stream.seekg(static_cast<std::streamoff>(sz), std::ios::cur);
+	// 			}
+	// 			break;
+	// 		}
+	// 	}
+	// }
 }
 
 void Moonlit::ObjectBehaviour::SubscribeToFunctions()
@@ -124,16 +124,16 @@ void Moonlit::ObjectBehaviour::SubscribeToFunctions()
 
 void Moonlit::ObjectBehaviour::SetParameterValue(const std::string& _name, void* _data)
 {
-	std::vector<ParameterRepositoryEntry> entries = GetParameters();
-	for (auto it = entries.begin(); it != entries.end(); it++)
-	{
-		ParameterRepositoryEntry entry = (*it);
-		if (entry.Name == _name)
-		{
-			std::memcpy(entry.Data, _data, entry.Size);
-			ParameterChanged(entry);
-			return;
-		}
-	}
+	// std::vector<ParameterBase*> entries = GetParameters();
+	// for (auto it = entries.begin(); it != entries.end(); it++)
+	// {
+	// 	ParameterBase* entry = (*it);
+	// 	if (entry->Name() == _name)
+	// 	{
+	// 		std::memcpy(entry->Value<>(), _data, entry.Size);
+	// 		ParameterChanged(entry);
+	// 		return;
+	// 	}
+	// }
 
 }

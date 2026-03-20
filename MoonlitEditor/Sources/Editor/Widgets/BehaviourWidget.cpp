@@ -41,10 +41,9 @@ void BehaviourEditor::ReadParameters()
 
 	std::vector<ParameterBase*> parameters = m_behaviour->GetParameters();
 
-	for (auto& parameter : parameters)
+	for (auto parameter : parameters)
 	{
-		m_widgets.push_back(new ParameterWidget(parameter, m_behaviour));
-		m_layout->addWidget(m_widgets.back());
+		LOG_INFO("Type of parameter is " + std::string(typeid(parameter).name()));
 	}
 }
 

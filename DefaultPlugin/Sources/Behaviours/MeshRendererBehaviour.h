@@ -14,7 +14,7 @@ public:
 
 	virtual ~MeshRendererBehaviour();
 
-	std::vector<Moonlit::ParameterRepositoryEntry> GetParameters() override;
+	std::vector<ParameterBase*> GetParameters() override;
 	void ParameterChanged(const Moonlit::ParameterRepositoryEntry& _parameter) override;
 
 private:
@@ -23,7 +23,7 @@ private:
 
 	class TransformBehaviour* m_transformComponent = nullptr;
 
-	std::shared_ptr<Moonlit::MeshData> m_meshData = nullptr;
+	Parameter<std::shared_ptr<Moonlit::MeshData>> m_meshData = Parameter<std::shared_ptr<Moonlit::MeshData>>("MeshData", nullptr);
 
 	Moonlit::Events::ScopedEventSubscriber<>* m_transformChangedSubscriber = nullptr;
 	uint32_t m_instanceId = 0;

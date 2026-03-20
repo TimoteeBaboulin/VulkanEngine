@@ -8,7 +8,10 @@ template <typename PARAMETER_TYPE>
 class Parameter : ParameterBase{
 public:
     Parameter(std::string _name) : ParameterBase(_name) {};
+    template <typename... ARGS>
+    Parameter(std::string _name, ARGS... _args) : ParameterBase(_name), m_value(_args...) {};
     Parameter(std::string _name, PARAMETER_TYPE _value) : ParameterBase(_name), m_value(_value) {};
+    Parameter(Parameter& _copy) : ParameterBase(_copy.m_name), m_value(_copy.m_value) {};
     ~Parameter() = default;
 
     PARAMETER_TYPE Value() const {return m_value;};

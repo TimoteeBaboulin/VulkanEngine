@@ -26,19 +26,19 @@ public:
 	virtual ~TransformBehaviour();
 
 	void SubscribeToFunctions() override;
-	std::vector<Moonlit::ParameterRepositoryEntry> GetParameters() override;
+	std::vector<ParameterBase*> GetParameters() override;
 	void ParameterChanged(const Moonlit::ParameterRepositoryEntry& _parameter) override;
 
 	//Setters
 	void SetPosition(glm::vec3 _position);
 	
 	// Getters
-	glm::vec3 GetPosition() const { return m_position; }
+	glm::vec3 GetPosition() const { return m_position.Value(); }
 	glm::mat4 GetModelMat();
 protected:
-	glm::vec3 m_position;
-	glm::vec3 m_scale;
-	glm::fquat m_rotation;
+	Parameter<glm::vec3> m_position = Parameter<glm::vec3>("Position", 0,0,0);
+	Parameter<glm::vec3> m_scale = Parameter<glm::vec3>("Scale", 0,0,0);
+	Parameter<glm::fquat> m_rotation = Parameter<glm::fquat>("Rotation");
 
 	glm::mat4 m_translationMatrix;
 	glm::mat4 m_rotationMatrix;

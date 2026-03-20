@@ -9,6 +9,8 @@ public:
     template <typename PARAMETER_TYPE>
     PARAMETER_TYPE Value() const;
 
+    std::string Name() const;
+
 protected:
     std::string m_name;
 };

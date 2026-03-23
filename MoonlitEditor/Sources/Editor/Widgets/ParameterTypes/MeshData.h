@@ -21,7 +21,7 @@ namespace Editor
 
 		private:
 			QComboBox* m_meshDropdown;
-			std::vector<Moonlit::ResourceManagement::ResourcePair<MeshData>> m_meshes;
+			std::vector<Moonlit::ResourceManagement::ResourceHandle<MeshData>> m_meshes;
 
 			void OnMeshSelectionChanged(int _index);
 

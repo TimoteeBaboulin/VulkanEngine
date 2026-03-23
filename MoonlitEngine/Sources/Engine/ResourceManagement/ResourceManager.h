@@ -7,8 +7,6 @@
 #include "../../MoonlitExport.h"
 #include "ResourceBank.h"
 
-
-
 namespace Moonlit::ResourceManagement
 {
 	/// <summary>
@@ -18,20 +16,20 @@ namespace Moonlit::ResourceManagement
 	{
 		// Static
 	public:
-		template <class T>
-		static void RegisterResourceBank(ResourceBank<T>* _bank)
+		template <class RESOURCE_TYPE>
+		static void RegisterResourceBank(ResourceBank<RESOURCE_TYPE>* _bank)
 		{
-			Instance()->m_resourceBanks[std::type_index(typeid(T))] = _bank;
+			Instance()->m_resourceBanks[std::type_index(typeid(RESOURCE_TYPE))] = _bank;
 		}
-		template <class T>
-		static bool TryGetResource(std::string _name, std::shared_ptr<T>& _outResource)
+		template <class RESOURCE_TYPE>
+		static bool TryGetResource(std::string _name, ResourceHandle<RESOURCE_TYPE>& _outResource)
 		{
-			return Instance()->TryGetResourceInstance<T>(_name, _outResource);
+			return Instance()->TryGetResourceInstance<RESOURCE_TYPE>(_name, _outResource);
 		}
-		template <class T>
+		template <class RESOURCE_TYPE>
 		static bool TryLoadResource(std::string _path)
 		{
-			return Instance()->TryLoadResourceInstance<T>(_path);
+			return Instance()->TryLoadResourceInstance<RESOURCE_TYPE>(_path);
 		}
 
 		template <class BANK_TYPE>
@@ -46,14 +44,14 @@ namespace Moonlit::ResourceManagement
 			return nullptr;
 		}
 
-		template <class T>
-		std::vector<ResourcePair<T>> GetAllResourcesOfType()
+		template <class RESOURCE_TYPE>
+		std::vector<ResourceHandle<RESOURCE_TYPE>> GetAllResourcesOfType()
 		{
-			std::vector<ResourcePair<T>> resources;
-			auto it = m_resourceBanks.find(std::type_index(typeid(T)));
+			std::vector<ResourceHandle<RESOURCE_TYPE>> resources;
+			auto it = m_resourceBanks.find(std::type_index(typeid(RESOURCE_TYPE)));
 			if (it != m_resourceBanks.end())
 			{
-				ResourceBank<T>* bank = static_cast<ResourceBank<T>*>(it->second);
+				ResourceBank<RESOURCE_TYPE>* bank = static_cast<ResourceBank<RESOURCE_TYPE>*>(it->second);
 				return bank->GetAllResources();
 			}
 			return resources;
@@ -66,13 +64,13 @@ namespace Moonlit::ResourceManagement
 		ResourceManager();
 
 	private:
-		template <class T>
-		bool TryGetResourceInstance(std::string _name, std::shared_ptr<T>& _outResource)
+		template <class RESOURCE_TYPE>
+		bool TryGetResourceInstance(std::string _name, ResourceHandle<RESOURCE_TYPE>& _outResource)
 		{
-			auto it = m_resourceBanks.find(std::type_index(typeid(T)));
+			auto it = m_resourceBanks.find(std::type_index(typeid(RESOURCE_TYPE)));
 			if (it != m_resourceBanks.end())
 			{
-				ResourceBank<T>* bank = static_cast<ResourceBank<T>*>(it->second);
+				ResourceBank<RESOURCE_TYPE>* bank = static_cast<ResourceBank<RESOURCE_TYPE>*>(it->second);
 				_outResource = bank->Get(_name);
 				return _outResource != nullptr;
 			}
@@ -80,13 +78,13 @@ namespace Moonlit::ResourceManagement
 			return false;
 		}
 
-		template <class T>
+		template <class RESOURCE_TYPE>
 		bool TryLoadResourceInstance(std::string _path)
 		{
-			auto it = m_resourceBanks.find(std::type_index(typeid(T)));
+			auto it = m_resourceBanks.find(std::type_index(typeid(RESOURCE_TYPE)));
 			if (it != m_resourceBanks.end())
 			{
-				ResourceBank<T>* bank = static_cast<ResourceBank<T>*>(it->second);
+				ResourceBank<RESOURCE_TYPE>* bank = static_cast<ResourceBank<RESOURCE_TYPE>*>(it->second);
 				return bank->TryLoad(_path);
 			}
 

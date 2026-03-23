@@ -21,6 +21,8 @@ namespace Moonlit::ResourceManagement
 			return static_cast<MeshBank*>(Instance);
 		}
 
+		MeshBank() : ResourceBank<MeshData>() {};
+
 		bool TryLoad(std::string _filepath) override;
 	};
 }

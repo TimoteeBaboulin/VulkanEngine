@@ -20,22 +20,27 @@ namespace Moonlit::ResourceManagement
 		std::shared_ptr<T> ResourcePtr;
 	};
 
+	template <typename RESOURCE_TYPE>
+	class ResourceHandle;
+
 	/// <summary>
 	/// Generic class holding the loaded resources and implementing load operations 
 	/// </summary>
-	template <class T>
+	template <class RESOURCE_TYPE>
 	class ResourceBank
 	{
 	public:
-		using PAIR_TYPE = ResourcePair<T>;
+		using PAIR_TYPE = ResourcePair<RESOURCE_TYPE>;
+		using HANDLE_TYPE = ResourceHandle<RESOURCE_TYPE>;
 
-		static inline ResourceBank<T>* Instance;
+		static inline ResourceBank<RESOURCE_TYPE>* Instance;
 
 		ResourceBank();
+		virtual ~ResourceBank() = default;
 
 		// Getters
-		std::vector<PAIR_TYPE> GetAllResources() { return m_resources; }
-		std::shared_ptr<T> Get(std::string _name);
+		std::vector<HANDLE_TYPE> GetAllResources();
+		HANDLE_TYPE Get(std::string _name);
 		bool Exist(std::string _name);
 		PAIR_TYPE& operator[](size_t index);
 
@@ -44,7 +49,7 @@ namespace Moonlit::ResourceManagement
 		void TryUnloadUnusedResources();
 
 	protected:
-		std::vector<ResourcePair<T>> m_resources;
+		std::vector<ResourcePair<RESOURCE_TYPE>> m_resources;
 	};
 
 }

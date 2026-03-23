@@ -4,6 +4,8 @@
 #include "Engine/Component/ObjectBehaviour.h"
 #include <qlayout.h>
 
+#include "Engine/ResourceManagement/ResourceHandle.h"
+
 
 Editor::Widgets::MeshDataParameterEditor::MeshDataParameterEditor(const Moonlit::ParameterRepositoryEntry& _entry, QWidget* _parent)
 	: ParameterEditor(_entry, _parent)
@@ -32,7 +34,7 @@ void Editor::Widgets::MeshDataParameterEditor::OnMeshSelectionChanged(int _index
 		return;
 	}
 
-	std::shared_ptr<Moonlit::MeshData> selectedMesh = m_meshes[_index].ResourcePtr;
+	std::shared_ptr<Moonlit::MeshData> selectedMesh = m_meshes[_index].ResourcePtr();
 	*reinterpret_cast<std::shared_ptr<Moonlit::MeshData>*>(m_entry.Data) = selectedMesh;
 	OnParameterChanged(this, m_entry);
 }
@@ -55,13 +57,13 @@ void Editor::Widgets::MeshDataParameterEditor::PopulateMeshDropdown()
 	m_meshes = Moonlit::ResourceManagement::ResourceManager::Instance()->GetAllResourcesOfType<MeshData>();
 	for (const auto& mesh : m_meshes)
 	{
-		m_meshDropdown->addItem(QString::fromStdString(mesh.Name));
+		m_meshDropdown->addItem(QString::fromStdString(mesh.Name()));
 	}
 
 	std::shared_ptr<MeshData> currentMesh = *reinterpret_cast<std::shared_ptr<MeshData>*>(m_entry.Data);
 	for (size_t i = 0; i < m_meshes.size(); ++i)
 	{
-		if (m_meshes[i].ResourcePtr == currentMesh)
+		if (m_meshes[i].ResourcePtr() == currentMesh)
 		{
 			m_meshDropdown->setCurrentIndex(static_cast<int>(i));
 			break;

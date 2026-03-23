@@ -22,8 +22,9 @@ MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner)
 		new Moonlit::Events::ScopedEventSubscriber(m_transformComponent->OnTransformChanged,
 		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
-	Moonlit::ResourceManagement::ResourceManager* m_manager = Moonlit::ResourceManagement::ResourceManager::Instance();
-	if (!m_manager->TryGetResource<MeshData>("Cube", m_meshData))
+	Moonlit::ResourceManagement::ResourceManager* resourceManager = Moonlit::ResourceManagement::ResourceManager::Instance();
+	
+	if (!resourceManager->TryGetResource<MeshData>("Cube", m_meshData))
 	{
 		LOG_ERROR("Failed to load default mesh barstool_mesh from ResourceManager.");
 		throw std::runtime_error("Failed to load default mesh barstool_mesh from ResourceManager.");

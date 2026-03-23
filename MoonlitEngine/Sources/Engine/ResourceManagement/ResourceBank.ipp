@@ -13,8 +13,19 @@ namespace Moonlit::ResourceManagement
         m_resources.reserve(ResourceBankDefaultSize);
     }
 
-    template<class T>
-    std::shared_ptr<T> ResourceBank<T>::Get(std::string _name)
+    template<class RESOURCE_TYPE>
+    std::vector<typename ResourceBank<RESOURCE_TYPE>::HANDLE_TYPE> ResourceBank<RESOURCE_TYPE>::GetAllResources()
+    {
+        std::vector<HANDLE_TYPE> result(m_resources.size());
+        for (size_t i = 0; i < m_resources.size(); i++)
+        {
+            result[i] = HANDLE_TYPE(this, i);
+        }
+        return result;
+    }
+
+    template<class RESOURCE_TYPE>
+    ResourceHandle<RESOURCE_TYPE> ResourceBank<RESOURCE_TYPE>::Get(std::string _name)
     {
         for (auto it = m_resources.begin(); it != m_resources.end(); it++)
         {

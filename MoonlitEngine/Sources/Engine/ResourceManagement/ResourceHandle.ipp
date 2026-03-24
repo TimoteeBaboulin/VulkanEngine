@@ -19,7 +19,13 @@ namespace Moonlit::ResourceManagement
     // }
 
     template<typename RESOURCE_TYPE>
-    ResourceHandle<RESOURCE_TYPE>::ResourceHandle(BANK_TYPE* _bank, size_t _index) : m_resourceBank(_bank), m_index(_index)
+    ResourceHandle<RESOURCE_TYPE>::ResourceHandle() : m_resourceBank(nullptr), m_index(-1), m_isValid(false)
+    {
+
+    }
+
+    template<typename RESOURCE_TYPE>
+    ResourceHandle<RESOURCE_TYPE>::ResourceHandle(BANK_TYPE* _bank, size_t _index) : m_resourceBank(_bank), m_index(_index), m_isValid(m_index != -1)
     {
         m_handle = typeid(RESOURCE_TYPE).name();
     }
@@ -36,6 +42,8 @@ namespace Moonlit::ResourceManagement
 
         std::getline(stream, inputStr, ':');
         m_index = std::stoi(inputStr);
+
+        m_isValid = true;
     }
 
     template<typename RESOURCE_TYPE>

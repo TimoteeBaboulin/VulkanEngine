@@ -14,6 +14,7 @@ namespace Moonlit::ResourceManagement
         // static BANK_TYPE& GetBank(std::string _handle);
 
     public:
+        ResourceHandle();
         ResourceHandle(BANK_TYPE* _bank, size_t _index);
         ResourceHandle(std::string& _handle);
         RESOURCE_TYPE& operator*();
@@ -22,6 +23,7 @@ namespace Moonlit::ResourceManagement
 
         std::string Name() const {return (*m_resourceBank)[m_index].Name; }
         std::shared_ptr<RESOURCE_TYPE> ResourcePtr() const {return (*m_resourceBank)[m_index].ResourcePtr; }
+        bool IsValid() const {return m_isValid;}
     private:
         BANK_TYPE* m_resourceBank;
         size_t m_index;

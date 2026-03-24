@@ -14,6 +14,7 @@
 #include "RenderTarget.h"
 
 #include "../../Debug/Logger.h"
+#include "Engine/ResourceManagement/ResourceHandle.h"
 
 Moonlit::Renderer::MoonlitRenderer::MoonlitRenderer()
 {
@@ -84,8 +85,8 @@ void Moonlit::Renderer::MoonlitRenderer::Cleanup()
 	delete m_context;
 }
 
-uint32_t Moonlit::Renderer::MoonlitRenderer::AddMeshInstance(std::shared_ptr<MeshData> _mesh,
-	std::vector<std::shared_ptr<Image>> _textures,
+uint32_t Moonlit::Renderer::MoonlitRenderer::AddMeshInstance(MeshHandle _mesh,
+	std::vector<TextureHandle> _textures,
 	glm::mat4x4 _model)
 {
 	// Find the correct draw buffer for this mesh/material
@@ -97,7 +98,7 @@ void Moonlit::Renderer::MoonlitRenderer::UpdateInstanceModel(uint32_t _instanceI
 	m_drawBuffers[0]->UpdateInstanceModel(_instanceId, _model);
 }
 
-void Moonlit::Renderer::MoonlitRenderer::UpdateInstanceMesh(uint32_t _instanceId, std::shared_ptr<MeshData> _mesh)
+void Moonlit::Renderer::MoonlitRenderer::UpdateInstanceMesh(uint32_t _instanceId, MeshHandle _mesh)
 {
 	m_drawBuffers[0]->UpdateInstanceMesh(_instanceId, _mesh);
 }

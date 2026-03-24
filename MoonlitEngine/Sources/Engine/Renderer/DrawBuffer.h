@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "BufferDeviceLink.h"
+#include "Renderer.h"
 #include "../../common.h"
 #include "Material/Material.h"
 
@@ -57,11 +58,11 @@ namespace Moonlit::Renderer
 		//DATA MANAGEMENT----------------------------------------------------------------------
 
 		void RemoveMeshInstance(uint32_t _instanceId);
-		uint32_t AddMeshInstance(std::shared_ptr<MeshData> _mesh,
-			std::vector<std::shared_ptr<Image>> _textures,
+		uint32_t AddMeshInstance(MeshHandle _mesh,
+			std::vector<TextureHandle> _textures,
 			glm::mat4x4 _model);
 		void UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model);
-		void UpdateInstanceMesh(uint32_t _instanceId, std::shared_ptr<MeshData> _mesh);
+		void UpdateInstanceMesh(uint32_t _instanceId, MeshHandle _mesh);
 
 		//RENDER-------------------------------------------------------------------------------
 
@@ -115,7 +116,7 @@ namespace Moonlit::Renderer
 
 		// MESH MANAGEMENT---------------------------------------------------------------------
 
-		void InsertMesh(std::shared_ptr<MeshData> _mesh);
+		void InsertMesh(MeshHandle _mesh);
 		void RemoveMeshInstance(std::vector<InstanceData>::iterator _instanceIt);
 		void InsertMeshInstance(intptr_t _meshHandle, glm::mat4x4 _model, uint32_t _instanceId);
 		void RemoveMesh(std::vector<MeshEntry>::iterator _instanceIt);
@@ -123,8 +124,8 @@ namespace Moonlit::Renderer
 
 		// TEXTURE MANAGEMENT------------------------------------------------------------------
 
-		std::vector<uint16_t> GetTextureIndices(std::vector<std::shared_ptr<Image>>& _images);
-		uint16_t InsertTexture(std::shared_ptr<Image>& _image);
+		std::vector<uint16_t> GetTextureIndices(std::vector<TextureHandle>& _images);
+		uint16_t InsertTexture(TextureHandle& _image);
 		void RemoveTexture(uint16_t _index);
 
 		std::vector<TextureSlot>::iterator FindTexture(intptr_t _texHandle);

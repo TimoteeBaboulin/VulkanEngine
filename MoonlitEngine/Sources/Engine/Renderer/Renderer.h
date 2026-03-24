@@ -3,7 +3,8 @@
 #include "../Inputs/InputManager.h"
 #include "../../common.h"
 
-#include <string>
+#include "Engine/ResourceManagement/ResourceHandle.h"
+#include "Engine/ResourceManagement/TextureData.h"
 
 namespace vk
 {
@@ -25,6 +26,9 @@ namespace Moonlit::Renderer
 
 	constexpr int TEXTURE_DESCRIPTOR_COUNT = 16;
 
+	using TextureHandle = ResourceManagement::ResourceHandle<Image>;
+	using MeshHandle = ResourceManagement::ResourceHandle<MeshData>;
+
 	/// <summary>
 	/// Main rendering class, this is the rendering module's entry point.
 	/// </summary>
@@ -36,11 +40,11 @@ namespace Moonlit::Renderer
 
 		void Init(struct ContextInfo& _info, std::vector<const char*> requiredExtensions);
 		void Cleanup();
-		uint32_t AddMeshInstance(std::shared_ptr<MeshData> _mesh,
-			std::vector<std::shared_ptr<Image>> _textures,
+		uint32_t AddMeshInstance(MeshHandle _mesh,
+			std::vector<TextureHandle> _textures,
 			glm::mat4x4 _model);
 		void UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model);
-		void UpdateInstanceMesh(uint32_t _instanceId, std::shared_ptr<MeshData> _mesh);
+		void UpdateInstanceMesh(uint32_t _instanceId, MeshHandle _mesh);
 		void RemoveMeshInstance(uint32_t _instanceId);
 		RenderTarget* AddRenderTarget(void* _handle, Camera* _camera);
 

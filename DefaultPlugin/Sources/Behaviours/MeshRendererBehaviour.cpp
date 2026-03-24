@@ -14,7 +14,7 @@ using Image = Moonlit::Image;
 using MeshData = Moonlit::MeshData;
 
 MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner)
-	: ObjectBehaviour(_owner)
+	: ObjectBehaviour(_owner), m_meshData("MeshData")
 {
 	LookForTransformComponent();
 
@@ -23,27 +23,30 @@ MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner)
 		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
 	Moonlit::ResourceManagement::ResourceManager* resourceManager = Moonlit::ResourceManagement::ResourceManager::Instance();
-	
-	if (!resourceManager->TryGetResource<MeshData>("Cube", m_meshData))
+	Moonlit::Renderer::MeshHandle meshHandle;
+
+	if (!resourceManager->TryGetResource<MeshData>("Cube", meshHandle))
 	{
 		LOG_ERROR("Failed to load default mesh barstool_mesh from ResourceManager.");
 		throw std::runtime_error("Failed to load default mesh barstool_mesh from ResourceManager.");
 	}
 
-	std::shared_ptr<Image> firstTexture;
-	if (!Moonlit::ResourceManagement::ResourceManager::TryGetResource<Image>("barstool_albedo", firstTexture))
+	Moonlit::Renderer::TextureHandle textureHandle;
+	if (!Moonlit::ResourceManagement::ResourceManager::TryGetResource<Image>("barstool_albedo", textureHandle))
 	{
 		LOG_ERROR("Failed to load texture barstool_albedo.png from ResourceManager.");
 		throw std::runtime_error("Failed to load texture barstool_albedo.png from ResourceManager.");
 	}
 
-	std::vector<std::shared_ptr<Image>> textures;
-	textures.push_back(firstTexture);
+	std::vector<Moonlit::Renderer::TextureHandle> textures;
+	textures.push_back(textureHandle);
+	m_meshData = meshHandle;
 
-	m_instanceId = Moonlit::MoonlitEngine::GetInstance()->Renderer->AddMeshInstance(m_meshData, textures, m_transformComponent->GetModelMat());
+	m_instanceId = Moonlit::MoonlitEngine::GetInstance()->Renderer->AddMeshInstance(*m_meshData, textures, m_transformComponent->GetModelMat());
 }
 
-MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner, std::shared_ptr<MeshData> _mesh) : ObjectBehaviour(_owner)
+MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner, Moonlit::Renderer::MeshHandle _mesh)
+	: ObjectBehaviour(_owner), m_meshData("MeshData", _mesh)
 {
 	LookForTransformComponent();
 
@@ -52,8 +55,8 @@ MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner, std::s
 
 	m_meshData = _mesh;
 
-	std::shared_ptr<Image> firstTexture;
-	std::vector<std::shared_ptr<Image>> textures;
+	Moonlit::Renderer::TextureHandle firstTexture;
+	std::vector<Moonlit::Renderer::TextureHandle> textures;
 	if (!Moonlit::ResourceManagement::ResourceManager::TryGetResource<Image>("barstool_albedo", firstTexture))
 	{
 		LOG_ERROR("Failed to load texture barstool_albedo.png from ResourceManager.");
@@ -74,15 +77,10 @@ MeshRendererBehaviour::~MeshRendererBehaviour()
 	delete m_transformChangedSubscriber;
 }
 
-std::vector<Moonlit::ParameterRepositoryEntry> MeshRendererBehaviour::GetParameters()
+std::vector<ParameterBase*> MeshRendererBehaviour::GetParameters()
 {
-	std::vector<Moonlit::ParameterRepositoryEntry> entries = ObjectBehaviour::GetParameters();
-	entries.push_back(Moonlit::ParameterRepositoryEntry{
-		"Model",
-		typeid(m_meshData).name(),
-		sizeof(std::shared_ptr<MeshData>),
-		&m_meshData
-		});
+	std::vector<ParameterBase*> entries = ObjectBehaviour::GetParameters();
+	entries.push_back(&m_meshData);
 
 	return entries;
 }
@@ -92,13 +90,13 @@ void MeshRendererBehaviour::ParameterChanged(const Moonlit::ParameterRepositoryE
 	LOG_INFO("Trying to change parameter " + std::string(_parameter.Name));
 	if (strcmp(_parameter.Name, "Model") == 0)
 	{
-		if (m_meshData == nullptr)
+		if ((*m_meshData).ResourcePtr() == nullptr)
 		{
 			LOG_WARNING("MeshRendererBehaviour has no valid mesh assigned.");
 			return;
 		}
 
-		Moonlit::MoonlitEngine::GetInstance()->Renderer->UpdateInstanceMesh(m_instanceId, m_meshData);
+		Moonlit::MoonlitEngine::GetInstance()->Renderer->UpdateInstanceMesh(m_instanceId, *m_meshData);
 	}
 	else if (strcmp(_parameter.Name, "Transform") == 0)
 	{

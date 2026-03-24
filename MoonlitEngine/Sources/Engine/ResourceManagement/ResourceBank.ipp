@@ -31,11 +31,11 @@ namespace Moonlit::ResourceManagement
         {
             if ((*it).Name == _name)
             {
-                return (*it).ResourcePtr;
+                return HANDLE_TYPE(this, std::distance(m_resources.begin(), it));
             }
         }
 
-        return nullptr;
+        return HANDLE_TYPE(this, -1);
     }
 
     template<class T>

@@ -72,7 +72,7 @@ namespace Moonlit::ResourceManagement
 			{
 				ResourceBank<RESOURCE_TYPE>* bank = static_cast<ResourceBank<RESOURCE_TYPE>*>(it->second);
 				_outResource = bank->Get(_name);
-				return _outResource != nullptr;
+				return _outResource.IsValid();
 			}
 
 			return false;

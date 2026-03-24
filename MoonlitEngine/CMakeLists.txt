@@ -1,16 +1,11 @@
 FILE(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/Sources/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Sources/*.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Sources/*.ipp
 )
 
 ADD_LIBRARY(MoonlitEngine SHARED ${SOURCE}
-        Sources/Engine/Modules/Module.h
-        Sources/Engine/Modules/ModuleManager.h
-        Sources/Engine/Modules/ModuleManager.cpp
-        Sources/Engine/Component/BehaviourBank.cpp
-        Sources/Engine/Component/BehaviourBank.h
-        Sources/Engine/Component/BehaviourManager.cpp
-        Sources/Engine/Component/BehaviourManager.h)
+)
 
 SET_TARGET_PROPERTIES(MoonlitEngine PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${RUNTIME_DIR}"

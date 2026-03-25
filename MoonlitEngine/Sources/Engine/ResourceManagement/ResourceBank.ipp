@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "ResourceBank.h"
+#include "ResourceHandle.h"
 
 namespace Moonlit::ResourceManagement
 {

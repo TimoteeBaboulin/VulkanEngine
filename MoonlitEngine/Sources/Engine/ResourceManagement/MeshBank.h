@@ -5,7 +5,7 @@
 
 namespace Moonlit::ResourceManagement
 {
-	class MOONLIT_API MeshBank : public ResourceBank<Moonlit::MeshData>
+	class MOONLIT_API MeshBank : public ResourceBank<MeshData>
 	{
 	public:
 		static void Initialize()

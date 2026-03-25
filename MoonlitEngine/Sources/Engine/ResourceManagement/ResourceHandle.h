@@ -1,5 +1,6 @@
 #ifndef MOONLIT_RESOURCEHANDLE_H
 #define MOONLIT_RESOURCEHANDLE_H
+
 #include <string>
 
 #include "ResourceBank.h"

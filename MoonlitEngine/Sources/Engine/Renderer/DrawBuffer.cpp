@@ -5,6 +5,7 @@
 
 #include "../../Debug/Logger.h"
 #include "Engine/ResourceManagement/ResourceHandle.h"
+#include "Engine/ResourceManagement/ResourceBank.h"
 
 Moonlit::Renderer::DrawBuffer::DrawBuffer(Material* _material, DeviceData _deviceData)
 	: m_textureList(), m_deviceBridge(_deviceData, *_material, this)

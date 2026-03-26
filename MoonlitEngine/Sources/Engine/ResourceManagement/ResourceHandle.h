@@ -2,17 +2,17 @@
 #define MOONLIT_RESOURCEHANDLE_H
 
 #include <string>
-
-#include "ResourceBank.h"
+#include <memory>
 
 namespace Moonlit::ResourceManagement
 {
+    template<typename RESOURCE_TYPE> class ResourceBank;
+    template<typename RESOURCE_TYPE> struct ResourcePair;
+
     template <typename RESOURCE_TYPE>
     class ResourceHandle {
         using BANK_TYPE = ResourceBank<RESOURCE_TYPE>;
-        using PAIR_TYPE = BANK_TYPE::PAIR_TYPE;
-
-        // static BANK_TYPE& GetBank(std::string _handle);
+        using PAIR_TYPE = ResourcePair<RESOURCE_TYPE>;
 
     public:
         ResourceHandle();
@@ -22,9 +22,9 @@ namespace Moonlit::ResourceManagement
         RESOURCE_TYPE* operator->();
         operator PAIR_TYPE();
 
-        std::string Name() const {return (*m_resourceBank)[m_index].Name; }
-        std::shared_ptr<RESOURCE_TYPE> ResourcePtr() const {return (*m_resourceBank)[m_index].ResourcePtr; }
-        bool IsValid() const {return m_isValid;}
+        std::string Name() const;
+        std::shared_ptr<RESOURCE_TYPE> ResourcePtr() const;
+        bool IsValid() const;
     private:
         BANK_TYPE* m_resourceBank;
         size_t m_index;
@@ -34,5 +34,6 @@ namespace Moonlit::ResourceManagement
     };
 }
 
+#include "ResourceHandle.ipp"
 
 #endif //MOONLIT_RESOURCEHANDLE_H

@@ -51,5 +51,6 @@ namespace Moonlit::ResourceManagement
 	protected:
 		std::vector<ResourcePair<RESOURCE_TYPE>> m_resources;
 	};
-
 }
+
+#include "ResourceManager.ipp"

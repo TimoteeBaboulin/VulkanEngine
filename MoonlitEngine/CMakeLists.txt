@@ -38,8 +38,6 @@ TARGET_SOURCES(
         Sources/Engine/ResourceManagement/FileHelper.cpp
         Sources/Engine/ResourceManagement/ImageHelper.cpp
         Sources/Engine/ResourceManagement/MeshBank.cpp
-        Sources/Engine/ResourceManagement/ResourceBank.ipp
-        Sources/Engine/ResourceManagement/ResourceHandle.ipp
         Sources/Engine/ResourceManagement/ResourceManager.cpp
         Sources/Engine/ResourceManagement/TextureBank.cpp
         Sources/Engine/Scene/Scene.cpp
@@ -49,7 +47,7 @@ TARGET_SOURCES(
 )
 
 TARGET_SOURCES(
-        MoonlitEngine PRIVATE
+        MoonlitEngine PUBLIC
         Sources/common.h
         Sources/GLMExport.h
         Sources/MoonlitExport.h
@@ -93,8 +91,11 @@ TARGET_SOURCES(
         Sources/Engine/ResourceManagement/Resources/Mesh.h
         Sources/Engine/ResourceManagement/MeshBank.h
         Sources/Engine/ResourceManagement/ResourceBank.h
+        Sources/Engine/ResourceManagement/ResourceBank.ipp
         Sources/Engine/ResourceManagement/ResourceHandle.h
+        Sources/Engine/ResourceManagement/ResourceHandle.ipp
         Sources/Engine/ResourceManagement/ResourceManager.h
+        Sources/Engine/ResourceManagement/ResourceManager.ipp
         Sources/Engine/ResourceManagement/TextureBank.h
         Sources/Engine/ResourceManagement/TextureData.h
         Sources/Engine/Scene/Scene.h

@@ -8,6 +8,7 @@
 #include "Engine/Renderer/Renderer.h"
 
 #include "Engine/ResourceManagement/ResourceManager.h"
+#include "Engine/ResourceManagement/ResourceHandle.h"
 #include "Debug/Logger.h"
 
 using Image = Moonlit::Image;
@@ -23,7 +24,8 @@ MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner)
 		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
 	Moonlit::ResourceManagement::ResourceManager* resourceManager = Moonlit::ResourceManagement::ResourceManager::Instance();
-	Moonlit::Renderer::MeshHandle meshHandle;
+	Moonlit::ResourceManagement::ResourceHandle<MeshData> meshHandle;
+	Moonlit::ResourceManagement::ResourceHandle<float> floatHandle;
 
 	if (!resourceManager->TryGetResource<MeshData>("Cube", meshHandle))
 	{

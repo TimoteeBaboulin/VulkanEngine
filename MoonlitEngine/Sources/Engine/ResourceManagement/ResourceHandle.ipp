@@ -1,23 +1,13 @@
 #ifndef MOONLIT_RESOURCEHANDLE_IPP
 #define MOONLIT_RESOURCEHANDLE_IPP
 
-#include "ResourceHandle.h"
 #include "ResourceManager.h"
+#include "ResourceBank.h"
 
 #include <sstream>
 
 namespace Moonlit::ResourceManagement
 {
-    // template<typename RESOURCE_TYPE>
-    // ResourceHandle<RESOURCE_TYPE>::BANK_TYPE & ResourceHandle<RESOURCE_TYPE>::GetBank(std::string _handle)
-    // {
-    //     std::stringstream stream(_handle);
-    //     std::string inputStr;
-    //     std::getline(stream, inputStr, ':');
-    //
-    //     return ResourceManager::Instance()->GetBank<BANK_TYPE>(inputStr);
-    // }
-
     template<typename RESOURCE_TYPE>
     ResourceHandle<RESOURCE_TYPE>::ResourceHandle() : m_resourceBank(nullptr), m_index(-1), m_isValid(false)
     {
@@ -49,19 +39,37 @@ namespace Moonlit::ResourceManagement
     template<typename RESOURCE_TYPE>
     RESOURCE_TYPE& ResourceHandle<RESOURCE_TYPE>::operator*()
     {
-        return m_resourceBank[m_index].Resource;
+        PAIR_TYPE& pair = (*m_resourceBank)[m_index];
+        return pair.Resource;
     }
 
     template<typename RESOURCE_TYPE>
     RESOURCE_TYPE* ResourceHandle<RESOURCE_TYPE>::operator->()
     {
-        return &m_resourceBank[m_index].Resource;
+        return &(*m_resourceBank)[m_index].Resource;
     }
 
     template<typename RESOURCE_TYPE>
-    ResourceHandle<RESOURCE_TYPE>::operator typename ResourceBank<RESOURCE_TYPE>::PAIR_TYPE()
+    ResourceHandle<RESOURCE_TYPE>::operator ResourcePair<RESOURCE_TYPE>() {
+        return *this;
+    }
+
+    template<typename RESOURCE_TYPE>
+    std::string ResourceHandle<RESOURCE_TYPE>::Name() const
     {
-        return m_resourceBank[m_index];
+        return (*m_resourceBank)[m_index].Name;
+    }
+
+    template<typename RESOURCE_TYPE>
+    std::shared_ptr<RESOURCE_TYPE> ResourceHandle<RESOURCE_TYPE>::ResourcePtr() const
+    {
+        return (*m_resourceBank)[m_index].ResourcePtr;
+    }
+
+    template<typename RESOURCE_TYPE>
+    bool ResourceHandle<RESOURCE_TYPE>::IsValid() const
+    {
+        return m_isValid;
     }
 }
 

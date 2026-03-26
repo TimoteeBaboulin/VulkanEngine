@@ -3,7 +3,7 @@
 #include "../Inputs/InputManager.h"
 #include "../../common.h"
 
-#include "Engine/ResourceManagement/ResourceHandle.h"
+#include "Engine/ResourceManagement/ResourceManager.h"
 #include "Engine/ResourceManagement/TextureData.h"
 
 namespace vk

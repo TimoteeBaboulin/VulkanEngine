@@ -1,24 +1,27 @@
 #pragma once
 
-#include "ParameterEditor.h"
+#include "../ParameterEditor.h"
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qvalidator.h>
 
-class Vector3ParameterEditor : public ParameterEditor
+#include <glm/vec3.hpp>
+#include <QtWidgets/qwidget.h>
+
+namespace Moonlit::Editor
 {
-public:
-	Vector3ParameterEditor(const Moonlit::ParameterRepositoryEntry& _entry, QWidget* _parent = nullptr);
-	~Vector3ParameterEditor();
+	class Vector3ParameterEditor : public ParameterEditor<glm::vec3>
+	{
+	public:
+		Vector3ParameterEditor(Parameter* _parameter, ObjectBehaviour* _behaviour, QWidget* _parent = nullptr) : ParameterEditor<glm::vec3>(_parameter, _behaviour, _parent) {};
+		~Vector3ParameterEditor() override;
 
-	void AddToLayout(QLayout* _layout) override;
-	void RemoveFromLayout(QLayout* _layout) override;
+		void SetParameterUI() override;
 
-private:
-	void SetUpUI();
+	private:
+		QLineEdit* m_lineEdits[3];
+		QLabel* m_labels[3];
 
-	QLineEdit* m_lineEdits[3];
-	QLabel* m_labels[3];
-
-	QRegularExpressionValidator* m_validator;
-};
+		QRegularExpressionValidator* m_validator;
+	};
+}

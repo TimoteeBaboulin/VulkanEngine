@@ -13,8 +13,8 @@
 #include "ParameterTypes/ParameterEditor.h"
 
 
-ParameterEditorBase::ParameterEditorBase(const ParameterBase* _parameter, Moonlit::ObjectBehaviour* _behaviour)
-	: QWidget(), m_parameterBase(_parameter), m_behaviour(_behaviour)
+ParameterEditorBase::ParameterEditorBase(const ParameterBase* _parameter, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent)
+	: QWidget(_parent), m_parameterBase(_parameter), m_behaviour(_behaviour)
 {
 	SetUI();
 }
@@ -38,5 +38,5 @@ void ParameterEditorBase::SetUI()
 
 	setLayout(m_layout);
 
-	SetParameterUI();
+	this->SetParameterUI();
 }

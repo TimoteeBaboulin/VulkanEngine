@@ -8,7 +8,7 @@
 class ParameterEditorBase : public QWidget
 {
 public:
-	ParameterEditorBase(const ParameterBase* _parameter, Moonlit::ObjectBehaviour* _behaviour);
+	ParameterEditorBase(const ParameterBase* _parameter, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent = nullptr);
 	ParameterEditorBase(const ParameterEditorBase& _toCopy) = delete;
 
 	~ParameterEditorBase() noexcept(true) override;

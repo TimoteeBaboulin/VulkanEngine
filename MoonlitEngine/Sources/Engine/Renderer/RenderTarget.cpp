@@ -481,6 +481,11 @@ void Moonlit::Renderer::RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuff
 		throw std::runtime_error("Failed to wait for fence!");
 	}
 
+	if (_drawBuffers[0]->GetVertexCount() == 0)
+	{
+		return;
+	}
+
 	m_deviceData.Device.resetFences(m_waitForPreviousFrame[m_currentFrame]);
 
 	UpdateUniformBuffer();

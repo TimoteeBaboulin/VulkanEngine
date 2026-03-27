@@ -5,8 +5,9 @@
 
 namespace Moonlit::Editor
 {
+    //TODO: Add a copy constructor to Event to pass the currently subscribed targets to the new event
     template<typename PARAMETER_TYPE>
-    ParameterEditor<PARAMETER_TYPE>::ParameterEditor(ParameterEditor &&_toCopy) : ParameterEditorBase(_toCopy.m_parameterBase, _toCopy.m_behaviour), m_parameter(_toCopy.m_parameter)
+    ParameterEditor<PARAMETER_TYPE>::ParameterEditor(ParameterEditor &&_toCopy) : ParameterEditorBase(_toCopy.m_parameterBase, _toCopy.m_behaviour), m_parameter(_toCopy.m_parameter), OnParameterChanged(this)
     {
         _toCopy.m_behaviour = nullptr;
     }
@@ -20,6 +21,8 @@ namespace Moonlit::Editor
 
         _toCopy.m_behaviour = nullptr;
         _toCopy.m_parameterBase = nullptr;
+
+        OnParameterChanged(this);
 
         return *this;
     }

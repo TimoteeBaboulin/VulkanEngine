@@ -7,12 +7,10 @@
 #include <vector>
 #include "../../MoonlitExport.h"
 
-template<typename RESOURCE_TYPE>
-class ResourceBank;
-template<typename RESOURCE_TYPE>
-class ResourceHandle;
-
 namespace Moonlit::ResourceManagement {
+    template<typename RESOURCE_TYPE> class ResourceBank;
+    template<typename RESOURCE_TYPE> class ResourceHandle;
+
     /// <summary>
     /// Static class handling ResourceBank interface for easy loading of different resources
     /// </summary>

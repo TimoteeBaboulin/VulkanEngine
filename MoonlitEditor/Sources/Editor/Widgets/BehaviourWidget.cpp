@@ -5,6 +5,9 @@
 
 #include <qboxlayout.h>
 
+#include "ParameterEditor.h"
+#include "ParameterTypes/ParameterTypeRegistry.h"
+
 BehaviourEditor::BehaviourEditor(Moonlit::ObjectBehaviour* _behaviour)
 	: QFrame()
 {
@@ -43,7 +46,16 @@ void BehaviourEditor::ReadParameters()
 
 	for (auto parameter : parameters)
 	{
-		LOG_INFO("Type of parameter is " + std::string(typeid(parameter).name()));
+		ParamEditorFactory_t factory = ParameterTypeRegistry::Get().GetFactoryForType(typeid(*parameter).name());
+		if (!factory)
+		{
+			continue;
+		}
+
+		ParameterEditorBase* editor = factory(parameter, m_behaviour, this);
+		m_widgets.push_back(editor);
+		m_layout->addWidget(editor);
+		LOG_INFO("Adding parameter " + parameter->Name());
 	}
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "ParameterEditor.h"
+#include "ParameterEditorBase.h"
+#include "Engine/Component/Parameter.h"
 
 #include "Vector3.h"
 #include "Float.h"
@@ -9,7 +10,7 @@
 
 #include <glm/vec3.hpp>
 
-using ParamEditorFactory_t = std::function<ParameterEditor* (Moonlit::ParameterRepositoryEntry)>;
+using ParamEditorFactory_t = std::function<ParameterEditorBase* (ParameterBase*, Moonlit::ObjectBehaviour*, QWidget*)>;
 
 struct ParameterWidgetEntry
 {
@@ -32,16 +33,17 @@ public:
 	{
 		// Initialize with default types
 		// Note: This is pretty ugly and will be changed later on
-		RegisterParameterType(typeid(glm::vec3).name(),
-			[](Moonlit::ParameterRepositoryEntry entry) -> ParameterEditor*
+		RegisterParameterType(typeid(Parameter<glm::vec3>).name(),
+			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
 			{
-				return new Vector3ParameterEditor(entry);
+				LOG_INFO("ParameterTypeRegistry Vector3ParameterEditor lambda");
+				return new Moonlit::Editor::Vector3ParameterEditor(static_cast<Parameter<glm::vec3>*>(_param), _behaviour, _parent);
 			});
-		RegisterParameterType(typeid(std::shared_ptr<Moonlit::MeshData>).name(),
-			[](Moonlit::ParameterRepositoryEntry entry) -> ParameterEditor*
-			{
-				return new Editor::Widgets::MeshDataParameterEditor(entry);
-			});
+		// RegisterParameterType(typeid(std::shared_ptr<Moonlit::MeshData>).name(),
+		// 	[](Moonlit::ParameterRepositoryEntry entry) -> ParameterEditor*
+		// 	{
+		// 		return new Editor::Widgets::MeshDataParameterEditor(entry);
+		// 	});
 	}
 
 	void RegisterParameterType(const char* _typeName, ParamEditorFactory_t _factory)

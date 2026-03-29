@@ -16,7 +16,6 @@
 ParameterEditorBase::ParameterEditorBase(const ParameterBase* _parameter, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent)
 	: QWidget(_parent), m_parameterBase(_parameter), m_behaviour(_behaviour)
 {
-	SetUI();
 }
 
 ParameterEditorBase::~ParameterEditorBase() noexcept(true)

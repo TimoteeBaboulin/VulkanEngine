@@ -53,6 +53,7 @@ void BehaviourEditor::ReadParameters()
 		}
 
 		ParameterEditorBase* editor = factory(parameter, m_behaviour, this);
+		editor->SetUI();
 		m_widgets.push_back(editor);
 		m_layout->addWidget(editor);
 		LOG_INFO("Adding parameter " + parameter->Name());

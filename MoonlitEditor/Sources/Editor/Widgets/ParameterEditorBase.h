@@ -11,11 +11,12 @@ public:
 	ParameterEditorBase(const ParameterBase* _parameter, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent = nullptr);
 	ParameterEditorBase(const ParameterEditorBase& _toCopy) = delete;
 
+	void SetUI();
+
 	~ParameterEditorBase() noexcept(true) override;
 
 protected:
 	virtual void SetParameterUI() {};
-	void SetUI();
 
 	const ParameterBase* m_parameterBase;
 	Moonlit::ObjectBehaviour* m_behaviour;

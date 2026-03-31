@@ -73,7 +73,8 @@ void SceneHierarchy::ContextMenuClicked(QAction *_action)
         newObj->SetName("New GameObject");
         m_model->Refresh();
         m_model->layoutChanged();
-    } else if (actionText == "Delete")
+    }
+    else if (actionText == "Delete")
     {
         if (m_actionTarget)
         {
@@ -87,7 +88,8 @@ void SceneHierarchy::ContextMenuClicked(QAction *_action)
             m_model->Refresh();
             m_model->layoutChanged();
         }
-    } else if (actionText == "Create Empty Child")
+    }
+    else if (actionText == "Create Empty Child")
     {
         if (m_actionTarget)
         {
@@ -98,6 +100,10 @@ void SceneHierarchy::ContextMenuClicked(QAction *_action)
             m_model->layoutChanged();
         }
     }
+    else if (actionText == "Save Scene")
+    {
+        Moonlit::MoonlitEngine::GetInstance()->GetScene().Save("scene.ms");
+    }
 
     m_contextMenu->deleteLater();
 }
@@ -106,6 +112,7 @@ void SceneHierarchy::ShowContextMenu(const QPoint &_pos)
 {
     m_contextMenu = new QMenu(this);
     m_contextMenu->addAction("Create Empty GameObject");
+    m_contextMenu->addAction("Save Scene");
     m_contextMenu->connect(m_contextMenu, &QMenu::triggered, this, &SceneHierarchy::ContextMenuClicked);
     m_contextMenu->popup(mapToGlobal(_pos));
 }

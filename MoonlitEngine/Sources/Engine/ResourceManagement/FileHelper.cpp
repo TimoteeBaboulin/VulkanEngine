@@ -44,3 +44,25 @@ std::vector<std::string> Moonlit::FileHelper::ListFilesInDirectory(const std::st
 
 	return fileList;
 }
+
+void Moonlit::FileHelper::WriteStringBinary(std::ofstream& s, const std::string& str)
+{
+	uint32_t len = static_cast<uint32_t>(str.size());
+	s.write(reinterpret_cast<const char*>(&len), sizeof(len));
+	if (len)
+		s.write(str.data(), static_cast<std::streamsize>(len));
+}
+
+bool Moonlit::FileHelper::ReadStringBinary(std::ifstream& s, std::string& out)
+{
+	uint32_t len = 0;
+	if (!s.read(reinterpret_cast<char*>(&len), sizeof(len)))
+		return false;
+	if (len == 0)
+	{
+		out.clear();
+		return true;
+	}
+	out.resize(len);
+	return static_cast<bool>(s.read(out.data(), static_cast<std::streamsize>(len)));
+}

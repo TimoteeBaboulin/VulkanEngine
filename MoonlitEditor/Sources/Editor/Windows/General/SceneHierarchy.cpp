@@ -9,16 +9,20 @@
 #include <qboxlayout.h>
 #include <qmenu.h>
 
+#include "Engine/Scene/SceneManager.h"
+
 SceneHierarchy::SceneHierarchy(IDockManager *_dockManager)
-    : EditorWindowBase()
+    : EditorWindowBase(), m_sceneLoadedSubscriber(Moonlit::SceneManagement::OnSceneLoaded, )
 {
     _dockManager->AddWidget(this, "Scene Hierarchy", ads::LeftDockWidgetArea);
+    SetUi();
     SetModel();
 }
 
 SceneHierarchy::SceneHierarchy(QWidget *parent)
     : EditorWindowBase(parent)
 {
+    SetUi();
     SetModel();
 }
 
@@ -30,13 +34,9 @@ void SceneHierarchy::Select(GameObject *selected)
     MoonlitEditor::OnSelectionChanged()(this, selected);
 }
 
-void SceneHierarchy::SetModel()
+void SceneHierarchy::SetUi()
 {
     QTreeView *treeview = new QTreeView(this);
-    Moonlit::Scene &scene = MoonlitEditor::Editor->GetEngine().GetScene();
-
-    m_model = new SceneHierarchyModel(&scene);
-    treeview->setModel(m_model);
 
     QLayout *layout = new QBoxLayout(QBoxLayout::TopToBottom);
     layout->addWidget(treeview);
@@ -61,6 +61,18 @@ void SceneHierarchy::SetModel()
     });
 
     treeview->setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+void SceneHierarchy::SetModel()
+{
+    Moonlit::Scene &scene = MoonlitEditor::Editor->GetEngine().GetScene();
+
+    m_model = new SceneHierarchyModel(&scene);
+    m_treeview->setModel(m_model);
+}
+
+void SceneHierarchy::OnSceneLoaded(Moonlit::Scene *_scene) {
+    SetModel();
 }
 
 void SceneHierarchy::ContextMenuClicked(QAction *_action)

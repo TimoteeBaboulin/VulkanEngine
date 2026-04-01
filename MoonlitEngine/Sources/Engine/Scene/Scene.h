@@ -17,8 +17,8 @@ namespace Moonlit
 		Scene();
 		~Scene();
 
-		void Save(std::string _filePath);
-		void Load(std::string _filePath);
+		void Save(const std::string& _filePath);
+		void Load(const std::string& _filePath);
 
 		void ClearScene();
 

@@ -32,6 +32,8 @@ namespace Moonlit
 		void Init();
 		void Update();
 
+		void LoadScene(const std::string& _path);
+
 		Scene& GetScene() const { return *m_activeScene; }
 	private:
 

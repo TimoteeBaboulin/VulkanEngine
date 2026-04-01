@@ -164,7 +164,7 @@ void Moonlit::GameObject::SaveToFile(std::ofstream &_stream)
     }
 }
 
-void Moonlit::GameObject::LoadFromFile(std::ifstream &_stream)
+void Moonlit::GameObject::LoadFromFile(std::ifstream& _stream)
 {
     // Expected to be called after reading the magic and id
     uint32_t count = 0;

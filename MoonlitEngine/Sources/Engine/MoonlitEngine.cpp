@@ -14,6 +14,8 @@
 
 #include <filesystem>
 
+#include "Scene/SceneManager.h"
+
 Moonlit::MoonlitEngine* Moonlit::MoonlitEngine::m_instance = nullptr;
 
 Moonlit::MoonlitEngine::MoonlitEngine(void* _handle)
@@ -62,4 +64,17 @@ void Moonlit::MoonlitEngine::Update()
 {
 	// Update the renderer
 	Renderer->Render();
+}
+
+void Moonlit::MoonlitEngine::LoadScene(const std::string& _path)
+{
+	if (m_activeScene)
+	{
+		SceneManagement::OnSceneUnloaded(m_activeScene);
+		delete m_activeScene;
+	}
+
+	m_activeScene = new Scene();
+	m_activeScene->Load(_path);
+	SceneManagement::OnSceneLoaded(m_activeScene);
 }

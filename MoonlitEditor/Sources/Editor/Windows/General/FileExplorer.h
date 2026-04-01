@@ -14,6 +14,8 @@ public:
     ~FileExplorer();
 private:
 	void Init();
+    void OnDoubleClick(const QModelIndex& _index);
+
 	QFileSystemModel* m_fileSystemModel = nullptr;
     QTreeView* m_treeView = nullptr;
 };

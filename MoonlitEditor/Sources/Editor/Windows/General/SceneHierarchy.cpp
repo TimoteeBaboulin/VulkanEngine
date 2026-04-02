@@ -12,7 +12,7 @@
 #include "Engine/Scene/SceneManager.h"
 
 SceneHierarchy::SceneHierarchy(IDockManager *_dockManager)
-    : EditorWindowBase(), m_sceneLoadedSubscriber(Moonlit::SceneManagement::OnSceneLoaded, )
+    : EditorWindowBase(), m_sceneLoadedSubscriber(Moonlit::MoonlitEngine::GetInstance()->OnSceneLoaded, std::bind(&SceneHierarchy::OnSceneLoaded, this, std::placeholders::_1))
 {
     _dockManager->AddWidget(this, "Scene Hierarchy", ads::LeftDockWidgetArea);
     SetUi();
@@ -20,7 +20,7 @@ SceneHierarchy::SceneHierarchy(IDockManager *_dockManager)
 }
 
 SceneHierarchy::SceneHierarchy(QWidget *parent)
-    : EditorWindowBase(parent)
+    : EditorWindowBase(parent), m_sceneLoadedSubscriber(Moonlit::MoonlitEngine::GetInstance()->OnSceneLoaded, std::bind(&SceneHierarchy::OnSceneLoaded, this, std::placeholders::_1))
 {
     SetUi();
     SetModel();
@@ -36,20 +36,20 @@ void SceneHierarchy::Select(GameObject *selected)
 
 void SceneHierarchy::SetUi()
 {
-    QTreeView *treeview = new QTreeView(this);
+    m_treeView = new QTreeView(this);
 
     QLayout *layout = new QBoxLayout(QBoxLayout::TopToBottom);
-    layout->addWidget(treeview);
+    layout->addWidget(m_treeView);
     setLayout(layout);
 
-    treeview->connect(treeview, &QTreeView::clicked, this, [this, treeview]() {
-        auto selected = treeview->currentIndex();
+    m_treeView->connect(m_treeView, &QTreeView::clicked, this, [this]() {
+        auto selected = m_treeView->currentIndex();
         GameObject *obj = static_cast<GameObject *>(selected.internalPointer());
         Select(obj);
     });
 
-    treeview->connect(treeview, &QTreeView::customContextMenuRequested, this, [this, treeview](const QPoint &_pos) {
-        auto selected = treeview->indexAt(_pos);
+    m_treeView->connect(m_treeView, &QTreeView::customContextMenuRequested, this, [this](const QPoint &_pos) {
+        auto selected = m_treeView->indexAt(_pos);
         GameObject *obj = static_cast<GameObject *>(selected.internalPointer());
         if (!obj)
         {
@@ -60,15 +60,20 @@ void SceneHierarchy::SetUi()
         ShowContextMenu(_pos, obj);
     });
 
-    treeview->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void SceneHierarchy::SetModel()
 {
     Moonlit::Scene &scene = MoonlitEditor::Editor->GetEngine().GetScene();
 
+    if (m_model)
+    {
+        delete m_model;
+    }
+
     m_model = new SceneHierarchyModel(&scene);
-    m_treeview->setModel(m_model);
+    m_treeView->setModel(m_model);
 }
 
 void SceneHierarchy::OnSceneLoaded(Moonlit::Scene *_scene) {

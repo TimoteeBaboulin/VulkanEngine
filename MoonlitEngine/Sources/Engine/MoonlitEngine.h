@@ -2,6 +2,8 @@
 #define MOONLIT_ENGINE_H
 
 #include <string>
+
+#include "Events/Event.h"
 #include "Renderer/Camera.h"
 #include "Scene/Scene.h"
 
@@ -15,6 +17,9 @@ namespace Moonlit
 	class MOONLIT_API MoonlitEngine
 	{
 	public:
+		Events::Event<void, Scene*> OnSceneLoaded;
+		Events::Event<void, Scene*> OnSceneUnloaded;
+
 		static MoonlitEngine* GetInstance() { return m_instance; }
 
 		Renderer::MoonlitRenderer* Renderer;

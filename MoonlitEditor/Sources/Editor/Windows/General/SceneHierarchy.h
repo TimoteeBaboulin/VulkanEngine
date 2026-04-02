@@ -24,7 +24,7 @@ private:
 
 	void OnContextMenuOptionClicked(const QString& _option);
 
-	SceneHierarchyModel* m_model;
+	SceneHierarchyModel* m_model = nullptr;
 	QMenu* m_contextMenu;
 	QTreeView* m_treeView;
 

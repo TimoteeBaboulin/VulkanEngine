@@ -9,8 +9,7 @@ namespace Moonlit
 
 namespace Moonlit::SceneManagement
 {
-    static Events::Event<void, Scene*> OnSceneLoaded;
-    static Events::Event<void, Scene*> OnSceneUnloaded;
+
 }
 
 #endif //MOONLIT_SCENEMANAGER_H

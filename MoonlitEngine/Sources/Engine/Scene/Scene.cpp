@@ -3,6 +3,7 @@
 #include "Engine/Component/GameObject.h"
 
 #include "Debug/Logger.h"
+#include <nlohmann/json.hpp>
 
 //TODO: This is only used for testing, remove it later
 #include "Engine/ResourceManagement/ResourceManager.h"
@@ -27,6 +28,8 @@ namespace Moonlit
 
 	void Moonlit::Scene::Save(const std::string& _filePath)
 	{
+    	nlohmann::json json;
+
 		std::ofstream fileStream;
 		fileStream.open(_filePath, std::ios::out | std::ios::trunc | std::ios::binary);
 		if (!fileStream.is_open())

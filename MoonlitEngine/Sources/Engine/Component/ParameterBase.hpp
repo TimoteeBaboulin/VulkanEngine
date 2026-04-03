@@ -1,7 +1,6 @@
 #ifndef MOONLIT_PARAMETERBASE_HPP
 #define MOONLIT_PARAMETERBASE_HPP
 
-#include "ParameterBase.h"
 #include "Parameter.h"
 
 template<typename PARAMETER_TYPE>

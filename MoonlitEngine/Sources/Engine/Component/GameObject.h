@@ -9,6 +9,7 @@
 #include <glm/vec3.hpp>
 #include <fstream>
 #include <string>
+#include <nlohmann/json_fwd.hpp>
 
 #include "MoonlitExport.h"
 #include "ObjectBehaviour.h"
@@ -72,8 +73,8 @@ namespace Moonlit
 		void BindToUpdate(GameEventFunction _func);
 		void AddComponent(ObjectBehaviour* _component);
 
-		void SaveToFile(std::ofstream& _stream);
-		void LoadFromFile(std::ifstream& _stream);
+		void SaveToFile(nlohmann::json& _json);
+		void LoadFromFile(nlohmann::json& _json);
 
 		GameObject* GetParent() const { return m_parent; }
 		void SetParent(GameObject* _parent) { m_parent = _parent; }

@@ -144,39 +144,34 @@ static bool ReadStringBinary(std::ifstream &s, std::string &out)
     return static_cast<bool>(s.read(out.data(), static_cast<std::streamsize>(len)));
 }
 
-void Moonlit::GameObject::SaveToFile(std::ofstream &_stream)
+void Moonlit::GameObject::SaveToFile(nlohmann::json& _json)
 {
-    const uint32_t magic = 0x474F424A; // 'GOBJ' in ASCII little-endian
-    _stream.write(reinterpret_cast<const char *>(&magic), sizeof(magic));
+    nlohmann::json gameObjectJson;
+    gameObjectJson["name"] = m_name;
+    gameObjectJson["id"] = m_id;
+    gameObjectJson["behaviour_count"] = m_behaviours.size();
 
-    uint32_t id = m_id;
-    _stream.write(reinterpret_cast<const char *>(&id), sizeof(id));
-
-    uint32_t compCount = static_cast<uint32_t>(m_behaviours.size());
-    _stream.write(reinterpret_cast<const char *>(&compCount), sizeof(compCount));
+    nlohmann::json behavioursJson;
 
     for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)
     {
         ObjectBehaviour *component = (*it);
-        std::string className = ClassNameFromTypeName(typeid(*component).name());
-        WriteStringBinary(_stream, className);
-        component->SaveToFile(_stream);
+        component->SaveToFile(behavioursJson);
     }
+    gameObjectJson["behaviours"] = behavioursJson;
+    _json["game_objects"].push_back(gameObjectJson);
 }
 
-void Moonlit::GameObject::LoadFromFile(std::ifstream& _stream)
+void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
 {
     // Expected to be called after reading the magic and id
-    uint32_t count = 0;
-    if (!_stream.read(reinterpret_cast<char *>(&count), sizeof(count)))
-        return;
+    uint32_t count = _json["behaviour_count"];
+    m_behaviours.reserve(count);
 
     std::string buffer;
     for (uint32_t i = 0; i < count; ++i)
     {
-        if (!ReadStringBinary(_stream, buffer))
-            return;
-
+        buffer = _json["behaviours"][i].get<std::string>();
         ObjectBehaviour *component = BehaviourRegistry::CreateBehaviour(buffer, this);
         if (component == nullptr)
         {
@@ -186,7 +181,7 @@ void Moonlit::GameObject::LoadFromFile(std::ifstream& _stream)
         }
 
         m_behaviours.push_back(component);
-        component->LoadFromFile(_stream);
+        component->LoadFromFile(_json);
     }
 }
 

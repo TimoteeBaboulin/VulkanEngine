@@ -1,7 +1,6 @@
-#ifndef MOONLIT_PARAMETERBASE_H
-#define MOONLIT_PARAMETERBASE_H
+#pragma once
 
-#include "Engine/ResourceManagement/Helpers/FileHelper.h"
+#include <nlohmann/json.hpp>
 
 class ParameterBase {
 public:
@@ -17,14 +16,15 @@ public:
         return m_name;
     }
 
-    virtual void Load(std::ifstream &_stream) {};
-    virtual void Save(std::ofstream& _stream)
+    virtual void Load(nlohmann::json& _stream)
     {
-        Moonlit::FileHelper::WriteStringBinary(_stream, m_name);
+        m_name = _stream["name"].get<std::string>();
+    };
+    virtual void Save(nlohmann::json& _stream)
+    {
+        _stream["name"] = m_name;
     };
 
 protected:
     std::string m_name;
 };
-
-#endif //MOONLIT_PARAMETERBASE_H

@@ -27,8 +27,8 @@ public:
     PARAMETER_TYPE Value() const {return m_value;};
     void SetValue(PARAMETER_TYPE value) {m_value = value;};
 
-    void Save(std::ofstream& _stream) override;
-    void Load(std::ifstream& _stream) override;
+    void Save(nlohmann::json& _stream) override;
+    void Load(nlohmann::json& _json) override;
 
 protected:
     PARAMETER_TYPE m_value;

@@ -14,6 +14,7 @@ TARGET_LINK_LIBRARIES(MoonlitEditor PRIVATE
         DefaultPlugin
         Qt6::Core Qt6::Widgets Qt6::Gui
         ads::qtadvanceddocking-qt6
+        nlohmann_json::nlohmann_json
 )
 
 TARGET_INCLUDE_DIRECTORIES(MoonlitEditor PRIVATE

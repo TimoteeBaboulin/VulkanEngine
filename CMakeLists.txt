@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.28...4.2.3)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1...4.2.3)
 
 PROJECT(Moonlit VERSION 0.1.0 LANGUAGES CXX)
 
@@ -66,8 +66,7 @@ FETCHCONTENT_MAKEAVAILABLE(ads)
 
 FETCHCONTENT_DECLARE(
         json
-        GIT_REPOSITORY https://github.com/nlohmann/json
-        GIT_TAG v3.12.0
+        URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
 )
 
 FETCHCONTENT_MAKEAVAILABLE(json)

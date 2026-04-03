@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <fstream>
+#include <nlohmann/json.hpp>
 
 #include "MoonlitExport.h"
 #include "Parameter.h"
@@ -35,8 +36,8 @@ namespace Moonlit
 		virtual ~ObjectBehaviour();
 
 		void SetOwner(GameObject* _owner);
-		void SaveToFile(std::ofstream& _stream);
-		void LoadFromFile(std::ifstream& _stream);
+		void SaveToFile(nlohmann::json& _json);
+		void LoadFromFile(nlohmann::json& _stream);
 
 		virtual void Init() {};
 		virtual void OnSpawn() {};

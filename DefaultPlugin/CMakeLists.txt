@@ -13,4 +13,4 @@ SET_TARGET_PROPERTIES(DefaultPlugin PROPERTIES
 )
 
 TARGET_INCLUDE_DIRECTORIES(DefaultPlugin PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Sources)
-TARGET_LINK_LIBRARIES(DefaultPlugin PRIVATE MoonlitEngine Qt6::Core Qt6::Widgets Qt6::Gui)
+TARGET_LINK_LIBRARIES(DefaultPlugin PRIVATE MoonlitEngine Qt6::Core Qt6::Widgets Qt6::Gui nlohmann_json::nlohmann_json)

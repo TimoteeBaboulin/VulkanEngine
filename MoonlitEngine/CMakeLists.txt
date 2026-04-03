@@ -126,6 +126,7 @@ TARGET_LINK_LIBRARIES(MoonlitEngine PRIVATE
         assimp
         slang
         xinput
+        nlohmann_json::nlohmann_json
 )
 
 TARGET_LINK_LIBRARIES(MoonlitEngine PUBLIC

@@ -38,50 +38,58 @@ namespace Moonlit
 			return;
 		}
 
+    	json["root_count"] = m_rootGameObjects.size();
+
+    	nlohmann::json rootsJson;
+
 		for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
 		{
-			(*it)->SaveToFile(fileStream);
+			(*it)->SaveToFile(rootsJson);
 		}
+
+    	json["roots"] = rootsJson;
+
+		fileStream << json.dump(4);
 
 		fileStream.close();
 	}
 
 	void Moonlit::Scene::Load(const std::string& _filePath)
 	{
-		ClearScene();
-
-		std::ifstream fileStream;
-		fileStream.open(_filePath, std::ios::in | std::ios::binary);
-		if (!fileStream.is_open())
-		{
-			LOG_ERROR("Scene Load: Couldn't open scene save file for reading");
-			return;
-		}
-
-		const uint32_t expectedMagic = 0x474F424A; // 'GOBJ'
-		while (true)
-		{
-			uint32_t magic = 0;
-			if (!fileStream.read(reinterpret_cast<char*>(&magic), sizeof(magic)))
-				break;
-
-			if (magic != expectedMagic)
-			{
-				LOG_ERROR("Scene load: invalid object label, aborting");
-				break;
-			}
-
-			uint64_t id = 0;
-			if (!fileStream.read(reinterpret_cast<char*>(&id), sizeof(id)))
-				break;
-
-			// create empty GameObject and let it load the rest
-			GameObject* newObject = new GameObject(id, *this);
-			m_rootGameObjects.push_back(newObject);
-			newObject->LoadFromFile(fileStream);
-		}
-
-		fileStream.close();
+		// ClearScene();
+		//
+		// std::ifstream fileStream;
+		// fileStream.open(_filePath, std::ios::in | std::ios::binary);
+		// if (!fileStream.is_open())
+		// {
+		// 	LOG_ERROR("Scene Load: Couldn't open scene save file for reading");
+		// 	return;
+		// }
+		//
+		// const uint32_t expectedMagic = 0x474F424A; // 'GOBJ'
+		// while (true)
+		// {
+		// 	uint32_t magic = 0;
+		// 	if (!fileStream.read(reinterpret_cast<char*>(&magic), sizeof(magic)))
+		// 		break;
+		//
+		// 	if (magic != expectedMagic)
+		// 	{
+		// 		LOG_ERROR("Scene load: invalid object label, aborting");
+		// 		break;
+		// 	}
+		//
+		// 	uint64_t id = 0;
+		// 	if (!fileStream.read(reinterpret_cast<char*>(&id), sizeof(id)))
+		// 		break;
+		//
+		// 	// create empty GameObject and let it load the rest
+		// 	GameObject* newObject = new GameObject(id, *this);
+		// 	m_rootGameObjects.push_back(newObject);
+		// 	newObject->LoadFromFile(fileStream);
+		// }
+		//
+		// fileStream.close();
 	}
 
 	void Moonlit::Scene::ClearScene()

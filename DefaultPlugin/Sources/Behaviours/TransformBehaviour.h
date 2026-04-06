@@ -9,9 +9,6 @@
 #include <glm/common.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
-#include <memory>
 #include <vector>
 
 class TransformBehaviour : public Moonlit::ObjectBehaviour

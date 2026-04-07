@@ -181,7 +181,6 @@ void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
             return;
         }
 
-        m_behaviours.push_back(component);
         component->LoadFromFile(_json["behaviours"][i]);
     }
 }

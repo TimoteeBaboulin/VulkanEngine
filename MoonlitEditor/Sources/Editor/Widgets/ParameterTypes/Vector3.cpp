@@ -21,8 +21,7 @@ namespace Moonlit::Editor
 	{
 		LOG_INFO("Vector3ParameterEditor::SetParameterUI");
 		QRegularExpression* regex = new QRegularExpression("^[\-0-9,\.]*$");
-		QRegularExpressionValidator* validator = new QRegularExpressionValidator();
-		validator->setRegularExpression(*regex);
+		m_validator = new QRegularExpressionValidator();
 
 		glm::vec3 data = m_parameter.Value();
 
@@ -32,19 +31,20 @@ namespace Moonlit::Editor
 
 			m_labels[i] = new QLabel(this);
 			m_lineEdits[i] = new QLineEdit(this);
-			m_lineEdits[i]->setValidator(validator);
+			m_lineEdits[i]->setValidator(m_validator);
 			m_lineEdits[i]->setText(QString::fromStdString(ParameterEditorHelper::GetPrettiestFloat(value)));
 
-			connect(m_lineEdits[i], &QLineEdit::editingFinished, this, [&data, i, this]()
+			connect(m_lineEdits[i], &QLineEdit::editingFinished, this, [i, this]()
 				{
 					std::istringstream stream(m_lineEdits[i]->text().toStdString());
-					stream >> data[i];
+					glm::vec3 vector = m_parameter.Value();
+					stream >> vector[i];
 
 					// Update the text to ensure proper formatting
-					m_lineEdits[i]->setText(QString::fromStdString(ParameterEditorHelper::GetPrettiestFloat(data[i])));
+					m_lineEdits[i]->setText(QString::fromStdString(ParameterEditorHelper::GetPrettiestFloat(vector[i])));
 
 					// Update the new value
-					ValueChanged(data);
+					ValueChanged(vector);
 				});
 		}
 

@@ -74,6 +74,12 @@ void SceneHierarchy::SetModel()
 
     m_model = new SceneHierarchyModel(&scene);
     m_treeView->setModel(m_model);
+    m_currentSelected = nullptr;
+
+    std::vector<GameObject*> rootObjects = scene.GetRootGameObjects();
+    if (rootObjects.size() > 0) {
+        Select(rootObjects[0]);
+    }
 }
 
 void SceneHierarchy::OnSceneLoaded(Moonlit::Scene *_scene) {

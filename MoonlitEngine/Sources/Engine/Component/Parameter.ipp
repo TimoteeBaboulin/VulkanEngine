@@ -3,15 +3,8 @@
 
 #undef min
 #undef max
-#define GLM_ENABLE_EXPERIMENTAL
 
-#include <glm/vec3.hpp>
-#include <glm/gtx/quaternion.hpp>
-
-namespace glm {
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(vec3, x, y, z)
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(fquat, x , y, z, w)
-}
+#include "Engine/ResourceManagement/Serialization/adl_serializer.h"
 
 template<typename PARAMETER_TYPE>
 void Parameter<PARAMETER_TYPE>::Save(nlohmann::json& _json)

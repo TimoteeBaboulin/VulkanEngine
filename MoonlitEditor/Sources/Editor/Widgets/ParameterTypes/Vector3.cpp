@@ -43,8 +43,8 @@ namespace Moonlit::Editor
 					// Update the text to ensure proper formatting
 					m_lineEdits[i]->setText(QString::fromStdString(ParameterEditorHelper::GetPrettiestFloat(data[i])));
 
-					// Notify that the parameter has changed
-					OnParameterChanged(this, m_behaviour, data);
+					// Update the new value
+					ValueChanged(data);
 				});
 		}
 

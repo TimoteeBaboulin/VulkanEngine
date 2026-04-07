@@ -37,6 +37,8 @@ class ParameterEditor
         EventType OnParameterChanged;
     protected:
         Parameter& m_parameter;
+
+        void ValueChanged(PARAMETER_TYPE _value);
     };
 }
 

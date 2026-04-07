@@ -45,10 +45,17 @@ MoonlitEditor::MoonlitEditor()
 	Editor = this;
 
 	//Needed for application initialization
-	char** argv = nullptr;
-	int argc = 0;
-	m_app = new QApplication(argc, argv);
-	m_app->setStyle("Fusion");
+	try
+	{
+		int argc = 1;
+		char* argv[] = {(char*)"app", nullptr};
+		m_app = new QApplication(argc, argv);
+		m_app->setStyle("Fusion");
+	} catch (std::exception& e)
+	{
+		LOG_ERROR(e.what());
+	}
+
 
 	//Create the main window
 	m_mainWindow = new EditorMainWindow(DefaultEditorWidth, DefaultEditorHeight);

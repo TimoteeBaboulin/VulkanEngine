@@ -26,7 +26,7 @@ namespace Moonlit
 		}
 	}
 
-	void Moonlit::Scene::Save(const std::string& _filePath)
+	void Scene::Save(const std::string& _filePath)
 	{
     	nlohmann::json json;
 
@@ -54,42 +54,34 @@ namespace Moonlit
 		fileStream.close();
 	}
 
-	void Moonlit::Scene::Load(const std::string& _filePath)
+	void Scene::Load(const std::string& _filePath)
 	{
-		// ClearScene();
-		//
-		// std::ifstream fileStream;
-		// fileStream.open(_filePath, std::ios::in | std::ios::binary);
-		// if (!fileStream.is_open())
-		// {
-		// 	LOG_ERROR("Scene Load: Couldn't open scene save file for reading");
-		// 	return;
-		// }
-		//
-		// const uint32_t expectedMagic = 0x474F424A; // 'GOBJ'
-		// while (true)
-		// {
-		// 	uint32_t magic = 0;
-		// 	if (!fileStream.read(reinterpret_cast<char*>(&magic), sizeof(magic)))
-		// 		break;
-		//
-		// 	if (magic != expectedMagic)
-		// 	{
-		// 		LOG_ERROR("Scene load: invalid object label, aborting");
-		// 		break;
-		// 	}
-		//
-		// 	uint64_t id = 0;
-		// 	if (!fileStream.read(reinterpret_cast<char*>(&id), sizeof(id)))
-		// 		break;
-		//
-		// 	// create empty GameObject and let it load the rest
-		// 	GameObject* newObject = new GameObject(id, *this);
-		// 	m_rootGameObjects.push_back(newObject);
-		// 	newObject->LoadFromFile(fileStream);
-		// }
-		//
-		// fileStream.close();
+		ClearScene();
+
+		std::ifstream fileStream;
+		fileStream.open(_filePath, std::ios::in | std::ios::binary);
+		if (!fileStream.is_open())
+		{
+			LOG_ERROR("Scene Load: Couldn't open scene save file for reading");
+			return;
+		}
+
+    	nlohmann::json json = nlohmann::json::parse(fileStream);
+
+    	int rootCount = json["root_count"];
+    	int id;
+
+    	m_rootGameObjects.reserve(rootCount);
+
+    	for (int i = 0; i < rootCount; i++)
+    	{
+    		nlohmann::json root = json["roots"][i];
+    		id = root["id"].get<uint64_t>();
+    		m_rootGameObjects.emplace_back(new GameObject(id, *this));
+    		m_rootGameObjects[i]->LoadFromFile(root);
+    	}
+
+		fileStream.close();
 	}
 
 	void Moonlit::Scene::ClearScene()

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <nlohmann/json.hpp>
 
 namespace Moonlit::ResourceManagement
 {
@@ -14,8 +15,6 @@ namespace Moonlit::ResourceManagement
         using BANK_TYPE = ResourceBank<RESOURCE_TYPE>;
         using PAIR_TYPE = ResourcePair<RESOURCE_TYPE>;
 
-        NLOHMANN_DEFINE_TYPE_INTRUSIVE(ResourceHandle, m_handle, m_index)
-
     public:
         ResourceHandle();
         ResourceHandle(BANK_TYPE* _bank, size_t _index);
@@ -25,6 +24,7 @@ namespace Moonlit::ResourceManagement
         operator PAIR_TYPE();
 
         std::string Name() const;
+        std::string Handle() const;
         std::shared_ptr<RESOURCE_TYPE> ResourcePtr() const;
         bool IsValid() const;
     private:

@@ -3,6 +3,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <nlohmann/json_fwd.hpp>
+
 #include "Engine/ResourceManagement/Resources/Mesh.h"
 #include "Engine/ResourceManagement/Resources/Image.h"
 
@@ -14,7 +16,7 @@ namespace Moonlit
 	struct MOONLIT_API MeshData
 	{
 		int vertexCount = 0;
-		Moonlit::Vertex* vertices = nullptr;
+		Vertex* vertices = nullptr;
 		int triangleCount = 0;
 		uint16_t* indices = nullptr;
 

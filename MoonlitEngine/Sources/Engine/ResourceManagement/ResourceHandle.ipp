@@ -61,6 +61,12 @@ namespace Moonlit::ResourceManagement
     }
 
     template<typename RESOURCE_TYPE>
+    std::string ResourceHandle<RESOURCE_TYPE>::Handle() const
+    {
+        return m_handle;
+    }
+
+    template<typename RESOURCE_TYPE>
     std::shared_ptr<RESOURCE_TYPE> ResourceHandle<RESOURCE_TYPE>::ResourcePtr() const
     {
         return (*m_resourceBank)[m_index].ResourcePtr;
@@ -71,6 +77,20 @@ namespace Moonlit::ResourceManagement
     {
         return m_isValid;
     }
+}
+
+namespace nlohmann {
+    template<typename T>
+    struct adl_serializer<Moonlit::ResourceManagement::ResourceHandle<T>> {
+        static void to_json(json& j, const Moonlit::ResourceManagement::ResourceHandle<T>& h) {
+            j = json{{"handle", h.Handle()}};
+        }
+
+        static void from_json(const json& j, Moonlit::ResourceManagement::ResourceHandle<T>& h) {
+            std::string handle = j.at("handle").get<std::string>();
+            h = Moonlit::ResourceManagement::ResourceHandle<T>(handle);
+        }
+    };
 }
 
 #endif //MOONLIT_RESOURCEHANDLE_IPP

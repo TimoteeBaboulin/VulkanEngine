@@ -36,6 +36,14 @@ namespace Moonlit::Editor
 
 
 template<typename PARAMETER_TYPE>
+void Moonlit::Editor::ParameterEditor<PARAMETER_TYPE>::ValueChanged(PARAMETER_TYPE _value)
+{
+    m_parameter.SetValue(_value);
+
+    OnParameterChanged(this, m_behaviour, _value);
+}
+
+template<typename PARAMETER_TYPE>
 void ParameterEditorFactory::Register(
     std::function<ParameterEditorBase *(Parameter<PARAMETER_TYPE> *, Moonlit::ObjectBehaviour *)> _constructor)
 {

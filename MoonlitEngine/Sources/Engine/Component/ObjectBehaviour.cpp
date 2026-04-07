@@ -45,7 +45,9 @@ void Moonlit::ObjectBehaviour::SaveToFile(nlohmann::json& _json)
 
 	for (const auto& entry : entries)
 	{
-		entry->Save(parametersJson);
+		nlohmann::json parameterJson;
+		entry->Save(parameterJson);
+		parametersJson.push_back(parameterJson);
 	}
 	behaviourJson["parameters"] = parametersJson;
 	_json.push_back(behaviourJson);
@@ -68,7 +70,7 @@ void Moonlit::ObjectBehaviour::LoadFromFile(nlohmann::json& _stream)
 			ParameterBase* entry = (*it);
 			if (name == entry->Name())
 			{
-				entry->Load(_stream);
+				entry->Load(_stream["parameters"][i]);
 				break;
 			}
 		}

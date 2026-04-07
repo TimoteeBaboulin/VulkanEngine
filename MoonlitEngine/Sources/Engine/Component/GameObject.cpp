@@ -148,7 +148,7 @@ void Moonlit::GameObject::SaveToFile(nlohmann::json& _json)
 {
     nlohmann::json gameObjectJson;
     gameObjectJson["name"] = m_name;
-    gameObjectJson["id"] = m_id;
+    gameObjectJson["id"] = static_cast<uint64_t>(m_id);
     gameObjectJson["behaviour_count"] = m_behaviours.size();
 
     nlohmann::json behavioursJson;
@@ -159,20 +159,21 @@ void Moonlit::GameObject::SaveToFile(nlohmann::json& _json)
         component->SaveToFile(behavioursJson);
     }
     gameObjectJson["behaviours"] = behavioursJson;
-    _json["game_objects"].push_back(gameObjectJson);
+    _json.push_back(gameObjectJson);
 }
 
 void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
 {
     // Expected to be called after reading the magic and id
-    uint32_t count = _json["behaviour_count"];
+    size_t count = _json["behaviour_count"].get<size_t>();
+    m_name = _json["name"];
     m_behaviours.reserve(count);
 
-    std::string buffer;
+    std::string typeName;
     for (uint32_t i = 0; i < count; ++i)
     {
-        buffer = _json["behaviours"][i].get<std::string>();
-        ObjectBehaviour *component = BehaviourRegistry::CreateBehaviour(buffer, this);
+        typeName = _json["behaviours"][i]["type"].get<std::string>();
+        ObjectBehaviour *component = BehaviourRegistry::CreateBehaviour(ClassNameFromTypeName(typeName.c_str()), this);
         if (component == nullptr)
         {
             LOG_ERROR("Game Object Load: Couldn't create behaviour from scene file. Can't keep loading file.");
@@ -181,7 +182,7 @@ void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
         }
 
         m_behaviours.push_back(component);
-        component->LoadFromFile(_json);
+        component->LoadFromFile(_json["behaviours"][i]);
     }
 }
 

@@ -612,6 +612,19 @@ void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _bu
 		beginTransitionInfo
 	);
 
+	beginTransitionInfo = HelperClasses::vhf::GetDefaultTransitionInfo(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+	HelperClasses::vhf::TransitionImageLayout(
+		m_deviceData.Device,
+		m_commandPool,
+		m_deviceData.Queues.graphicsQueue,
+		m_swapChainDepthImages[m_currentFrame],
+		vk::Format::eD32Sfloat,
+		vk::ImageAspectFlagBits::eDepth,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthStencilAttachmentOptimal,
+		beginTransitionInfo
+	);
+
 	vk::CommandBufferBeginInfo beginInfo;
 	beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
 	_buffer.begin(beginInfo);

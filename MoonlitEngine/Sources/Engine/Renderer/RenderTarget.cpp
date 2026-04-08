@@ -40,8 +40,8 @@ void Moonlit::Renderer::RenderTarget::Init()
 	
 	CalculateExtent();
 
-	CreateSwapChainResources();
 	CreateCommandPool();
+	CreateSwapChainResources();
 	CreateCommandBuffers();
 	CreateUniformBuffers();
 
@@ -152,9 +152,11 @@ void Moonlit::Renderer::RenderTarget::CreateDepthResources()
 
 	for (int i = 0; i < m_framesInFlight; ++i)
 	{
-		Moonlit::Renderer::HelperClasses::vhf::CreateImage(m_deviceData.Device, m_deviceData.PhysicalDevice, m_extent, depthFormat, vk::ImageTiling::eOptimal,
+		HelperClasses::vhf::CreateImage(m_deviceData.Device, m_deviceData.PhysicalDevice, m_extent, depthFormat, vk::ImageTiling::eOptimal,
 			vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_swapChainDepthImages[i], m_swapChainDepthMemory, vk::ImageLayout::eUndefined);
-		m_swapChainDepthImageViews[i] = Moonlit::Renderer::HelperClasses::vhf::CreateImageView(m_deviceData.Device, m_swapChainDepthImages[i], depthFormat, vk::ImageAspectFlagBits::eDepth);
+		TransitionInfo transitionInfo = HelperClasses::vhf::GetDefaultTransitionInfo(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+		HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_commandPool, m_deviceData.Queues.graphicsQueue, m_swapChainDepthImages[i], depthFormat, vk::ImageAspectFlagBits::eDepth, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionInfo);
+		m_swapChainDepthImageViews[i] = HelperClasses::vhf::CreateImageView(m_deviceData.Device, m_swapChainDepthImages[i], depthFormat, vk::ImageAspectFlagBits::eDepth);
 	}
 }
 
@@ -245,7 +247,7 @@ void Moonlit::Renderer::RenderTarget::CreateDepthSubpass(vk::AttachmentReference
 
 	_outDependency.srcSubpass = vk::SubpassExternal;
 	_outDependency.dstSubpass = 0;
-	_outDependency.srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	_outDependency.srcStageMask = vk::PipelineStageFlagBits::eTopOfPipe;
 	_outDependency.dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
 	_outDependency.srcAccessMask = vk::AccessFlagBits::eNone;
 	_outDependency.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
@@ -254,7 +256,7 @@ void Moonlit::Renderer::RenderTarget::CreateDepthSubpass(vk::AttachmentReference
 }
 
 void Moonlit::Renderer::RenderTarget::CreateColorSubpass(vk::AttachmentReference* _inDepthAttPtr, vk::AttachmentReference* _inColorAttPtr,
-	int _colorAttCount, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency)
+	int _colorAttCount, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency, vk::SubpassDependency& _outExternalDependency)
 {
 	_outDesc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
 	_outDesc.colorAttachmentCount = _colorAttCount;
@@ -263,12 +265,32 @@ void Moonlit::Renderer::RenderTarget::CreateColorSubpass(vk::AttachmentReference
 
 	_outDependency.srcSubpass = 0;
 	_outDependency.dstSubpass = 1;
-	_outDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-	_outDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-	_outDependency.srcAccessMask = vk::AccessFlagBits::eNone;
-	_outDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+	_outDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	_outDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	_outDependency.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+	_outDependency.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead;
+
+	_outExternalDependency.srcSubpass = vk::SubpassExternal;
+	_outExternalDependency.dstSubpass = 1;
+	_outExternalDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	_outExternalDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	_outExternalDependency.srcAccessMask = vk::AccessFlagBits::eNone;
+	_outExternalDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
 	AddSubpass("color");
+}
+
+vk::SubpassDependency Moonlit::Renderer::RenderTarget::CreateFinalDependency()
+{
+	vk::SubpassDependency dependency;
+	dependency.srcSubpass = 1;
+	dependency.dstSubpass = vk::SubpassExternal;
+	dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	dependency.dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe;
+	dependency.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+	dependency.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
+
+	return dependency;
 }
 
 void Moonlit::Renderer::RenderTarget::CreateRenderPass()
@@ -314,11 +336,12 @@ void Moonlit::Renderer::RenderTarget::CreateRenderPass()
 
 #pragma region Subpasses
 	std::array<vk::SubpassDescription, 2> subpasses;
-	std::array<vk::SubpassDependency, 2> subpassDependencies;
+	std::array<vk::SubpassDependency, 4> subpassDependencies;
 
 	// Color Subpass
 	CreateDepthSubpass(&attachmentRefs[0], subpasses[0], subpassDependencies[0]);
-	CreateColorSubpass(&attachmentRefs[0], &attachmentRefs[1], 1, subpasses[1], subpassDependencies[1]);
+	CreateColorSubpass(&attachmentRefs[0], &attachmentRefs[1], 1, subpasses[1], subpassDependencies[1], subpassDependencies[2]);
+	subpassDependencies[3] = CreateFinalDependency();
 
 	//subpassDependencies[2].srcSubpass = 1;
 	//subpassDependencies[2].dstSubpass = vk::SubpassExternal;
@@ -481,11 +504,6 @@ void Moonlit::Renderer::RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuff
 		throw std::runtime_error("Failed to wait for fence!");
 	}
 
-	if (_drawBuffers[0]->GetVertexCount() == 0)
-	{
-		return;
-	}
-
 	m_deviceData.Device.resetFences(m_waitForPreviousFrame[m_currentFrame]);
 
 	UpdateUniformBuffer();
@@ -580,11 +598,7 @@ uint16_t Moonlit::Renderer::RenderTarget::GetSubpassIndexByName(const std::strin
 
 void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers)
 {
-	TransitionInfo beginTransitionInfo;
-	beginTransitionInfo.srcStage = vk::PipelineStageFlagBits::eBottomOfPipe;
-	beginTransitionInfo.dstStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-	beginTransitionInfo.srcAccessFlags = vk::AccessFlagBits::eNone;
-	beginTransitionInfo.dstAccessFlags = vk::AccessFlagBits::eColorAttachmentWrite;
+	TransitionInfo beginTransitionInfo = HelperClasses::vhf::GetDefaultTransitionInfo(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
 
 	HelperClasses::vhf::TransitionImageLayout(
 		m_deviceData.Device,
@@ -665,7 +679,7 @@ void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _bu
 	transitionInfo.dstStage = vk::PipelineStageFlagBits::eBottomOfPipe;
 	transitionInfo.srcAccessFlags = vk::AccessFlagBits::eColorAttachmentWrite;
 	transitionInfo.dstAccessFlags = vk::AccessFlagBits::eNone;
-	
+
 	HelperClasses::vhf::TransitionImageLayout(
 		m_deviceData.Device,
 		m_commandPool,

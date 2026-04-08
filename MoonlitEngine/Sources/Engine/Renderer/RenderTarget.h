@@ -145,7 +145,8 @@ namespace Moonlit::Renderer
 
 		void CreateDepthSubpass(vk::AttachmentReference* _inDepthAttPtr, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency);
 		void CreateColorSubpass(vk::AttachmentReference* _inDepthAttPtr, vk::AttachmentReference* _inColorAttPtr,
-			int _colorAttCount, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency);
+			int _colorAttCount, vk::SubpassDescription& _outDesc, vk::SubpassDependency& _outDependency, vk::SubpassDependency& _outExternalDependency);
+		vk::SubpassDependency CreateFinalDependency();
 
 		void CreateRenderPass();
 

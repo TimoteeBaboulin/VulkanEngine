@@ -3,12 +3,19 @@
 #define VULKAN_HELPER_FUNCTIONS_H
 
 #include <cstdint>
-#include "../../../../Sources/common.h"
-#include "../../../../Sources/Debug/Logger.h"
-#include "../../../../Sources/Engine/Renderer/CustomVulkanStructs.h"
+#include "common.h"
+#include "Debug/Logger.h"
+#include "Engine/Renderer/CustomVulkanStructs.h"
 
 #define WIN32_LEAN_AND_MEAN
 
+namespace Moonlit::Renderer
+{
+	struct ImageLayoutFlags {
+		vk::AccessFlags accessMask;
+		vk::PipelineStageFlags stageFlags;
+	};
+}
 
 namespace Moonlit::Renderer::HelperClasses
 {
@@ -284,6 +291,62 @@ namespace Moonlit::Renderer::HelperClasses
 				return vk::PresentModeKHR::eMailbox;
 
 			return vk::PresentModeKHR::eFifo;
+		}
+
+		static ImageLayoutFlags GetLayoutFlags(vk::ImageLayout layout) {
+			switch (layout) {
+				case vk::ImageLayout::eUndefined:
+					return { vk::AccessFlagBits::eNone, vk::PipelineStageFlagBits::eTopOfPipe };
+
+				case vk::ImageLayout::eTransferSrcOptimal:
+					return { vk::AccessFlagBits::eTransferRead, vk::PipelineStageFlagBits::eTransfer };
+
+				case vk::ImageLayout::eTransferDstOptimal:
+					return { vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eTransfer };
+
+				case vk::ImageLayout::eShaderReadOnlyOptimal:
+					return { vk::AccessFlagBits::eShaderRead, vk::PipelineStageFlagBits::eFragmentShader };
+
+				case vk::ImageLayout::eColorAttachmentOptimal:
+					return { vk::AccessFlagBits::eColorAttachmentRead
+						   | vk::AccessFlagBits::eColorAttachmentWrite,
+						   vk::PipelineStageFlagBits::eColorAttachmentOutput };
+
+				case vk::ImageLayout::eDepthStencilAttachmentOptimal:
+					return { vk::AccessFlagBits::eDepthStencilAttachmentRead
+						   | vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+						   vk::PipelineStageFlagBits::eEarlyFragmentTests };
+
+				case vk::ImageLayout::eDepthStencilReadOnlyOptimal:
+					return { vk::AccessFlagBits::eDepthStencilAttachmentRead,
+						   vk::PipelineStageFlagBits::eEarlyFragmentTests };
+
+				case vk::ImageLayout::ePresentSrcKHR:
+					return { vk::AccessFlagBits::eNone, vk::PipelineStageFlagBits::eBottomOfPipe };
+
+				case vk::ImageLayout::eGeneral:
+					return { vk::AccessFlagBits::eShaderRead
+						   | vk::AccessFlagBits::eShaderWrite,
+						   vk::PipelineStageFlagBits::eAllCommands };
+
+				default:
+					assert(false && "Unsupported image layout transition");
+					return { vk::AccessFlagBits::eNone, vk::PipelineStageFlagBits::eTopOfPipe };
+			}
+		}
+
+		static TransitionInfo GetDefaultTransitionInfo(vk::ImageLayout _from, vk::ImageLayout _to)
+		{
+			ImageLayoutFlags _fromFlags = GetLayoutFlags(_from);
+			ImageLayoutFlags _toFlags = GetLayoutFlags(_to);
+
+			TransitionInfo info;
+			info.srcStage = _fromFlags.stageFlags;
+			info.srcAccessFlags = _fromFlags.accessMask;
+			info.dstStage = _toFlags.stageFlags;
+			info.dstAccessFlags = _toFlags.accessMask;
+
+			return info;
 		}
 	};
 

@@ -1,8 +1,7 @@
 #pragma once
-#include "Engine/Component/ObjectBehaviour.h"
+
 #include "common.h"
-#include "../../../MoonlitEditor/Sources/Editor/Widgets/ParameterTypes/MeshData.h"
-#include "Engine/ResourceManagement/Resources/Mesh.h"
+#include "Engine/Component/ObjectBehaviour.h"
 #include "Engine/Events/EventUtility.h"
 #include "Engine/Renderer/Renderer.h"
 #include "Engine/ResourceManagement/ResourceHandle.h"

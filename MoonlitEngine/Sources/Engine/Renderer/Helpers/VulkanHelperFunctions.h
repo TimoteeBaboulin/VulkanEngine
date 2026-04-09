@@ -348,6 +348,13 @@ namespace Moonlit::Renderer::HelperClasses
 
 			return info;
 		}
+
+		static void TransitionImageLayoutWithDefault(DeviceData _deviceData, vk::Image _image, vk::Format _format,
+			vk::ImageLayout _from, vk::ImageLayout _to)
+		{
+			TransitionInfo info = GetDefaultTransitionInfo(_from, _to);
+			TransitionImageLayout()
+		}
 	};
 
 	using vhf = VulkanHelperFunctions;

@@ -19,7 +19,6 @@ namespace Moonlit::Editor
 
 	void Vector3ParameterEditor::SetParameterUI()
 	{
-		LOG_INFO("Vector3ParameterEditor::SetParameterUI");
 		QRegularExpression* regex = new QRegularExpression("^[\-0-9,\.]*$");
 		m_validator = new QRegularExpressionValidator();
 

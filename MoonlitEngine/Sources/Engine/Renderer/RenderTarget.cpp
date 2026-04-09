@@ -599,7 +599,6 @@ uint16_t Moonlit::Renderer::RenderTarget::GetSubpassIndexByName(const std::strin
 void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers)
 {
 	TransitionInfo beginTransitionInfo = HelperClasses::vhf::GetDefaultTransitionInfo(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
-
 	HelperClasses::vhf::TransitionImageLayout(
 		m_deviceData.Device,
 		m_commandPool,

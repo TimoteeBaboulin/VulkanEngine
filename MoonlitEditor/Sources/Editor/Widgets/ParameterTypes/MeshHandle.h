@@ -1,14 +1,34 @@
 #pragma once
 
-#include <qcombobox.h>
 #include "Engine/ResourceManagement/ResourceManager.h"
 #include "ParameterEditor.h"
 #include "common.h"
+#include "Editor/Widgets/ParameterEditor.h"
+#include "Engine/Renderer/Renderer.h"
+
+#include <qcombobox.h>
 
 using MeshData = Moonlit::MeshData;
 
-namespace Editor
+namespace Moonlit::Editor
 {
+	class MeshHandleParameterEditor : public ParameterEditor<Renderer::MeshHandle>
+	{
+	public:
+		MeshHandleParameterEditor(Parameter* _parameter, ObjectBehaviour* _behaviour, QWidget* _parent = nullptr)
+			: ParameterEditor(_parameter, _behaviour, _parent) {};
+		~MeshHandleParameterEditor() override;
+
+		void SetParameterUI() override;
+
+	private:
+		QComboBox* m_meshDropdown;
+		std::vector<Renderer::MeshHandle> m_meshHandles;
+
+		void RefreshDropdownOptions();
+		void OnMeshSelected(int _index);
+	};
+
 	// namespace Widgets
 	// {
 	// 	class MeshDataParameterEditor : public ParameterEditor

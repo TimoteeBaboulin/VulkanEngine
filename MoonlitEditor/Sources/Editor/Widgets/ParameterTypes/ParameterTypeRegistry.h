@@ -5,10 +5,11 @@
 
 #include "Vector3.h"
 #include "Float.h"
-#include "MeshData.h"
 #include "common.h"
 
 #include <glm/vec3.hpp>
+
+#include "MeshHandle.h"
 
 using ParamEditorFactory_t = std::function<ParameterEditorBase* (ParameterBase*, Moonlit::ObjectBehaviour*, QWidget*)>;
 
@@ -39,11 +40,12 @@ public:
 				LOG_INFO("ParameterTypeRegistry Vector3ParameterEditor lambda");
 				return new Moonlit::Editor::Vector3ParameterEditor(static_cast<Parameter<glm::vec3>*>(_param), _behaviour, _parent);
 			});
-		// RegisterParameterType(typeid(std::shared_ptr<Moonlit::MeshData>).name(),
-		// 	[](Moonlit::ParameterRepositoryEntry entry) -> ParameterEditor*
-		// 	{
-		// 		return new Editor::Widgets::MeshDataParameterEditor(entry);
-		// 	});
+
+		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::MeshHandle>).name(),
+			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
+			{
+				return new Moonlit::Editor::MeshHandleParameterEditor(static_cast<Parameter<Moonlit::Renderer::MeshHandle>*>(_param), _behaviour, _parent);
+			});
 	}
 
 	void RegisterParameterType(const char* _typeName, ParamEditorFactory_t _factory)

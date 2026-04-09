@@ -1,3 +1,65 @@
+#include "MeshHandle.h"
+
+#include <qlayout.h>
+
+#include "Engine/ResourceManagement/MeshBank.h"
+
+namespace Moonlit::Editor
+{
+    MeshHandleParameterEditor::~MeshHandleParameterEditor()
+    {
+        delete m_meshDropdown;
+        m_meshHandles.clear();
+    }
+
+    void MeshHandleParameterEditor::SetParameterUI()
+    {
+        m_meshDropdown = new QComboBox(this);
+        m_meshDropdown->setMinimumWidth(150);
+        m_meshDropdown->setMinimumHeight(50);
+
+        m_layout->addWidget(m_meshDropdown);
+
+        connect(m_meshDropdown, &QComboBox::currentIndexChanged, this, &MeshHandleParameterEditor::OnMeshSelected);
+
+        RefreshDropdownOptions();
+    }
+
+    void MeshHandleParameterEditor::RefreshDropdownOptions()
+    {
+        m_meshDropdown->clear();
+        m_meshHandles.clear();
+        ResourceManagement::MeshBank& meshBank = *ResourceManagement::MeshBank::GetInstance();
+        m_meshHandles = meshBank.GetAllResources();
+
+        for (int i = 0; i < m_meshHandles.size(); i++)
+        {
+            m_meshDropdown->addItem(QString::fromStdString(m_meshHandles[i].Name()));
+        }
+
+        const Renderer::MeshHandle& currentHandle = m_parameter.Value();
+        for (int i = 0; i < m_meshHandles.size(); i++)
+        {
+            if (m_meshHandles[i].Name() == currentHandle.Name())
+            {
+                m_meshDropdown->setCurrentIndex(i);
+                break;
+            }
+        }
+    }
+
+    void MeshHandleParameterEditor::OnMeshSelected(int _index)
+    {
+        if (_index < 0 || _index >= static_cast<int>(m_meshHandles.size()))
+        {
+        	return;
+        }
+
+        Renderer::MeshHandle selectedMesh = m_meshHandles[_index];
+        m_parameter.SetValue(selectedMesh);
+        OnParameterChanged(this, m_behaviour, selectedMesh);
+    }
+}
 // #include "MeshData.h"
 //
 // #include "common.h"

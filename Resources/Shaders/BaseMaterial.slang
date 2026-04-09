@@ -117,14 +117,15 @@ float GeometrySchlickGGX(in float3 normal, in float3 view, in float roughness)
 float NormalDistributionGGX(in float3 normal, in float3 halfwayDir, in float roughness)
 {
     // GGX / Trowbridge-Reitz normal distribution function
-    float a = roughness * roughness;
+    float a2 = roughness * roughness;
     float NdotH = max(dot(normal, halfwayDir), 0.0f);
     float NdotH2 = NdotH * NdotH;
     float a2min1 = (a * a) - 1.0f;
 
-    float denom = (NdotH2 * a2min1 + 1.0f);
+    float denom = (NdotH2 * (a2 - 1.0f) + 1.0f);
     denom = 3.14159265f * denom * denom;
-    return a / denom;
+
+    return a2 / denom;
 }
 
 float3 FresnelSchlick(in float cosTheta, in float3 F0)
@@ -135,8 +136,8 @@ float3 FresnelSchlick(in float cosTheta, in float3 F0)
 void CalculatePBRLighting(in float3 lightCol, in float3 normal, in float3 rawLightDir, in float3 viewDir, inout float4 color)
 {
     // Placeholder for PBR lighting calculations
-    float roughness = 0.5f;
-    float metallic = 0.5f;
+    float roughness = 0.1f;
+    float metallic = 0.9f;
 
     float3 L0 = float3(0.0f, 0.0f, 0.0f);
 

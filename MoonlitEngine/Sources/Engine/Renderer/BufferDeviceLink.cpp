@@ -138,41 +138,43 @@ Moonlit::TextureData Moonlit::Renderer::DrawBufferDeviceBridge::GetTextureData(I
 		.Size = memorySize
 	};
 
-	Moonlit::Renderer::HelperClasses::vhf::CreateBuffer(m_deviceData.Device, m_deviceData.PhysicalDevice, staging);
+	HelperClasses::vhf::CreateBuffer(m_deviceData.Device, m_deviceData.PhysicalDevice, staging);
 	void* map = m_deviceData.Device.mapMemory(stagingMemory, 0, memorySize);
 	memcpy(map, _image.pixels, memorySize);
 
 	//Create Image
-	Moonlit::Renderer::HelperClasses::vhf::CreateImage(m_deviceData.Device, m_deviceData.PhysicalDevice, extent, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
+	HelperClasses::vhf::CreateImage(m_deviceData.Device, m_deviceData.PhysicalDevice, extent, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
 		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal,
 		texData.m_image, imageMemory, vk::ImageLayout::eUndefined);
 
 	TransitionInfo transInfo =
 	{
+		.from = vk::ImageLayout::eUndefined,
+		.to = vk::ImageLayout::eTransferDstOptimal,
 		.srcAccessFlags = vk::AccessFlagBits::eNone,
 		.dstAccessFlags = vk::AccessFlagBits::eTransferWrite,
 		.srcStage = vk::PipelineStageFlagBits::eTopOfPipe,
 		.dstStage = vk::PipelineStageFlagBits::eTransfer
 	};
-	Moonlit::Renderer::HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_commandPool, m_deviceData.Queues.graphicsQueue, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eTransferDstOptimal, transInfo);
+	HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_deviceData.Queues.graphicsQueue, m_commandPool, texData.m_image, vk::ImageAspectFlagBits::eColor, transInfo);
 
 	//Copy staging buffer to image
-	Moonlit::Renderer::HelperClasses::vhf::CopyBufferToImage(m_deviceData.Device, m_commandPool, m_deviceData.Queues.graphicsQueue, stagingBuffer, texData.m_image, extent);
+	HelperClasses::vhf::CopyBufferToImage(m_deviceData.Device, m_commandPool, m_deviceData.Queues.graphicsQueue, stagingBuffer, texData.m_image, extent);
 
 	//Prepare for shader read
 	transInfo =
 	{
+		.from = vk::ImageLayout::eTransferDstOptimal,
+		.to = vk::ImageLayout::eShaderReadOnlyOptimal,
 		.srcAccessFlags = vk::AccessFlagBits::eTransferWrite,
 		.dstAccessFlags = vk::AccessFlagBits::eShaderRead,
 		.srcStage = vk::PipelineStageFlagBits::eTransfer,
 		.dstStage = vk::PipelineStageFlagBits::eFragmentShader
 	};
 
-	Moonlit::Renderer::HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_commandPool, m_deviceData.Queues.graphicsQueue, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eTransferDstOptimal,
-		vk::ImageLayout::eShaderReadOnlyOptimal, transInfo);
+	HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_deviceData.Queues.graphicsQueue, m_commandPool, texData.m_image, vk::ImageAspectFlagBits::eColor, transInfo);
 
-	texData.m_imageView = Moonlit::Renderer::HelperClasses::vhf::CreateImageView(m_deviceData.Device, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
+	texData.m_imageView = HelperClasses::vhf::CreateImageView(m_deviceData.Device, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
 
 	//Create sampler
 	vk::SamplerCreateInfo info;

@@ -90,6 +90,9 @@ namespace Moonlit::Renderer
 
 	struct TransitionInfo
 	{
+		vk::ImageLayout from;
+		vk::ImageLayout to;
+
 		vk::AccessFlags srcAccessFlags;
 		vk::AccessFlags dstAccessFlags;
 

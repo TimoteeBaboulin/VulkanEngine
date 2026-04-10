@@ -15,6 +15,16 @@ namespace Moonlit::Renderer
 		vk::AccessFlags accessMask;
 		vk::PipelineStageFlags stageFlags;
 	};
+
+	struct ImageTransitionData {
+		vk::ImageLayout from;
+		vk::ImageLayout to;
+		vk::Image image;
+		vk::Format format;
+		vk::ImageAspectFlags aspect;
+
+		DeviceData deviceData;
+	};
 }
 
 namespace Moonlit::Renderer::HelperClasses
@@ -22,6 +32,22 @@ namespace Moonlit::Renderer::HelperClasses
 	class VulkanHelperFunctions
 	{
 	public:
+		static vk::CommandPool& GetHelperFunctionCommandPool(DeviceData _deviceData)
+		{
+			static std::map<vk::Device, vk::CommandPool> _commandPools;
+			if (!_commandPools.contains(_deviceData.Device))
+			{
+				vk::CommandPoolCreateInfo poolInfo;
+				poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
+				poolInfo.queueFamilyIndex = _deviceData.QueueIndices.graphicsFamily.value();
+				poolInfo.flags = vk::CommandPoolCreateFlagBits::eTransient;
+				auto result = _deviceData.Device.createCommandPool(poolInfo);
+				_commandPools.insert({_deviceData.Device, result});
+			}
+
+			return _commandPools[_deviceData.Device];
+		}
+
 		static uint32_t FindMemoryTypeIndex(uint32_t _typeFilter, vk::MemoryPropertyFlags _properties, vk::PhysicalDevice _phys)
 		{
 			vk::PhysicalDeviceMemoryProperties properties;
@@ -121,14 +147,14 @@ namespace Moonlit::Renderer::HelperClasses
 			return _device.createImageView(info);
 		}
 
-		static void TransitionImageLayout(vk::Device _device, vk::CommandPool _commandPool, vk::Queue _graphicsQueue, vk::Image& _image, vk::Format _format, vk::ImageAspectFlags _aspect, vk::ImageLayout _src, vk::ImageLayout _dst, Moonlit::Renderer::TransitionInfo _transition)
+		static void TransitionImageLayout(vk::Device _device, vk::Queue _commandQueue, vk::CommandPool _commandPool, vk::Image& _image, vk::ImageAspectFlags _aspect, TransitionInfo _transition)
 		{
 			vk::CommandBuffer buffer = BeginSingleUseCommand(_commandPool, _device);
 
 			vk::ImageMemoryBarrier barrier;
 			barrier.sType = vk::StructureType::eImageMemoryBarrier;
-			barrier.oldLayout = _src;
-			barrier.newLayout = _dst;
+			barrier.oldLayout = _transition.from;
+			barrier.newLayout = _transition.to;
 			barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
 			barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
 			barrier.image = _image;
@@ -149,7 +175,7 @@ namespace Moonlit::Renderer::HelperClasses
 
 			buffer.pipelineBarrier(_transition.srcStage, _transition.dstStage, vk::DependencyFlagBits::eByRegion, memBarriers, bufferBarriers, imageBarriers);
 
-			EndSingleUseCommandBuffer(buffer, _graphicsQueue, _device, _commandPool);
+			EndSingleUseCommandBuffer(buffer, _commandQueue, _device, _commandPool);
 		}
 
 		static void CopyBufferToBuffer(vk::Device _device, vk::CommandPool _commandPool, vk::Buffer& _src, vk::Buffer& _dst, uint64_t _size, vk::Queue _queue)
@@ -345,15 +371,18 @@ namespace Moonlit::Renderer::HelperClasses
 			info.srcAccessFlags = _fromFlags.accessMask;
 			info.dstStage = _toFlags.stageFlags;
 			info.dstAccessFlags = _toFlags.accessMask;
+			info.from = _from;
+			info.to = _to;
 
 			return info;
 		}
 
-		static void TransitionImageLayoutWithDefault(DeviceData _deviceData, vk::Image _image, vk::Format _format,
-			vk::ImageLayout _from, vk::ImageLayout _to)
+		static void TransitionImageLayoutWithDefault(ImageTransitionData _transitionInfo)
 		{
-			TransitionInfo info = GetDefaultTransitionInfo(_from, _to);
-			TransitionImageLayout()
+			vk::CommandPool helperCommandPool = GetHelperFunctionCommandPool(_transitionInfo.deviceData);
+			TransitionInfo info = GetDefaultTransitionInfo(_transitionInfo.from, _transitionInfo.to);
+			TransitionImageLayout(_transitionInfo.deviceData.Device, _transitionInfo.deviceData.Queues.graphicsQueue, helperCommandPool, _transitionInfo.image,
+				_transitionInfo.aspect, info);
 		}
 	};
 

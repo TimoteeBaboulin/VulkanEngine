@@ -155,7 +155,7 @@ void Moonlit::Renderer::RenderTarget::CreateDepthResources()
 		HelperClasses::vhf::CreateImage(m_deviceData.Device, m_deviceData.PhysicalDevice, m_extent, depthFormat, vk::ImageTiling::eOptimal,
 			vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_swapChainDepthImages[i], m_swapChainDepthMemory, vk::ImageLayout::eUndefined);
 		TransitionInfo transitionInfo = HelperClasses::vhf::GetDefaultTransitionInfo(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
-		HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_commandPool, m_deviceData.Queues.graphicsQueue, m_swapChainDepthImages[i], depthFormat, vk::ImageAspectFlagBits::eDepth, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, transitionInfo);
+		HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_deviceData.Queues.graphicsQueue, m_commandPool, m_swapChainDepthImages[i], vk::ImageAspectFlagBits::eDepth, transitionInfo);
 		m_swapChainDepthImageViews[i] = HelperClasses::vhf::CreateImageView(m_deviceData.Device, m_swapChainDepthImages[i], depthFormat, vk::ImageAspectFlagBits::eDepth);
 	}
 }
@@ -598,31 +598,22 @@ uint16_t Moonlit::Renderer::RenderTarget::GetSubpassIndexByName(const std::strin
 
 void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers)
 {
-	TransitionInfo beginTransitionInfo = HelperClasses::vhf::GetDefaultTransitionInfo(vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
-	HelperClasses::vhf::TransitionImageLayout(
-		m_deviceData.Device,
-		m_commandPool,
-		m_deviceData.Queues.graphicsQueue,
-		m_swapChainImages[m_currentFrame],
-		m_format.format,
-		vk::ImageAspectFlagBits::eColor,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eColorAttachmentOptimal,
-		beginTransitionInfo
-	);
+	ImageTransitionData data;
+	data.deviceData = m_deviceData;
+	data.from = vk::ImageLayout::eUndefined;
+	data.to = vk::ImageLayout::eColorAttachmentOptimal;
+	data.aspect = vk::ImageAspectFlagBits::eColor;
+	data.image = m_swapChainImages[m_currentFrame];
+	data.format = m_format.format;
 
-	beginTransitionInfo = HelperClasses::vhf::GetDefaultTransitionInfo(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
-	HelperClasses::vhf::TransitionImageLayout(
-		m_deviceData.Device,
-		m_commandPool,
-		m_deviceData.Queues.graphicsQueue,
-		m_swapChainDepthImages[m_currentFrame],
-		vk::Format::eD32Sfloat,
-		vk::ImageAspectFlagBits::eDepth,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eDepthStencilAttachmentOptimal,
-		beginTransitionInfo
-	);
+	HelperClasses::vhf::TransitionImageLayoutWithDefault(data);
+
+	data.to = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+	data.format = vk::Format::eD32Sfloat;
+	data.aspect = vk::ImageAspectFlagBits::eDepth;
+	data.image = m_swapChainDepthImages[m_currentFrame];
+
+	HelperClasses::vhf::TransitionImageLayoutWithDefault(data);
 
 	vk::CommandBufferBeginInfo beginInfo;
 	beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
@@ -686,28 +677,27 @@ void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _bu
 		}
 	}
 
-	TransitionInfo transitionInfo;
-	transitionInfo.srcStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-	transitionInfo.dstStage = vk::PipelineStageFlagBits::eBottomOfPipe;
-	transitionInfo.srcAccessFlags = vk::AccessFlagBits::eColorAttachmentWrite;
-	transitionInfo.dstAccessFlags = vk::AccessFlagBits::eNone;
-
-	HelperClasses::vhf::TransitionImageLayout(
-		m_deviceData.Device,
-		m_commandPool,
-		m_deviceData.Queues.graphicsQueue,
-		m_swapChainImages[m_currentFrame],
-		m_format.format,
-		vk::ImageAspectFlagBits::eColor,
-		vk::ImageLayout::eColorAttachmentOptimal,
-		vk::ImageLayout::ePresentSrcKHR,
-		transitionInfo
-	);
-
 	PFN_vkCmdEndRenderingKHR fnEndPtr = (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_deviceData.Device, "vkCmdEndRenderingKHR");
 	fnEndPtr(
 		_buffer
 	);
+
+	vk::ImageMemoryBarrier barrier;
+	barrier.sType = vk::StructureType::eImageMemoryBarrier;
+	barrier.oldLayout = vk::ImageLayout::eColorAttachmentOptimal;
+	barrier.newLayout = vk::ImageLayout::ePresentSrcKHR;
+	barrier.srcQueueFamilyIndex = vk::QueueFamilyIgnored;
+	barrier.dstQueueFamilyIndex = vk::QueueFamilyIgnored;
+	barrier.image = m_swapChainImages[m_currentFrame];
+	barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+	barrier.dstAccessMask = vk::AccessFlagBits::eNone;
+
+	_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eBottomOfPipe, vk::DependencyFlagBits::eByRegion, 0, nullptr, 0, nullptr, 1, &barrier);
 
 	_buffer.end();
 }

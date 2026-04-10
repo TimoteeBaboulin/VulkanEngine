@@ -120,7 +120,6 @@ float NormalDistributionGGX(in float3 normal, in float3 halfwayDir, in float rou
     float a2 = roughness * roughness;
     float NdotH = max(dot(normal, halfwayDir), 0.0f);
     float NdotH2 = NdotH * NdotH;
-    float a2min1 = (a * a) - 1.0f;
 
     float denom = (NdotH2 * (a2 - 1.0f) + 1.0f);
     denom = 3.14159265f * denom * denom;

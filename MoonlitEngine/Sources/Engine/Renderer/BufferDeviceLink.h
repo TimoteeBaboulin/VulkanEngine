@@ -65,19 +65,19 @@ namespace Moonlit::Renderer
 
 		std::shared_ptr<MaterialInstance> m_materialInstance;
 
-		class DrawBuffer* m_parentBuffer;
+		DrawBuffer* m_parentBuffer;
 
 		DrawBufferResources m_drawResources;
 		DeviceData m_deviceData;
 		vk::CommandPool m_commandPool;
 		vk::CommandBuffer m_commandBuffer;
 
-		std::vector<std::shared_ptr<Image>> m_loadedImages;
+		std::vector<Image*> m_loadedImages;
 
 		bool m_resourcesGenerated = false;
 
 		// Helper function to create a TextureData from an Image
-		Moonlit::TextureData GetTextureData(Moonlit::Image& _image);
+		TextureData GetTextureData(Image& _image);
 
 		// This is used if the buffer is dirty to manually update resources
 		void UpdateData();
@@ -90,7 +90,7 @@ namespace Moonlit::Renderer
 		void AllocateTextureSets();
 
 		void GenerateBuffers();
-		void GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures);
+		void GenerateTextures(std::vector<Image*>& _textures);
 
 		void ClearBuffers();
 		void ClearTextures();

@@ -1,5 +1,4 @@
-#ifndef MOONLIT_ENGINE_H
-#define MOONLIT_ENGINE_H
+#pragma once
 
 #include <string>
 
@@ -20,7 +19,7 @@ namespace Moonlit
 		Events::Event<void, Scene*> OnSceneLoaded;
 		Events::Event<void, Scene*> OnSceneUnloaded;
 
-		static MoonlitEngine* GetInstance() { return m_instance; }
+		static MoonlitEngine& Get() { return *m_instance; }
 
 		Renderer::MoonlitRenderer* Renderer;
 
@@ -46,4 +45,3 @@ namespace Moonlit
 		static MoonlitEngine* m_instance;
 	};
 }
-#endif // !MOONLIT_ENGINE_H

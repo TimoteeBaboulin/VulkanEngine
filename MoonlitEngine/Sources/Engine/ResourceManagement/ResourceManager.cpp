@@ -1,7 +1,7 @@
 #include "ResourceManager.h"
 
-#include "MeshBank.h"
-#include "TextureBank.h"
+#include "Banks/MeshBank.h"
+#include "Banks/TextureBank.h"
 #include "Engine/ResourceManagement/Helpers/FileHelper.h"
 
 #include "../../Debug/Logger.h"
@@ -13,8 +13,8 @@ Moonlit::ResourceManagement::ResourceManager::ResourceManager()
 	MeshBank::Initialize();
 	TextureBank::Initialize();
 
-	m_resourceBanks[std::type_index(typeid(Moonlit::MeshData))] = (void*)MeshBank::GetInstance();
-	m_resourceBanks[std::type_index(typeid(Moonlit::Image))] = (void*)TextureBank::GetInstance();
+	m_resourceBanks[std::type_index(typeid(Moonlit::MeshData))] = (void*)&MeshBank::Get();
+	m_resourceBanks[std::type_index(typeid(Moonlit::Image))] = (void*)&TextureBank::Get();
 
 	std::vector<std::string> meshFiles = FileHelper::ListFilesInDirectory("./");
 	
@@ -31,26 +31,22 @@ void Moonlit::ResourceManagement::ResourceManager::LoadFileResource(std::string 
 	std::string extension = filePath.extension().string();
 	if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
 	{
-		if (!TryLoadResourceInstance<MeshData>(_filepath))
+		if (!TryLoadResourceInternal<MeshData>(_filepath))
 			LOG_ERROR("ResourceManager::LoadFileResource - Failed to load mesh: " + _filepath);
 		else
 			LOG_INFO("ResourceManager::LoadFileResource - Loaded mesh: " + _filepath);
 	}
 	else if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".bmp")
 	{
-		if (!TryLoadResourceInstance<Image>(_filepath))
+		if (!TryLoadResourceInternal<Image>(_filepath))
 			LOG_ERROR("ResourceManager::LoadFileResource - Failed to load texture: " + _filepath);
 		else
 			LOG_INFO("ResourceManager::LoadFileResource - Loaded texture: " + _filepath);
 	}
-	else
-	{
-		LOG_WARNING("ResourceManager::LoadFileResource - Unsupported file format: " + _filepath);
-	}
 }
 
-Moonlit::ResourceManagement::ResourceManager* Moonlit::ResourceManagement::ResourceManager::Instance()
+Moonlit::ResourceManagement::ResourceManager& Moonlit::ResourceManagement::ResourceManager::Get()
 {
-	static Moonlit::ResourceManagement::ResourceManager* Instance = new Moonlit::ResourceManagement::ResourceManager();
-	return Instance;
+	static Moonlit::ResourceManagement::ResourceManager instance;
+	return instance;
 }

@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "Engine/Events/Event.h"
-#include "../../../MoonlitEngine/Sources/Engine/Component/GameObject.h"
+#include "Engine/Component/GameObject.h"
 
 class EditorWindowBase;
 class EditorMainWindow;

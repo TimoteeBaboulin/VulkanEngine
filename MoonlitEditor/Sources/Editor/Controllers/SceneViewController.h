@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../../MoonlitEngine/Sources/Engine/Inputs/InputManager.h"
-#include "../../../../MoonlitEngine/Sources/Engine/Renderer/Camera.h"
+#include "Engine/Inputs/InputManager.h"
+#include "Engine/Renderer/Camera.h"
 
 //TODO: Implement reading only from the scene view window inputs
 //TODO: Once the input system has been refactored to support it

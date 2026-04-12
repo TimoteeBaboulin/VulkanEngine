@@ -24,7 +24,7 @@ public:
 
 	void SubscribeToFunctions() override;
 	std::vector<ParameterBase*> GetParameters() override;
-	void ParameterChanged(const Moonlit::ParameterRepositoryEntry& _parameter) override;
+	void ParameterChanged(const ParameterBase* _parameter) override;
 
 	//Setters
 	void SetPosition(glm::vec3 _position);

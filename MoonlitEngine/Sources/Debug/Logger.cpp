@@ -43,10 +43,10 @@ void Moonlit::Debug::Logger::LogMessage(const DebugMessage& debugMessage)
 #endif
 }
 
-void Moonlit::Debug::Logger::LogInfo(const char* message)
+void Moonlit::Debug::Logger::LogInfo(const char* _message)
 {
 	DebugMessage debugMessage;
-	debugMessage.Message = message;
+	debugMessage.Message = _message;
 	debugMessage.Type = DebugMessage::MessageType::Info;
 
 	Logger::LogMessage(debugMessage);
@@ -60,10 +60,10 @@ void Moonlit::Debug::Logger::LogInfo(const std::string& _message)
 	Logger::LogMessage(debugMessage);
 }
 
-void Moonlit::Debug::Logger::LogWarning(const char* message)
+void Moonlit::Debug::Logger::LogWarning(const char* _message)
 {
 	DebugMessage debugMessage;
-	debugMessage.Message = message;
+	debugMessage.Message = _message;
 	debugMessage.Type = DebugMessage::MessageType::Warning;
 
 	Logger::LogMessage(debugMessage);
@@ -77,10 +77,10 @@ void Moonlit::Debug::Logger::LogWarning(const std::string& _message)
 	Logger::LogMessage(debugMessage);
 }
 
-void Moonlit::Debug::Logger::LogError(const char* message)
+void Moonlit::Debug::Logger::LogError(const char* _message)
 {
 	DebugMessage debugMessage;
-	debugMessage.Message = message;
+	debugMessage.Message = _message;
 	debugMessage.Type = DebugMessage::MessageType::Error;
 
 	Logger::LogMessage(debugMessage);

@@ -17,7 +17,7 @@ public:
 	virtual ~MeshRendererBehaviour();
 
 	std::vector<ParameterBase*> GetParameters() override;
-	void ParameterChanged(const Moonlit::ParameterRepositoryEntry& _parameter) override;
+	void ParameterChanged(const ParameterBase* _parameter) override;
 
 private:
 	void LookForTransformComponent();

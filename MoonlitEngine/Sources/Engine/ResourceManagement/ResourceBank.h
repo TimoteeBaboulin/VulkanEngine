@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <memory>
 
 namespace Moonlit::ResourceManagement
@@ -17,7 +18,6 @@ namespace Moonlit::ResourceManagement
 	{
 		std::string Name;
 		T Resource;
-		std::shared_ptr<T> ResourcePtr;
 	};
 
 	template <typename RESOURCE_TYPE>
@@ -33,24 +33,28 @@ namespace Moonlit::ResourceManagement
 		using PAIR_TYPE = ResourcePair<RESOURCE_TYPE>;
 		using HANDLE_TYPE = ResourceHandle<RESOURCE_TYPE>;
 
-		static inline ResourceBank<RESOURCE_TYPE>* Instance;
+		static inline ResourceBank* Instance;
 
 		ResourceBank();
 		virtual ~ResourceBank() = default;
 
 		// Getters
 		std::vector<HANDLE_TYPE> GetAllResources();
+		std::vector<std::string> GetAllNames();
+
 		HANDLE_TYPE Get(std::string _name);
 		bool Exist(std::string _name);
-		PAIR_TYPE& operator[](size_t index);
+		RESOURCE_TYPE& operator[](std::string _name);
 
 		// Load/Unload
 		virtual bool TryLoad(std::string _filepath) = 0;
 		void TryUnloadUnusedResources();
 
 	protected:
-		std::vector<ResourcePair<RESOURCE_TYPE>> m_resources;
+		std::map<std::string, RESOURCE_TYPE> m_resources;
+
+		void InsertResource(const std::string& _name, const RESOURCE_TYPE& _resource);
 	};
 }
 
-#include "ResourceManager.ipp"
+#include "ResourceBank.ipp"

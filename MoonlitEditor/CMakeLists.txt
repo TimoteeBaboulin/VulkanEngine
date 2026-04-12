@@ -37,12 +37,6 @@ ADD_CUSTOM_COMMAND(TARGET MoonlitEditor POST_BUILD
         "$<TARGET_FILE_DIR:MoonlitEditor>/Resources"
 )
 
-ADD_CUSTOM_COMMAND(TARGET MoonlitEditor POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    $<TARGET_FILE:DefaultPlugin>
-    $<TARGET_FILE_DIR:MoonlitEditor>/Modules/$<TARGET_FILE_NAME:DefaultPlugin>
-)
-
 INSTALL(TARGETS MoonlitEditor
         BUNDLE DESTINATION .
         RUNTIME DESTINATION $<TARGET_FILE_DIR:MoonlitEditor>

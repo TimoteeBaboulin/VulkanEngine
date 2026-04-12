@@ -73,14 +73,16 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::Initialise()
 void Moonlit::Renderer::DrawBufferDeviceBridge::Render(vk::CommandBuffer& _cmd, std::string _renderPass,
                                                        vk::DescriptorSet* _uboSet)
 {
-	if (m_isDirty)
+	if (m_isDirty || !m_resourcesGenerated)
 	{
 		UpdateData();
 	}
 
 	// If resources haven't been generated after the update, it means there's nothing to draw
-	if (!m_resourcesGenerated)
+	if (!m_resourcesGenerated) {
+		// LOG_INFO("[DrawBufferDeviceBridge::Render] No resources generated for this draw buffer, skipping.");
 		return;
+	}
 
 	vk::DeviceSize offsets[] = { 0 };
 
@@ -227,7 +229,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::UpdateBuffers()
 
 void Moonlit::Renderer::DrawBufferDeviceBridge::UpdateTextures()
 {
-	std::vector<std::shared_ptr<Image>> textures = m_parentBuffer->GetAllTextures();
+	std::vector<Image*> textures = m_parentBuffer->GetAllTextures();
 	//Load the textures to the device
 	GenerateTextures(textures);
 	//Write the descriptor set to hold the textures
@@ -297,8 +299,10 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateBuffers()
 	// If there's no data, we don't create the buffers
 	// So we need to be very wary about continuing the render loop if this happens
 	// If there's no models, the DrawBuffer should be deleted to clear up resources
-	if (vertexData.size() == 0)
+	if (vertexData.size() == 0) {
+		// LOG_INFO("[DrawBufferDeviceBridge::GenerateBuffers] No vertex data found for this draw buffer, skipping buffer generation.");
 		return;
+	}
 
 	std::vector<uint16_t> indexData = m_parentBuffer->GetIndexData();
 	std::vector<glm::mat4x4> modelData = m_parentBuffer->GetModelData();
@@ -330,7 +334,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateBuffers()
 		.sharingMode = vk::SharingMode::eExclusive,
 		.Size = sizeof(Vertex) * vertexCount
 	};
-	Moonlit::Renderer::HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
 		m_deviceData.Queues.graphicsQueue, vertexBufferInfo, vertexData.data());
 
 	BufferCreateInfo indexBufferInfo
@@ -342,7 +346,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateBuffers()
 		.sharingMode = vk::SharingMode::eExclusive,
 		.Size = sizeof(uint16_t) * indexCount
 	};
-	Moonlit::Renderer::HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
 		m_deviceData.Queues.graphicsQueue, indexBufferInfo, indexData.data());
 
 	BufferCreateInfo modelMatrixBufferInfo
@@ -354,14 +358,14 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateBuffers()
 		.sharingMode = vk::SharingMode::eExclusive,
 		.Size = totalInstanceDataSize
 	};
-	Moonlit::Renderer::HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
 		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, instanceData);
 
 	m_isDirty = false;
 	m_resourcesGenerated = true;
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateTextures(std::vector<std::shared_ptr<Image>>& _textures)
+void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateTextures(std::vector<Image*>& _textures)
 {
 	for (auto it = _textures.begin(); it != _textures.end(); it++)
 	{
@@ -369,7 +373,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateTextures(std::vector<std
 		if (loadedIt == m_loadedImages.end())
 		{
 			//Need to load the texture
-			TextureData texData = GetTextureData(*(*it).get());
+			TextureData texData = GetTextureData(*(*it));
 			m_drawResources.textures.push_back(texData);
 			m_loadedImages.push_back(*it);
 		}

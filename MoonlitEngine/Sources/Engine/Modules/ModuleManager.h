@@ -1,7 +1,6 @@
-#ifndef MOONLIT_PLUGINMANAGER_H
-#define MOONLIT_PLUGINMANAGER_H
+#pragma once
 
-#include "../../../Sources/MoonlitExport.h"
+#include "MoonlitExport.h"
 #include "Module.h"
 
 #include <vector>
@@ -33,4 +32,3 @@ namespace Moonlit {
     };
 }
 
-#endif //MOONLIT_PLUGINMANAGER_H

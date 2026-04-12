@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef COMMON_H
-#define COMMON_H
-
 #include <nlohmann/json_fwd.hpp>
 
 #include "Engine/ResourceManagement/Resources/Mesh.h"
@@ -30,4 +27,3 @@ namespace Moonlit
 		std::shared_ptr<glm::mat4x4> Model;
 	};
 }
-#endif

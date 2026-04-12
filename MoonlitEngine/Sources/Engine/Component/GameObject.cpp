@@ -16,7 +16,7 @@ std::vector<Moonlit::GameObjectId> Moonlit::GameObject::m_freeIds = std::vector<
 Moonlit::GameObject *Moonlit::GameObject::Create()
 {
     uint64_t id = GetIndex();
-    Scene &scene = MoonlitEngine::GetInstance()->GetScene();
+    Scene &scene = MoonlitEngine::Get().GetScene();
     GameObject *newObject = new GameObject(id, scene);
 
     return newObject;

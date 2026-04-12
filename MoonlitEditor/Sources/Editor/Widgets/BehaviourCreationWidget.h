@@ -18,7 +18,7 @@ namespace Moonlit
 class BehaviourCreationWidget : public QWidget
 {
 public:
-	BehaviourCreationWidget(Moonlit::GameObject* _gameObject, QWidget* parent = nullptr);
+	BehaviourCreationWidget(Moonlit::GameObject* _gameObject, QWidget* _parent = nullptr);
 	void PickBehaviour();
 	void SetGameObject(Moonlit::GameObject* _gameObject);
 	void RefreshBehaviours();

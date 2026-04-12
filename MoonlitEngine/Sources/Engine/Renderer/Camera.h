@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../GLMExport.h"
-#include "../../MoonlitExport.h"
+#include "GLMExport.h"
+#include "MoonlitExport.h"
 
 // TODO: Add a dirty flag to avoid recalculating the view matrix on every call
 namespace Moonlit
@@ -13,19 +13,19 @@ namespace Moonlit
 		void Rotate(glm::vec3 _axis, float _amount);
 		void Translate(glm::vec3 _vec);
 
-		glm::vec3 GetPosition() const { return Position; };
+		glm::vec3 GetPosition() const { return m_position; };
 
 		glm::vec3 GetRightVector() const;
 		glm::vec3 GetForwardVector() const;
 		glm::vec3 GetUpVector() const;
 
-		glm::highp_mat4 GetViewMatrix() const { return ViewMatrix; };
+		glm::highp_mat4 GetViewMatrix() const { return m_viewMatrix; };
 
 	private:
-		glm::highp_mat4 ViewMatrix;
+		glm::highp_mat4 m_viewMatrix;
 
-		glm::vec3 Position;
-		glm::vec3 Forward;
-		glm::vec3 Up;
+		glm::vec3 m_position;
+		glm::vec3 m_forward;
+		glm::vec3 m_up;
 	};
 }

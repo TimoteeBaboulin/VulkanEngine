@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Inputs/InputManager.h"
-#include "../../common.h"
+#include "common.h"
 
 #include "Engine/ResourceManagement/ResourceManager.h"
 #include "Engine/ResourceManagement/TextureData.h"
@@ -59,7 +59,7 @@ namespace Moonlit::Renderer
 
 		float m_timeStampPeriods;
 
-		bool test = false;
+		bool m_test = false;
 
 		uint32_t m_framesInFlight = 3;
 		uint32_t m_currentFrame = 0;

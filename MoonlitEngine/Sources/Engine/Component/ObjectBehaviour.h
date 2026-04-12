@@ -52,7 +52,7 @@ namespace Moonlit
 		virtual void OnDestroy() {};
 
 		virtual void SubscribeToFunctions();
-		virtual void ParameterChanged(const ParameterRepositoryEntry& _parameter) {LOG_INFO("Default parameter changed");}
+		virtual void ParameterChanged(const ParameterBase* _parameter) {LOG_INFO("Default parameter changed");}
 
 		/// <summary>
 		/// Attempts to set a parameter value by name
@@ -63,7 +63,7 @@ namespace Moonlit
 
 	protected:
 		GameObject* m_owner;
-		std::vector<ParameterBase*> parameters;
+		std::vector<ParameterBase*> m_parameters;
 	};
 
 	template <typename T>

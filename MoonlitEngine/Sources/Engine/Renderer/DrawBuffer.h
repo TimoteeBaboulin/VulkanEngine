@@ -34,7 +34,7 @@ namespace Moonlit::Renderer
 	{
 		intptr_t TextureHandle;
 		uint16_t InstanceCount;
-		std::shared_ptr<Image> Texture;
+		Image* Texture;
 	};
 
 	// Memory layout:
@@ -79,7 +79,7 @@ namespace Moonlit::Renderer
 		std::vector<uint32_t> GetTextureIndices() const { return m_textureIndices; }
 
 		std::vector<MeshEntry> GetMeshEntries() const { return m_meshEntries; }
-		std::vector<std::shared_ptr<Image>> GetAllTextures() const;
+		std::vector<Image*> GetAllTextures() const;
 
 	private:
 		//DATA---------------------------------------------------------------------------------

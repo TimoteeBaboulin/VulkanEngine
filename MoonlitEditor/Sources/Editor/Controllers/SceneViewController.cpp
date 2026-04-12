@@ -1,5 +1,5 @@
 #include "SceneViewController.h"
-#include "../../../../MoonlitEngine/Sources/Debug/Logger.h"
+#include "Debug/Logger.h"
 
 #include <string>
 
@@ -78,10 +78,10 @@ SceneViewInputHandler::SceneViewInputHandler(Moonlit::Camera& _camera, void* _wi
 	: m_camera(_camera)
 {
 	m_windowHandle = _winHandle;
-	Moonlit::Inputs::InputManager::GetInstance()->AddInputHandler(this);
+	Moonlit::Inputs::InputManager::Get().AddInputHandler(this);
 }
 
 SceneViewInputHandler::~SceneViewInputHandler()
 {
-	Moonlit::Inputs::InputManager::GetInstance()->RemoveInputHandler(this);
+	Moonlit::Inputs::InputManager::Get().RemoveInputHandler(this);
 }

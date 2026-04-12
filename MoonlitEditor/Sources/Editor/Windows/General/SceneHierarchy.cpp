@@ -12,15 +12,15 @@
 #include "Engine/Scene/SceneManager.h"
 
 SceneHierarchy::SceneHierarchy(IDockManager *_dockManager)
-    : EditorWindowBase(), m_sceneLoadedSubscriber(Moonlit::MoonlitEngine::GetInstance()->OnSceneLoaded, std::bind(&SceneHierarchy::OnSceneLoaded, this, std::placeholders::_1))
+    : EditorWindowBase(), m_sceneLoadedSubscriber(Moonlit::MoonlitEngine::Get().OnSceneLoaded, std::bind(&SceneHierarchy::OnSceneLoaded, this, std::placeholders::_1))
 {
     _dockManager->AddWidget(this, "Scene Hierarchy", ads::LeftDockWidgetArea);
     SetUi();
     SetModel();
 }
 
-SceneHierarchy::SceneHierarchy(QWidget *parent)
-    : EditorWindowBase(parent), m_sceneLoadedSubscriber(Moonlit::MoonlitEngine::GetInstance()->OnSceneLoaded, std::bind(&SceneHierarchy::OnSceneLoaded, this, std::placeholders::_1))
+SceneHierarchy::SceneHierarchy(QWidget *_parent)
+    : EditorWindowBase(_parent), m_sceneLoadedSubscriber(Moonlit::MoonlitEngine::Get().OnSceneLoaded, std::bind(&SceneHierarchy::OnSceneLoaded, this, std::placeholders::_1))
 {
     SetUi();
     SetModel();
@@ -92,7 +92,7 @@ void SceneHierarchy::ContextMenuClicked(QAction *_action)
     if (actionText == "Create Empty GameObject")
     {
         GameObject *newObj = GameObject::CreateAt(glm::vec3(0.0f));
-        Moonlit::MoonlitEngine::GetInstance()->GetScene().AddGameObject(newObj);
+        Moonlit::MoonlitEngine::Get().GetScene().AddGameObject(newObj);
         newObj->SetName("New GameObject");
         m_model->Refresh();
         m_model->layoutChanged();
@@ -125,7 +125,7 @@ void SceneHierarchy::ContextMenuClicked(QAction *_action)
     }
     else if (actionText == "Save Scene")
     {
-        Moonlit::MoonlitEngine::GetInstance()->GetScene().Save("scene.ms");
+        Moonlit::MoonlitEngine::Get().GetScene().Save("scene.ms");
     }
 
     m_contextMenu->deleteLater();

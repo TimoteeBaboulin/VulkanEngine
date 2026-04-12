@@ -3,36 +3,36 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include "Engine/Inputs/InputManager.h"
 
-Moonlit::Camera::Camera(glm::vec3 _pos, glm::vec3 _lookDir, glm::vec3 _worldUp) : Position(_pos), Forward(_lookDir), Up(_worldUp)
+Moonlit::Camera::Camera(glm::vec3 _pos, glm::vec3 _lookDir, glm::vec3 _worldUp) : m_position(_pos), m_forward(_lookDir), m_up(_worldUp)
 {
-	ViewMatrix = glm::lookAt(Position, Position + Forward, Up);
+	m_viewMatrix = glm::lookAt(m_position, m_position + m_forward, m_up);
 }
 
 void Moonlit::Camera::Rotate(glm::vec3 _axis, float _amount)
 {
-	Forward = glm::rotate(Forward, _amount, _axis);
+	m_forward = glm::rotate(m_forward, _amount, _axis);
 
-	ViewMatrix = glm::lookAt(Position, Position + Forward, Up);
+	m_viewMatrix = glm::lookAt(m_position, m_position + m_forward, m_up);
 }
 
 void Moonlit::Camera::Translate(glm::vec3 _vec)
 {
-	Position += _vec;
+	m_position += _vec;
 
-	ViewMatrix = glm::lookAt(Position, Position + Forward, Up);
+	m_viewMatrix = glm::lookAt(m_position, m_position + m_forward, m_up);
 }
 
 glm::vec3 Moonlit::Camera::GetRightVector() const
 {
-	return glm::cross(Forward, Up);
+	return glm::cross(m_forward, m_up);
 }
 
 glm::vec3 Moonlit::Camera::GetForwardVector() const
 {
-	return Forward;
+	return m_forward;
 }
 
 glm::vec3 Moonlit::Camera::GetUpVector() const
 {
-	return Up;
+	return m_up;
 }

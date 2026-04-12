@@ -1,5 +1,4 @@
-#ifndef MOONLIT_BEHAVIOURBANK_H
-#define MOONLIT_BEHAVIOURBANK_H
+#pragma once
 
 #include "ObjectBehaviour.h"
 
@@ -13,7 +12,7 @@ public:
     };
     ~BehaviourBank() = default;
 
-    static BehaviourBank Get() {
+    static BehaviourBank& Get() {
         static BehaviourBank instance;
         return instance;
     }
@@ -87,4 +86,3 @@ BEHAVIOUR_TYPE* BehaviourBank<BEHAVIOUR_TYPE>::GetBehaviour(const Moonlit::GameO
     return nullptr;
 }
 
-#endif //MOONLIT_BEHAVIOURBANK_H

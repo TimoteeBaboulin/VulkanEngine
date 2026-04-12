@@ -1,5 +1,4 @@
-#ifndef MOONLIT_PARAMETERWIDGET_IPP
-#define MOONLIT_PARAMETERWIDGET_IPP
+#pragma once
 
 #include "ParameterEditor.h"
 
@@ -41,29 +40,31 @@ void Moonlit::Editor::ParameterEditor<PARAMETER_TYPE>::ValueChanged(PARAMETER_TY
     m_parameter.SetValue(_value);
 
     OnParameterChanged(this, m_behaviour, _value);
+    m_behaviour->ParameterChanged(&m_parameter);
+    int a = 0;
 }
 
 template<typename PARAMETER_TYPE>
 void ParameterEditorFactory::Register(
     std::function<ParameterEditorBase *(Parameter<PARAMETER_TYPE> *, Moonlit::ObjectBehaviour *)> _constructor)
 {
-    auto it = std::find(constructors.begin(), constructors.end(), _constructor);
-    if (it != constructors.end())
+    auto it = std::find(m_constructors.begin(), m_constructors.end(), _constructor);
+    if (it != m_constructors.end())
     {
         LOG_WARNING("Trying to re-register for type " + std::string(typeid(PARAMETER_TYPE).name()));
         return;
     }
 
-    constructors.insert(typeid(PARAMETER_TYPE), _constructor);
+    m_constructors.insert(typeid(PARAMETER_TYPE), _constructor);
 }
 
 template<typename PARAMETER_TYPE>
 bool ParameterEditorFactory::TryCreateParameterEditor(Parameter<PARAMETER_TYPE>* _param, Moonlit::ObjectBehaviour* _behaviour, ParameterEditorBase *&_outEditor)
 {
     const type_info& paramTypeInfo = typeid(PARAMETER_TYPE);
-    if (constructors.contains(paramTypeInfo))
+    if (m_constructors.contains(paramTypeInfo))
     {
-        _outEditor = constructors[paramTypeInfo](_param, _behaviour);
+        _outEditor = m_constructors[paramTypeInfo](_param, _behaviour);
         return true;
     }
 
@@ -71,4 +72,3 @@ bool ParameterEditorFactory::TryCreateParameterEditor(Parameter<PARAMETER_TYPE>*
     return false;
 }
 
-#endif //MOONLIT_PARAMETERWIDGET_IPP

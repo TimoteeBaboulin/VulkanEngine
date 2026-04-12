@@ -63,7 +63,7 @@ uint32_t Moonlit::Renderer::DrawBuffer::AddMeshInstance(MeshHandle _mesh, std::v
 {
 	static uint32_t currentId = 0;
 
-	intptr_t meshHandle = reinterpret_cast<intptr_t>(_mesh.ResourcePtr().get());
+	intptr_t meshHandle = reinterpret_cast<intptr_t>(&(*_mesh));
 	auto it = FindMeshEntry(meshHandle);
 
 	// Insert the new mesh in case it doesn't already exist
@@ -145,7 +145,7 @@ void Moonlit::Renderer::DrawBuffer::UpdateInstanceMesh(uint32_t _instanceId, Mes
 	RemoveMeshInstance(it);
 
 	// Get the new mesh handle and entry
-	intptr_t newMeshHandle = reinterpret_cast<intptr_t>(_mesh.ResourcePtr().get());
+	intptr_t newMeshHandle = reinterpret_cast<intptr_t>(&(*_mesh));
 	auto newMeshIt = FindMeshEntry(newMeshHandle);
 
 	// Insert the new mesh in case it doesn't already exist
@@ -164,12 +164,14 @@ void Moonlit::Renderer::DrawBuffer::RenderBuffer(RenderTarget& _target, vk::Comm
 {
 	if (m_meshEntries.size() == 0)
 	{
+		// LOG_INFO("[DrawBuffer::RenderBuffer] No meshes to render in this draw buffer, skipping.");
 		return;
 	}
 
 	std::vector<std::string > includedSubpasses = m_material->GetIncludedSubpasses();
 	if (std::find(includedSubpasses.begin(), includedSubpasses.end(), _renderPass) == includedSubpasses.end())
 	{
+		// LOG_INFO("[DrawBuffer::RenderBuffer] The material used in this draw buffer doesn't include the requested subpass, skipping.");
 		// The material used in this draw buffer doesn't include the requested subpass
 		return;
 	}
@@ -182,9 +184,9 @@ void Moonlit::Renderer::DrawBuffer::RenderBuffer(RenderTarget& _target, vk::Comm
 	m_deviceBridge.Render(_cmd, _renderPass, _target.GetDescriptorSet());
 }
 
-std::vector<std::shared_ptr<Moonlit::Image>> Moonlit::Renderer::DrawBuffer::GetAllTextures() const
+std::vector<Moonlit::Image*> Moonlit::Renderer::DrawBuffer::GetAllTextures() const
 {
-	std::vector<std::shared_ptr<Image>> textures;
+	std::vector<Image*> textures;
 
 	for (auto it = m_textureList.begin(); it != m_textureList.end(); it++)
 	{
@@ -197,7 +199,7 @@ std::vector<std::shared_ptr<Moonlit::Image>> Moonlit::Renderer::DrawBuffer::GetA
 void Moonlit::Renderer::DrawBuffer::InsertMesh(MeshHandle _mesh)
 {
 	m_meshEntries.push_back(MeshEntry{
-		reinterpret_cast<intptr_t>(_mesh.ResourcePtr().get()),
+		reinterpret_cast<intptr_t>(&(*_mesh)),
 		0
 		});
 
@@ -327,7 +329,7 @@ std::vector<uint16_t> Moonlit::Renderer::DrawBuffer::GetTextureIndices(std::vect
 
 	for (auto it = _images.begin(); it != _images.end(); it++)
 	{
-		intptr_t texHandle = reinterpret_cast<intptr_t>((*it).ResourcePtr().get());
+		intptr_t texHandle = reinterpret_cast<intptr_t>(&(**it));
 		auto texIt = FindTexture(texHandle);
 
 		if (texIt == m_textureList.end())
@@ -350,9 +352,9 @@ std::vector<uint16_t> Moonlit::Renderer::DrawBuffer::GetTextureIndices(std::vect
 uint16_t Moonlit::Renderer::DrawBuffer::InsertTexture(TextureHandle& _image)
 {
 	TextureSlot newEntry;
-	newEntry.TextureHandle = reinterpret_cast<intptr_t>(_image.ResourcePtr().get());
+	newEntry.TextureHandle = reinterpret_cast<intptr_t>(&(*_image));
 	newEntry.InstanceCount = 1;
-	newEntry.Texture = _image.ResourcePtr();
+	newEntry.Texture = &(*_image);
 
 	m_textureList.emplace_back(newEntry);
 

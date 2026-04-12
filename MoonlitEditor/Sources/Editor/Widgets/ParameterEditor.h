@@ -1,5 +1,4 @@
-#ifndef MOONLIT_PARAMETERWIDGET_H
-#define MOONLIT_PARAMETERWIDGET_H
+#pragma once
 
 #include "ParameterEditorBase.h"
 #include "Engine/Component/ObjectBehaviour.h"
@@ -51,9 +50,8 @@ public:
     template<typename PARAMETER_TYPE>
     bool TryCreateParameterEditor(Parameter<PARAMETER_TYPE>* _param, Moonlit::ObjectBehaviour* _behaviour, ParameterEditorBase*& _outEditor);
 private:
-    std::map<std::type_info, ParameterEditorFactoryConstructor> constructors;
+    std::map<std::type_info, ParameterEditorFactoryConstructor> m_constructors;
 };
 
 #include "ParameterEditor.ipp"
 
-#endif //MOONLIT_PARAMETERWIDGET_H

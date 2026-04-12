@@ -6,7 +6,7 @@ FILE(GLOB_RECURSE DefaultPluginSources CONFIGURE_DEPENDS
 ADD_LIBRARY(DefaultPlugin SHARED ${DefaultPluginSources})
 
 SET_TARGET_PROPERTIES(DefaultPlugin PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${RUNTIME_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY "${RUNTIME_DIR}/Modules"
         LIBRARY_OUTPUT_DIRECTORY "${RUNTIME_DIR}"       # for .so/.dylib, safe on Windows too
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/$<CONFIG>"  # .lib
         DEBUG_POSTFIX ""

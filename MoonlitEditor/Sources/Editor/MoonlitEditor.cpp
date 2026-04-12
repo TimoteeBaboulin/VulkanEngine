@@ -12,14 +12,14 @@
 #include "Windows/General/FileExplorer.h"
 #include "Windows/General/SceneHierarchy.h"
 #include "Windows/General/ObjectEditor.h"
-#include "../../../MoonlitEngine/Sources/Engine/MoonlitEngine.h"
-#include "../../../MoonlitEngine/Sources/Engine/Inputs/InputManager.h"
+#include "Engine/MoonlitEngine.h"
+#include "Engine/Inputs/InputManager.h"
 
 #include "Debug/Profiler.h"
-#include "../../../MoonlitEngine/Sources/Debug/Logger.h"
+#include "Debug/Logger.h"
 
 #include "Windows/DefaultDockManager.h"
-#include "../../../MoonlitEngine/Sources/Engine/Component/GameObject.h"
+#include "Engine/Component/GameObject.h"
 
 #include "Engine/Events/EventUtility.h"
 
@@ -69,7 +69,7 @@ MoonlitEditor::MoonlitEditor()
 
 	LoadDefaultLayout();
 
-	Moonlit::Inputs::InputManager::GetInstance()->LinkQtApplication(m_app);
+	Moonlit::Inputs::InputManager::Get().LinkQtApplication(m_app);
 
 	m_app->processEvents();
 

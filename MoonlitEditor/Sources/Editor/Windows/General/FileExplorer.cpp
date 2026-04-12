@@ -58,7 +58,7 @@ void FileExplorer::OnDoubleClick(const QModelIndex& _index)
 	std::filesystem::path file(path);
 	if (file.extension() == ".ms")
 	{
-		Moonlit::MoonlitEngine::GetInstance()->LoadScene(path);
+		Moonlit::MoonlitEngine::Get().LoadScene(path);
 		LOG_INFO("Loading file: " + path);
 	}
 }

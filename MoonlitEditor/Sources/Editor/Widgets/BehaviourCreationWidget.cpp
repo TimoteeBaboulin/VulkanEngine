@@ -16,7 +16,7 @@ bool BehaviourAlreadyExists(const std::string& _behaviourName, Moonlit::GameObje
 	return false;
 }
 
-BehaviourCreationWidget::BehaviourCreationWidget(Moonlit::GameObject* _gameObject, QWidget* parent)
+BehaviourCreationWidget::BehaviourCreationWidget(Moonlit::GameObject* _gameObject, QWidget* _parent)
 {
 	m_behaviours = Moonlit::BehaviourRegistry::GetRegisteredBehaviours();
 	m_gameObject = _gameObject;

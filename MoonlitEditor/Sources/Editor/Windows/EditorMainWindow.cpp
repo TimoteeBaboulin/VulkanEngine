@@ -1,7 +1,7 @@
 #include "EditorMainWindow.h"
 #include "Debug/ProfilerWindow.h"
 
-#include "../../../../MoonlitEngine/Sources/Debug/Logger.h"
+#include "Debug/Logger.h"
 
 EditorMainWindow* EditorMainWindow::m_instance = nullptr;
 

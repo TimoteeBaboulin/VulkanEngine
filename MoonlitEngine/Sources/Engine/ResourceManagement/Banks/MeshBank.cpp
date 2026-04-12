@@ -7,7 +7,7 @@
 #include <assimp/mesh.h>
 #include <assimp/scene.h>
 
-#include "../../Debug/Logger.h"
+#include "Debug/Logger.h"
 
 Moonlit::MeshData GetMesh(aiMesh* _mesh)
 {
@@ -84,7 +84,7 @@ bool Moonlit::ResourceManagement::MeshBank::TryLoad(std::string _filepath)
 
 	if (Exist(name))
 	{
-		Moonlit::Debug::Logger::LogWarning("Mesh with name " + name + " already exist in MeshBank.");
+		Debug::Logger::LogWarning("Mesh with name " + name + " already exist in MeshBank.");
 		return false;
 	}
 
@@ -93,9 +93,9 @@ bool Moonlit::ResourceManagement::MeshBank::TryLoad(std::string _filepath)
 	try
 	{
 		const aiScene* scene = importer.ReadFile(_filepath,
-			aiPostProcessSteps::aiProcess_Triangulate |
-			aiPostProcessSteps::aiProcess_GenNormals |
-			aiPostProcessSteps::aiProcess_CalcTangentSpace);
+			aiProcess_Triangulate |
+			aiProcess_GenNormals |
+			aiProcess_CalcTangentSpace);
 
 		if (scene == nullptr)
 		{
@@ -104,10 +104,12 @@ bool Moonlit::ResourceManagement::MeshBank::TryLoad(std::string _filepath)
 			return false;
 		}
 
-		m_resources.push_back(ResourcePair<Moonlit::MeshData>{ name});
-		ResourcePair<Moonlit::MeshData>& resource = m_resources.back();
-		resource.ResourcePtr = std::make_shared<Moonlit::MeshData>();
-		*resource.ResourcePtr.get() = GetMesh(scene->mMeshes[0]);
+		if (m_resources.contains(name)) {
+			LOG_ERROR("Mesh with name " + name + " already exist in MeshBank.");
+			throw std::runtime_error("Mesh with name " + name + " already exist in MeshBank.");
+		}
+
+		InsertResource(name, GetMesh(scene->mMeshes[0]));
 	}
 	catch (const std::exception& e)
 	{

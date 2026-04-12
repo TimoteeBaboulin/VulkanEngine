@@ -5,7 +5,7 @@
 #include <typeinfo>
 #include <typeindex>
 #include <vector>
-#include "../../MoonlitExport.h"
+#include "MoonlitExport.h"
 
 namespace Moonlit::ResourceManagement {
     template<typename RESOURCE_TYPE> class ResourceBank;
@@ -18,18 +18,21 @@ namespace Moonlit::ResourceManagement {
         // Static
     public:
         template<class RESOURCE_TYPE>
-        static void RegisterResourceBank(ResourceBank<RESOURCE_TYPE> *_bank) {
-            Instance()->m_resourceBanks[std::type_index(typeid(RESOURCE_TYPE))] = _bank;
+        static void RegisterResourceBank(ResourceBank<RESOURCE_TYPE> *_bank)
+        {
+            Get().m_resourceBanks[std::type_index(typeid(RESOURCE_TYPE))] = _bank;
         }
 
         template<class RESOURCE_TYPE>
-        static bool TryGetResource(std::string _name, ResourceHandle<RESOURCE_TYPE>& _outResource) {
-            return Instance()->TryGetResourceInstance<RESOURCE_TYPE>(_name, _outResource);
+        static bool TryGetResource(std::string _name, ResourceHandle<RESOURCE_TYPE>& _outResource)
+        {
+            return Get().TryGetResourceInternal<RESOURCE_TYPE>(_name, _outResource);
         }
 
         template<class RESOURCE_TYPE>
-        static bool TryLoadResource(std::string _path) {
-            return Instance()->TryLoadResourceInstance<RESOURCE_TYPE>(_path);
+        static bool TryLoadResource(std::string _path)
+        {
+            return Get().TryLoadResourceInternal<RESOURCE_TYPE>(_path);
         }
 
         template<class BANK_TYPE>
@@ -55,7 +58,7 @@ namespace Moonlit::ResourceManagement {
             return resources;
         }
 
-        static ResourceManager *Instance();
+        static ResourceManager& Get();
 
         // Instance
     public:
@@ -63,7 +66,7 @@ namespace Moonlit::ResourceManagement {
 
     private:
         template<class RESOURCE_TYPE>
-        bool TryGetResourceInstance(std::string _name, ResourceHandle<RESOURCE_TYPE> &_outResource) {
+        bool TryGetResourceInternal(std::string _name, ResourceHandle<RESOURCE_TYPE> &_outResource) {
             auto it = m_resourceBanks.find(std::type_index(typeid(RESOURCE_TYPE)));
             if (it != m_resourceBanks.end()) {
                 ResourceBank<RESOURCE_TYPE> *bank = static_cast<ResourceBank<RESOURCE_TYPE> *>(it->second);
@@ -75,7 +78,7 @@ namespace Moonlit::ResourceManagement {
         }
 
         template<class RESOURCE_TYPE>
-        bool TryLoadResourceInstance(std::string _path);
+        bool TryLoadResourceInternal(std::string _path);
 
         void LoadFileResource(std::string _filepath);
 

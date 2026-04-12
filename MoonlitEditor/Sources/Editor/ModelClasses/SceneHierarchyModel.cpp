@@ -1,16 +1,16 @@
 #include "SceneHierarchyModel.h"
 #include "Engine/Component/GameObject.h"
 
-SceneHierarchyModel::SceneHierarchyModel(Moonlit::Scene* scene)
+SceneHierarchyModel::SceneHierarchyModel(Moonlit::Scene* _scene)
 {
-	m_scene = scene;
+	m_scene = _scene;
 
 	BuildModel();
 }
 
-void SceneHierarchyModel::SetScene(Moonlit::Scene* scene)
+void SceneHierarchyModel::SetScene(Moonlit::Scene* _scene)
 {
-	m_scene = scene;
+	m_scene = _scene;
 
 	Refresh();
 }

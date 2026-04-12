@@ -1,5 +1,4 @@
-#ifndef MOONLIT_PLUGIN_H
-#define MOONLIT_PLUGIN_H
+#pragma once
 
 #include "Engine/Component/BehaviourRegistry.h"
 
@@ -27,4 +26,3 @@ namespace Moonlit {
     };
 }
 
-#endif //MOONLIT_PLUGIN_H

@@ -24,7 +24,7 @@ namespace Moonlit::Inputs
     class QtEventReader : public QAbstractNativeEventFilter
     {
     public:
-        QtEventReader(HWND targetHandle, PlatformInput_t* backend);
+        QtEventReader(HWND _targetHandle, PlatformInput_t* _backend);
         ~QtEventReader() override;
         bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 

@@ -2,7 +2,7 @@
 
 #include <qlayout.h>
 
-#include "Engine/ResourceManagement/MeshBank.h"
+#include "Engine/ResourceManagement/Banks/MeshBank.h"
 
 namespace Moonlit::Editor
 {
@@ -16,7 +16,7 @@ namespace Moonlit::Editor
     {
         m_meshDropdown = new QComboBox(this);
         m_meshDropdown->setMinimumWidth(150);
-        m_meshDropdown->setMinimumHeight(50);
+        m_meshDropdown->setMinimumHeight(25);
 
         m_layout->addWidget(m_meshDropdown);
 
@@ -29,8 +29,10 @@ namespace Moonlit::Editor
     {
         m_meshDropdown->clear();
         m_meshHandles.clear();
-        ResourceManagement::MeshBank& meshBank = *ResourceManagement::MeshBank::GetInstance();
+        ResourceManagement::MeshBank& meshBank = ResourceManagement::MeshBank::Get();
         m_meshHandles = meshBank.GetAllResources();
+
+        LOG_INFO("RefreshDropdownOptions: Found " + std::to_string(m_meshHandles.size()) + " meshes in MeshBank.");
 
         for (int i = 0; i < m_meshHandles.size(); i++)
         {
@@ -56,8 +58,7 @@ namespace Moonlit::Editor
         }
 
         Renderer::MeshHandle selectedMesh = m_meshHandles[_index];
-        m_parameter.SetValue(selectedMesh);
-        OnParameterChanged(this, m_behaviour, selectedMesh);
+        ValueChanged(selectedMesh);
     }
 }
 // #include "MeshData.h"

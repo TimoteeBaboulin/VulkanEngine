@@ -1,5 +1,4 @@
-#ifndef MOONLIT_PARAMETERMEMENTO_H
-#define MOONLIT_PARAMETERMEMENTO_H
+#pragma once
 
 #include "Parameter.h"
 
@@ -35,4 +34,3 @@ void ParameterMemento<PARAMETER_TYPE>::LoadParameter()
     m_parameter.SetValue(m_value);
 }
 
-#endif //MOONLIT_PARAMETERMEMENTO_H

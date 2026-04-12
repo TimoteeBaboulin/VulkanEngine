@@ -1,12 +1,12 @@
 #include "SceneViewWindow.h"
 #include "../../MoonlitEditor.h"
-#include "../../../../../MoonlitEngine/Sources/Engine/MoonlitEngine.h"
-#include "../../../../../MoonlitEngine/Sources/Engine/Renderer/Renderer.h"
-#include "../../../../../MoonlitEngine/Sources/Engine/Renderer/RenderTarget.h"
+#include "Engine/MoonlitEngine.h"
+#include "Engine/Renderer/Renderer.h"
+#include "Engine/Renderer/RenderTarget.h"
 #include <QtCore/qtimer.h>
 #include <QtGui/qevent.h>
 
-#include "../../../../../MoonlitEngine/Sources/Debug/Logger.h"
+#include "Debug/Logger.h"
 
 
 SceneView::SceneView(IDockManager* _dockManager)

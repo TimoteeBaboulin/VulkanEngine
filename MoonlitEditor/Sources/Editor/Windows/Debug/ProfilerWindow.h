@@ -7,7 +7,7 @@
 #include <QtWidgets/qtreeview.h>
 #include <QtCore/qstringlistmodel.h>
 
-#include "../../../../../MoonlitEngine/Sources/Debug/Profiler.h"
+#include "Debug/Profiler.h"
 #include "../../ModelClasses/MethodViewModel.h"
 
 struct ListModel
@@ -29,7 +29,7 @@ private:
 	void SetupConnections();
 
 	void UpdateFrameList(const std::vector<Moonlit::Debug::FrameSample>& _frames);
-	void DisplayFrameSample(const Moonlit::Debug::FrameSample& frameSample);
+	void DisplayFrameSample(const Moonlit::Debug::FrameSample& _frameSample);
 	void DisplayProfilingSession(const Moonlit::Debug::ProfilingSession& _session);
 
 	//Qt event callbacks

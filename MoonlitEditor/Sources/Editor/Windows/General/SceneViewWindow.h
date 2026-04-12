@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../EditorWindowBase.h"
-#include "../../../../../MoonlitEngine/Sources/Engine/Renderer/Camera.h"
+#include "Engine/Renderer/Camera.h"
 #include "../../Controllers/SceneViewController.h"
 #include "../IDockManager.h"
 
@@ -39,7 +39,7 @@ private:
 
 	QTimer* m_resizeTimer = nullptr;
 
-	bool resizing = false;
+	bool m_resizing = false;
 
 	void SetQtData();
 	void StartResizing();

@@ -1,8 +1,8 @@
 #include "QtEventReader.h"
 #include <iostream>
 
-Moonlit::Inputs::QtEventReader::QtEventReader(HWND targetHandle, PlatformInput_t* backend)
-    : m_targetHandle(targetHandle), m_backend(backend)
+Moonlit::Inputs::QtEventReader::QtEventReader(HWND _targetHandle, PlatformInput_t* _backend)
+    : m_targetHandle(_targetHandle), m_backend(_backend)
 {
 }
 

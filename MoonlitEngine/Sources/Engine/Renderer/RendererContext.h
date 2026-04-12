@@ -3,7 +3,7 @@
 #include "CustomVulkanStructs.h"
 
 #include <Windows.h>
-#include "../../MoonlitExport.h"
+#include "MoonlitExport.h"
 
 namespace Moonlit::Renderer
 {

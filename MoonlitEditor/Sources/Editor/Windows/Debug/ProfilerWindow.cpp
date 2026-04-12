@@ -3,7 +3,7 @@
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qgridlayout.h>
 
-#include "../../../../../MoonlitEngine/Sources/Debug/Logger.h"
+#include "Debug/Logger.h"
 
 ProfilerWindow::ProfilerWindow(QWidget* _parent) : QWidget(_parent)
 {
@@ -71,11 +71,11 @@ void ProfilerWindow::UpdateFrameList(const std::vector<Moonlit::Debug::FrameSamp
 	m_currentFrameId = -1;
 }
 
-void ProfilerWindow::DisplayFrameSample(const Moonlit::Debug::FrameSample& frameSample)
+void ProfilerWindow::DisplayFrameSample(const Moonlit::Debug::FrameSample& _frameSample)
 {
 	m_threadListModel->stringList.clear();
 
-	for (auto it = frameSample.stackSamples.begin(); it != frameSample.stackSamples.end(); it++)
+	for (auto it = _frameSample.stackSamples.begin(); it != _frameSample.stackSamples.end(); it++)
 	{
 		uint64_t threadId = it->first;
 		m_threadListModel->stringList.append(QString::fromStdString("Thread ID: " + std::to_string(threadId)));

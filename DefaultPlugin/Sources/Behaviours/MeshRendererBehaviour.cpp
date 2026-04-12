@@ -17,17 +17,16 @@ using MeshData = Moonlit::MeshData;
 MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner)
 	: ObjectBehaviour(_owner), m_meshData("MeshData")
 {
+	LOG_INFO("[MeshRendererBehaviour] Constructor called for GameObject");
 	LookForTransformComponent();
 
 	m_transformChangedSubscriber =
 		new Moonlit::Events::ScopedEventSubscriber(m_transformComponent->OnTransformChanged,
 		std::bind(&MeshRendererBehaviour::UpdateMeshInstanceModel, this));
 
-	Moonlit::ResourceManagement::ResourceManager* resourceManager = Moonlit::ResourceManagement::ResourceManager::Instance();
 	Moonlit::ResourceManagement::ResourceHandle<MeshData> meshHandle;
-	Moonlit::ResourceManagement::ResourceHandle<float> floatHandle;
 
-	if (!resourceManager->TryGetResource<MeshData>("Cube", meshHandle))
+	if (!Moonlit::ResourceManagement::ResourceManager::TryGetResource<MeshData>("Cube", meshHandle))
 	{
 		LOG_ERROR("Failed to load default mesh barstool_mesh from ResourceManager.");
 		throw std::runtime_error("Failed to load default mesh barstool_mesh from ResourceManager.");
@@ -40,11 +39,13 @@ MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner)
 		throw std::runtime_error("Failed to load texture barstool_albedo.png from ResourceManager.");
 	}
 
+	MeshData& data = *meshHandle;
+
 	std::vector<Moonlit::Renderer::TextureHandle> textures;
 	textures.push_back(textureHandle);
 	m_meshData = meshHandle;
 
-	m_instanceId = Moonlit::MoonlitEngine::GetInstance()->Renderer->AddMeshInstance(*m_meshData, textures, m_transformComponent->GetModelMat());
+	m_instanceId = Moonlit::MoonlitEngine::Get().Renderer->AddMeshInstance(*m_meshData, textures, m_transformComponent->GetModelMat());
 }
 
 MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner, Moonlit::Renderer::MeshHandle _mesh)
@@ -67,12 +68,12 @@ MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner, Moonli
 
 	textures.push_back(firstTexture);
 
-	m_instanceId = Moonlit::MoonlitEngine::GetInstance()->Renderer->AddMeshInstance(_mesh, textures, m_transformComponent->GetModelMat());
+	m_instanceId = Moonlit::MoonlitEngine::Get().Renderer->AddMeshInstance(_mesh, textures, m_transformComponent->GetModelMat());
 }
 
 MeshRendererBehaviour::~MeshRendererBehaviour()
 {
-	Moonlit::MoonlitEngine::GetInstance()->Renderer->RemoveMeshInstance(m_instanceId);
+	Moonlit::MoonlitEngine::Get().Renderer->RemoveMeshInstance(m_instanceId);
 
 	LOG_INFO("MeshRendererBehaviour destroyed.");
 
@@ -87,22 +88,19 @@ std::vector<ParameterBase*> MeshRendererBehaviour::GetParameters()
 	return entries;
 }
 
-void MeshRendererBehaviour::ParameterChanged(const Moonlit::ParameterRepositoryEntry& _parameter)
+void MeshRendererBehaviour::ParameterChanged(const ParameterBase* _parameter)
 {
-	LOG_INFO("Trying to change parameter " + std::string(_parameter.Name));
-	if (strcmp(_parameter.Name, "Model") == 0)
+	if (_parameter->Name() == "MeshData")
 	{
-		if ((*m_meshData).ResourcePtr() == nullptr)
+		if (!(*m_meshData).IsValid())
 		{
 			LOG_WARNING("MeshRendererBehaviour has no valid mesh assigned.");
 			return;
 		}
 
-		Moonlit::MoonlitEngine::GetInstance()->Renderer->UpdateInstanceMesh(m_instanceId, *m_meshData);
-	}
-	else if (strcmp(_parameter.Name, "Transform") == 0)
-	{
-		UpdateMeshInstanceModel();
+		if ((*m_meshData).IsValid()) {
+			Moonlit::MoonlitEngine::Get().Renderer->UpdateInstanceMesh(m_instanceId, *m_meshData);
+		}
 	}
 }
 
@@ -119,5 +117,5 @@ void MeshRendererBehaviour::LookForTransformComponent()
 
 void MeshRendererBehaviour::UpdateMeshInstanceModel()
 {
-	Moonlit::MoonlitEngine::GetInstance()->Renderer->UpdateInstanceModel(m_instanceId, m_transformComponent->GetModelMat());
+	Moonlit::MoonlitEngine::Get().Renderer->UpdateInstanceModel(m_instanceId, m_transformComponent->GetModelMat());
 }

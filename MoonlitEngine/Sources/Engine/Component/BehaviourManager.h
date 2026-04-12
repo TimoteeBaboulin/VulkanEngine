@@ -1,9 +1,7 @@
-#ifndef MOONLIT_BEHAVIOURMANAGER_H
-#define MOONLIT_BEHAVIOURMANAGER_H
+#pragma once
 
 #include "BehaviourBank.h"
 
 
 
 
-#endif //MOONLIT_BEHAVIOURMANAGER_H

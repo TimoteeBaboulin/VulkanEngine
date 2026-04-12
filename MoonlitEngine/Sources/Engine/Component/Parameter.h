@@ -1,5 +1,4 @@
-#ifndef MOONLIT_PARAMETER_H
-#define MOONLIT_PARAMETER_H
+#pragma once
 
 #include <string>
 #include "ParameterBase.h"
@@ -25,7 +24,7 @@ public:
     }
 
     PARAMETER_TYPE Value() const {return m_value;};
-    void SetValue(PARAMETER_TYPE value) {m_value = value;};
+    void SetValue(PARAMETER_TYPE _value) {m_value = _value;};
 
     void Save(nlohmann::json& _stream) override;
     void Load(nlohmann::json& _json) override;
@@ -36,4 +35,3 @@ protected:
 
 #include "Parameter.ipp"
 
-#endif //MOONLIT_PARAMETER_H

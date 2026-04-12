@@ -11,9 +11,9 @@ using GameObject = Moonlit::GameObject;
 class SceneHierarchyModel : public QAbstractListModel
 {
 public:
-	SceneHierarchyModel(Moonlit::Scene* scener);
+	SceneHierarchyModel(Moonlit::Scene* _scene);
 
-	void SetScene(Moonlit::Scene* scene);
+	void SetScene(Moonlit::Scene* _scene);
 	void Refresh();
 
 	QModelIndex index(int row, int column = 0, const QModelIndex& parent = QModelIndex()) const override;

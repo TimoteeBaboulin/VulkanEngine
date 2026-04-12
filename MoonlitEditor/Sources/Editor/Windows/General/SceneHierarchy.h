@@ -11,7 +11,7 @@ class SceneHierarchy : public EditorWindowBase
 {
 public:
 	SceneHierarchy(IDockManager* _dockManager);
-	SceneHierarchy(QWidget* parent = nullptr);
+	SceneHierarchy(QWidget* _parent = nullptr);
 private:
 	void Select(GameObject* selected);
 

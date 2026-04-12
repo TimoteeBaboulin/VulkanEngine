@@ -1,5 +1,4 @@
-#ifndef MOONLIT_PARAMETER_IPP
-#define MOONLIT_PARAMETER_IPP
+#pragma once
 
 #undef min
 #undef max
@@ -27,4 +26,3 @@ void Parameter<PARAMETER_TYPE>::Load(nlohmann::json& _json)
     // delete[] buffer;
 }
 
-#endif //MOONLIT_PARAMETER_IPP

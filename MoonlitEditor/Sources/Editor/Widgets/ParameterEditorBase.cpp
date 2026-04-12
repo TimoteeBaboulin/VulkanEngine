@@ -2,15 +2,8 @@
 
 #include <qboxlayout.h>
 #include <qlineedit.h>
-#include <glm/glm.hpp>
-#include <qregularexpressionvalidator>
-#include <qregularexpression.h>
-
-#include <sstream>
-#include <iomanip>
 
 #include "ParameterTypes/ParameterTypeRegistry.h"
-#include "ParameterTypes/ParameterEditor.h"
 
 
 ParameterEditorBase::ParameterEditorBase(const ParameterBase* _parameter, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent)

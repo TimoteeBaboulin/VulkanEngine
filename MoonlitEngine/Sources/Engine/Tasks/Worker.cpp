@@ -12,7 +12,7 @@ Moonlit::Tasks::Worker::Worker()
 
 bool Moonlit::Tasks::Worker::TryGetTask()
 {
-	TaskManager& manager = TaskManager::Instance();
+	TaskManager& manager = TaskManager::Get();
 
 	// Must return true for the condition variable to wake up
 	if (manager.m_shutdown)
@@ -38,7 +38,7 @@ void Moonlit::Tasks::Worker::UpdateWorkerCount(TaskManager& _manager, bool _incr
 
 void Moonlit::Tasks::Worker::Run()
 {
-	TaskManager& taskManager = TaskManager::Instance();
+	TaskManager& taskManager = TaskManager::Get();
 
 	while (true)
 	{

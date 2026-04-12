@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ResourceBank.h"
-#include "../../common.h"
+#include "../ResourceBank.h"
+#include "common.h"
 
 namespace Moonlit::ResourceManagement
 {
@@ -14,11 +14,11 @@ namespace Moonlit::ResourceManagement
 				Instance = new MeshBank();
 		}
 
-		static MeshBank* GetInstance()
+		static MeshBank& Get()
 		{
 			if (Instance == nullptr)
 				Initialize();
-			return static_cast<MeshBank*>(Instance);
+			return *static_cast<MeshBank*>(Instance);
 		}
 
 		MeshBank() : ResourceBank<MeshData>() {};

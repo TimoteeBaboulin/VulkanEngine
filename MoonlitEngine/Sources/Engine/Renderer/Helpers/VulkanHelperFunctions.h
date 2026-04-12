@@ -1,6 +1,5 @@
 
-#ifndef VULKAN_HELPER_FUNCTIONS_H
-#define VULKAN_HELPER_FUNCTIONS_H
+#pragma once
 
 #include <cstdint>
 #include "common.h"
@@ -388,4 +387,3 @@ namespace Moonlit::Renderer::HelperClasses
 
 	using vhf = VulkanHelperFunctions;
 }
-#endif

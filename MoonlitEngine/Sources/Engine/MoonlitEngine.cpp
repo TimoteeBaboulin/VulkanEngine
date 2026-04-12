@@ -49,7 +49,7 @@ void Moonlit::MoonlitEngine::LoadModule(std::string _name)
 
 void Moonlit::MoonlitEngine::Init()
 {
-	ResourceManagement::ResourceManager::Instance();
+	ResourceManagement::ResourceManager::Get();
 	ModuleManager& moduleManager = ModuleManager::Get();
 	moduleManager.LoadModulesFromDirectory("./Modules");
 

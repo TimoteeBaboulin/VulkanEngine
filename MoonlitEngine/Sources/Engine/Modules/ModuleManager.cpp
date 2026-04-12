@@ -1,5 +1,5 @@
 #include "ModuleManager.h"
-#include "../../../Sources/Debug/Logger.h"
+#include "Debug/Logger.h"
 
 #include <filesystem>
 #include <windows.h>

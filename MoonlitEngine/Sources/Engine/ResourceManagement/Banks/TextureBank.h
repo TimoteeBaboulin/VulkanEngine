@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ResourceBank.h"
-#include "Resources/Image.h"
+#include "../ResourceBank.h"
+#include "../Resources/Image.h"
 
 #include "common.h"
 
@@ -16,11 +16,11 @@ namespace Moonlit::ResourceManagement
 				Instance = new TextureBank();
 		}
 
-		static TextureBank* GetInstance()
+		static TextureBank& Get()
 		{
 			if (Instance == nullptr)
 				Initialize();
-			return static_cast<TextureBank*>(Instance);
+			return *static_cast<TextureBank*>(Instance);
 		}
 
 		bool TryLoad(std::string _filepath) override;

@@ -17,7 +17,7 @@ namespace Moonlit::Tasks
 		friend class Worker;
 
 	public:
-		static TaskManager& Instance()
+		static TaskManager& Get()
 		{
 			static TaskManager instance;
 			return instance;

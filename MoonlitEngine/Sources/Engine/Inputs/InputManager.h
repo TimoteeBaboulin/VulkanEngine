@@ -66,7 +66,7 @@ namespace Moonlit::Inputs
 		// Because it is expected to be called often
 		// Tests with other devs will ensure whether this should be changed or not
 
-		static InputManager* GetInstance() { return m_instance; }
+		static InputManager& Get() { return *m_instance; }
 
 		/// <summary>
 		/// This should always be called before accessing the instance.<para/>

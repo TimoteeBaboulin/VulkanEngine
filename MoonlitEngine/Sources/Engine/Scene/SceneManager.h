@@ -1,5 +1,4 @@
-#ifndef MOONLIT_SCENEMANAGER_H
-#define MOONLIT_SCENEMANAGER_H
+#pragma once
 #include "Engine/Events/Event.h"
 
 namespace Moonlit
@@ -12,4 +11,3 @@ namespace Moonlit::SceneManagement
 
 }
 
-#endif //MOONLIT_SCENEMANAGER_H

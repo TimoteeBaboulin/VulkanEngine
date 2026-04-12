@@ -36,12 +36,8 @@ std::vector<ParameterBase*> TransformBehaviour::GetParameters()
 	return entries;
 }
 
-void TransformBehaviour::ParameterChanged(const Moonlit::ParameterRepositoryEntry& _parameter)
+void TransformBehaviour::ParameterChanged(const ParameterBase* _parameter)
 {
-	LOG_INFO("TransformBehaviour::ParameterChanged called on object " + std::to_string(reinterpret_cast<uintptr_t>(this)) + " for parameter " + std::string(_parameter.Name));
-
-	m_translationMatrix = glm::translate(glm::mat4(1), *m_position);
-
 	m_isDirty = true;
 	OnTransformChanged(this);
 }

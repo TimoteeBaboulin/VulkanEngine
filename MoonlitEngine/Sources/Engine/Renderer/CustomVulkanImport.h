@@ -1,5 +1,4 @@
-#ifndef CUSTOM_VULKAN_IMPORT_H
-#define CUSTOM_VULKAN_IMPORT_H
+#pragma once
 
 // Only place where vulkan.hpp is included
 // This .h should not be included anywhere but in CustomVulkanStructs.h
@@ -20,4 +19,3 @@ struct VulkanTest {
     vk::MemoryBarrier memoryBarrier;
 };
 
-#endif // !CUSTOM_VULKAN_IMPORT_H

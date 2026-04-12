@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../../../Sources/MoonlitExport.h"
+#include "MoonlitExport.h"
 #include <vector>
 #include <memory>
 
-#include "../../../../Sources/GLMExport.h"
+#include "GLMExport.h"
 
 namespace Moonlit
 {

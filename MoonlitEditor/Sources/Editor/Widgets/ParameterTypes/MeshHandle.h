@@ -23,6 +23,7 @@ namespace Moonlit::Editor
 	private:
 		QComboBox* m_meshDropdown;
 		std::vector<Renderer::MeshHandle> m_meshHandles;
+		bool m_refreshingDropdown = false;
 
 		void RefreshDropdownOptions();
 		void OnMeshSelected(int _index);

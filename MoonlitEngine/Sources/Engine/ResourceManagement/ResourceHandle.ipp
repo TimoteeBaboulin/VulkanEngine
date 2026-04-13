@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "Debug/Logger.h"
+#include "Engine/Component/BehaviourRegistry.h"
 
 namespace Moonlit::ResourceManagement
 {
@@ -18,7 +19,7 @@ namespace Moonlit::ResourceManagement
     ResourceHandle<RESOURCE_TYPE>::ResourceHandle(BANK_TYPE* _bank, std::string _name) : m_resourceBank(_bank), m_name(_name)
     {
         m_handle = typeid(RESOURCE_TYPE).name();
-        m_handle += ":" + _name;
+        m_handle += "|" + _name;
     }
 
     template<typename RESOURCE_TYPE>
@@ -27,11 +28,12 @@ namespace Moonlit::ResourceManagement
         std::stringstream stream(_handle);
 
         std::string inputStr;
-        std::getline(stream, inputStr, ':');
+        std::getline(stream, inputStr, '|');
 
-        m_resourceBank = ResourceManager::Get().GetBank<BANK_TYPE>(inputStr);
+        std::string typeName = ClassNameFromTypeName(inputStr);
+        m_resourceBank = ResourceManager::Get().GetBank<BANK_TYPE>(typeName);
 
-        std::getline(stream, m_name, ':');
+        std::getline(stream, m_name, '|');
     }
 
     template<typename RESOURCE_TYPE>

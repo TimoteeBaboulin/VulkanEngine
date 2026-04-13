@@ -187,7 +187,7 @@ void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
 
 void Moonlit::GameObject::Destroy()
 {
-    GameObject::Destroy(*this);
+    Destroy(*this);
 }
 
 void Moonlit::GameObject::AddChild(GameObject *_child)

@@ -6,6 +6,7 @@
 #include <typeindex>
 #include <vector>
 #include "MoonlitExport.h"
+#include "Engine/Component/BehaviourRegistry.h"
 
 namespace Moonlit::ResourceManagement {
     template<typename RESOURCE_TYPE> class ResourceBank;
@@ -40,8 +41,13 @@ namespace Moonlit::ResourceManagement {
         // _bankName is not used yet but it's planned to be used to discriminate between different banks for similar resources
         {
             auto it = m_resourceBanks.find(std::type_index(typeid(BANK_TYPE)));
-            if (it != m_resourceBanks.end()) {
-                return static_cast<BANK_TYPE *>(it->second);
+
+            for (auto& [index, bank] : m_resourceBanks)
+            {
+                if (ClassNameFromTypeName(index.name()) == _bankName)
+                {
+                    return static_cast<BANK_TYPE*> (bank);
+                }
             }
 
             return nullptr;

@@ -55,7 +55,6 @@ void Moonlit::ObjectBehaviour::SaveToFile(nlohmann::json& _json)
 
 void Moonlit::ObjectBehaviour::LoadFromFile(nlohmann::json& _stream)
 {
-
 	std::vector<ParameterBase*> entries = this->GetParameters();
 
 	uint32_t paramCount = _stream["parameter_count"].get<uint32_t>();

@@ -104,6 +104,15 @@ void MeshRendererBehaviour::ParameterChanged(const ParameterBase* _parameter)
 	}
 }
 
+void MeshRendererBehaviour::LoadFromFile(nlohmann::json &_stream)
+{
+	ObjectBehaviour::LoadFromFile(_stream);
+
+	if ((*m_meshData).IsValid()) {
+		Moonlit::MoonlitEngine::Get().Renderer->UpdateInstanceMesh(m_instanceId, *m_meshData);
+	}
+}
+
 void MeshRendererBehaviour::LookForTransformComponent()
 {
 	TransformBehaviour* transform;

@@ -14,11 +14,11 @@
 
 namespace Moonlit
 {
-    Moonlit::Scene::Scene()
+    Scene::Scene()
 	{
 	}
 
-	Moonlit::Scene::~Scene()
+	Scene::~Scene()
 	{
 		for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
 		{
@@ -84,7 +84,7 @@ namespace Moonlit
 		fileStream.close();
 	}
 
-	void Moonlit::Scene::ClearScene()
+	void Scene::ClearScene()
 	{
 		for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
 		{
@@ -93,7 +93,7 @@ namespace Moonlit
 		m_rootGameObjects.clear();
 	}
 
-	void Moonlit::Scene::AddGameObject(GameObject* _gameObject, GameObject* _parent)
+	void Scene::AddGameObject(GameObject* _gameObject, GameObject* _parent)
 	{
 		if (_parent == nullptr)
 		{
@@ -106,7 +106,7 @@ namespace Moonlit
 		}
 	}
 
-	void Moonlit::Scene::RemoveGameObject(GameObject *_gameObject) {
+	void Scene::RemoveGameObject(GameObject *_gameObject) {
 		auto it = std::find(m_rootGameObjects.begin(), m_rootGameObjects.end(), _gameObject);
 		if (it != m_rootGameObjects.end()) {
 			m_rootGameObjects.erase(it);
@@ -122,7 +122,7 @@ namespace Moonlit
 		}
 	}
 
-	Moonlit::GameObject* Moonlit::Scene::GetGameObjectById(uint64_t _id) const
+	GameObject* Scene::GetGameObjectById(uint64_t _id) const
 	{
 		auto it = std::find_if(m_rootGameObjects.begin(), m_rootGameObjects.end(), [_id](GameObject* obj)
 			{
@@ -132,7 +132,7 @@ namespace Moonlit
 		return (it != m_rootGameObjects.end()) ? *it : nullptr;
 	}
 
-	Moonlit::GameObject* Moonlit::Scene::GetGameObjectByName(const std::string& _name) const
+	GameObject* Scene::GetGameObjectByName(const std::string& _name) const
 	{
 		for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
 		{

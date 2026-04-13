@@ -18,6 +18,7 @@ public:
 
 	std::vector<ParameterBase*> GetParameters() override;
 	void ParameterChanged(const ParameterBase* _parameter) override;
+	void LoadFromFile(nlohmann::json &_stream) override;
 
 private:
 	void LookForTransformComponent();

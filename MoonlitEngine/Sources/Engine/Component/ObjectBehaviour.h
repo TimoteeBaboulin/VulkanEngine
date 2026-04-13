@@ -36,8 +36,8 @@ namespace Moonlit
 		virtual ~ObjectBehaviour();
 
 		void SetOwner(GameObject* _owner);
-		void SaveToFile(nlohmann::json& _json);
-		void LoadFromFile(nlohmann::json& _stream);
+		virtual void SaveToFile(nlohmann::json& _json);
+		virtual void LoadFromFile(nlohmann::json& _stream);
 
 		virtual void Init() {};
 		virtual void OnSpawn() {};

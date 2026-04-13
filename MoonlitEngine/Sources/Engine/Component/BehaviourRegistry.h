@@ -31,6 +31,14 @@ namespace Moonlit
 		return std::string(name);
 	}
 
+	inline std::string ClassNameFromTypeName(std::string& name)
+	{
+		// MSVC usually prefixes class names with "class" or "struct"
+		if (name.starts_with("class ")) return std::string(name.substr(6));
+		if (name.starts_with("struct ")) return std::string(name.substr(7));
+		return name;
+	}
+
 	/// <summary>
 	/// Static behaviour registry class reprensenting the engine's main reflection tool<para/>
 	/// All Plugins' behaviours should get registered here to be usable by the engine

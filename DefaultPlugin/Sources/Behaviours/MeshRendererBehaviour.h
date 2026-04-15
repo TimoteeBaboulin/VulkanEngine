@@ -20,6 +20,8 @@ public:
 	void ParameterChanged(const ParameterBase* _parameter) override;
 	void LoadFromFile(nlohmann::json &_stream) override;
 
+	void Init() override;
+
 private:
 	void LookForTransformComponent();
 	void UpdateMeshInstanceModel();
@@ -27,6 +29,7 @@ private:
 	class TransformBehaviour* m_transformComponent = nullptr;
 
 	Parameter<Moonlit::ResourceManagement::ResourceHandle<Moonlit::MeshData>> m_meshData;
+	Parameter<std::vector<Moonlit::Renderer::TextureHandle>> m_textureHandles;
 
 	Moonlit::Events::ScopedEventSubscriber<>* m_transformChangedSubscriber = nullptr;
 	uint32_t m_instanceId = 0;

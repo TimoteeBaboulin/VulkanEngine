@@ -122,6 +122,12 @@ void Moonlit::GameObject::AddComponent(ObjectBehaviour* _component)
     _component->SubscribeToFunctions();
 }
 
+void Moonlit::GameObject::AddComponent(std::string _name)
+{
+    ObjectBehaviour* behaviour = BehaviourRegistry::CreateBehaviour(this, _name);
+    behaviour->Init();
+}
+
 static void WriteStringBinary(std::ofstream &s, const std::string &str)
 {
     uint32_t len = static_cast<uint32_t>(str.size());
@@ -172,7 +178,7 @@ void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
     for (uint32_t i = 0; i < count; ++i)
     {
         typeName = _json["behaviours"][i]["type"].get<std::string>();
-        ObjectBehaviour *component = BehaviourRegistry::CreateBehaviour(this, typeName.c_str());
+        ObjectBehaviour *component = BehaviourRegistry::CreateBehaviour(this, ClassNameFromTypeName(typeName));
         if (component == nullptr)
         {
             LOG_ERROR("Game Object Load: Couldn't create behaviour from scene file. Can't keep loading file.");

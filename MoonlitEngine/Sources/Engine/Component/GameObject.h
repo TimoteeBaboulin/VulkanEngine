@@ -142,19 +142,19 @@ namespace Moonlit
 		Scene& m_scene;
 	};
 
-	template<IsBehaviour BEHAVIOUR_TYPE>
-	void GameObject::AddComponent() {
-		BEHAVIOUR_TYPE* component = new BEHAVIOUR_TYPE(this);
-		m_behaviours.emplace_back(&component);
-		static_cast<ObjectBehaviour*>(component)->Init();
-	}
-
-	template<IsBehaviour BEHAVIOUR_TYPE, typename ... Args>
-	void GameObject::AddComponent(Args... _args) {
-		BEHAVIOUR_TYPE* component = new BEHAVIOUR_TYPE(this, std::forward<Args>(_args)...);
-		m_behaviours.emplace_back(&component);
-		static_cast<ObjectBehaviour*>(component)->Init();
-	}
+	// template<IsBehaviour BEHAVIOUR_TYPE>
+	// void GameObject::AddComponent() {
+	// 	BEHAVIOUR_TYPE* component = new BEHAVIOUR_TYPE(this);
+	// 	m_behaviours.emplace_back(&component);
+	// 	static_cast<ObjectBehaviour*>(component)->Init();
+	// }
+	//
+	// template<IsBehaviour BEHAVIOUR_TYPE, typename ... Args>
+	// void GameObject::AddComponent(Args... _args) {
+	// 	BEHAVIOUR_TYPE* component = new BEHAVIOUR_TYPE(this, std::forward<Args>(_args)...);
+	// 	m_behaviours.emplace_back(&component);
+	// 	static_cast<ObjectBehaviour*>(component)->Init();
+	// }
 
 	template<IsBehaviour BEHAVIOUR_TYPE>
 	bool GameObject::HasComponent() {

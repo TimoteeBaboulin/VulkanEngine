@@ -26,7 +26,7 @@ Moonlit::GameObject *Moonlit::GameObject::CreateAt(glm::vec3 _pos)
 {
     GameObject *newObject = Create();
 
-    ObjectBehaviour *transform = BehaviourRegistry::CreateBehaviour("TransformBehaviour", newObject);
+    ObjectBehaviour *transform = BehaviourRegistry::CreateBehaviour(newObject, "TransformBehaviour");
     if (!transform)
     {
         LOG_ERROR("GameObject CreateAt: Couldn't create TransformBehaviour for new GameObject");
@@ -173,7 +173,7 @@ void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
     for (uint32_t i = 0; i < count; ++i)
     {
         typeName = _json["behaviours"][i]["type"].get<std::string>();
-        ObjectBehaviour *component = BehaviourRegistry::CreateBehaviour(ClassNameFromTypeName(typeName.c_str()), this);
+        ObjectBehaviour *component = BehaviourRegistry::CreateBehaviour(this, typeName.c_str());
         if (component == nullptr)
         {
             LOG_ERROR("Game Object Load: Couldn't create behaviour from scene file. Can't keep loading file.");

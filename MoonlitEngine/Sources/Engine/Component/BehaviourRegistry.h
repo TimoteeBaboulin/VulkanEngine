@@ -52,39 +52,24 @@ namespace Moonlit
 		template <typename T>
 		static ObjectBehaviour* CreateBehaviour(GameObject* _parent)
 		{
-			for (auto it = Entries.begin(); it != Entries.end(); it++)
-			{
-				if (it->Name == typeid(T).name())
-				{
-					return it->CreateFunction(_parent);
-				}
-			}
-
-			LOG_ERROR("Behaviour of type " + std::string(typeid(T).name()) + " not found in registry");
-			return nullptr;
+			return CreateBehaviour(_parent, ClassNameFromTypeName(typeid(T).name()));
 		}
-		static ObjectBehaviour* CreateBehaviour(const std::string& name, GameObject* _parent)
+		static ObjectBehaviour* CreateBehaviour(GameObject* _parent, const std::type_info& _info)
+		{
+			return CreateBehaviour(_parent, ClassNameFromTypeName(_info.name()));
+		}
+		static ObjectBehaviour* CreateBehaviour(GameObject* _parent, const std::string& name)
 		{
 			for (auto it = Entries.begin(); it != Entries.end(); it++)
 			{
 				if (it->Name == name)
 				{
-					return it->CreateFunction(_parent);
+					ObjectBehaviour* behaviour = it->CreateFunction(_parent);
+					behaviour->Init();
+					return behaviour;
 				}
 			}
 			LOG_ERROR("Behaviour of type " + name + " not found in registry");
-			return nullptr;
-		}
-		static ObjectBehaviour* CreateBehaviour(const std::type_info& _info, GameObject* _parent)
-		{
-			for (auto it = Entries.begin(); it != Entries.end(); it++)
-			{
-				if (it->Name == _info.name())
-				{
-					return it->CreateFunction(_parent);
-				}
-			}
-			LOG_ERROR("Behaviour of type " + std::string(_info.name()) + " not found in registry");
 			return nullptr;
 		}
 
@@ -95,11 +80,11 @@ namespace Moonlit
 		template <typename T>
 		static void RegisterBehaviour(BehaviourCreateFunction createFunction)
 		{
-			Entries.push_back({ typeid(T).name(), createFunction });
+			RegisterBehaviour(ClassNameFromTypeName(typeid(T).name()), createFunction);
 		}
 		static void RegisterBehaviour(const std::type_info& _info, BehaviourCreateFunction createFunction)
 		{
-			Entries.push_back({ _info.name(), createFunction });
+			RegisterBehaviour(ClassNameFromTypeName(_info.name()), createFunction);
 		}
 		static void RegisterBehaviour(const std::string& name, BehaviourCreateFunction createFunction)
 		{

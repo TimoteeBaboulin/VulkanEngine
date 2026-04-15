@@ -95,8 +95,6 @@ namespace Moonlit
 		//Component accessors
 		std::vector<ObjectBehaviour*> GetAllBehaviours();
 
-		template <IsBehaviour BEHAVIOUR_TYPE>
-		void AddComponent();
 		template <IsBehaviour BEHAVIOUR_TYPE, typename... Args>
 		void AddComponent(Args... _args);
 
@@ -142,19 +140,12 @@ namespace Moonlit
 		Scene& m_scene;
 	};
 
-	// template<IsBehaviour BEHAVIOUR_TYPE>
-	// void GameObject::AddComponent() {
-	// 	BEHAVIOUR_TYPE* component = new BEHAVIOUR_TYPE(this);
-	// 	m_behaviours.emplace_back(&component);
-	// 	static_cast<ObjectBehaviour*>(component)->Init();
-	// }
-	//
-	// template<IsBehaviour BEHAVIOUR_TYPE, typename ... Args>
-	// void GameObject::AddComponent(Args... _args) {
-	// 	BEHAVIOUR_TYPE* component = new BEHAVIOUR_TYPE(this, std::forward<Args>(_args)...);
-	// 	m_behaviours.emplace_back(&component);
-	// 	static_cast<ObjectBehaviour*>(component)->Init();
-	// }
+	template<IsBehaviour BEHAVIOUR_TYPE, typename ... Args>
+	void GameObject::AddComponent(Args... _args) {
+		BEHAVIOUR_TYPE* component = new BEHAVIOUR_TYPE(this, std::forward<Args>(_args)...);
+		m_behaviours.emplace_back(&component);
+		static_cast<ObjectBehaviour*>(component)->Init();
+	}
 
 	template<IsBehaviour BEHAVIOUR_TYPE>
 	bool GameObject::HasComponent() {
@@ -176,6 +167,7 @@ namespace Moonlit
 			return typeid(*component) == typeid(BEHAVIOUR_TYPE);
 		});
 		if (it != m_behaviours.end()) {
+			delete (*it);
 			m_behaviours.erase(it);
 		}
 	}

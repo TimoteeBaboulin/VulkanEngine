@@ -164,7 +164,6 @@ void Moonlit::GameObject::SaveToFile(nlohmann::json& _json)
 
 void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
 {
-    // Expected to be called after reading the magic and id
     size_t count = _json["behaviour_count"].get<size_t>();
     m_name = _json["name"];
     m_behaviours.reserve(count);
@@ -178,10 +177,10 @@ void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
         {
             LOG_ERROR("Game Object Load: Couldn't create behaviour from scene file. Can't keep loading file.");
             throw std::invalid_argument("Couldn't create behaviour from scene file, file loading might be corrupted.");
-            return;
         }
 
         component->LoadFromFile(_json["behaviours"][i]);
+        component->Init();
     }
 }
 

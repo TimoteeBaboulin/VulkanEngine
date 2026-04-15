@@ -79,10 +79,9 @@ Moonlit::GameObject::GameObject(const GameObject &_toCopy) : m_scene(_toCopy.m_s
 
 Moonlit::GameObject::~GameObject()
 {
-    LOG_INFO("Deleting gameobject");
-
     for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)
     {
+        (*it)->Dispose();
         delete (*it);
     }
 

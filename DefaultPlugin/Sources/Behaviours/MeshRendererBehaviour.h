@@ -21,6 +21,7 @@ public:
 	void LoadFromFile(nlohmann::json &_stream) override;
 
 	void Init() override;
+	void Dispose() override;
 
 private:
 	void LookForTransformComponent();

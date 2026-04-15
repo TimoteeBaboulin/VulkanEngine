@@ -54,10 +54,6 @@ MeshRendererBehaviour::MeshRendererBehaviour(Moonlit::GameObject* _owner, Moonli
 
 MeshRendererBehaviour::~MeshRendererBehaviour()
 {
-	Moonlit::MoonlitEngine::Get().Renderer->RemoveMeshInstance(m_instanceId);
-
-	LOG_INFO("MeshRendererBehaviour destroyed.");
-
 	delete m_transformChangedSubscriber;
 }
 
@@ -96,6 +92,13 @@ void MeshRendererBehaviour::Init()
 	ObjectBehaviour::Init();
 
 	m_instanceId = Moonlit::MoonlitEngine::Get().Renderer->AddMeshInstance(*m_meshData, *m_textureHandles, m_transformComponent->GetModelMat());
+}
+
+void MeshRendererBehaviour::Dispose()
+{
+	ObjectBehaviour::Dispose();
+
+	Moonlit::MoonlitEngine::Get().Renderer->RemoveMeshInstance(m_instanceId);
 }
 
 void MeshRendererBehaviour::LookForTransformComponent()

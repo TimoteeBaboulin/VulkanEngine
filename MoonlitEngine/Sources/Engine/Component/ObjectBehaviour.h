@@ -39,17 +39,25 @@ namespace Moonlit
 		virtual void SaveToFile(nlohmann::json& _json);
 		virtual void LoadFromFile(nlohmann::json& _stream);
 
+		// Set-up methods
 		virtual void Init() {};
+		virtual void Dispose() {};
+
+		// Game Loop methods
 		virtual void OnSpawn() {};
+		virtual void OnDestroy() {};
+
 		virtual void OnEnable() {};
+		virtual void OnDisable() {};
+
 		virtual void Update(const float _deltaTime) {};
 		virtual void LateUpdate(const float _deltaTime) {};
+
 		virtual void PrePhysics() {};
 		virtual void PostPhysics() {};
+
 		virtual void PreRender() {};
 		virtual void PostRender() {};
-		virtual void OnDisable() {};
-		virtual void OnDestroy() {};
 
 		virtual void SubscribeToFunctions();
 		virtual void ParameterChanged(const ParameterBase* _parameter) {LOG_INFO("Default parameter changed");}

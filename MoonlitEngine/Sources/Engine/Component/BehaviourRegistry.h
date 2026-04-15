@@ -64,9 +64,7 @@ namespace Moonlit
 			{
 				if (it->Name == name)
 				{
-					ObjectBehaviour* behaviour = it->CreateFunction(_parent);
-					behaviour->Init();
-					return behaviour;
+					return it->CreateFunction(_parent);
 				}
 			}
 			LOG_ERROR("Behaviour of type " + name + " not found in registry");

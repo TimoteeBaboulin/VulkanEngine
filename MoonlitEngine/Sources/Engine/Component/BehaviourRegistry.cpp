@@ -1,3 +1,6 @@
 #include "Engine/Component/BehaviourRegistry.h"
 
-std::vector<Moonlit::BehaviourRegistryEntry> Moonlit::BehaviourRegistry::Entries = std::vector<Moonlit::BehaviourRegistryEntry>();
+namespace Moonlit
+{
+    std::vector<BehaviourRegistryEntry> BehaviourRegistry::Entries = std::vector<BehaviourRegistryEntry>();
+}

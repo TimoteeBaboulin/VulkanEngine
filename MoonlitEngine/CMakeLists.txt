@@ -16,10 +16,8 @@ TARGET_SOURCES(
         Sources/Debug/Profiler.cpp
         Sources/Debug/Exceptions/PluginLoadException.cpp
         Sources/Engine/Component/BehaviourBank.cpp
-        Sources/Engine/Component/BehaviourManager.cpp
         Sources/Engine/Component/BehaviourRegistry.cpp
         Sources/Engine/Component/GameObject.cpp
-        Sources/Engine/Component/GameObject.inl
         Sources/Engine/Component/ObjectBehaviour.cpp
         Sources/Engine/Component/ParameterBase.hpp
         Sources/Engine/Inputs/InputManager.cpp
@@ -56,7 +54,6 @@ TARGET_SOURCES(
         Sources/Debug/Exceptions/PluginLoadException.h
         Sources/Debug/Exceptions/MoonlitExceptions.h
         Sources/Engine/Component/BehaviourBank.h
-        Sources/Engine/Component/BehaviourManager.h
         Sources/Engine/Component/BehaviourRegistry.h
         Sources/Engine/Component/GameObject.h
         Sources/Engine/Component/ObjectBehaviour.h

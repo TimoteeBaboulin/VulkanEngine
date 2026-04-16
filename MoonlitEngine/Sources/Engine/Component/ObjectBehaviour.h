@@ -60,13 +60,14 @@ namespace Moonlit
 		virtual void PostRender() {};
 
 		virtual void SubscribeToFunctions();
-		virtual void ParameterChanged(const ParameterBase* _parameter) {LOG_INFO("Default parameter changed");}
+		virtual void ParameterChanged(const ParameterBase* _parameter) {}
 
 		/// <summary>
 		/// Attempts to set a parameter value by name
 		/// There is no type or size checking, so error handling should be done by the caller
 		/// </summary>
-		void SetParameterValue(const std::string& _name, void* _data);
+		template <typename PARAMETER_TYPE>
+		void SetParameterValue(const std::string& _name, const PARAMETER_TYPE& _data);
 		virtual std::vector<ParameterBase*> GetParameters() { return std::vector<ParameterBase*>(); };
 
 	protected:
@@ -76,4 +77,27 @@ namespace Moonlit
 
 	template <typename T>
 	concept IsBehaviour = std::derived_from<T, ObjectBehaviour>;
+}
+
+template <typename PARAMETER_TYPE>
+void Moonlit::ObjectBehaviour::SetParameterValue(const std::string& _name, const PARAMETER_TYPE& _data)
+{
+	std::vector<ParameterBase*> entries = GetParameters();
+	for (auto it = entries.begin(); it != entries.end(); it++)
+	{
+		ParameterBase* entry = (*it);
+		if (entry->Name() == _name)
+		{
+			auto parameter = dynamic_cast<Parameter<PARAMETER_TYPE>*>(entry);
+			if (!parameter)
+			{
+				LOG_WARNING("Tried to change value of Parameter " + _name + " with wrong type");
+				return;
+			}
+
+			parameter->SetValue(_data);
+			ParameterChanged(entry);
+			return;
+		}
+	}
 }

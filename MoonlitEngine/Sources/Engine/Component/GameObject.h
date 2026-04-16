@@ -72,7 +72,7 @@ namespace Moonlit
 
 		void BindToUpdate(GameEventFunction _func);
 		void AddComponent(ObjectBehaviour* _component);
-		void AddComponent(std::string _name);
+		ObjectBehaviour* AddComponent(std::string _name);
 
 		void SaveToFile(nlohmann::json& _json);
 		void LoadFromFile(nlohmann::json& _json);

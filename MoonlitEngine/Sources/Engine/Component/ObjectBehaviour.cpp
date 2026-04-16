@@ -79,19 +79,3 @@ void Moonlit::ObjectBehaviour::LoadFromFile(nlohmann::json& _stream)
 void Moonlit::ObjectBehaviour::SubscribeToFunctions()
 {
 }
-
-void Moonlit::ObjectBehaviour::SetParameterValue(const std::string& _name, void* _data)
-{
-	// std::vector<ParameterBase*> entries = GetParameters();
-	// for (auto it = entries.begin(); it != entries.end(); it++)
-	// {
-	// 	ParameterBase* entry = (*it);
-	// 	if (entry->Name() == _name)
-	// 	{
-	// 		std::memcpy(entry->Value<>(), _data, entry.Size);
-	// 		ParameterChanged(entry);
-	// 		return;
-	// 	}
-	// }
-
-}

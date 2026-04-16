@@ -25,17 +25,9 @@ Moonlit::GameObject *Moonlit::GameObject::Create()
 Moonlit::GameObject *Moonlit::GameObject::CreateAt(glm::vec3 _pos)
 {
     GameObject *newObject = Create();
+    ObjectBehaviour* transform = newObject->AddComponent("TransformBehaviour");
 
-    ObjectBehaviour *transform = BehaviourRegistry::CreateBehaviour(newObject, "TransformBehaviour");
-    if (!transform)
-    {
-        LOG_ERROR("GameObject CreateAt: Couldn't create TransformBehaviour for new GameObject");
-        delete newObject;
-        throw std::invalid_argument("Couldn't find behaviour with name TransformBehaviour");
-    }
-
-    transform->SetParameterValue("Position", &_pos);
-
+    transform->SetParameterValue<glm::vec3>("Position", _pos);
     return newObject;
 }
 
@@ -121,10 +113,11 @@ void Moonlit::GameObject::AddComponent(ObjectBehaviour* _component)
     _component->SubscribeToFunctions();
 }
 
-void Moonlit::GameObject::AddComponent(std::string _name)
+Moonlit::ObjectBehaviour* Moonlit::GameObject::AddComponent(std::string _name)
 {
     ObjectBehaviour* behaviour = BehaviourRegistry::CreateBehaviour(this, _name);
     behaviour->Init();
+    return behaviour;
 }
 
 static void WriteStringBinary(std::ofstream &s, const std::string &str)

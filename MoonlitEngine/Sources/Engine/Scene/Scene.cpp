@@ -90,6 +90,7 @@ namespace Moonlit
 		{
 			delete (*it);
 		}
+
 		m_rootGameObjects.clear();
 	}
 
@@ -121,6 +122,38 @@ namespace Moonlit
 			}
 		}
 	}
+
+	void Scene::Update(const float& _deltaTime)
+    {
+	    for (auto obj : m_rootGameObjects)
+	    {
+		    obj->Update(_deltaTime);
+	    }
+    }
+
+	void Scene::LateUpdate(const float& _deltaTime)
+    {
+	    for (auto obj : m_rootGameObjects)
+	    {
+		    obj->LateUpdate(_deltaTime);
+	    }
+    }
+
+	void Scene::PreRender()
+    {
+	    for (auto obj : m_rootGameObjects)
+	    {
+	    	obj->PreRender();
+	    }
+    }
+
+	void Scene::PostRender()
+    {
+	    for (auto obj : m_rootGameObjects)
+	    {
+		    obj->PostRender();
+	    }
+    }
 
 	GameObject* Scene::GetGameObjectById(uint64_t _id) const
 	{

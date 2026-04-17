@@ -263,6 +263,26 @@ void Moonlit::GameObject::SetEnabled(bool _enabled)
     PropagateEnable();
 }
 
+void Moonlit::GameObject::Update(const float _dt)
+{
+    PropagateToEnabledBehaviours([_dt](ObjectBehaviour* behaviour) { behaviour->Update(_dt); });
+}
+
+void Moonlit::GameObject::LateUpdate(float _dt)
+{
+    PropagateToEnabledBehaviours([_dt](ObjectBehaviour* behaviour) { behaviour->LateUpdate(_dt); });
+}
+
+void Moonlit::GameObject::PreRender()
+{
+    PropagateToEnabledBehaviours([](ObjectBehaviour* behaviour) { behaviour->PreRender(); });
+}
+
+void Moonlit::GameObject::PostRender()
+{
+    PropagateToEnabledBehaviours([](ObjectBehaviour* behaviour) { behaviour->PostRender(); });
+}
+
 void Moonlit::GameObject::PropagateEnable()
 {
     for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)

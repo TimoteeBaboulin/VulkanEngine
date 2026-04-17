@@ -43,5 +43,7 @@ namespace Moonlit
 
 		Scene* m_activeScene;
 		static MoonlitEngine* m_instance;
+
+		bool m_isPlaying = false;
 	};
 }

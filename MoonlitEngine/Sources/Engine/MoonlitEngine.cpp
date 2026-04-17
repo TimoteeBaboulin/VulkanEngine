@@ -62,8 +62,31 @@ void Moonlit::MoonlitEngine::Init()
 }
 void Moonlit::MoonlitEngine::Update()
 {
-	// Update the renderer
-	Renderer->Render();
+	static std::chrono::steady_clock::time_point lastFrameTime = std::chrono::steady_clock::now();
+
+	auto now = std::chrono::steady_clock::now();
+	float dt = std::chrono::duration<float>(now - lastFrameTime).count();
+	lastFrameTime = now;
+
+	// Start wth simulation
+	if (m_isPlaying)
+	{
+		m_activeScene->Update(dt);
+		m_activeScene->LateUpdate(dt);
+	}
+
+
+	// Then render
+	if (m_isPlaying)
+	{
+		m_activeScene->PreRender();
+		Renderer->Render();
+		m_activeScene->PostRender();
+	}
+	else
+	{
+		Renderer->Render();
+	}
 }
 
 void Moonlit::MoonlitEngine::LoadScene(const std::string& _path)

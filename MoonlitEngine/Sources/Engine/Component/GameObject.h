@@ -131,6 +131,12 @@ namespace Moonlit
 		void SetEnabled(bool _enabled);
 		bool Enabled() const { return m_enabled;}
 
+		void Update(float _dt);
+		void LateUpdate(float _dt);
+
+		void PreRender();
+		void PostRender();
+
 	protected:
 		GameObjectId m_id;
 		std::string m_name;
@@ -146,6 +152,8 @@ namespace Moonlit
 		Scene& m_scene;
 
 		void PropagateEnable();
+		template <typename FUNC>
+		void PropagateToEnabledBehaviours(FUNC&& _func);
 	};
 
 	template<IsBehaviour BEHAVIOUR_TYPE>
@@ -191,5 +199,22 @@ namespace Moonlit
 		}
 
 		return foundComponent;
+	}
+
+	template<typename FUNC>
+	void GameObject::PropagateToEnabledBehaviours(FUNC&& _func)
+	{
+		if (!m_enabled)
+		{
+			return;
+		}
+
+		for (auto behaviour : m_behaviours)
+		{
+			if (behaviour->Enabled())
+			{
+				_func(behaviour);
+			}
+		}
 	}
 }

@@ -127,6 +127,10 @@ namespace Moonlit
 			}
 			return foundComponent;
 		}
+
+		void SetEnabled(bool _enabled);
+		bool Enabled() const { return m_enabled;}
+
 	protected:
 		GameObjectId m_id;
 		std::string m_name;
@@ -137,8 +141,11 @@ namespace Moonlit
 		std::vector<GameObject*> m_children;
 		std::vector<ObjectBehaviour*> m_behaviours;
 		GameObject* m_parent = nullptr;
+		bool m_enabled;
 
 		Scene& m_scene;
+
+		void PropagateEnable();
 	};
 
 	template<IsBehaviour BEHAVIOUR_TYPE>

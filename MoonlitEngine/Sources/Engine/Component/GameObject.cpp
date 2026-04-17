@@ -251,3 +251,34 @@ bool Moonlit::GameObject::TryGetBehaviourOfType(ObjectBehaviour *&_component, co
     }
     return foundComponent;
 }
+
+void Moonlit::GameObject::SetEnabled(bool _enabled)
+{
+    if (_enabled == m_enabled)
+    {
+        return;
+    }
+
+    m_enabled = _enabled;
+    PropagateEnable();
+}
+
+void Moonlit::GameObject::PropagateEnable()
+{
+    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)
+    {
+        if (!(*it)->Enabled())
+        {
+            continue;
+        }
+
+        if (m_enabled)
+        {
+            (*it)->OnEnable();
+        }
+        else
+        {
+            (*it)->OnDisable();
+        }
+    }
+}

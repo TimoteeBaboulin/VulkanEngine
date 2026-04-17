@@ -79,3 +79,27 @@ void Moonlit::ObjectBehaviour::LoadFromFile(nlohmann::json& _stream)
 void Moonlit::ObjectBehaviour::SubscribeToFunctions()
 {
 }
+
+void Moonlit::ObjectBehaviour::SetEnabled(bool _enabled)
+{
+	if (m_enabled == _enabled)
+	{
+		return;
+	}
+
+	m_enabled = _enabled;
+
+	if (!m_owner->Enabled())
+	{
+		return;
+	}
+
+	if (m_enabled)
+	{
+		OnEnable();
+	}
+	else
+	{
+		OnDisable();
+	}
+}

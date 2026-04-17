@@ -69,10 +69,13 @@ namespace Moonlit
 		template <typename PARAMETER_TYPE>
 		void SetParameterValue(const std::string& _name, const PARAMETER_TYPE& _data);
 		virtual std::vector<ParameterBase*> GetParameters() { return std::vector<ParameterBase*>(); };
+		void SetEnabled(bool _enabled);
+		bool Enabled() const { return m_enabled; };
 
 	protected:
 		GameObject* m_owner;
 		std::vector<ParameterBase*> m_parameters;
+		bool m_enabled;
 	};
 
 	template <typename T>

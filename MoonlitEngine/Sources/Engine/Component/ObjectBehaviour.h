@@ -75,7 +75,7 @@ namespace Moonlit
 	protected:
 		GameObject* m_owner;
 		std::vector<ParameterBase*> m_parameters;
-		bool m_enabled;
+		bool m_enabled = true;
 	};
 
 	template <typename T>

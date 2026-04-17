@@ -141,7 +141,7 @@ namespace Moonlit
 		std::vector<GameObject*> m_children;
 		std::vector<ObjectBehaviour*> m_behaviours;
 		GameObject* m_parent = nullptr;
-		bool m_enabled;
+		bool m_enabled = true;
 
 		Scene& m_scene;
 

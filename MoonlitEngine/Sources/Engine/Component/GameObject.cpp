@@ -71,8 +71,12 @@ Moonlit::GameObject::GameObject(const GameObject &_toCopy) : m_scene(_toCopy.m_s
 
 Moonlit::GameObject::~GameObject()
 {
+    bool isPlaying = MoonlitEngine::Get().IsPlaying();
     for (auto it = m_behaviours.begin(); it != m_behaviours.end(); it++)
     {
+        if (isPlaying) {
+            (*it)->OnDestroy();
+        }
         (*it)->Dispose();
         delete (*it);
     }
@@ -117,6 +121,11 @@ Moonlit::ObjectBehaviour* Moonlit::GameObject::AddComponent(std::string _name)
 {
     ObjectBehaviour* behaviour = BehaviourRegistry::CreateBehaviour(this, _name);
     behaviour->Init();
+    if (MoonlitEngine::Get().IsPlaying())
+    {
+        behaviour->OnSpawn();
+    }
+
     return behaviour;
 }
 
@@ -167,6 +176,8 @@ void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
     m_behaviours.reserve(count);
 
     std::string typeName;
+    bool isPlaying = MoonlitEngine::Get().IsPlaying();
+
     for (uint32_t i = 0; i < count; ++i)
     {
         typeName = _json["behaviours"][i]["type"].get<std::string>();
@@ -179,6 +190,10 @@ void Moonlit::GameObject::LoadFromFile(nlohmann::json& _json)
 
         component->LoadFromFile(_json["behaviours"][i]);
         component->Init();
+        if (isPlaying)
+        {
+            component->OnSpawn();
+        }
     }
 }
 

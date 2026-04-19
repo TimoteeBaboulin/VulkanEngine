@@ -13,6 +13,7 @@
 
 #include "MoonlitExport.h"
 #include "ObjectBehaviour.h"
+#include "Engine/MoonlitEngine.h"
 
 using GameEventFunction = std::function<void(void)>;
 
@@ -177,7 +178,12 @@ namespace Moonlit
 		});
 
 		if (it != m_behaviours.end()) {
+			if (MoonlitEngine::Get().IsPlaying())
+			{
+				(*it)->OnDestroy();
+			}
 			(*it)->Dispose();
+
 			delete (*it);
 			m_behaviours.erase(it);
 		}

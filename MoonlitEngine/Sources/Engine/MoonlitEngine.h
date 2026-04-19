@@ -39,6 +39,7 @@ namespace Moonlit
 		void LoadScene(const std::string& _path);
 
 		Scene& GetScene() const { return *m_activeScene; }
+		bool IsPlaying() const { return m_isPlaying; }
 	private:
 
 		Scene* m_activeScene;

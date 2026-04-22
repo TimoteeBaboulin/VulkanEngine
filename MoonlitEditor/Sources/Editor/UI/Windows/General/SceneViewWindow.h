@@ -2,7 +2,7 @@
 
 #include "../EditorWindowBase.h"
 #include "Engine/Renderer/Camera.h"
-#include "../../Controllers/SceneViewController.h"
+#include "../../../Core/SceneView/SceneViewController.h"
 #include "../IDockManager.h"
 
 namespace Moonlit

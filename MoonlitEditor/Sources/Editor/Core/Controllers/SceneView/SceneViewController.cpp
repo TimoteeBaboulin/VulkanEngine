@@ -1,12 +1,7 @@
 #include "SceneViewController.h"
-#include "Debug/Logger.h"
-
-#include <string>
 
 void SceneViewInputHandler::HandleMouseMoveInput(float _deltaX, float _deltaY)
 {
-	//DEBUG: Disable mouse movement handling for now
-
 	if (!m_mouseHeld)
 		return;
 

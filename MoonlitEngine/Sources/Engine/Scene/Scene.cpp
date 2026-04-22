@@ -18,7 +18,12 @@ namespace Moonlit
 	{
 	}
 
-	Scene::~Scene()
+    Scene::Scene(std::string _savePath)
+    {
+	    Load(_savePath);
+    }
+
+    Scene::~Scene()
 	{
 		for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
 		{
@@ -51,6 +56,11 @@ namespace Moonlit
 
 		fileStream << json.dump(4);
 
+    	if (m_savePath.compare(""))
+    	{
+    		m_savePath = _filePath;
+    	}
+
 		fileStream.close();
 	}
 
@@ -80,6 +90,8 @@ namespace Moonlit
     		m_rootGameObjects.emplace_back(new GameObject(id, *this));
     		m_rootGameObjects[i]->LoadFromFile(root);
     	}
+
+    	m_savePath = _filePath;
 
 		fileStream.close();
 	}

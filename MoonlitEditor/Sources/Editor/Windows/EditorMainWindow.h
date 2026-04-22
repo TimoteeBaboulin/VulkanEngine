@@ -17,11 +17,15 @@ private:
 	void SetupConnections();
 	void SetupUI();
 
+	void PlayMode();
+
 	static EditorMainWindow* m_instance;
 
 	size_t m_width, m_height;
 
 	QMenuBar* m_menuBar;
+	QToolBar* m_toolBar;
+	QAction* m_playModeButton;
 	QMenu* m_profilerMenu;
 	QAction* m_openProfilerAction;
 };

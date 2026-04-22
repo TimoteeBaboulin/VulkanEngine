@@ -1,7 +1,11 @@
 #include "EditorMainWindow.h"
+
+#include <QToolBar>
+
 #include "Debug/ProfilerWindow.h"
 
 #include "Debug/Logger.h"
+#include "Engine/MoonlitEngine.h"
 
 EditorMainWindow* EditorMainWindow::m_instance = nullptr;
 
@@ -56,7 +60,39 @@ void EditorMainWindow::SetupUI()
     m_profilerMenu = new QMenu("Profiler", this);
     m_menuBar->addMenu(m_profilerMenu);
 
+    m_toolBar = new QToolBar(this);
+    addToolBar(m_toolBar);
+
+    QWidget* leftSpacer = new QWidget();
+    leftSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_toolBar->addWidget(leftSpacer);
+
+    m_playModeButton = m_toolBar->addAction("Play Mode", this, [this]() {
+        PlayMode();
+    });
+
+    QWidget* rightSpacer = new QWidget();
+    rightSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_toolBar->addWidget(rightSpacer);
+
 	m_openProfilerAction = m_profilerMenu->addAction("Open Profiler");
 
     showMaximized();
+}
+
+void EditorMainWindow::PlayMode()
+{
+    Moonlit::MoonlitEngine& engine = Moonlit::MoonlitEngine::Get();
+    bool isPlaying = engine.IsPlaying();
+
+    engine.ReloadScene();
+    if (isPlaying)
+    {
+
+    }
+    else
+    {
+
+    }
+    engine.SetIsPlaying(!isPlaying);
 }

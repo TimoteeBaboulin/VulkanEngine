@@ -5,8 +5,10 @@
 class TestBehaviour : public Moonlit::ObjectBehaviour
 {
 public:
+	TestBehaviour(Moonlit::GameObject* _owner);
+
 	void SubscribeToFunctions() override;
 
 protected:
-	void Update();
+	void Update(float _dt) override;
 };

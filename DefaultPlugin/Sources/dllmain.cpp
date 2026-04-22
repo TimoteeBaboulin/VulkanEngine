@@ -8,6 +8,9 @@
 
 #include <string>
 
+#include "Behaviours/TestBehaviour.h"
+#include "Engine/Component/GameObject.h"
+
 #define REGISTER_BEHAVIOUR(behaviour, func) \
     entries.push_back(Moonlit::BehaviourRegistryEntry{ Moonlit::ClassNameFromTypeName(typeid(behaviour).name()), func });
 
@@ -37,6 +40,11 @@ Moonlit::ObjectBehaviour* CreateTransform(Moonlit::GameObject* _owner)
     return new TransformBehaviour(_owner);
 }
 
+Moonlit::ObjectBehaviour* CreateTestBehaviour(Moonlit::GameObject* _owner)
+{
+    return new TestBehaviour(_owner);
+}
+
 extern "C" __declspec(dllexport) Moonlit::ModuleMetadata GetMetadata() {
     Moonlit::ModuleMetadata metadata;
     metadata.Name = "Default Plugin";
@@ -50,10 +58,11 @@ extern "C" __declspec(dllexport) Moonlit::ModuleBehaviourRegistry GetRegistry()
 {
     Moonlit::ModuleBehaviourRegistry registry;
     registry.PluginName = "Default Plugin";
-    registry.EntryCount = 2;
+    registry.EntryCount = 3;
     registry.Entries = new Moonlit::BehaviourRegistryEntry[registry.EntryCount];
     registry.Entries[0] = { Moonlit::ClassNameFromTypeName(typeid(MeshRendererBehaviour).name()), CreateMeshRenderer };
     registry.Entries[1] = { Moonlit::ClassNameFromTypeName(typeid(TransformBehaviour).name()), CreateTransform };
+    registry.Entries[2] = { Moonlit::ClassNameFromTypeName(typeid(TestBehaviour).name()), CreateTestBehaviour };
 
 	return registry;
 }

@@ -71,6 +71,7 @@ void Moonlit::MoonlitEngine::Update()
 	// Start wth simulation
 	if (m_isPlaying)
 	{
+		LOG_INFO("Simulating frame");
 		m_activeScene->Update(dt);
 		m_activeScene->LateUpdate(dt);
 	}
@@ -92,11 +93,34 @@ void Moonlit::MoonlitEngine::LoadScene(const std::string& _path)
 {
 	if (m_activeScene)
 	{
-		OnSceneUnloaded(this, m_activeScene);
-		delete m_activeScene;
+		UnloadScene();
 	}
 
-	m_activeScene = new Scene();
-	m_activeScene->Load(_path);
+	m_activeScene = new Scene(_path);
 	OnSceneLoaded(this, m_activeScene);
+}
+
+void Moonlit::MoonlitEngine::ReloadScene()
+{
+	if (!m_activeScene)
+	{
+		LOG_ERROR("MoonlitEngine ReloadScene: Failed to reload scene");
+		return;
+	}
+
+	std::string path = m_activeScene->GetSavePath();
+	if (path.empty())
+	{
+		LOG_ERROR("MoonlitEngine ReloadScene: Can't reload scene because scene isn't saved");
+		return;
+	}
+
+	LoadScene(path);
+}
+
+void Moonlit::MoonlitEngine::UnloadScene()
+{
+	OnSceneUnloaded(this, m_activeScene);
+	delete m_activeScene;
+	m_activeScene = nullptr;
 }

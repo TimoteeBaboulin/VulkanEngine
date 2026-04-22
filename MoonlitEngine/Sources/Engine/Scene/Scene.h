@@ -15,6 +15,7 @@ namespace Moonlit
 	{
 	public:
 		Scene();
+		Scene(std::string _savePath);
 		~Scene();
 
 		void Save(const std::string& _filePath);
@@ -31,11 +32,14 @@ namespace Moonlit
 		void PreRender();
 		void PostRender();
 
+		std::string GetSavePath() const {return m_savePath;}
+
 		GameObject* GetGameObjectById(uint64_t _id) const;
 		GameObject* GetGameObjectByName(const std::string& _name) const;
 
 		std::vector<class GameObject*> GetRootGameObjects() const { return m_rootGameObjects; }
 	private:
 		std::vector<class GameObject*> m_rootGameObjects;
+		std::string m_savePath;
 	};
 }

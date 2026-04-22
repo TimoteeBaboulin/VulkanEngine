@@ -37,6 +37,8 @@ namespace Moonlit
 		void Update();
 
 		void LoadScene(const std::string& _path);
+		void ReloadScene();
+		void UnloadScene();
 
 		Scene& GetScene() const { return *m_activeScene; }
 		bool IsPlaying() const { return m_isPlaying; }

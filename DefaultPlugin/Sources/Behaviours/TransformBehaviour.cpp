@@ -50,6 +50,25 @@ void TransformBehaviour::SetPosition(glm::vec3 _position)
 	OnTransformChanged(this);
 }
 
+void TransformBehaviour::Translate(glm::vec3 _translation)
+{
+	*m_position += _translation;
+	m_isDirty;
+
+	LOG_INFO("New position is {" + std::to_string((*m_position).x) + "," + std::to_string((*m_position).y) + ","
+		+ std::to_string((*m_position).z) + "}");
+
+	OnTransformChanged(this);
+}
+
+void TransformBehaviour::Rotate(glm::vec3 _rotation)
+{
+	rotate((*m_rotation), _rotation);
+
+	m_isDirty = true;
+	OnTransformChanged(this);
+}
+
 glm::mat4 TransformBehaviour::GetModelMat()
 {
 	if (m_isDirty)

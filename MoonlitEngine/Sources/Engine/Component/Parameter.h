@@ -18,7 +18,7 @@ public:
         m_value = _value;
         return *this;
     }
-    PARAMETER_TYPE operator*()
+    PARAMETER_TYPE& operator*()
     {
         return m_value;
     }

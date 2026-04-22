@@ -9,27 +9,25 @@
 #include "TransformBehaviour.h"
 
 
-void TestBehaviour::SubscribeToFunctions()
+TestBehaviour::TestBehaviour(Moonlit::GameObject *_owner)
+	: ObjectBehaviour(_owner)
 {
-	m_owner->BindToUpdate(std::bind(&TestBehaviour::Update, this));
+
 }
 
-void TestBehaviour::Update()
+void TestBehaviour::SubscribeToFunctions()
 {
-	std::vector<ObjectBehaviour*> transforms;
+}
 
-	if (m_owner->TryGetBehavioursOfType(transforms, typeid(TransformBehaviour)))
+void TestBehaviour::Update(float _dt)
+{
+	ObjectBehaviour* behaviourPtr = nullptr;
+
+	if (m_owner->TryGetBehaviourOfType(behaviourPtr, typeid(TransformBehaviour)))
 	{
-		std::string logMessage = "ObjectTest found " + std::to_string(transforms.size()) + " transforms.";
-		Moonlit::Debug::Logger::LogInfo(logMessage.c_str());
-
-		for (auto it = transforms.begin(); it != transforms.end(); it++)
-		{
-			TransformBehaviour* transformPtr = dynamic_cast<TransformBehaviour*>((*it));
-			if (transformPtr == nullptr)
-			{
-				Moonlit::Debug::Logger::LogError("Incorrect type received, could not cast to transform type");
-			}
-		}
+		TransformBehaviour& transform = *static_cast<TransformBehaviour*>(behaviourPtr);
+		transform.Rotate({0, 0, 360 * _dt});
+		transform.Translate({0, 0, 0.5f});
+		LOG_INFO("Rotating");
 	}
 }

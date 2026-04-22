@@ -28,7 +28,9 @@ public:
 
 	//Setters
 	void SetPosition(glm::vec3 _position);
-	
+	void Translate(glm::vec3 _translation);
+	void Rotate(glm::vec3 _rotation);
+
 	// Getters
 	glm::vec3 GetPosition() const { return m_position.Value(); }
 	glm::mat4 GetModelMat();

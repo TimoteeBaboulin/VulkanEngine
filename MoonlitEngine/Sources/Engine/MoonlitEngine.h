@@ -40,6 +40,8 @@ namespace Moonlit
 
 		Scene& GetScene() const { return *m_activeScene; }
 		bool IsPlaying() const { return m_isPlaying; }
+
+		void SetIsPlaying(bool isPlaying) { m_isPlaying = isPlaying; }
 	private:
 
 		Scene* m_activeScene;

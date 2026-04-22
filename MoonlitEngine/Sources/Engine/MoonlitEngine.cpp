@@ -75,7 +75,6 @@ void Moonlit::MoonlitEngine::Update()
 		m_activeScene->LateUpdate(dt);
 	}
 
-
 	// Then render
 	if (m_isPlaying)
 	{

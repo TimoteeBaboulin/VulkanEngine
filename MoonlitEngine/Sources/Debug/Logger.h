@@ -9,6 +9,7 @@
 #include "../MoonlitExport.h"
 
 #include <string>
+#include <mutex>
 
 namespace Moonlit::Debug
 {
@@ -46,5 +47,7 @@ namespace Moonlit::Debug
 
 	private:
 		static LoggerBase* m_loggerInstance;
+
+		inline static std::mutex m_mutex;
 	};
 }

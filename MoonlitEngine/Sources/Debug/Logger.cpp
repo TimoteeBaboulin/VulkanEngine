@@ -14,6 +14,7 @@ void Moonlit::Debug::Logger::LogMessage(const DebugMessage& debugMessage)
 	}
 	
 #ifdef _DEBUG
+	std::unique_lock<std::mutex> lock(m_mutex);
 	HANDLE _consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	switch (debugMessage.Type)

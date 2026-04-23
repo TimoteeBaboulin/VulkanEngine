@@ -15,7 +15,7 @@ namespace Moonlit::Tasks
         m_threadCount = calculateThreadCount();
         generateThreads();
 
-        LOG_INFO("Initialising main worker manager");
+        LOG_INFO("Initialising main worker manager with " + std::to_string(m_threadCount) + " threads");
     }
 
     WorkerManager::WorkerManager(WorkerManager *_parent, int _threadCount)
@@ -33,16 +33,18 @@ namespace Moonlit::Tasks
         }
     }
 
+    ResultType WorkerManager::tryAcquire(int count, std::vector<std::thread> &_outThreads, float _timeOut) {
+        return ResultType::IMPOSSIBLE_REQUEST;
+    }
+
     TASK_FUNC WorkerManager::acquireTask()
     {
         TASK_FUNC task = nullptr;
+
+        if (!m_tasks.empty())
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            if (!m_tasks.empty())
-            {
-                task = m_tasks.front();
-                m_tasks.pop_front();
-            }
+            task = m_tasks.front();
+            m_tasks.pop_front();
         }
 
         return task;
@@ -54,6 +56,8 @@ namespace Moonlit::Tasks
         {
             m_tasks.push_back(_task);
         }
+
+        m_cv.notify_one();
     }
 
     void WorkerManager::addTasks(std::vector<TASK_FUNC>& _tasks)
@@ -65,6 +69,9 @@ namespace Moonlit::Tasks
                 m_tasks.push_back(task);
             }
         }
+
+        LOG_INFO("Added " + std::to_string(_tasks.size()) + " tasks to worker manager");
+        m_cv.notify_all();
     }
 
     int WorkerManager::calculateThreadCount()
@@ -140,9 +147,10 @@ namespace Moonlit::Tasks
                 task = manager.acquireTask();
             }
 
-            LOG_INFO("Running a task");
             if (task)
             {
+                LOG_INFO("Running a task");
+
                 task();
             }
         }

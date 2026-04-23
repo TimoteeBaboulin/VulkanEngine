@@ -3,6 +3,7 @@
 #include <deque>
 #include <thread>
 #include <vector>
+#include <functional>
 
 constexpr int OS_THREAD_WORKER_HEADSPACE = 3;
 constexpr int MIN_WORKER_THREADS = 4;
@@ -16,7 +17,7 @@ namespace Moonlit::Tasks
         IMPOSSIBLE_REQUEST = 2
     };
 
-    using TASK_FUNC = void(*)();
+    using TASK_FUNC = std::function<void()>;
 
     class WorkerManager;
     class Pipeline;
@@ -29,7 +30,7 @@ namespace Moonlit::Tasks
         WorkerManager();
         WorkerManager(WorkerManager* _parent, int _threadCount);
 
-        // ResultType tryAcquire(int count, std::vector<std::thread>& _outThreads, float _timeOut);
+        ResultType tryAcquire(int count, std::vector<std::thread>& _outThreads, float _timeOut);
         // release(int count, std::vector<std::thread>& _threads);
         // release(WorkerManager* _manager);
         //
@@ -56,7 +57,7 @@ namespace Moonlit::Tasks
         friend void threadLoop(WorkerManager* _main, WorkerManager* _parent, WorkerManager* _current);
     };
 
-    thread_local WorkerManager* MainWorkerManager = nullptr;
-    thread_local WorkerManager* CurrentWorkerManager = nullptr;
-    thread_local WorkerManager* ParentWorkerManager = nullptr;
+    inline thread_local WorkerManager* MainWorkerManager = nullptr;
+    inline thread_local WorkerManager* CurrentWorkerManager = nullptr;
+    inline thread_local WorkerManager* ParentWorkerManager = nullptr;
 }

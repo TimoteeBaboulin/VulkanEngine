@@ -7,9 +7,7 @@
 
 #include "Debug/Logger.h"
 #include "Debug/Profiler.h"
-#include "Engine/Component/BehaviourRegistry.h"
-
-#include "Debug/Exceptions/MoonlitExceptions.h"
+#include "Engine/Tasks/WorkerManager.h"
 #include "Engine/Modules/ModuleManager.h"
 
 #include <filesystem>
@@ -66,10 +64,16 @@ void Moonlit::MoonlitEngine::Init()
 		return;
 	}
 
+	Tasks::WorkerManager* manager = new Tasks::WorkerManager();
+
 	std::vector<Tasks::TASK_FUNC> tasks;
-	for (int i = 0; i < tasks.size(); i++)
+	for (int i = 0; i < 10; i++)
 	{
-		tasks.push_back(&SendData);
+		tasks.push_back([i]() {
+			LOG_INFO("Task " + std::to_string(i) + " is running");
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			LOG_INFO("Task " + std::to_string(i) + " is done");
+		});
 	}
 
 	Tasks::CurrentWorkerManager->addTasks(tasks);

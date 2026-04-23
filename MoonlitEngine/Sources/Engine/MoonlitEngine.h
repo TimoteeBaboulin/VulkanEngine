@@ -5,6 +5,7 @@
 #include "Events/Event.h"
 #include "Renderer/Camera.h"
 #include "Scene/Scene.h"
+#include "Tasks/WorkerManager.h"
 
 namespace Moonlit
 {
@@ -50,5 +51,7 @@ namespace Moonlit
 		static MoonlitEngine* m_instance;
 
 		bool m_isPlaying = false;
+
+		Tasks::WorkerManager* m_mainWorkerManager = new Tasks::WorkerManager();
 	};
 }

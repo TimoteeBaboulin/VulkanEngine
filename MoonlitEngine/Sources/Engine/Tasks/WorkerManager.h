@@ -1,0 +1,62 @@
+#pragma once
+#include <condition_variable>
+#include <deque>
+#include <thread>
+#include <vector>
+
+constexpr int OS_THREAD_WORKER_HEADSPACE = 3;
+constexpr int MIN_WORKER_THREADS = 4;
+constexpr float MAX_WAIT_THRESHOLD = 60; // In seconds
+
+namespace Moonlit::Tasks
+{
+    enum ResultType {
+        SUCCESS = 0,
+        TIMEOUT = 1,
+        IMPOSSIBLE_REQUEST = 2
+    };
+
+    using TASK_FUNC = void(*)();
+
+    class WorkerManager;
+    class Pipeline;
+
+    void threadLoop(WorkerManager* _main, WorkerManager* _parent, WorkerManager* _current);
+
+    class WorkerManager
+    {
+    public:
+        WorkerManager();
+        WorkerManager(WorkerManager* _parent, int _threadCount);
+
+        // ResultType tryAcquire(int count, std::vector<std::thread>& _outThreads, float _timeOut);
+        // release(int count, std::vector<std::thread>& _threads);
+        // release(WorkerManager* _manager);
+        //
+        // ResultType createPipeline(int _threadCount);
+
+        bool IsShuttingDown() const {return m_isShuttingDown;}
+        TASK_FUNC acquireTask();
+        void addTask(TASK_FUNC _task);
+        void addTasks(std::vector<TASK_FUNC>& _tasks);
+
+    protected:
+        int m_threadCount = 0;
+        std::vector<std::thread> m_threads;
+        std::deque<TASK_FUNC> m_tasks;
+
+        std::condition_variable m_cv;
+        std::mutex m_mutex;
+
+        bool m_isShuttingDown = false;
+
+        int calculateThreadCount();
+        void generateThreads();
+
+        friend void threadLoop(WorkerManager* _main, WorkerManager* _parent, WorkerManager* _current);
+    };
+
+    thread_local WorkerManager* MainWorkerManager = nullptr;
+    thread_local WorkerManager* CurrentWorkerManager = nullptr;
+    thread_local WorkerManager* ParentWorkerManager = nullptr;
+}

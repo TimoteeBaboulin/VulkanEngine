@@ -13,6 +13,7 @@
 #include "Engine/Modules/ModuleManager.h"
 
 #include <filesystem>
+#include <iostream>
 
 #include "Scene/SceneManager.h"
 
@@ -47,6 +48,11 @@ void Moonlit::MoonlitEngine::LoadModule(std::string _name)
 	ModuleManager::Get().LoadModule(modulePath);
 }
 
+void SendData()
+{
+	std::cout << "MoonlitEngine Init: Sending data" << std::endl;
+}
+
 void Moonlit::MoonlitEngine::Init()
 {
 	ResourceManagement::ResourceManager::Get();
@@ -59,7 +65,16 @@ void Moonlit::MoonlitEngine::Init()
 		LOG_ERROR("MoonlitEngine Init: Failed to create active scene");
 		return;
 	}
+
+	std::vector<Tasks::TASK_FUNC> tasks;
+	for (int i = 0; i < tasks.size(); i++)
+	{
+		tasks.push_back(&SendData);
+	}
+
+	Tasks::CurrentWorkerManager->addTasks(tasks);
 }
+
 void Moonlit::MoonlitEngine::Update()
 {
 	static std::chrono::steady_clock::time_point lastFrameTime = std::chrono::steady_clock::now();

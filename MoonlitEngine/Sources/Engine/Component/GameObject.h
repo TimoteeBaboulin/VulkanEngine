@@ -138,6 +138,9 @@ namespace Moonlit
 		void PreRender();
 		void PostRender();
 
+		template <typename FUNC>
+		void PropagateToEnabledBehaviours(FUNC&& _func);
+
 	protected:
 		GameObjectId m_id;
 		std::string m_name;
@@ -153,8 +156,6 @@ namespace Moonlit
 		Scene& m_scene;
 
 		void PropagateEnable();
-		template <typename FUNC>
-		void PropagateToEnabledBehaviours(FUNC&& _func);
 	};
 
 	template<IsBehaviour BEHAVIOUR_TYPE>

@@ -71,7 +71,6 @@ void Moonlit::MoonlitEngine::Update()
 	// Start wth simulation
 	if (m_isPlaying)
 	{
-		LOG_INFO("Simulating frame");
 		m_activeScene->Update(dt);
 		m_activeScene->LateUpdate(dt);
 	}

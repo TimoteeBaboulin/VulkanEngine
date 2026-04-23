@@ -86,13 +86,10 @@ void EditorMainWindow::PlayMode()
     bool isPlaying = engine.IsPlaying();
 
     engine.ReloadScene();
-    if (isPlaying)
-    {
-
-    }
-    else
-    {
-
-    }
     engine.SetIsPlaying(!isPlaying);
+
+    if (engine.IsPlaying())
+    {
+        engine.GetScene().Start();
+    }
 }

@@ -26,6 +26,8 @@ namespace Moonlit
 		void AddGameObject(class GameObject* _gameObject, class GameObject* _parent = nullptr);
 		void RemoveGameObject(class GameObject* _gameObject);
 
+		void Start();
+
 		void Update(const float& _deltaTime);
 		void LateUpdate(const float& _deltaTime);
 

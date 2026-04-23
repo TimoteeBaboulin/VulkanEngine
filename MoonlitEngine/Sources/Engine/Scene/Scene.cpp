@@ -56,7 +56,7 @@ namespace Moonlit
 
 		fileStream << json.dump(4);
 
-    	if (m_savePath.compare(""))
+    	if (!m_savePath.compare(""))
     	{
     		m_savePath = _filePath;
     	}
@@ -134,6 +134,16 @@ namespace Moonlit
 			}
 		}
 	}
+
+	void Scene::Start()
+    {
+	    for (auto obj : m_rootGameObjects)
+	    {
+		    obj->PropagateToEnabledBehaviours([](ObjectBehaviour* _behaviour){
+			    _behaviour->OnSpawn();
+		    });
+	    }
+    }
 
 	void Scene::Update(const float& _deltaTime)
     {

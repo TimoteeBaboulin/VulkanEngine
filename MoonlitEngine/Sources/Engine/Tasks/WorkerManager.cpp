@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "Debug/Logger.h"
+#include "Task.h"
 
 namespace Moonlit::Tasks
 {
@@ -37,14 +38,17 @@ namespace Moonlit::Tasks
         return ResultType::IMPOSSIBLE_REQUEST;
     }
 
-    TASK_FUNC WorkerManager::acquireTask()
+    std::shared_ptr<Task> WorkerManager::acquireTask()
     {
-        TASK_FUNC task = nullptr;
+        std::shared_ptr<Task> task = nullptr;
 
-        if (!m_tasks.empty())
+        auto it = std::find_if(m_tasks.begin(), m_tasks.end(), [](auto& t) {
+            return t->canRun();
+        });
+        if (it != m_tasks.end())
         {
-            task = m_tasks.front();
-            m_tasks.pop_front();
+            task = (*it);
+            m_tasks.erase(it);
         }
 
         return task;
@@ -54,7 +58,17 @@ namespace Moonlit::Tasks
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         {
-            m_tasks.push_back(_task);
+            m_tasks.emplace_back(std::make_shared<Task>(_task));
+        }
+
+        m_cv.notify_one();
+    }
+
+    void WorkerManager::addTask(std::shared_ptr<Task> _task)
+    {
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_tasks.emplace_back(_task);
         }
 
         m_cv.notify_one();
@@ -62,15 +76,27 @@ namespace Moonlit::Tasks
 
     void WorkerManager::addTasks(std::vector<TASK_FUNC>& _tasks)
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
         {
-            for (auto task : _tasks)
+            std::unique_lock<std::mutex> lock(m_mutex);
+
+            for (auto& task : _tasks)
             {
-                m_tasks.push_back(task);
+                std::shared_ptr<Task> newTask = std::make_shared<Task>(task);
+                m_tasks.emplace_back(newTask);
             }
         }
 
-        LOG_INFO("Added " + std::to_string(_tasks.size()) + " tasks to worker manager");
+        m_cv.notify_all();
+    }
+
+    void WorkerManager::addTasks(std::vector<std::shared_ptr<Task>> _tasks)
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        for (auto& task : _tasks)
+        {
+            m_tasks.emplace_back(task);
+        }
+
         m_cv.notify_all();
     }
 
@@ -125,7 +151,6 @@ namespace Moonlit::Tasks
         CurrentWorkerManager = _current;
 
         WorkerManager& manager = *_current;
-        TASK_FUNC task;
 
         auto checkFunc = [&]() {
             return manager.IsShuttingDown() || !manager.m_tasks.empty();
@@ -133,7 +158,7 @@ namespace Moonlit::Tasks
 
         while (true)
         {
-            task = nullptr;
+            std::shared_ptr<Task> task = nullptr;
 
             {
                 std::unique_lock<std::mutex> lock(manager.m_mutex);
@@ -149,9 +174,15 @@ namespace Moonlit::Tasks
 
             if (task)
             {
-                LOG_INFO("Running a task");
-
-                task();
+                if (task->canRun())
+                {
+                    LOG_INFO("Running a task");
+                    task->run();
+                }
+                else
+                {
+                    manager.addTask(task);
+                }
             }
         }
     }

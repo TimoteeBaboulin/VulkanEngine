@@ -5,6 +5,8 @@
 #include <vector>
 #include <functional>
 
+#include "Task.h"
+
 constexpr int OS_THREAD_WORKER_HEADSPACE = 3;
 constexpr int MIN_WORKER_THREADS = 4;
 constexpr float MAX_WAIT_THRESHOLD = 60; // In seconds
@@ -37,14 +39,16 @@ namespace Moonlit::Tasks
         // ResultType createPipeline(int _threadCount);
 
         bool IsShuttingDown() const {return m_isShuttingDown;}
-        TASK_FUNC acquireTask();
+        std::shared_ptr<Task> acquireTask();
         void addTask(TASK_FUNC _task);
+        void addTask(std::shared_ptr<Task> _task);
         void addTasks(std::vector<TASK_FUNC>& _tasks);
+        void addTasks(std::vector<std::shared_ptr<Task>> _tasks);
 
     protected:
         int m_threadCount = 0;
         std::vector<std::thread> m_threads;
-        std::deque<TASK_FUNC> m_tasks;
+        std::deque<std::shared_ptr<Task>> m_tasks;
 
         std::condition_variable m_cv;
         std::mutex m_mutex;

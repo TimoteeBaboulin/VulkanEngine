@@ -40,6 +40,7 @@ TARGET_SOURCES(
         Sources/Engine/ResourceManagement/Banks/TextureBank.cpp
         Sources/Engine/Scene/Scene.cpp
         Sources/Engine/Tasks/TaskManager.cpp
+        Sources/Engine/Tasks/Task.cpp
         Sources/Engine/Tasks/Worker.cpp
         Sources/Engine/Tasks/WorkerManager.cpp
         Sources/Engine/MoonlitEngine.cpp

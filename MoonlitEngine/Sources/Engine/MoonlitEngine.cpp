@@ -66,14 +66,23 @@ void Moonlit::MoonlitEngine::Init()
 
 	Tasks::WorkerManager* manager = new Tasks::WorkerManager();
 
-	std::vector<Tasks::TASK_FUNC> tasks;
+	// std::vector<Tasks::TASK_FUNC> tasks;
+	std::vector<std::shared_ptr<Tasks::Task>> tasks;
 	for (int i = 0; i < 10; i++)
 	{
-		tasks.push_back([i]() {
+		std::shared_ptr<Tasks::Task> baseTask = std::make_shared<Tasks::Task>([i]() {
 			LOG_INFO("Task " + std::to_string(i) + " is running");
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			LOG_INFO("Task " + std::to_string(i) + " is done");
 		});
+
+		std::shared_ptr<Tasks::Task> dependentTask = std::make_shared<Tasks::Task>([i]() {
+			LOG_INFO("Dependent task " + std::to_string(i) + " can run because base task ended");
+		});
+		dependentTask->addDependency(baseTask);
+
+		tasks.push_back(baseTask);
+		tasks.push_back(dependentTask);
 	}
 
 	Tasks::CurrentWorkerManager->addTasks(tasks);

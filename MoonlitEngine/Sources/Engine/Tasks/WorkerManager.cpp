@@ -100,6 +100,20 @@ namespace Moonlit::Tasks
         m_cv.notify_all();
     }
 
+    void WorkerManager::drain()
+    {
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+
+            m_state = State::DRAINING;
+            m_drainingCv.wait(lock, [this]() {
+                return m_tasks.empty();
+            });
+
+            m_state = State::STOPPED;
+        }
+    }
+
     int WorkerManager::calculateThreadCount()
     {
         int concurrency = std::thread::hardware_concurrency();
@@ -178,6 +192,17 @@ namespace Moonlit::Tasks
                 {
                     LOG_INFO("Running a task");
                     task->run();
+
+                    bool isDraining = false;
+                    {
+                        std::unique_lock<std::mutex> lock(manager.m_mutex);
+                        isDraining = manager.m_state == WorkerManager::DRAINING;
+                    }
+
+                    if (isDraining)
+                    {
+                        manager.m_drainingCv.notify_all();
+                    }
                 }
                 else
                 {

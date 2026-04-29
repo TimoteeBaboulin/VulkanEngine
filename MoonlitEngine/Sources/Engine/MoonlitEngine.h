@@ -33,6 +33,9 @@ namespace Moonlit
 		/// </summary>
 		/// <exception cref="PluginLoadException">  </exception>
 		void LoadModule(std::string _name);
+		void UnloadModule(std::string _name);
+		void UnloadAllModules(std::vector<std::string>* _outModulesUnloaded = nullptr);
+		void LoadModules(std::string _name);
 
 		void Init();
 		void Update();
@@ -40,6 +43,8 @@ namespace Moonlit
 		void LoadScene(const std::string& _path);
 		void ReloadScene();
 		void UnloadScene();
+
+		void RebuildModules();
 
 		Scene& GetScene() const { return *m_activeScene; }
 		bool IsPlaying() const { return m_isPlaying; }

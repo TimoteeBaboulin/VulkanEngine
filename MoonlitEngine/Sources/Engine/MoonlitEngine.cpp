@@ -46,6 +46,11 @@ void Moonlit::MoonlitEngine::LoadModule(std::string _name)
 	ModuleManager::Get().LoadModule(modulePath);
 }
 
+void Moonlit::MoonlitEngine::UnloadModule(std::string _name)
+{
+
+}
+
 void SendData()
 {
 	std::cout << "MoonlitEngine Init: Sending data" << std::endl;

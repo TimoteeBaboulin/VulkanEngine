@@ -29,6 +29,12 @@ namespace Moonlit::Tasks
     class WorkerManager
     {
     public:
+        enum State {
+            RUNNING,
+            DRAINING,
+            STOPPED
+        };
+
         WorkerManager();
         WorkerManager(WorkerManager* _parent, int _threadCount);
 
@@ -45,12 +51,17 @@ namespace Moonlit::Tasks
         void addTasks(std::vector<TASK_FUNC>& _tasks);
         void addTasks(std::vector<std::shared_ptr<Task>> _tasks);
 
+        void drain();
+
     protected:
         int m_threadCount = 0;
+        State m_state = RUNNING;
         std::vector<std::thread> m_threads;
         std::deque<std::shared_ptr<Task>> m_tasks;
 
         std::condition_variable m_cv;
+        std::condition_variable m_drainingCv;
+        std::atomic<int> m_runningTaskCount;
         std::mutex m_mutex;
 
         bool m_isShuttingDown = false;

@@ -23,6 +23,7 @@ namespace Moonlit {
         ModuleMetadata Metadata;
         ModuleBehaviourRegistry BehaviourRegistry;
         HMODULE ModuleHandle;
+        std::string ModulePath;
     };
 }
 

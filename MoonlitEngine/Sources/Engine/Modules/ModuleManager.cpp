@@ -12,7 +12,7 @@ Moonlit::ModuleManager::~ModuleManager() {
     UnloadAllModules();
 }
 
-void Moonlit::ModuleManager::LoadModulesFromDirectory(std::string _directory) {
+void Moonlit::ModuleManager::LoadModulesFromDirectory(const std::string& _directory) {
     std::filesystem::path pluginDir(_directory);
     if (!std::filesystem::exists(pluginDir) || !std::filesystem::is_directory(pluginDir)) {
         throw std::invalid_argument("Directory does not exist");
@@ -28,7 +28,7 @@ void Moonlit::ModuleManager::LoadModulesFromDirectory(std::string _directory) {
 void Moonlit::ModuleManager::UnloadAllModules() {
     // Code to unload all currently loaded plugins
     for (auto it = m_loadedModules.begin(); it != m_loadedModules.end(); ++it) {
-        FreeLibrary(it->ModuleHandle);
+        UnloadModule((*it).Metadata.Name);
     }
 
     m_loadedModules.clear();
@@ -40,6 +40,16 @@ void Moonlit::ModuleManager::UnloadModule(std::string _name) {
     });
 
     if (it != m_loadedModules.end()) {
+        FARPROC registerFunction = GetProcAddress(it->ModuleHandle, "GetRegistry");
+        auto getBehaviourFunc = reinterpret_cast<ModuleBehaviourRegistry(*)()>(registerFunction);
+        ModuleBehaviourRegistry moduleBehaviourRegistry = getBehaviourFunc();
+
+        for (int i = 0; i < moduleBehaviourRegistry.EntryCount; i++)
+        {
+            auto& behaviourRegEntry = moduleBehaviourRegistry.Entries[i];
+            BehaviourRegistry::UnregisterBehaviour(behaviourRegEntry.Name);
+        }
+
         FreeLibrary(it->ModuleHandle);
         m_loadedModules.erase(it);
     } else {
@@ -47,7 +57,7 @@ void Moonlit::ModuleManager::UnloadModule(std::string _name) {
     }
 }
 
-void Moonlit::ModuleManager::LoadModule(std::filesystem::path _path) {
+void Moonlit::ModuleManager::LoadModule(const std::filesystem::path& _path) {
     HMODULE moduleHandle = LoadLibraryA(_path.string().c_str());
     if (moduleHandle == 0) {
         DWORD error = GetLastError();
@@ -77,6 +87,7 @@ void Moonlit::ModuleManager::LoadModule(std::filesystem::path _path) {
     moduleInfo.Metadata = metadata;
     moduleInfo.BehaviourRegistry = moduleBehaviourRegistry;
     moduleInfo.ModuleHandle = moduleHandle;
+    moduleInfo.ModulePath = _path.string();
 
     for (int i = 0; i < moduleBehaviourRegistry.EntryCount; i++) {
         LOG_INFO("Registering behaviour: " + std::string(moduleBehaviourRegistry.Entries[i].Name) + " from module: " + std::string(metadata.Name));

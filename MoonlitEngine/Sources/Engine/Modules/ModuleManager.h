@@ -17,10 +17,10 @@ namespace Moonlit {
             return instance;
         }
 
-        void LoadModulesFromDirectory(std::string _directory);
+        void LoadModulesFromDirectory(const std::string &_directory);
         void UnloadAllModules();
         void UnloadModule(std::string _name);
-        void LoadModule(std::filesystem::path _path);
+        void LoadModule(const std::filesystem::path &_path);
 
         const std::vector<ModuleInfo>& GetPlugins() const { return m_loadedModules; }
 

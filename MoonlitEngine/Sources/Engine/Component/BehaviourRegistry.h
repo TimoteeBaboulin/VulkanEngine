@@ -89,6 +89,22 @@ namespace Moonlit
 			Entries.push_back({ name, createFunction });
 		}
 
+		template <typename T>
+		static void UnregisterBehaviour()
+		{
+			UnregisterBehaviour(ClassNameFromTypeName(typeid(T).name()));
+		}
+		static void UnregisterBehaviour(const std::type_info& _info)
+		{
+			UnregisterBehaviour(ClassNameFromTypeName(_info.name()));
+		}
+		static void UnregisterBehaviour(const std::string& name)
+		{
+			std::erase_if(Entries, [&name](const auto& _entry) {
+				return _entry.Name == name;
+			});
+		}
+
 		static std::vector<BehaviourRegistryEntry>& GetRegisteredBehaviours()
 		{
 			return Entries;

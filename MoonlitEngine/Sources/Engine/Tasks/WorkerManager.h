@@ -55,12 +55,12 @@ namespace Moonlit::Tasks
 
     protected:
         int m_threadCount = 0;
-        State m_state = RUNNING;
         std::vector<std::thread> m_threads;
         std::deque<std::shared_ptr<Task>> m_tasks;
 
         std::condition_variable m_cv;
         std::condition_variable m_drainingCv;
+        std::atomic<State> m_state = RUNNING;
         std::atomic<int> m_runningTaskCount;
         std::mutex m_mutex;
 

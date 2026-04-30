@@ -56,7 +56,7 @@ namespace Moonlit::Tasks
 
     void WorkerManager::addTask(TASK_FUNC _task)
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         {
             m_tasks.emplace_back(std::make_shared<Task>(_task));
         }
@@ -67,7 +67,7 @@ namespace Moonlit::Tasks
     void WorkerManager::addTask(std::shared_ptr<Task> _task)
     {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
+            std::lock_guard<std::mutex> lock(m_mutex);
             m_tasks.emplace_back(_task);
         }
 
@@ -77,7 +77,7 @@ namespace Moonlit::Tasks
     void WorkerManager::addTasks(std::vector<TASK_FUNC>& _tasks)
     {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
+            std::lock_guard<std::mutex> lock(m_mutex);
 
             for (auto& task : _tasks)
             {
@@ -91,7 +91,7 @@ namespace Moonlit::Tasks
 
     void WorkerManager::addTasks(std::vector<std::shared_ptr<Task>> _tasks)
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         for (auto& task : _tasks)
         {
             m_tasks.emplace_back(task);
@@ -103,9 +103,11 @@ namespace Moonlit::Tasks
     void WorkerManager::drain()
     {
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
+            std::unique_lock<std::mutex> lock(m_mutex, std::defer_lock);
 
             m_state = State::DRAINING;
+
+            lock.lock();
             m_drainingCv.wait(lock, [this]() {
                 return m_tasks.empty();
             });
@@ -190,18 +192,22 @@ namespace Moonlit::Tasks
             {
                 if (task->canRun())
                 {
-                    LOG_INFO("Running a task");
+                    manager.m_runningTaskCount++;
+
                     task->run();
 
-                    bool isDraining = false;
-                    {
-                        std::unique_lock<std::mutex> lock(manager.m_mutex);
-                        isDraining = manager.m_state == WorkerManager::DRAINING;
-                    }
+                    manager.m_runningTaskCount--;
 
-                    if (isDraining)
+                    bool isDraining = manager.m_state == WorkerManager::DRAINING;
+
+                    if (isDraining && manager.m_tasks.empty())
                     {
-                        manager.m_drainingCv.notify_all();
+                        if (manager.m_tasks.empty())
+                        {
+                            manager.m_drainingCv.notify_all();
+                        }
+
+                        return;
                     }
                 }
                 else

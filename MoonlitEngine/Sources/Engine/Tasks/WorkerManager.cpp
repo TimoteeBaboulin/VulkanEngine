@@ -103,17 +103,15 @@ namespace Moonlit::Tasks
     void WorkerManager::drain()
     {
         {
-            std::unique_lock<std::mutex> lock(m_mutex, std::defer_lock);
-
+            std::unique_lock<std::mutex> lock(m_mutex);
             m_state = State::DRAINING;
 
-            lock.lock();
             m_drainingCv.wait(lock, [this]() {
-                return m_tasks.empty();
+                return m_tasks.empty() && m_runningTaskCount == 0;
             });
-
-            m_state = State::STOPPED;
         }
+
+        m_state = State::STOPPED;
     }
 
     int WorkerManager::calculateThreadCount()
@@ -185,6 +183,7 @@ namespace Moonlit::Tasks
                     return;
                 }
 
+                manager.m_runningTaskCount++;
                 task = manager.acquireTask();
             }
 
@@ -192,29 +191,19 @@ namespace Moonlit::Tasks
             {
                 if (task->canRun())
                 {
-                    manager.m_runningTaskCount++;
-
                     task->run();
-
-                    manager.m_runningTaskCount--;
-
-                    bool isDraining = manager.m_state == WorkerManager::DRAINING;
-
-                    if (isDraining && manager.m_tasks.empty())
-                    {
-                        if (manager.m_tasks.empty())
-                        {
-                            manager.m_drainingCv.notify_all();
-                        }
-
-                        return;
-                    }
                 }
                 else
                 {
                     manager.addTask(task);
                 }
             }
+
+            {
+                std::lock_guard<std::mutex> lock(manager.m_mutex);
+                manager.m_runningTaskCount--;
+            }
+            manager.m_drainingCv.notify_all();
         }
     }
 }

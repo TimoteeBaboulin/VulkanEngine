@@ -39,9 +39,7 @@ TARGET_SOURCES(
         Sources/Engine/ResourceManagement/ResourceManager.cpp
         Sources/Engine/ResourceManagement/Banks/TextureBank.cpp
         Sources/Engine/Scene/Scene.cpp
-        Sources/Engine/Tasks/TaskManager.cpp
         Sources/Engine/Tasks/Task.cpp
-        Sources/Engine/Tasks/Worker.cpp
         Sources/Engine/Tasks/WorkerManager.cpp
         Sources/Engine/MoonlitEngine.cpp
 )
@@ -99,8 +97,6 @@ TARGET_SOURCES(
         Sources/Engine/ResourceManagement/TextureData.h
         Sources/Engine/Scene/Scene.h
         Sources/Engine/Tasks/Task.h
-        Sources/Engine/Tasks/TaskManager.h
-        Sources/Engine/Tasks/Worker.h
         Sources/Engine/Tasks/WorkerManager.h
         Sources/Engine/MoonlitEngine.h
 )

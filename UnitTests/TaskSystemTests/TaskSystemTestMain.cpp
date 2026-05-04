@@ -29,4 +29,26 @@ namespace Moonlit::Tasks
 
         manager->drain();
     }
+
+    TEST(TaskSystem, Draining)
+    {
+        auto* manager = new WorkerManager();
+        std::vector<std::shared_ptr<Task>> tasks;
+        const size_t taskCount = 40;
+
+        for (size_t i = 0; i < taskCount; i++)
+        {
+            std::shared_ptr<Task> task = std::make_shared<Task>([i]() {
+                LOG_INFO("Task " + std::to_string(i) + " completed");
+            });
+
+            tasks.push_back(task);
+        }
+
+        manager->addTasks(tasks);
+
+        manager->drain();
+        ASSERT_EQ(manager->runningTaskCount(), 0);
+        ASSERT_EQ(manager->remainingTaskCount(), 0);
+    }
 }

@@ -26,7 +26,7 @@ namespace Moonlit::Tasks
 
     void threadLoop(WorkerManager* _main, WorkerManager* _parent, WorkerManager* _current);
 
-    class WorkerManager
+    class MOONLIT_API WorkerManager
     {
     public:
         enum State {
@@ -52,6 +52,9 @@ namespace Moonlit::Tasks
         void addTasks(std::vector<std::shared_ptr<Task>> _tasks);
 
         void drain();
+
+        size_t remainingTaskCount() {return m_tasks.size();};
+        int runningTaskCount() {return m_runningTaskCount;};
 
     protected:
         int m_threadCount = 0;

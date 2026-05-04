@@ -3,10 +3,11 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include "MoonlitExport.h"
 
 namespace Moonlit::Tasks
 {
-	class Task
+	class MOONLIT_API Task
 	{
 	public:
 		Task() = delete;

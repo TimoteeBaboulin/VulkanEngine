@@ -56,16 +56,16 @@ namespace Moonlit::Tasks
 
     void WorkerManager::addTask(TASK_FUNC _task)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        {
-            m_tasks.emplace_back(std::make_shared<Task>(_task));
-        }
-
-        m_cv.notify_one();
+        addTask(std::make_shared<Task>(_task));
     }
 
     void WorkerManager::addTask(std::shared_ptr<Task> _task)
     {
+        if (m_state == State::DRAINING)
+        {
+            return;
+        }
+
         {
             std::lock_guard<std::mutex> lock(m_mutex);
             m_tasks.emplace_back(_task);
@@ -76,28 +76,18 @@ namespace Moonlit::Tasks
 
     void WorkerManager::addTasks(std::vector<TASK_FUNC>& _tasks)
     {
+        for (auto& task : _tasks)
         {
-            std::lock_guard<std::mutex> lock(m_mutex);
-
-            for (auto& task : _tasks)
-            {
-                std::shared_ptr<Task> newTask = std::make_shared<Task>(task);
-                m_tasks.emplace_back(newTask);
-            }
+            addTask(task);
         }
-
-        m_cv.notify_all();
     }
 
     void WorkerManager::addTasks(std::vector<std::shared_ptr<Task>> _tasks)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         for (auto& task : _tasks)
         {
-            m_tasks.emplace_back(task);
+            addTask(task);
         }
-
-        m_cv.notify_all();
     }
 
     void WorkerManager::drain()
@@ -189,21 +179,21 @@ namespace Moonlit::Tasks
 
             if (task)
             {
-                if (task->canRun())
+                task->run();
                 {
-                    task->run();
+                    std::lock_guard<std::mutex> lock(manager.m_mutex);
+                    manager.m_runningTaskCount--;
                 }
-                else
-                {
-                    manager.addTask(task);
-                }
-            }
 
-            {
-                std::lock_guard<std::mutex> lock(manager.m_mutex);
-                manager.m_runningTaskCount--;
+                manager.m_drainingCv.notify_all();
             }
-            manager.m_drainingCv.notify_all();
+            else
+            {
+                {
+                    std::lock_guard<std::mutex> lock(manager.m_mutex);
+                    manager.m_runningTaskCount--;
+                }
+            }
         }
     }
 }

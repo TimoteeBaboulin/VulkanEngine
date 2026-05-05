@@ -127,6 +127,10 @@ void SceneHierarchy::ContextMenuClicked(QAction *_action)
     {
         Moonlit::MoonlitEngine::Get().GetScene().Save("scene.ms");
     }
+    else if (actionText == "Rebuild Modules")
+    {
+        Moonlit::MoonlitEngine::Get().RebuildModules();
+    }
 
     m_contextMenu->deleteLater();
 }
@@ -138,6 +142,7 @@ void SceneHierarchy::ShowContextMenu(const QPoint &_pos)
     m_contextMenu->addAction("Save Scene");
     m_contextMenu->connect(m_contextMenu, &QMenu::triggered, this, &SceneHierarchy::ContextMenuClicked);
     m_contextMenu->popup(mapToGlobal(_pos));
+    m_contextMenu->addAction("Rebuild Modules");
 }
 
 void SceneHierarchy::ShowContextMenu(const QPoint &_pos, GameObject *_obj)

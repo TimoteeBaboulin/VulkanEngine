@@ -48,7 +48,7 @@ void Moonlit::MoonlitEngine::LoadModule(std::string _name)
 
 void Moonlit::MoonlitEngine::UnloadModule(std::string _name)
 {
-
+	ModuleManager::Get().UnloadModule(_name);
 }
 
 void SendData()
@@ -155,4 +155,41 @@ void Moonlit::MoonlitEngine::UnloadScene()
 	OnSceneUnloaded(this, m_activeScene);
 	delete m_activeScene;
 	m_activeScene = nullptr;
+}
+
+void Moonlit::MoonlitEngine::RebuildModules()
+{
+	std::filesystem::path current = std::filesystem::current_path();
+	std::vector<std::string> unloadedModules;
+	std::string sceneSavePath = m_activeScene->GetSavePath();
+
+	Tasks::WorkerManager* wm = Tasks::MainWorkerManager;
+	wm->drain();
+
+	UnloadScene();
+	UnloadAllModules(&unloadedModules);
+
+	std::vector<std::string> moduleFiles;
+	for (auto& file : std::filesystem::recursive_directory_iterator(current))
+	{
+		if (file.is_regular_file() && (file.path().extension() == ".h" || file.path().extension() == ".cpp"))
+		{
+			moduleFiles.push_back(file.path().relative_path().generic_string());
+		}
+	}
+
+	std::string command = "cl.exe /LD ";
+	for (auto& file : moduleFiles)
+	{
+		command += file + " ";
+	}
+	command += "/Fe:Modules/Module.dll";
+	int result = system(command.c_str());
+
+	bool newModuleName = "Module";
+	for (auto& module : unloadedModules)
+	{
+
+	}
+	LoadScene(sceneSavePath);
 }

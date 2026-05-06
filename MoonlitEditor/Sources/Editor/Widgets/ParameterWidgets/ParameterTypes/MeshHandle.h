@@ -2,7 +2,7 @@
 
 #include "Engine/ResourceManagement/ResourceManager.h"
 #include "common.h"
-#include "Editor/Widgets/ParameterEditor.h"
+#include "../ParameterWidgets/ParameterEditor.h"
 #include "Engine/Renderer/Renderer.h"
 
 #include <qcombobox.h>

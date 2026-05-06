@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ParameterEditor.h"
+#include "../ParameterWidgets/ParameterEditor.h"
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qvalidator.h>

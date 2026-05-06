@@ -5,7 +5,7 @@
 
 #include <qboxlayout.h>
 
-#include "ParameterEditor.h"
+#include "ParameterWidgets/ParameterEditor.h"
 #include "ParameterTypes/ParameterTypeRegistry.h"
 
 BehaviourEditor::BehaviourEditor(Moonlit::ObjectBehaviour* _behaviour)

@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <qlayout.h>
 
-#include "../ParameterEditorBase.h"
+#include "../ParameterWidgets/ParameterEditorBase.h"
 
 namespace Moonlit::Editor
 {

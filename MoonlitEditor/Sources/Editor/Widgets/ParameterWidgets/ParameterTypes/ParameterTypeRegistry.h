@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ParameterEditorBase.h"
+#include "../ParameterWidgets/ParameterEditorBase.h"
 #include "Engine/Component/Parameter.h"
 
 #include "Vector3.h"

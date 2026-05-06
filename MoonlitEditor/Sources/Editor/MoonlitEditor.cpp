@@ -8,10 +8,10 @@
 #include <DockManager.h>
 
 #include "Windows/EditorMainWindow.h"
-#include "Windows/General/SceneViewWindow.h"
-#include "Windows/General/FileExplorer.h"
-#include "Windows/General/SceneHierarchy.h"
-#include "Windows/General/ObjectEditor.h"
+#include "Windows/Core/SceneViewWindow.h"
+#include "Windows/Core/FileExplorer.h"
+#include "Windows/Core/SceneHierarchy.h"
+#include "Windows/Core/ObjectEditor.h"
 #include "Engine/MoonlitEngine.h"
 #include "Engine/Inputs/InputManager.h"
 

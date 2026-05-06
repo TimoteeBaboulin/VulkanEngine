@@ -4,7 +4,7 @@
 #include <qlabel.h>
 
 #include "Engine/Component/ObjectBehaviour.h"
-#include "ParameterEditorBase.h"
+#include "ParameterWidgets/ParameterEditorBase.h"
 
 class BehaviourEditor : public QFrame
 {

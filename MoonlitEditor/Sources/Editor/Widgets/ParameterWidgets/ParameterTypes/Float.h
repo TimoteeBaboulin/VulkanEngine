@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ParameterWidgets/ParameterEditor.h"
+#include "../ParameterEditor.h"
 
 //class FloatParameterEditor : public ParameterEditor
 //{

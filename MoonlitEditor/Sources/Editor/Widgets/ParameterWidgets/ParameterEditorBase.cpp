@@ -3,7 +3,7 @@
 #include <qboxlayout.h>
 #include <qlineedit.h>
 
-#include "../ParameterTypes/ParameterTypeRegistry.h"
+#include "ParameterTypes/ParameterTypeRegistry.h"
 
 
 ParameterEditorBase::ParameterEditorBase(const ParameterBase* _parameter, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent)

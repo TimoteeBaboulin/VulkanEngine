@@ -25,6 +25,7 @@ TARGET_SOURCES(
         Sources/Engine/Inputs/QtEventReader.cpp
         Sources/Engine/Inputs/WindowsInputAbstraction.cpp
         Sources/Engine/Modules/ModuleManager.cpp
+        Sources/Engine/Modules/CMakeGenerator.cpp
         Sources/Engine/Renderer/Material/Material.cpp
         Sources/Engine/Renderer/Material/MaterialInstance.cpp
         Sources/Engine/Renderer/BufferDeviceLink.cpp
@@ -69,6 +70,7 @@ TARGET_SOURCES(
         Sources/Engine/Inputs/WindowsInputAbstraction.h
         Sources/Engine/Modules/Module.h
         Sources/Engine/Modules/ModuleManager.h
+        Sources/Engine/Modules/CMakeGenerator.h
         Sources/Engine/Renderer/Helpers/VertexInputHelper.h
         Sources/Engine/Renderer/Helpers/VulkanHelperFunctions.h
         Sources/Engine/Renderer/Material/Material.h

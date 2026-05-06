@@ -35,7 +35,7 @@ namespace Moonlit
 		void LoadModule(std::string _name);
 		void UnloadModule(std::string _name);
 		void UnloadAllModules(std::vector<std::string>* _outModulesUnloaded = nullptr);
-		void LoadModules(std::string _name);
+		void LoadModules(std::vector<std::string> _names);
 
 		void Init();
 		void Update();

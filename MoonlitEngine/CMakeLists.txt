@@ -19,7 +19,7 @@ TARGET_SOURCES(
         Sources/Engine/Component/BehaviourRegistry.cpp
         Sources/Engine/Component/GameObject.cpp
         Sources/Engine/Component/ObjectBehaviour.cpp
-        Sources/Engine/Component/ParameterBase.hpp
+        Sources/Engine/Component/ParameterBase.ipp
         Sources/Engine/Inputs/InputManager.cpp
         Sources/Engine/Inputs/PlatformInputAbstraction.cpp
         Sources/Engine/Inputs/QtEventReader.cpp

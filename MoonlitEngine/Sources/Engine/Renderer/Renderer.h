@@ -4,7 +4,7 @@
 #include "common.h"
 
 #include "Engine/ResourceManagement/ResourceManager.h"
-#include "Engine/ResourceManagement/TextureData.h"
+#include "../ResourceManagement/Resources/TextureData.h"
 
 namespace vk
 {

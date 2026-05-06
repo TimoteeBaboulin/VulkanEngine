@@ -3,7 +3,7 @@
 #include "Material/MaterialInstance.h"
 #include "DrawBuffer.h"
 
-#include "../ResourceManagement/TextureData.h"
+#include "../ResourceManagement/Resources/TextureData.h"
 
 Moonlit::Renderer::DrawBufferDeviceBridge::DrawBufferDeviceBridge(DeviceData _deviceData, Material& _baseMaterial,
                                                                   DrawBuffer* _drawBuffer) : m_parentBuffer(_drawBuffer)

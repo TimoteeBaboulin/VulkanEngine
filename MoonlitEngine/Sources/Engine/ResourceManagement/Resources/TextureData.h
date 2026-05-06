@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Renderer/CustomVulkanStructs.h"
+#include "../../Renderer/CustomVulkanStructs.h"
 
 namespace Moonlit
 {

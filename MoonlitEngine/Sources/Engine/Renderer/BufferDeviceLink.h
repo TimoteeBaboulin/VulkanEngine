@@ -2,7 +2,7 @@
 
 #include "../../common.h"
 #include "CustomVulkanStructs.h"
-#include "../ResourceManagement/TextureData.h"
+#include "../ResourceManagement/Resources/TextureData.h"
 #include "Material/Material.h"
 
 class RendererDeviceManager;

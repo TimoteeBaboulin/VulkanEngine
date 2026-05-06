@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
-#include "../../Debug/Logger.h"
+#include "../../../Debug/Logger.h"
 
 std::vector<char> Moonlit::FileHelper::ReadFile(std::string _path)
 {

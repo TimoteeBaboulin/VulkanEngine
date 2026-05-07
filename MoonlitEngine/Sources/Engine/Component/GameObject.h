@@ -9,7 +9,7 @@
 #include <glm/vec3.hpp>
 #include <fstream>
 #include <string>
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
 
 #include "MoonlitExport.h"
 #include "ObjectBehaviour.h"

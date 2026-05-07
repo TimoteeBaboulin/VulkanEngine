@@ -36,6 +36,8 @@ namespace Moonlit
 		void UnloadModule(std::string _name);
 		void UnloadAllModules(std::vector<std::string>* _outModulesUnloaded = nullptr);
 		void LoadModules(std::vector<std::string> _names);
+		void LoadProjectModules();
+		void ReloadModules();
 
 		void Init();
 		void Update();
@@ -43,8 +45,6 @@ namespace Moonlit
 		void LoadScene(const std::string& _path);
 		void ReloadScene();
 		void UnloadScene();
-
-		void RebuildModules();
 
 		Scene& GetScene() const { return *m_activeScene; }
 		bool IsPlaying() const { return m_isPlaying; }

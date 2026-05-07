@@ -129,7 +129,7 @@ void SceneHierarchy::ContextMenuClicked(QAction *_action)
     }
     else if (actionText == "Rebuild Modules")
     {
-        Moonlit::MoonlitEngine::Get().RebuildModules();
+        Moonlit::MoonlitEngine::Get().ReloadModules();
     }
 
     m_contextMenu->deleteLater();

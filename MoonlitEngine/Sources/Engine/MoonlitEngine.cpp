@@ -75,6 +75,45 @@ void Moonlit::MoonlitEngine::LoadModules(std::vector<std::string> _names)
 	}
 }
 
+void Moonlit::MoonlitEngine::LoadProjectModules()
+{
+	std::filesystem::path modulesPath = std::filesystem::current_path() / "Modules";
+	if (!std::filesystem::exists(modulesPath) || !std::filesystem::is_directory(modulesPath))
+	{
+		LOG_WARNING("Couldn't find Modules directory at " + modulesPath.string() + ", skipping loading project modules.");
+		return;
+	}
+
+	for (auto& file : std::filesystem::recursive_directory_iterator(modulesPath))
+	{
+		if (file.is_regular_file() && file.path().extension() == ".dll")
+		{
+			LoadModule(file.path().generic_string());
+		}
+	}
+}
+
+void Moonlit::MoonlitEngine::ReloadModules()
+{
+	std::filesystem::path current = std::filesystem::current_path();
+	std::vector<std::string> unloadedModules;
+	std::string sceneSavePath = m_activeScene->GetSavePath();
+
+	std::filesystem::path buildPath = current / "Modules";
+	std::filesystem::path sourcePath = current / "Sources";
+
+	Tasks::WorkerManager* wm = Tasks::MainWorkerManager;
+	wm->drain();
+
+	UnloadScene();
+	UnloadAllModules(&unloadedModules);
+
+	LoadModules(unloadedModules);
+	LoadProjectModules();
+
+	LoadScene(sceneSavePath);
+}
+
 void SendData()
 {
 	std::cout << "MoonlitEngine Init: Sending data" << std::endl;
@@ -179,32 +218,4 @@ void Moonlit::MoonlitEngine::UnloadScene()
 	OnSceneUnloaded(this, m_activeScene);
 	delete m_activeScene;
 	m_activeScene = nullptr;
-}
-
-void Moonlit::MoonlitEngine::RebuildModules()
-{
-	std::filesystem::path current = std::filesystem::current_path();
-	std::vector<std::string> unloadedModules;
-	std::string sceneSavePath = m_activeScene->GetSavePath();
-
-	std::filesystem::path buildPath = current / "Modules";
-	std::filesystem::path sourcePath = current / "Sources";
-
-	Tasks::WorkerManager* wm = Tasks::MainWorkerManager;
-	wm->drain();
-
-	UnloadScene();
-	UnloadAllModules(&unloadedModules);
-
-	LoadModules(unloadedModules);
-	std::vector<std::string> moduleFiles;
-	for (auto& file : std::filesystem::recursive_directory_iterator(buildPath))
-	{
-		if (file.is_regular_file() && file.path().extension() == ".dll")
-		{
-			LoadModule(file.path().generic_string());
-		}
-	}
-
-	LoadScene(sceneSavePath);
 }

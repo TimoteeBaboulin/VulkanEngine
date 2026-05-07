@@ -196,39 +196,15 @@ void Moonlit::MoonlitEngine::RebuildModules()
 	UnloadScene();
 	UnloadAllModules(&unloadedModules);
 
-	std::vector<std::string> moduleFiles;
-	for (auto& file : std::filesystem::recursive_directory_iterator(sourcePath))
-	{
-		if (file.is_regular_file() && (file.path().extension() == ".h" || file.path().extension() == ".cpp"))
-		{
-			moduleFiles.push_back(file.path().relative_path().generic_string());
-		}
-	}
-
-	if (!moduleFiles.empty())
-	{
-		CMakeGenerator generator("UserProject", "UserModule");
-		generator.withSources(moduleFiles)
-			.withIncludePath("C:/Projects/VulkanEngine/MoonlitEngine/Sources")
-			.withLinkLibrary("C:/Projects/VulkanEngine/cmake-build-debug-visual-studio/lib/Debug/MoonlitEngine.lib")
-			.withTargetProperty(std::pair<std::string, std::string>("RUNTIME_OUTPUT_DIRECTORY", "../Modules/"));
-
-		std::string cMakeListPath = sourcePath.generic_string() + "/CMakeLists.txt";
-		std::fstream file(cMakeListPath);
-		if (!file.is_open())
-		{
-			LOG_ERROR("Failed to open file " + cMakeListPath);
-			throw std::runtime_error("Failed to open file " + cMakeListPath);
-		}
-
-		generator.writeTo(file);
-		file.close();
-
-		std::system(("cmake -S \"" + sourcePath.generic_string() + "\" -B \"" + buildPath.generic_string() + "\"").c_str());
-		// build
-		std::system(("cmake --build \"" + buildPath.generic_string() + "\" --config Debug").c_str());
-	}
-
 	LoadModules(unloadedModules);
+	std::vector<std::string> moduleFiles;
+	for (auto& file : std::filesystem::recursive_directory_iterator(buildPath))
+	{
+		if (file.is_regular_file() && file.path().extension() == ".dll")
+		{
+			LoadModule(file.path().generic_string());
+		}
+	}
+
 	LoadScene(sceneSavePath);
 }

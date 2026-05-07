@@ -4,8 +4,6 @@ FILE(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/Sources/*.ipp
 )
 
-
-
 ADD_LIBRARY(MoonlitEngine SHARED)
 
 TARGET_SOURCES(
@@ -124,11 +122,11 @@ TARGET_LINK_LIBRARIES(MoonlitEngine PRIVATE
         assimp
         slang
         xinput
-        nlohmann_json::nlohmann_json
 )
 
 TARGET_LINK_LIBRARIES(MoonlitEngine PUBLIC
         glm
+        nlohmann_json::nlohmann_json
 )
 
 TARGET_COMPILE_DEFINITIONS(MoonlitEngine PRIVATE ENGINE_DLL_EXPORT)
@@ -137,6 +135,49 @@ SET_TARGET_PROPERTIES(MoonlitEngine PROPERTIES DEBUG_POSTFIX "")
 
 ADD_CUSTOM_COMMAND(TARGET MoonlitEngine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        $<TARGET_FILE:MoonlitEngine>
-        $<TARGET_FILE_DIR:EngineTests>
+            $<TARGET_FILE:MoonlitEngine>
+            $<TARGET_FILE_DIR:EngineTests>
+        COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:MoonlitEngine>
+            "$ENV{MOONLIT_LIBRARY_PATH}/bin/MoonlitEngine.dll"
+        COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_LINKER_FILE:MoonlitEngine>
+            "$ENV{MOONLIT_LIBRARY_PATH}/lib/MoonlitEngine.lib"
+)
+
+FILE(GLOB_RECURSE ENGINE_HEADERS
+        "${CMAKE_CURRENT_SOURCE_DIR}/Sources/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Sources/*.hpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Sources/*.ipp"
+)
+
+FOREACH(HEADER ${ENGINE_HEADERS})
+    # get the relative path to preserve folder structure
+    FILE(RELATIVE_PATH RELATIVE_HEADER
+            "${CMAKE_CURRENT_SOURCE_DIR}/Sources"
+            "${HEADER}"
+    )
+    GET_FILENAME_COMPONENT(HEADER_DIR ${RELATIVE_HEADER} DIRECTORY)
+
+    ADD_CUSTOM_COMMAND(TARGET MoonlitEngine POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+            "$ENV{MOONLIT_LIBRARY_PATH}/include/${HEADER_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E copy
+            "${HEADER}"
+            "$ENV{MOONLIT_LIBRARY_PATH}/include/${RELATIVE_HEADER}"
+    )
+ENDFOREACH()
+
+ADD_CUSTOM_COMMAND(TARGET MoonlitEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+        "$ENV{MOONLIT_LIBRARY_PATH}/include/nlohmann"
+        COMMAND ${CMAKE_COMMAND} -E copy
+        "${json_SOURCE_DIR}/single_include/nlohmann/json.hpp"
+        "$ENV{MOONLIT_LIBRARY_PATH}/include/nlohmann/json.hpp"
+)
+
+ADD_CUSTOM_COMMAND(TARGET MoonlitEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${glm_SOURCE_DIR}/glm"
+        "$ENV{MOONLIT_LIBRARY_PATH}/include/glm"
 )

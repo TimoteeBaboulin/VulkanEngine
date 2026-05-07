@@ -75,7 +75,7 @@ bool Moonlit::ResourceManagement::MeshBank::TryLoad(std::string _filepath)
 	}
 
 	std::string extension = path.extension().string();
-	if (extension != ".fbx" && extension != ".obj" && extension != ".dae" && extension != ".3ds" && extension != ".gltf" && extension != ".glb")
+	if (extension != ".fbx" && extension != ".dae" && extension != ".3ds" && extension != ".gltf" && extension != ".glb")
 	{
 		return false;
 	}

@@ -67,38 +67,40 @@ v2f vertexMain(VertexInput inVert, InstanceInput inInst)
     return output;
 }
 
-// Calculate ambient lighting
-float3 CalculateAmbientLighting(in float3 lightCol)
+float3 CalculateAmbientLighting(in float3 lightCol, in float ambientStrength)
 {
-    float3 ambient = 0.25f * lightCol;
+    float3 ambient = ambientStrength * lightCol;
     return ambient;
 }
 
-// Calculate diffuse lighting
 float3 CalculateDiffuseLighting(in float3 lightCol, in float3 normal, in float3 lightDir)
 {
-    // Lambertian diffuse
-    float diffuseStrength = dot(normal, lightDir);
-    float3 diffuse = max(diffuseStrength, 0.0f) * lightCol;
+    // Half-Lambert diffuse
+    float ndotl = dot(normal, lightDir);
+    float diffuseStrength = ndotl * 0.5 + 0.5;
+    float3 diffuse = diffuseStrength * lightCol;
     return diffuse;
 }
 
 // Calculate Blinn-Phong specular lighting
-float3 CalculateSpecularLighting(in float3 lightCol, in float3 normal, in float3 halfwayDir)
+float3 CalculateSpecularLighting(in float3 lightCol, in float3 normal, in float3 halfwayDir, in float shininess, in float specularStrength)
 {
     // Blinn-Phong specular
-    // Clamped dot product of normal and halfway vector raised to the power of shininess (32 here)
-    float specStrength = pow(max(dot(normal, halfwayDir), 0.0f), 32);
-    float3 specular = specStrength * lightCol;
+    float specFactor = pow(max(dot(normal, halfwayDir), 0.0f), shininess);
+    float3 specular = specFactor * lightCol * specularStrength;
     return specular;
 }
 
 void CalculateBlinnPhongLighting(in float3 lightCol, in float3 normal, in float3 lightDir, in float3 viewDir, inout float4 color)
 {
-    float3 lighting = CalculateAmbientLighting(lightCol);
+    const float shininess = 32.0;
+    const float specularStrength = 0.5;
+    const float ambientStrength = 0.15;
+
+    float3 lighting = CalculateAmbientLighting(lightCol, ambientStrength);
     lighting += CalculateDiffuseLighting(lightCol, normal, lightDir);
     float3 halfwayDir = normalize(lightDir + viewDir);
-    lighting += CalculateSpecularLighting(lightCol, normal, halfwayDir);
+    lighting += CalculateSpecularLighting(lightCol, normal, halfwayDir, shininess, specularStrength);
     color.rgb *= lighting;
 }
 
@@ -177,27 +179,33 @@ void CalculatePBRLighting(in float3 lightCol, in float3 normal, in float3 rawLig
 [RenderPass("color")][shader("fragment")]
 float4 fragmentMain(in v2f input) : SV_TARGET
 {
-    // flip UVs because we're using Vulkan and assimp assume OpenGL convention
+    const bool usePBR = false; // Currently use BlinnPhong because I don't have IBR
+
     float4 color = textures[input.texIndex].Sample(input.texCoord);
 
-    // Reconstruct the normal from tangent space to world space.
+    // Reconstruct the normal from tangent space to world space
     float3x3 TBN = float3x3(normalize(input.tangeant), normalize(input.bitangeant), normalize(input.normal));
     float3 normal = normalize(mul(TBN, float3(0.0f, 0.0f, 1.0f)));
 
-    // Get rid of the unused 4th component.
+    // Get rid of the unused 4th components
     float3 camPos = ubo.cameraPos.rgb;
     float3 lightPos = ubo.lightPos.rgb;
     float3 lightCol = ubo.lightCol.rgb;
 
     // Calculate the vectors needed for lighting calculations.
     float3 viewDir = normalize(camPos - input.worldPos);
-    // float3 rawlightDir = input.worldPos - lightPos;
-    float3 rawlightDir = ubo.lightPos.rgb; // Directional light
+    // float3 rawlightDir = input.worldPos - lightPos; // Old version, might be reused
+    float3 rawlightDir = ubo.lightPos.rgb;
     float3 lightDir = normalize(rawlightDir);
 
-    // Calculate lighting effects.
-    // CalculateBlinnPhongLighting(lightCol, normal, lightDir, viewDir, color);
-    CalculatePBRLighting(lightCol, normal, rawlightDir, viewDir, color);
+    if (usePBR)
+    {
+        CalculatePBRLighting(lightCol, normal, rawlightDir, viewDir, color);
+    }
+    else
+    {
+        CalculateBlinnPhongLighting(lightCol, normal, lightDir, viewDir, color);
+    }
 
     return color;
 }

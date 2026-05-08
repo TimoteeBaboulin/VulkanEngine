@@ -95,7 +95,8 @@ bool Moonlit::ResourceManagement::MeshBank::TryLoad(std::string _filepath)
 		const aiScene* scene = importer.ReadFile(_filepath,
 			aiProcess_Triangulate |
 			aiProcess_GenNormals |
-			aiProcess_CalcTangentSpace);
+			aiProcess_CalcTangentSpace |
+			aiProcess_FlipUVs);
 
 		if (scene == nullptr)
 		{

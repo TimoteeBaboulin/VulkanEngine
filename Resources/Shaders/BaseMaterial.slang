@@ -177,7 +177,7 @@ void CalculatePBRLighting(in float3 lightCol, in float3 normal, in float3 rawLig
 [RenderPass("color")][shader("fragment")]
 float4 fragmentMain(in v2f input) : SV_TARGET
 {
-    // Use the color from the vertex input.
+    // flip UVs because we're using Vulkan and assimp assume OpenGL convention
     float4 color = textures[input.texIndex].Sample(input.texCoord);
 
     // Reconstruct the normal from tangent space to world space.
@@ -199,6 +199,5 @@ float4 fragmentMain(in v2f input) : SV_TARGET
     // CalculateBlinnPhongLighting(lightCol, normal, lightDir, viewDir, color);
     CalculatePBRLighting(lightCol, normal, rawlightDir, viewDir, color);
 
-    // Return the final color.
     return color;
 }

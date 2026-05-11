@@ -37,7 +37,6 @@ namespace Moonlit
 		void UnloadAllModules(std::vector<std::string>* _outModulesUnloaded = nullptr);
 		void LoadModules(std::vector<std::string> _names);
 		void LoadProjectModules();
-		void ReloadModules();
 
 		void Init();
 		void Update();
@@ -50,6 +49,7 @@ namespace Moonlit
 		bool IsPlaying() const { return m_isPlaying; }
 
 		void SetIsPlaying(bool isPlaying) { m_isPlaying = isPlaying; }
+		Tasks::WorkerManager* GetMainWorkerManager() { return m_mainWorkerManager; }
 	private:
 
 		Scene* m_activeScene;

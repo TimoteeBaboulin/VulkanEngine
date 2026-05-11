@@ -3,7 +3,6 @@
 #include <QToolBar>
 
 #include "Debug/ProfilerWindow.h"
-
 #include "Debug/Logger.h"
 #include "Engine/MoonlitEngine.h"
 

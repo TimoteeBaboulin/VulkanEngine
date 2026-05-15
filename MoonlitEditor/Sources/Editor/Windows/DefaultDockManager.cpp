@@ -10,6 +10,8 @@ DefaultDockManager::DefaultDockManager(QWidget* _parent)
 	{
 		m_dockManager = new ads::CDockManager();
 	}
+
+	m_dockManager->setStyleSheet("");
 }
 
 DefaultDockManager::~DefaultDockManager()

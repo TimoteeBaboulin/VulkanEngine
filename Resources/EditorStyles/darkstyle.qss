@@ -2214,3 +2214,98 @@ PlotWidget {
   /* Fix cut labels in plots #134 */
   padding: 0px;
 }
+/* Play Mode Button -------------------------------------------------------- */
+QPushButton#PlayModeButton {
+    background-color: #2d6a2d;
+    color: #DFE1E2;
+    border-radius: 4px;
+    padding: 4px 16px;
+    font-weight: bold;
+}
+
+QPushButton#PlayModeButton:hover {
+    background-color: #3a8a3a;
+}
+
+QPushButton#PlayModeButton:checked {
+    background-color: #8a2d2d;
+}
+
+QPushButton#PlayModeButton:checked:hover {
+    background-color: #aa3a3a;
+}
+
+/* ADS Splitter handles ---------------------------------------------------- */
+QSplitter::handle {
+    background-color: #2d3a47;
+}
+
+QSplitter::handle:hover {
+    background-color: #346792;
+}
+
+QSplitter::handle:horizontal {
+    width: 3px;
+}
+
+QSplitter::handle:vertical {
+    height: 3px;
+}
+
+/* ADS Tab title bar ------------------------------------------------------- */
+ads--CDockAreaTitleBar {
+    background: #37414F;
+    border-bottom: 1px solid #455364;
+    padding: 2px;
+}
+
+ads--CDockWidgetTab {
+    background: #37414F;
+    border: none;
+    padding: 4px 12px;
+    color: #9DA9B5;
+}
+
+ads--CDockWidgetTab[activeTab="true"] {
+    background: #455364;
+    color: #DFE1E2;
+    border-top: 2px solid #346792;
+}
+
+ads--CDockWidgetTab:hover {
+    background: #455364;
+    color: #DFE1E2;
+}
+
+ads--CElidingLabel {
+    background: transparent;
+    color: #DFE1E2;
+    padding: 0 4px;
+}
+
+/* ADS title bar buttons --------------------------------------------------- */
+ads--CTitleBarButton {
+    background: transparent;
+    border: none;
+    padding: 2px;
+    qproperty-iconSize: 12px 12px;
+}
+
+ads--CTitleBarButton:hover {
+    background: #455364;
+    border-radius: 2px;
+}
+
+/* File explorer alternating rows ------------------------------------------ */
+QTreeView {
+    alternate-background-color: #1e2b38;
+    show-decoration-selected: 1;
+}
+
+QTreeView::item {
+    padding: 2px;
+}
+
+QTreeView::item:alternate {
+    background: #1e2b38;
+}

@@ -7,6 +7,7 @@
 
 #include <DockManager.h>
 
+#include "EditorPaletter.h"
 #include "Windows/EditorMainWindow.h"
 #include "Windows/Core/SceneViewWindow.h"
 #include "Windows/Core/FileExplorer.h"
@@ -41,6 +42,8 @@ void GameobjectChangedTest(GameObject* _obj)
 MoonlitEditor::MoonlitEditor()
 {
 	ads::CDockManager::setConfigFlags(ads::CDockManager::DefaultOpaqueConfig);
+	ads::CDockManager::setConfigFlag(ads::CDockManager::EqualSplitOnInsertion, true);
+	ads::CDockManager::setConfigFlag(ads::CDockManager::RetainTabSizeWhenCloseButtonHidden, true);
 
 	Editor = this;
 
@@ -50,12 +53,16 @@ MoonlitEditor::MoonlitEditor()
 		int argc = 1;
 		char* argv[] = {(char*)"app", nullptr};
 		m_app = new QApplication(argc, argv);
-		m_app->setStyle("Fusion");
+		QFile styleSheet("Resources/EditorStyles/darkstyle.qss");
+		if (styleSheet.open(QFile::ReadOnly | QFile::Text)) {
+			QTextStream stream(&styleSheet);
+			m_app->setStyleSheet(stream.readAll());
+		}
+		// m_app->setPalette(getDarkPalette());
 	} catch (std::exception& e)
 	{
 		LOG_ERROR(e.what());
 	}
-
 
 	//Create the main window
 	m_mainWindow = new EditorMainWindow(DefaultEditorWidth, DefaultEditorHeight);

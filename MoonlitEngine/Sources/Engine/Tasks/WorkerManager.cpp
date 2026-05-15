@@ -90,6 +90,15 @@ namespace Moonlit::Tasks
         }
     }
 
+    void WorkerManager::restart() {
+        {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_state = State::RUNNING;
+        }
+
+        m_cv.notify_all();
+    }
+
     void WorkerManager::drain()
     {
         {
@@ -144,13 +153,12 @@ namespace Moonlit::Tasks
 
         for (int i = 0; i < m_threadCount; i++)
         {
-            m_threads.push_back(std::thread(threadLoop, MainWorkerManager, ParentWorkerManager, this));
+            m_threads.push_back(std::thread(threadLoop, ParentWorkerManager, this));
         }
     }
 
-    void threadLoop(WorkerManager *_main, WorkerManager *_parent, WorkerManager *_current)
+    void threadLoop(WorkerManager *_parent, WorkerManager *_current)
     {
-        MainWorkerManager = _main;
         ParentWorkerManager = _parent;
         CurrentWorkerManager = _current;
 

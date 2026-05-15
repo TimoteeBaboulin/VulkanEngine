@@ -9,6 +9,9 @@
 class EditorWindowBase;
 class EditorMainWindow;
 
+const std::filesystem::path MODULES_DIRECTORY = std::filesystem::current_path() / "Modules";
+const std::filesystem::path TEMP_DIRECTORY = std::filesystem::current_path() / "Temp";
+
 namespace Moonlit {
 	class MoonlitEngine;
 }
@@ -33,6 +36,8 @@ public:
 	}
 
 	MoonlitEditor();
+
+	void ReloadModules();
 
 	Moonlit::MoonlitEngine& GetEngine() { return *m_engine; }
 	QApplication& GetApplication() { return *m_app; }

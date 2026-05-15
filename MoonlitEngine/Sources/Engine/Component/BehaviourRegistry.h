@@ -9,10 +9,11 @@
 #include "ObjectBehaviour.h"
 #include "Debug/Logger.h"
 
-class GameObject;
 
 namespace Moonlit
 {
+	class GameObject;
+
 	using BehaviourCreateFunction = ObjectBehaviour * (*)(class GameObject*);
 
 	struct MOONLIT_API BehaviourRegistryEntry

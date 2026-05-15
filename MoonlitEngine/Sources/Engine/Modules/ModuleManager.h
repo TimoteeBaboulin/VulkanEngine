@@ -28,7 +28,12 @@ namespace Moonlit {
         ModuleManager();
         ~ModuleManager();
 
+        bool TryGetModule(const std::filesystem::path& _path, ModuleInfo& _outModuleInfo);
+
+        void unloadModuleInternal(const std::string _name);
+
         std::vector<ModuleInfo> m_loadedModules;
+        std::mutex m_mutex;
     };
 }
 

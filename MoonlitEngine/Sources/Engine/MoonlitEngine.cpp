@@ -13,7 +13,6 @@
 #include <filesystem>
 #include <iostream>
 
-#include "Modules/CMakeGenerator.h"
 #include "Scene/SceneManager.h"
 
 Moonlit::MoonlitEngine* Moonlit::MoonlitEngine::m_instance = nullptr;
@@ -93,27 +92,6 @@ void Moonlit::MoonlitEngine::LoadProjectModules()
 	}
 }
 
-void Moonlit::MoonlitEngine::ReloadModules()
-{
-	std::filesystem::path current = std::filesystem::current_path();
-	std::vector<std::string> unloadedModules;
-	std::string sceneSavePath = m_activeScene->GetSavePath();
-
-	std::filesystem::path buildPath = current / "Modules";
-	std::filesystem::path sourcePath = current / "Sources";
-
-	Tasks::WorkerManager* wm = Tasks::MainWorkerManager;
-	wm->drain();
-
-	UnloadScene();
-	UnloadAllModules(&unloadedModules);
-
-	LoadModules(unloadedModules);
-	LoadProjectModules();
-
-	LoadScene(sceneSavePath);
-}
-
 void SendData()
 {
 	std::cout << "MoonlitEngine Init: Sending data" << std::endl;
@@ -123,7 +101,7 @@ void Moonlit::MoonlitEngine::Init()
 {
 	ResourceManagement::ResourceManager::Get();
 	ModuleManager& moduleManager = ModuleManager::Get();
-	moduleManager.LoadModulesFromDirectory("./Modules");
+	moduleManager.LoadModule("./DefaultPlugin.dll");
 
 	m_activeScene = new Scene();
 	if (!m_activeScene)

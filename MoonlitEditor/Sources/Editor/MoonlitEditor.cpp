@@ -23,6 +23,7 @@
 #include "Engine/Component/GameObject.h"
 
 #include "Engine/Events/EventUtility.h"
+#include "Engine/Modules/ModuleManager.h"
 
 constexpr int DefaultEditorWidth = 860;
 constexpr int DefaultEditorHeight = 540;
@@ -81,6 +82,52 @@ MoonlitEditor::MoonlitEditor()
 	m_app->processEvents();
 
 	m_app->exec();
+}
+
+void MoonlitEditor::ReloadModules() {
+	std::filesystem::path modulePath = MODULES_DIRECTORY;
+	std::filesystem::path tempPath = TEMP_DIRECTORY;
+
+	Moonlit::MoonlitEngine& engine = Moonlit::MoonlitEngine::Get();
+	Moonlit::ModuleManager &moduleManager = Moonlit::ModuleManager::Get();
+	Moonlit::Tasks::WorkerManager& workerManager = *engine.GetMainWorkerManager();
+
+	workerManager.drain();
+
+	std::string scenePath = engine.GetScene().GetSavePath();
+	engine.UnloadScene();
+	moduleManager.UnloadAllModules();
+
+	if (std::filesystem::exists(tempPath)) {
+		std::filesystem::remove_all(tempPath);
+	}
+	std::filesystem::create_directory(tempPath);
+
+	if (!std::filesystem::exists(modulePath) || !std::filesystem::is_directory(modulePath)) {
+		LOG_WARNING("Modules directory does not exist, skipping module loading");
+		return;
+	}
+
+	workerManager.restart();
+
+	for (auto moduleFile: std::filesystem::recursive_directory_iterator(modulePath)) {
+		if (moduleFile.path().extension() == ".dll") {
+
+			std::shared_ptr<Moonlit::Tasks::Task> task = std::make_shared<Moonlit::Tasks::Task>([&tempPath, moduleFile]() {
+				std::filesystem::path copyPath = tempPath/moduleFile.path().filename();
+				std::filesystem::copy_file(moduleFile.path(), copyPath);
+				Moonlit::ModuleManager::Get().LoadModule(copyPath);
+			});
+
+			workerManager.addTask(task);
+			LOG_INFO("Scheduled loading of module " + moduleFile.path().string());
+		}
+	}
+
+	workerManager.drain();
+	workerManager.restart();
+
+	engine.LoadScene(scenePath);
 }
 
 void MoonlitEditor::LoadDefaultLayout()

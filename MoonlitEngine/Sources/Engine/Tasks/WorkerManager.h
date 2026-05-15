@@ -24,7 +24,7 @@ namespace Moonlit::Tasks
     class WorkerManager;
     class Pipeline;
 
-    void threadLoop(WorkerManager* _main, WorkerManager* _parent, WorkerManager* _current);
+    void threadLoop(WorkerManager* _parent, WorkerManager* _current);
 
     class MOONLIT_API WorkerManager
     {
@@ -51,6 +51,7 @@ namespace Moonlit::Tasks
         void addTasks(std::vector<TASK_FUNC>& _tasks);
         void addTasks(std::vector<std::shared_ptr<Task>> _tasks);
 
+        void restart();
         void drain();
 
         size_t remainingTaskCount() {return m_tasks.size();};
@@ -72,10 +73,10 @@ namespace Moonlit::Tasks
         int calculateThreadCount();
         void generateThreads();
 
-        friend void threadLoop(WorkerManager* _main, WorkerManager* _parent, WorkerManager* _current);
+        friend void threadLoop(WorkerManager* _parent, WorkerManager* _current);
     };
 
-    inline thread_local WorkerManager* MainWorkerManager = nullptr;
+    inline static WorkerManager* MainWorkerManager = nullptr;
     inline thread_local WorkerManager* CurrentWorkerManager = nullptr;
     inline thread_local WorkerManager* ParentWorkerManager = nullptr;
 }

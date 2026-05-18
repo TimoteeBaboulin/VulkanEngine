@@ -30,6 +30,7 @@ void DefaultDockManager::AddWidget(QWidget* _widget, const char* _title, ads::Do
 {
 	DockWidgetPair pair = std::make_pair(_widget, m_dockManager->createDockWidget(_title));
 	pair.second->setWidget(_widget);
+	pair.second->setIcon(QIcon());
 	m_dockManager->addDockWidget(_area, pair.second);
 	m_dockWidgets.emplace_back(pair);
 }

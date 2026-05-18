@@ -2264,6 +2264,7 @@ ads--CDockWidgetTab {
     border: none;
     padding: 4px 12px;
     color: #9DA9B5;
+    qproperty-iconSize: 0px 0px;
 }
 
 ads--CDockWidgetTab[activeTab="true"] {

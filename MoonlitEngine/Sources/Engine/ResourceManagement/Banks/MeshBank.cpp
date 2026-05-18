@@ -63,7 +63,7 @@ Moonlit::MeshData GetMesh(aiMesh* _mesh)
 	return mesh;
 }
 
-bool Moonlit::ResourceManagement::MeshBank::TryLoad(std::string _filepath)
+bool Moonlit::ResourceManagement::MeshBank::TryLoad(const std::string& _filepath)
 {
 	namespace fs = std::filesystem;
 

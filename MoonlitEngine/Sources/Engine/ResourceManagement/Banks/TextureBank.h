@@ -23,7 +23,7 @@ namespace Moonlit::ResourceManagement
 			return *static_cast<TextureBank*>(Instance);
 		}
 
-		bool TryLoad(std::string _filepath) override;
+		bool TryLoad(const std::string& _filepath) override;
 
 	private:
 	};

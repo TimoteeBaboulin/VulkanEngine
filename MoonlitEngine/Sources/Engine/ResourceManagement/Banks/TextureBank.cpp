@@ -8,7 +8,7 @@
 #include "Engine/ResourceManagement/Helpers/ImageHelper.h"
 #include "../../../Debug/Logger.h"
 
-bool Moonlit::ResourceManagement::TextureBank::TryLoad(std::string _filepath)
+bool Moonlit::ResourceManagement::TextureBank::TryLoad(const std::string& _filepath)
 {
     namespace fs = std::filesystem;
 
@@ -20,12 +20,6 @@ bool Moonlit::ResourceManagement::TextureBank::TryLoad(std::string _filepath)
     }
 
     std::string name = path.stem().string();
-
-    if (m_resources.contains(name))
-    {
-        Debug::Logger::LogWarning("Mesh with name " + name + " already exist in MeshBank.");
-        return false;
-    }
 
 	InsertResource(name, ImageHelper::LoadFromFile(_filepath));
 

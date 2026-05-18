@@ -23,6 +23,6 @@ namespace Moonlit::ResourceManagement
 
 		MeshBank() : ResourceBank<MeshData>() {};
 
-		bool TryLoad(std::string _filepath) override;
+		bool TryLoad(const std::string& _filepath) override;
 	};
 }

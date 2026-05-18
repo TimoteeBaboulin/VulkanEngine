@@ -8,6 +8,10 @@
 
 #include <filesystem>
 
+#include "Engine/MoonlitEngine.h"
+#include "Engine/Modules/ModuleManager.h"
+#include "Engine/Tasks/Task.h"
+
 Moonlit::ResourceManagement::ResourceManager::ResourceManager()
 {
 	MeshBank::Initialize();
@@ -17,11 +21,19 @@ Moonlit::ResourceManagement::ResourceManager::ResourceManager()
 	m_resourceBanks[std::type_index(typeid(Moonlit::Image))] = (void*)&TextureBank::Get();
 
 	std::vector<std::string> meshFiles = FileHelper::ListFilesInDirectory("./");
-	
+	std::vector<std::shared_ptr<Tasks::Task>> tasks;
+
 	for (const std::string& meshFile : meshFiles)
 	{
-		LoadFileResource(meshFile);
+		std::shared_ptr<Tasks::Task> task = std::make_shared<Tasks::Task>([this, &meshFile]() {
+			LoadFileResource(meshFile);
+		});
+
+		tasks.push_back(task);
 	}
+
+	Tasks::WorkerManager& wm = *MoonlitEngine::Get().GetMainWorkerManager();
+	wm.addTasks(tasks);
 }
 
 void Moonlit::ResourceManagement::ResourceManager::LoadFileResource(std::string _filepath)
@@ -29,6 +41,7 @@ void Moonlit::ResourceManagement::ResourceManager::LoadFileResource(std::string 
 	std::filesystem::path filePath;
 	filePath = _filepath;
 	std::string extension = filePath.extension().string();
+
 	if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
 	{
 		if (!TryLoadResourceInternal<MeshData>(_filepath))

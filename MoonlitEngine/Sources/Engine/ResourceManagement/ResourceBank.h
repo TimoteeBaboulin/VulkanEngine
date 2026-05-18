@@ -3,15 +3,11 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <memory>
+#include <mutex>
 
 namespace Moonlit::ResourceManagement
 {
 	constexpr int ResourceBankDefaultSize = 10;
-	//
-	////Forward declaration
-	//template <class T>
-	//class ResourceBank;
 
 	template <class T>
 	struct ResourcePair
@@ -47,13 +43,15 @@ namespace Moonlit::ResourceManagement
 		RESOURCE_TYPE& operator[](std::string _name);
 
 		// Load/Unload
-		virtual bool TryLoad(std::string _filepath) = 0;
+		virtual bool TryLoad(const std::string& _filepath) = 0;
 		void TryUnloadUnusedResources();
 
 	protected:
 		std::map<std::string, RESOURCE_TYPE> m_resources;
 
 		void InsertResource(const std::string& _name, const RESOURCE_TYPE& _resource);
+
+		std::mutex m_mutex;
 	};
 }
 

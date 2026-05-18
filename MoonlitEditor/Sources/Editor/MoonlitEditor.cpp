@@ -74,6 +74,7 @@ MoonlitEditor::MoonlitEditor()
 	// Engine requires a low level HWND to avoid breaking Qt's systems
 	m_engine = new Moonlit::MoonlitEngine((void*)mainHandle);
 	m_engine->Init();
+	ReloadModules();
 
 	LoadDefaultLayout();
 

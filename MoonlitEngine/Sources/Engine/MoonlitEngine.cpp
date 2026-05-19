@@ -99,9 +99,9 @@ void SendData()
 
 void Moonlit::MoonlitEngine::Init()
 {
+	Tasks::WorkerManager* manager = new Tasks::WorkerManager();
 	ResourceManagement::ResourceManager::Get();
 	ModuleManager& moduleManager = ModuleManager::Get();
-	moduleManager.LoadModule("./DefaultPlugin.dll");
 
 	m_activeScene = new Scene();
 	if (!m_activeScene)
@@ -109,8 +109,6 @@ void Moonlit::MoonlitEngine::Init()
 		LOG_ERROR("MoonlitEngine Init: Failed to create active scene");
 		return;
 	}
-
-	Tasks::WorkerManager* manager = new Tasks::WorkerManager();
 }
 
 void Moonlit::MoonlitEngine::Update()

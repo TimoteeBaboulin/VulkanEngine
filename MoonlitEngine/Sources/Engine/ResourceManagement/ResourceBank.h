@@ -26,6 +26,7 @@ namespace Moonlit::ResourceManagement
 	class ResourceBank
 	{
 	public:
+		using resource_type = RESOURCE_TYPE;
 		using PAIR_TYPE = ResourcePair<RESOURCE_TYPE>;
 		using HANDLE_TYPE = ResourceHandle<RESOURCE_TYPE>;
 

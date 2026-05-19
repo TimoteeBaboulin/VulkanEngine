@@ -24,11 +24,13 @@
 
 #include "Engine/Events/EventUtility.h"
 #include "Engine/Modules/ModuleManager.h"
+#include "Engine/ResourceManagement/ResourceManager.h"
+#include "Utility/CommandLineParser.h"
 
 constexpr int DefaultEditorWidth = 860;
 constexpr int DefaultEditorHeight = 540;
 
-MoonlitEditor* MoonlitEditor::Editor = new MoonlitEditor();
+MoonlitEditor* MoonlitEditor::Editor = nullptr;
 
 void GameobjectChangedTest(GameObject* _obj)
 {
@@ -42,11 +44,11 @@ void GameobjectChangedTest(GameObject* _obj)
 
 MoonlitEditor::MoonlitEditor()
 {
+	Editor = this;
+
 	ads::CDockManager::setConfigFlags(ads::CDockManager::DefaultOpaqueConfig);
 	ads::CDockManager::setConfigFlag(ads::CDockManager::EqualSplitOnInsertion, true);
 	ads::CDockManager::setConfigFlag(ads::CDockManager::RetainTabSizeWhenCloseButtonHidden, true);
-
-	Editor = this;
 
 	//Needed for application initialization
 	try
@@ -54,12 +56,27 @@ MoonlitEditor::MoonlitEditor()
 		int argc = 1;
 		char* argv[] = {(char*)"app", nullptr};
 		m_app = new QApplication(argc, argv);
-		QFile styleSheet("Resources/EditorStyles/darkstyle.qss");
+
+		std::string projectArg;
+		std::filesystem::path projectRoot;
+		if (Moonlit::Editor::CommandLineParser::TryGetValue("mlproject", projectArg))
+		{
+			projectRoot = std::filesystem::path(projectArg).parent_path();
+			LOG_INFO("MoonlitEditor - Project root: " + projectRoot.string());
+		}
+		else
+		{
+			projectRoot = std::filesystem::path(m_app->applicationDirPath().toStdString());
+		}
+		m_projectPaths.Init(projectRoot);
+
+		QFile styleSheet(QString::fromStdString(
+			(m_projectPaths.GetResourcesPath() / "EditorStyles/darkstyle.qss").string()
+		));
 		if (styleSheet.open(QFile::ReadOnly | QFile::Text)) {
 			QTextStream stream(&styleSheet);
 			m_app->setStyleSheet(stream.readAll());
 		}
-		// m_app->setPalette(getDarkPalette());
 	} catch (std::exception& e)
 	{
 		LOG_ERROR(e.what());
@@ -75,6 +92,9 @@ MoonlitEditor::MoonlitEditor()
 	m_engine = new Moonlit::MoonlitEngine((void*)mainHandle);
 	m_engine->Init();
 	ReloadModules();
+	Moonlit::ResourceManagement::ResourceManager::LoadResourcesFromDirectory(
+		m_projectPaths.GetResourcesPath().string()
+	);
 
 	LoadDefaultLayout();
 
@@ -86,8 +106,8 @@ MoonlitEditor::MoonlitEditor()
 }
 
 void MoonlitEditor::ReloadModules() {
-	std::filesystem::path modulePath = MODULES_DIRECTORY;
-	std::filesystem::path tempPath = TEMP_DIRECTORY;
+	std::filesystem::path modulePath = m_projectPaths.GetModulesPath();
+	std::filesystem::path tempPath = m_projectPaths.GetTempModulePath();
 
 	Moonlit::MoonlitEngine& engine = Moonlit::MoonlitEngine::Get();
 	Moonlit::ModuleManager &moduleManager = Moonlit::ModuleManager::Get();

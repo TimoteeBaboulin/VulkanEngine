@@ -27,7 +27,9 @@ FileExplorer::~FileExplorer()
 void FileExplorer::Init()
 {
 	m_fileSystemModel = new QFileSystemModel(this);
-	QString path = MoonlitEditor::Editor->GetApplication().applicationDirPath();
+	QString path = QString::fromStdString(
+		MoonlitEditor::Editor->GetProjectPaths().GetProjectRoot().string()
+	);
 	m_fileSystemModel->setRootPath(path);
 
 	m_treeView = new QTreeView(this);

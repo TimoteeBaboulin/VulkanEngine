@@ -18,6 +18,9 @@ namespace Moonlit::ResourceManagement {
     class MOONLIT_API ResourceManager {
         // Static
     public:
+        template<class BANK_TYPE>
+        void InitBank();
+
         template<class RESOURCE_TYPE>
         static void RegisterResourceBank(ResourceBank<RESOURCE_TYPE> *_bank)
         {
@@ -63,6 +66,8 @@ namespace Moonlit::ResourceManagement {
             }
             return resources;
         }
+
+        static void LoadResourcesFromDirectory(const std::string& _path);
 
         static ResourceManager& Get();
 

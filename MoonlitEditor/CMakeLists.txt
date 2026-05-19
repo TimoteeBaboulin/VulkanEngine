@@ -27,16 +27,6 @@ ADD_CUSTOM_COMMAND(TARGET MoonlitEditor POST_BUILD
         $<TARGET_FILE_DIR:MoonlitEditor>
 )
 
-if(NOT DEFINED MOONLIT_RESOURCES_DIR)
-    SET(MOONLIT_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/Resources" CACHE PATH "Moonlit project resources directory")
-endif()
-
-ADD_CUSTOM_COMMAND(TARGET MoonlitEditor POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${MOONLIT_RESOURCES_DIR}"
-        "$<TARGET_FILE_DIR:MoonlitEditor>/Resources"
-)
-
 INSTALL(TARGETS MoonlitEditor
         BUNDLE DESTINATION .
         RUNTIME DESTINATION $<TARGET_FILE_DIR:MoonlitEditor>

@@ -5,12 +5,10 @@
 
 #include "Engine/Events/Event.h"
 #include "Engine/Component/GameObject.h"
+#include "Editor/ProjectPaths.h"
 
 class EditorWindowBase;
 class EditorMainWindow;
-
-const std::filesystem::path MODULES_DIRECTORY = std::filesystem::current_path() / "Modules";
-const std::filesystem::path TEMP_DIRECTORY = std::filesystem::current_path() / "Temp";
 
 namespace Moonlit {
 	class MoonlitEngine;
@@ -41,6 +39,7 @@ public:
 
 	Moonlit::MoonlitEngine& GetEngine() { return *m_engine; }
 	QApplication& GetApplication() { return *m_app; }
+	Moonlit::Editor::ProjectPaths& GetProjectPaths() { return m_projectPaths; }
 
 private:
 	EditorMainWindow* m_mainWindow = nullptr;
@@ -53,6 +52,7 @@ private:
 	std::vector<EditorWindowBase*> m_editorWindows;
 
 	class DefaultDockManager* m_dockManager;
+	Moonlit::Editor::ProjectPaths m_projectPaths;
 
 	void LoadDefaultLayout();
 };

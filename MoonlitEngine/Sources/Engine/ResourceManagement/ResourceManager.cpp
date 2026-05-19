@@ -20,13 +20,13 @@ Moonlit::ResourceManagement::ResourceManager::ResourceManager()
 	m_resourceBanks[std::type_index(typeid(Moonlit::MeshData))] = (void*)&MeshBank::Get();
 	m_resourceBanks[std::type_index(typeid(Moonlit::Image))] = (void*)&TextureBank::Get();
 
-	std::vector<std::string> meshFiles = FileHelper::ListFilesInDirectory("./");
+	std::vector<std::string> resourceFiles = FileHelper::ListFilesInDirectory("./Resources");
 	std::vector<std::shared_ptr<Tasks::Task>> tasks;
 
-	for (const std::string& meshFile : meshFiles)
+	for (const std::string& resourceFile : resourceFiles)
 	{
-		std::shared_ptr<Tasks::Task> task = std::make_shared<Tasks::Task>([this, &meshFile]() {
-			LoadFileResource(meshFile);
+		std::shared_ptr<Tasks::Task> task = std::make_shared<Tasks::Task>([this, &resourceFile]() {
+			LoadFileResource(resourceFile);
 		});
 
 		tasks.push_back(task);

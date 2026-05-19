@@ -2,6 +2,7 @@
 
 #include "Banks/MeshBank.h"
 #include "Banks/TextureBank.h"
+#include "Banks/MaterialBank.h"
 #include "Engine/ResourceManagement/Helpers/FileHelper.h"
 
 #include "../../Debug/Logger.h"
@@ -16,6 +17,7 @@ Moonlit::ResourceManagement::ResourceManager::ResourceManager()
 {
 	InitBank<MeshBank>();
 	InitBank<TextureBank>();
+	InitBank<MaterialBank>();
 }
 
 void Moonlit::ResourceManagement::ResourceManager::LoadResourcesFromDirectory(const std::string& _path)
@@ -56,6 +58,13 @@ void Moonlit::ResourceManagement::ResourceManager::LoadFileResource(std::string 
 			LOG_ERROR("ResourceManager::LoadFileResource - Failed to load texture: " + _filepath);
 		else
 			LOG_INFO("ResourceManager::LoadFileResource - Loaded texture: " + _filepath);
+	}
+	else if (extension == ".slang")
+	{
+		if (!TryLoadResourceInternal<Moonlit::Material>(_filepath))
+			LOG_ERROR("ResourceManager::LoadFileResource - Failed to load material: " + _filepath);
+		else
+			LOG_INFO("ResourceManager::LoadFileResource - Loaded material: " + _filepath);
 	}
 }
 

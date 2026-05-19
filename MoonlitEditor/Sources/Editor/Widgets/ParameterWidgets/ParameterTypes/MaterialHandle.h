@@ -5,5 +5,5 @@
 
 namespace Moonlit::Editor
 {
-    using MeshHandleParameterEditor = ResourceHandleParameterEditor<Renderer::MeshHandle>;
+    using MaterialHandleParameterEditor = ResourceHandleParameterEditor<Renderer::MaterialHandle>;
 }

@@ -65,7 +65,7 @@ namespace Moonlit::ResourceManagement
             throw std::out_of_range("ResourceBank::operator[]");
         }
 
-        return m_resources[_name];
+        return m_resources.at(_name);
     }
 
     template<class T>
@@ -89,7 +89,7 @@ namespace Moonlit::ResourceManagement
             LOG_ERROR("Resource with name " + _name + " already exist in ResourceBank.");
         }
 
-        m_resources[_name] = _resource;
+        m_resources.insert_or_assign(_name, _resource);
     }
 }
 

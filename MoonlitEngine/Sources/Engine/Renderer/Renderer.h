@@ -5,6 +5,7 @@
 
 #include "Engine/ResourceManagement/ResourceManager.h"
 #include "../ResourceManagement/Resources/TextureData.h"
+#include "Material/Material.h"
 
 namespace vk
 {
@@ -28,6 +29,7 @@ namespace Moonlit::Renderer
 
 	using TextureHandle = ResourceManagement::ResourceHandle<Image>;
 	using MeshHandle = ResourceManagement::ResourceHandle<MeshData>;
+	using MaterialHandle = ResourceManagement::ResourceHandle<Moonlit::Material>;
 
 	/// <summary>
 	/// Main rendering class, this is the rendering module's entry point.

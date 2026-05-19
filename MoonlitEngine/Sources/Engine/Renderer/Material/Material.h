@@ -68,7 +68,7 @@ namespace Moonlit
 	/// Class representing a shader module <para/>
 	/// This class is device agnostic
 	/// </summary>
-	class Material
+	class MOONLIT_API Material
 	{
 		friend class MaterialInstance;
 

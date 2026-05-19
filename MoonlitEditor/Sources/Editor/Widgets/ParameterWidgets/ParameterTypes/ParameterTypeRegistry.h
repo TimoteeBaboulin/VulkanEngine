@@ -9,7 +9,8 @@
 
 #include <glm/vec3.hpp>
 
-#include "MeshHandle.h"
+#include "ResourceHandleEditor.h"
+#include "Engine/Renderer/Renderer.h"
 
 using ParamEditorFactory_t = std::function<ParameterEditorBase* (ParameterBase*, Moonlit::ObjectBehaviour*, QWidget*)>;
 
@@ -44,7 +45,22 @@ public:
 		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::MeshHandle>).name(),
 			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
 			{
-				return new Moonlit::Editor::MeshHandleParameterEditor(static_cast<Parameter<Moonlit::Renderer::MeshHandle>*>(_param), _behaviour, _parent);
+				using H = Moonlit::Renderer::MeshHandle;
+				return new Moonlit::Editor::ResourceHandleParameterEditor<H>(static_cast<Parameter<H>*>(_param), _behaviour, _parent);
+			});
+
+		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::TextureHandle>).name(),
+			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
+			{
+				using H = Moonlit::Renderer::TextureHandle;
+				return new Moonlit::Editor::ResourceHandleParameterEditor<H>(static_cast<Parameter<H>*>(_param), _behaviour, _parent);
+			});
+
+		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::MaterialHandle>).name(),
+			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
+			{
+				using H = Moonlit::Renderer::MaterialHandle;
+				return new Moonlit::Editor::ResourceHandleParameterEditor<H>(static_cast<Parameter<H>*>(_param), _behaviour, _parent);
 			});
 	}
 

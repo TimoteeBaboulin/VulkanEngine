@@ -35,6 +35,7 @@ TARGET_SOURCES(
         Sources/Engine/ResourceManagement/Helpers/FileHelper.cpp
         Sources/Engine/ResourceManagement/Helpers/ImageHelper.cpp
         Sources/Engine/ResourceManagement/Banks/MeshBank.cpp
+        Sources/Engine/ResourceManagement/Banks/MaterialBank.cpp
         Sources/Engine/ResourceManagement/ResourceManager.cpp
         Sources/Engine/ResourceManagement/Banks/TextureBank.cpp
         Sources/Engine/Scene/Scene.cpp
@@ -87,6 +88,7 @@ TARGET_SOURCES(
         Sources/Engine/ResourceManagement/Resources/Image.h
         Sources/Engine/ResourceManagement/Resources/Mesh.h
         Sources/Engine/ResourceManagement/Banks/MeshBank.h
+        Sources/Engine/ResourceManagement/Banks/MaterialBank.h
         Sources/Engine/ResourceManagement/ResourceBank.h
         Sources/Engine/ResourceManagement/ResourceBank.ipp
         Sources/Engine/ResourceManagement/ResourceHandle.h

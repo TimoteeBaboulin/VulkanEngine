@@ -29,8 +29,12 @@ private:
 
 	class TransformBehaviour* m_transformComponent = nullptr;
 
+	void OnMaterialChanged();
+	std::vector<Moonlit::Renderer::TextureHandle> GetTextureHandles() const;
+
 	Parameter<Moonlit::ResourceManagement::ResourceHandle<Moonlit::MeshData>> m_meshData;
-	Parameter<std::vector<Moonlit::Renderer::TextureHandle>> m_textureHandles;
+	Parameter<Moonlit::Renderer::MaterialHandle> m_material;
+	std::vector<ParameterBase*> m_materialParameters;
 
 	Moonlit::Events::ScopedEventSubscriber<>* m_transformChangedSubscriber = nullptr;
 	uint32_t m_instanceId = 0;

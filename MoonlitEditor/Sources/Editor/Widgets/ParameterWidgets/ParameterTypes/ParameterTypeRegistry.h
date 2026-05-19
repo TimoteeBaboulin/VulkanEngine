@@ -41,31 +41,18 @@ public:
 				LOG_INFO("ParameterTypeRegistry Vector3ParameterEditor lambda");
 				return new Moonlit::Editor::Vector3ParameterEditor(static_cast<Parameter<glm::vec3>*>(_param), _behaviour, _parent);
 			});
-
-		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::MeshHandle>).name(),
-			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
-			{
-				using H = Moonlit::Renderer::MeshHandle;
-				return new Moonlit::Editor::ResourceHandleParameterEditor<H>(static_cast<Parameter<H>*>(_param), _behaviour, _parent);
-			});
-
-		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::TextureHandle>).name(),
-			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
-			{
-				using H = Moonlit::Renderer::TextureHandle;
-				return new Moonlit::Editor::ResourceHandleParameterEditor<H>(static_cast<Parameter<H>*>(_param), _behaviour, _parent);
-			});
-
-		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::MaterialHandle>).name(),
-			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
-			{
-				using H = Moonlit::Renderer::MaterialHandle;
-				return new Moonlit::Editor::ResourceHandleParameterEditor<H>(static_cast<Parameter<H>*>(_param), _behaviour, _parent);
-			});
 	}
 
 	void RegisterParameterType(const char* _typeName, ParamEditorFactory_t _factory)
 	{
+		for (auto& entry : m_registeredTypes)
+		{
+			if (strcmp(entry.ParameterTypeName, _typeName) == 0)
+			{
+				entry.FactoryFunction = _factory;
+				return;
+			}
+		}
 		m_registeredTypes.push_back({ _typeName, _factory });
 	}
 

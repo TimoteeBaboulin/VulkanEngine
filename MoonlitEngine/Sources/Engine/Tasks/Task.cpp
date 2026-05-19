@@ -19,7 +19,6 @@ namespace Moonlit::Tasks
 
     Task::~Task()
     {
-        LOG_INFO("Deleting task");
     }
 
     void Task::addDependency(std::shared_ptr<Task> task)

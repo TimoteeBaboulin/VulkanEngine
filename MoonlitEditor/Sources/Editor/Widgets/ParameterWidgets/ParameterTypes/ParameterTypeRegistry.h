@@ -38,8 +38,26 @@ public:
 		RegisterParameterType(typeid(Parameter<glm::vec3>).name(),
 			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
 			{
-				LOG_INFO("ParameterTypeRegistry Vector3ParameterEditor lambda");
 				return new Moonlit::Editor::Vector3ParameterEditor(static_cast<Parameter<glm::vec3>*>(_param), _behaviour, _parent);
+			});
+
+		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::MeshHandle>).name(),
+			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
+			{
+				return new Moonlit::Editor::ResourceHandleParameterEditor<Moonlit::Renderer::MeshHandle>
+					(static_cast<Parameter<Moonlit::Renderer::MeshHandle>*>(_param), _behaviour, _parent);
+			});
+		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::TextureHandle>).name(),
+			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
+			{
+				return new Moonlit::Editor::ResourceHandleParameterEditor<Moonlit::Renderer::TextureHandle>
+					(static_cast<Parameter<Moonlit::Renderer::TextureHandle>*>(_param), _behaviour, _parent);
+			});
+		RegisterParameterType(typeid(Parameter<Moonlit::Renderer::MaterialHandle>).name(),
+			[](ParameterBase* _param, Moonlit::ObjectBehaviour* _behaviour, QWidget* _parent) -> ParameterEditorBase*
+			{
+				return new Moonlit::Editor::ResourceHandleParameterEditor<Moonlit::Renderer::MaterialHandle>
+					(static_cast<Parameter<Moonlit::Renderer::MaterialHandle>*>(_param), _behaviour, _parent);
 			});
 	}
 

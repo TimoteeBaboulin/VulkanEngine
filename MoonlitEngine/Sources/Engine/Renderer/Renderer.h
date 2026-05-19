@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "../Inputs/InputManager.h"
 #include "common.h"
 
@@ -42,11 +44,14 @@ namespace Moonlit::Renderer
 
 		void Init(struct ContextInfo& _info, std::vector<const char*> requiredExtensions);
 		void Cleanup();
-		uint32_t AddMeshInstance(MeshHandle _mesh,
+		uint32_t AddMeshInstance(MaterialHandle _material,
+			MeshHandle _mesh,
 			std::vector<TextureHandle> _textures,
 			glm::mat4x4 _model);
 		void UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model);
 		void UpdateInstanceMesh(uint32_t _instanceId, MeshHandle _mesh);
+		void UpdateInstanceTextures(uint32_t _instanceId, std::vector<TextureHandle> _textures);
+		uint32_t UpdateInstanceMaterial(uint32_t _instanceId, MaterialHandle _material, MeshHandle _mesh, std::vector<TextureHandle> _textures);
 		void RemoveMeshInstance(uint32_t _instanceId);
 		RenderTarget* AddRenderTarget(void* _handle, Camera* _camera);
 
@@ -71,6 +76,7 @@ namespace Moonlit::Renderer
 		bool m_windowClosed = false;
 
 		std::vector<DrawBuffer*> m_drawBuffers;
+		std::unordered_map<uint32_t, DrawBuffer*> m_instanceBufferMap;
 		//vk::CommandPool m_mainCommandPool;
 
 #pragma region Debug
@@ -84,6 +90,8 @@ namespace Moonlit::Renderer
 #pragma region SwapchainParameters
 		bool m_swapchainOutOfDate = false;
 #pragma endregion
+
+		DrawBuffer* FindOrCreateDrawBuffer(MaterialHandle _material);
 
 		void InitContext(ContextInfo& _info, std::vector<const char*> requiredExtensions);
 		void InitVulkan();

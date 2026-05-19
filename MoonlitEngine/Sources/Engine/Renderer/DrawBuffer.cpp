@@ -184,6 +184,48 @@ void Moonlit::Renderer::DrawBuffer::RenderBuffer(RenderTarget& _target, vk::Comm
 	m_deviceBridge.Render(_cmd, _renderPass, _target.GetDescriptorSet());
 }
 
+glm::mat4x4 Moonlit::Renderer::DrawBuffer::GetInstanceModel(uint32_t _instanceId) const
+{
+	auto it = std::find_if(m_meshInstances.begin(), m_meshInstances.end(),
+		[_instanceId](const InstanceData& _data) { return _data.Id == _instanceId; });
+
+	if (it == m_meshInstances.end())
+	{
+		LOG_WARNING("DrawBuffer::GetInstanceModel - Instance not found, returning identity.");
+		return glm::mat4x4(1.0f);
+	}
+
+	return m_modelData[std::distance(m_meshInstances.begin(), it) * 2];
+}
+
+void Moonlit::Renderer::DrawBuffer::UpdateInstanceTextures(uint32_t _instanceId, std::vector<TextureHandle> _textures)
+{
+	auto it = std::find_if(m_meshInstances.begin(), m_meshInstances.end(),
+		[_instanceId](const InstanceData& _data) { return _data.Id == _instanceId; });
+
+	if (it == m_meshInstances.end())
+	{
+		LOG_WARNING("DrawBuffer::UpdateInstanceTextures - Instance not found.");
+		return;
+	}
+
+	size_t index = std::distance(m_meshInstances.begin(), it);
+	uint32_t textureCount = m_material->GetTextureCount();
+
+	for (size_t i = 0; i < textureCount; i++)
+	{
+		uint16_t oldIdx = m_textureIndices[index * textureCount + i];
+		if (oldIdx < m_textureList.size())
+			m_textureList[oldIdx].InstanceCount--;
+	}
+
+	std::vector<uint16_t> newIndices = GetTextureIndices(_textures);
+	for (size_t i = 0; i < newIndices.size() && i < textureCount; i++)
+		m_textureIndices[index * textureCount + i] = newIndices[i];
+
+	SetDeviceLinkDirty();
+}
+
 std::vector<Moonlit::Image*> Moonlit::Renderer::DrawBuffer::GetAllTextures() const
 {
 	std::vector<Image*> textures;

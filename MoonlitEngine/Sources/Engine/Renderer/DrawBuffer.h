@@ -81,6 +81,10 @@ namespace Moonlit::Renderer
 		std::vector<MeshEntry> GetMeshEntries() const { return m_meshEntries; }
 		std::vector<Image*> GetAllTextures() const;
 
+		Material* GetMaterial() const { return m_material; }
+		glm::mat4x4 GetInstanceModel(uint32_t _instanceId) const;
+		void UpdateInstanceTextures(uint32_t _instanceId, std::vector<TextureHandle> _textures);
+
 	private:
 		//DATA---------------------------------------------------------------------------------
 

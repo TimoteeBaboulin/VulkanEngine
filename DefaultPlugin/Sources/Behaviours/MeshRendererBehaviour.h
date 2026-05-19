@@ -38,4 +38,5 @@ private:
 
 	Moonlit::Events::ScopedEventSubscriber<>* m_transformChangedSubscriber = nullptr;
 	uint32_t m_instanceId = 0;
+	bool m_isInitialized = false;
 };

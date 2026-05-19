@@ -43,16 +43,7 @@ namespace Moonlit
 			return;
 		}
 
-    	json["root_count"] = m_rootGameObjects.size();
-
-    	nlohmann::json rootsJson;
-
-		for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
-		{
-			(*it)->SaveToFile(rootsJson);
-		}
-
-    	json["roots"] = rootsJson;
+    	SaveJson(json);
 
 		fileStream << json.dump(4);
 
@@ -64,10 +55,21 @@ namespace Moonlit
 		fileStream.close();
 	}
 
+	void Scene::SaveJson(nlohmann::json& _outJson) const {
+    	_outJson["root_count"] = m_rootGameObjects.size();
+
+    	nlohmann::json rootsJson;
+
+    	for (auto it = m_rootGameObjects.begin(); it != m_rootGameObjects.end(); it++)
+    	{
+    		(*it)->SaveToFile(rootsJson);
+    	}
+
+    	_outJson["roots"] = rootsJson;
+	}
+
 	void Scene::Load(const std::string& _filePath)
 	{
-		ClearScene();
-
 		std::ifstream fileStream;
 		fileStream.open(_filePath, std::ios::in | std::ios::binary);
 		if (!fileStream.is_open())
@@ -77,23 +79,28 @@ namespace Moonlit
 		}
 
     	nlohmann::json json = nlohmann::json::parse(fileStream);
+    	LoadJson(json);
 
-    	int rootCount = json["root_count"];
+    	m_savePath = _filePath;
+
+		fileStream.close();
+	}
+
+	void Scene::LoadJson(const nlohmann::json& _json) {
+    	ClearScene();
+
+    	int rootCount = _json["root_count"];
     	int id;
 
     	m_rootGameObjects.reserve(rootCount);
 
     	for (int i = 0; i < rootCount; i++)
     	{
-    		nlohmann::json root = json["roots"][i];
+    		nlohmann::json root = _json["roots"][i];
     		id = root["id"].get<uint64_t>();
     		m_rootGameObjects.emplace_back(new GameObject(id, *this));
     		m_rootGameObjects[i]->LoadFromFile(root);
     	}
-
-    	m_savePath = _filePath;
-
-		fileStream.close();
 	}
 
 	void Scene::ClearScene()

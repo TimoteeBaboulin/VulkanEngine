@@ -108,6 +108,7 @@ MoonlitEditor::MoonlitEditor()
 void MoonlitEditor::ReloadModules() {
 	std::filesystem::path modulePath = m_projectPaths.GetModulesPath();
 	std::filesystem::path tempPath = m_projectPaths.GetTempModulePath();
+	std::filesystem::path rootPath = m_projectPaths.GetProjectRoot();
 
 	Moonlit::MoonlitEngine& engine = Moonlit::MoonlitEngine::Get();
 	Moonlit::ModuleManager &moduleManager = Moonlit::ModuleManager::Get();
@@ -115,7 +116,9 @@ void MoonlitEditor::ReloadModules() {
 
 	workerManager.drain();
 
-	std::string scenePath = engine.GetScene().GetSavePath();
+	nlohmann::json sceneJson;
+	engine.GetScene().SaveJson(sceneJson);
+
 	engine.UnloadScene();
 	moduleManager.UnloadAllModules();
 
@@ -148,7 +151,7 @@ void MoonlitEditor::ReloadModules() {
 	workerManager.drain();
 	workerManager.restart();
 
-	engine.LoadScene(scenePath);
+	engine.CreateSceneFromJson(sceneJson);
 }
 
 void MoonlitEditor::LoadDefaultLayout()

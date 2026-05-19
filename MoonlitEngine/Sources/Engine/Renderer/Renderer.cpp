@@ -85,27 +85,93 @@ void Moonlit::Renderer::MoonlitRenderer::Cleanup()
 	delete m_context;
 }
 
-uint32_t Moonlit::Renderer::MoonlitRenderer::AddMeshInstance(MeshHandle _mesh,
+Moonlit::Renderer::DrawBuffer* Moonlit::Renderer::MoonlitRenderer::FindOrCreateDrawBuffer(MaterialHandle _material)
+{
+	Material* matPtr = &(*_material);
+	for (DrawBuffer* buffer : m_drawBuffers)
+	{
+		if (buffer->GetMaterial() == matPtr)
+			return buffer;
+	}
+	DrawBuffer* newBuffer = new DrawBuffer(matPtr, m_deviceManager->GetDeviceData());
+	m_drawBuffers.push_back(newBuffer);
+	return newBuffer;
+}
+
+uint32_t Moonlit::Renderer::MoonlitRenderer::AddMeshInstance(MaterialHandle _material,
+	MeshHandle _mesh,
 	std::vector<TextureHandle> _textures,
 	glm::mat4x4 _model)
 {
-	// Find the correct draw buffer for this mesh/material
-	return m_drawBuffers[0]->AddMeshInstance(_mesh, _textures, _model);
+	DrawBuffer* buffer = _material.IsValid() ? FindOrCreateDrawBuffer(_material) : m_drawBuffers[0];
+	uint32_t id = buffer->AddMeshInstance(_mesh, _textures, _model);
+	m_instanceBufferMap[id] = buffer;
+	return id;
 }
 
 void Moonlit::Renderer::MoonlitRenderer::UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model)
 {
-	m_drawBuffers[0]->UpdateInstanceModel(_instanceId, _model);
+	auto it = m_instanceBufferMap.find(_instanceId);
+	if (it == m_instanceBufferMap.end())
+	{
+		LOG_WARNING("Renderer::UpdateInstanceModel - Instance not found in buffer map.");
+		return;
+	}
+	it->second->UpdateInstanceModel(_instanceId, _model);
 }
 
 void Moonlit::Renderer::MoonlitRenderer::UpdateInstanceMesh(uint32_t _instanceId, MeshHandle _mesh)
 {
-	m_drawBuffers[0]->UpdateInstanceMesh(_instanceId, _mesh);
+	auto it = m_instanceBufferMap.find(_instanceId);
+	if (it == m_instanceBufferMap.end())
+	{
+		LOG_WARNING("Renderer::UpdateInstanceMesh - Instance not found in buffer map.");
+		return;
+	}
+	it->second->UpdateInstanceMesh(_instanceId, _mesh);
+}
+
+void Moonlit::Renderer::MoonlitRenderer::UpdateInstanceTextures(uint32_t _instanceId, std::vector<TextureHandle> _textures)
+{
+	auto it = m_instanceBufferMap.find(_instanceId);
+	if (it == m_instanceBufferMap.end())
+	{
+		LOG_WARNING("Renderer::UpdateInstanceTextures - Instance not found in buffer map.");
+		return;
+	}
+	it->second->UpdateInstanceTextures(_instanceId, _textures);
+}
+
+uint32_t Moonlit::Renderer::MoonlitRenderer::UpdateInstanceMaterial(uint32_t _instanceId, MaterialHandle _material, MeshHandle _mesh, std::vector<TextureHandle> _textures)
+{
+	auto it = m_instanceBufferMap.find(_instanceId);
+	if (it == m_instanceBufferMap.end())
+	{
+		LOG_WARNING("Renderer::UpdateInstanceMaterial - Instance not found in buffer map.");
+		return _instanceId;
+	}
+
+	DrawBuffer* oldBuffer = it->second;
+	glm::mat4x4 model = oldBuffer->GetInstanceModel(_instanceId);
+	oldBuffer->RemoveMeshInstance(_instanceId);
+	m_instanceBufferMap.erase(it);
+
+	DrawBuffer* newBuffer = _material.IsValid() ? FindOrCreateDrawBuffer(_material) : m_drawBuffers[0];
+	uint32_t newId = newBuffer->AddMeshInstance(_mesh, _textures, model);
+	m_instanceBufferMap[newId] = newBuffer;
+	return newId;
 }
 
 void Moonlit::Renderer::MoonlitRenderer::RemoveMeshInstance(uint32_t _instanceId)
 {
-	m_drawBuffers[0]->RemoveMeshInstance(_instanceId);
+	auto it = m_instanceBufferMap.find(_instanceId);
+	if (it == m_instanceBufferMap.end())
+	{
+		LOG_WARNING("Renderer::RemoveMeshInstance - Instance not found in buffer map.");
+		return;
+	}
+	it->second->RemoveMeshInstance(_instanceId);
+	m_instanceBufferMap.erase(it);
 }
 
 Moonlit::Renderer::RenderTarget* Moonlit::Renderer::MoonlitRenderer::AddRenderTarget(void* _handle, Camera* _camera)

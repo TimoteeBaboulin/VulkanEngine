@@ -42,6 +42,7 @@ namespace Moonlit
 		void Update();
 
 		void LoadScene(const std::string& _path);
+		void CreateSceneFromJson(const nlohmann::json& _json);
 		void ReloadScene();
 		void UnloadScene();
 

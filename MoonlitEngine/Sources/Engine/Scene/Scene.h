@@ -4,6 +4,7 @@
 #include <string>
 
 #include "../../MoonlitExport.h"
+#include "Engine/ResourceManagement/ResourceHandle.ipp"
 
 namespace Moonlit
 {
@@ -19,7 +20,9 @@ namespace Moonlit
 		~Scene();
 
 		void Save(const std::string& _filePath);
+		void SaveJson(nlohmann::json& _outJson) const;
 		void Load(const std::string& _filePath);
+		void LoadJson(const nlohmann::json& _json);
 
 		void ClearScene();
 

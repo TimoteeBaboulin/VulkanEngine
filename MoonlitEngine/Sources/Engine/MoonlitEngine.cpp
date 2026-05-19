@@ -150,6 +150,16 @@ void Moonlit::MoonlitEngine::LoadScene(const std::string& _path)
 	OnSceneLoaded(this, m_activeScene);
 }
 
+void Moonlit::MoonlitEngine::CreateSceneFromJson(const nlohmann::json& _json) {
+	if (m_activeScene) {
+		UnloadScene();
+	}
+
+	m_activeScene = new Scene();
+	m_activeScene->LoadJson(_json);
+	OnSceneLoaded(this, m_activeScene);
+}
+
 void Moonlit::MoonlitEngine::ReloadScene()
 {
 	if (!m_activeScene)

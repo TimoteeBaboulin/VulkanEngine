@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <unordered_map>
+
 #include "MeshRendererBehaviour.h"
 #include "TransformBehaviour.h"
 
@@ -76,6 +78,10 @@ void MeshRendererBehaviour::ParameterChanged(const ParameterBase* _parameter)
 	{
 		OnMaterialChanged();
 	}
+	else
+	{
+		Moonlit::MoonlitEngine::Get().Renderer->UpdateInstanceTextures(m_instanceId, GetTextureHandles());
+	}
 }
 
 void MeshRendererBehaviour::LoadFromFile(nlohmann::json &_stream)
@@ -87,7 +93,8 @@ void MeshRendererBehaviour::Init()
 {
 	ObjectBehaviour::Init();
 
-	m_instanceId = Moonlit::MoonlitEngine::Get().Renderer->AddMeshInstance(*m_meshData, GetTextureHandles(), m_transformComponent->GetModelMat());
+	m_instanceId = Moonlit::MoonlitEngine::Get().Renderer->AddMeshInstance(*m_material, *m_meshData, GetTextureHandles(), m_transformComponent->GetModelMat());
+	m_isInitialized = true;
 }
 
 void MeshRendererBehaviour::Dispose()
@@ -115,6 +122,15 @@ void MeshRendererBehaviour::UpdateMeshInstanceModel()
 
 void MeshRendererBehaviour::OnMaterialChanged()
 {
+	// Preserve existing texture values by name so a material switch doesn't clear user assignments
+	std::unordered_map<std::string, Moonlit::Renderer::TextureHandle> savedTextures;
+	for (const ParameterBase* param : m_materialParameters)
+	{
+		const auto* texParam = dynamic_cast<const Parameter<Moonlit::Renderer::TextureHandle>*>(param);
+		if (texParam)
+			savedTextures[param->Name()] = texParam->Value();
+	}
+
 	for (ParameterBase* param : m_materialParameters)
 		delete param;
 	m_materialParameters.clear();
@@ -122,11 +138,32 @@ void MeshRendererBehaviour::OnMaterialChanged()
 	if (!(*m_material).IsValid())
 		return;
 
+	std::vector<Moonlit::Renderer::TextureHandle> allTextures;
+
 	for (const Moonlit::ShaderResource& resource : (*m_material)->GetShaderData().GlobalResources)
 	{
 		if (resource.Type == Moonlit::ResourceType::Texture)
-			m_materialParameters.push_back(new Parameter<Moonlit::Renderer::TextureHandle>(resource.Name));
+		{
+			auto* newParam = new Parameter<Moonlit::Renderer::TextureHandle>(resource.Name);
+			auto savedIt = savedTextures.find(resource.Name);
+			if (savedIt != savedTextures.end())
+			{
+				*newParam = savedIt->second;
+			}
+			else
+			{
+				if (allTextures.empty())
+					allTextures = Moonlit::ResourceManagement::ResourceManager::Get().GetAllResourcesOfType<Moonlit::Image>();
+				if (!allTextures.empty())
+					*newParam = allTextures[0];
+			}
+			m_materialParameters.push_back(newParam);
+		}
 	}
+
+	if (m_isInitialized)
+		m_instanceId = Moonlit::MoonlitEngine::Get().Renderer->UpdateInstanceMaterial(
+			m_instanceId, *m_material, *m_meshData, GetTextureHandles());
 }
 
 std::vector<Moonlit::Renderer::TextureHandle> MeshRendererBehaviour::GetTextureHandles() const

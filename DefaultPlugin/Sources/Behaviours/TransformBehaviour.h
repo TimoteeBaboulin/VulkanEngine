@@ -3,6 +3,7 @@
 #undef min
 #undef max
 
+#include "DefaultPluginExport.h"
 #include "Engine/Component/ObjectBehaviour.h"
 #include "Engine/Events/Event.h"
 
@@ -11,7 +12,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <vector>
 
-class TransformBehaviour : public Moonlit::ObjectBehaviour
+class DEFAULTPLUGIN_API TransformBehaviour : public Moonlit::ObjectBehaviour
 {
 public:
 	Moonlit::Events::Event<void> OnTransformChanged;

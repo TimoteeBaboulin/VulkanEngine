@@ -17,6 +17,21 @@
 
 Moonlit::MoonlitEngine* Moonlit::MoonlitEngine::m_instance = nullptr;
 
+Moonlit::MoonlitEngine::MoonlitEngine() : Renderer(nullptr), m_activeScene(nullptr)
+{
+	m_instance = this;
+}
+
+Moonlit::MoonlitEngine::~MoonlitEngine()
+{
+	m_instance = nullptr;
+}
+
+Moonlit::MoonlitEngine* Moonlit::MoonlitEngine::CreateHeadless()
+{
+	return new MoonlitEngine();
+}
+
 Moonlit::MoonlitEngine::MoonlitEngine(void* _handle)
 {
 	m_instance = this;

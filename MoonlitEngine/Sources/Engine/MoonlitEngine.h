@@ -21,10 +21,12 @@ namespace Moonlit
 		Events::Event<void, Scene*> OnSceneUnloaded;
 
 		static MoonlitEngine& Get() { return *m_instance; }
+		static MoonlitEngine* CreateHeadless();
 
 		Renderer::MoonlitRenderer* Renderer;
 
 		MoonlitEngine(void* _handle);
+		~MoonlitEngine();
 
 		/// <summary>
 		/// Method to load a plugin by path and register its behaviours <para/>
@@ -52,6 +54,8 @@ namespace Moonlit
 		void SetIsPlaying(bool isPlaying) { m_isPlaying = isPlaying; }
 		Tasks::WorkerManager* GetMainWorkerManager() { return m_mainWorkerManager; }
 	private:
+
+		MoonlitEngine();  // headless — no renderer, no window; for testing only
 
 		Scene* m_activeScene;
 		static MoonlitEngine* m_instance;

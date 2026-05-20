@@ -19,3 +19,12 @@ ADD_CUSTOM_COMMAND(TARGET EngineTests POST_BUILD
 
 INCLUDE(googletest)
 GTEST_DISCOVER_TESTS(EngineTests)
+
+ADD_EXECUTABLE(DefaultPluginTests
+        "DefaultPluginTests/TransformBehaviourTests.cpp")
+TARGET_LINK_LIBRARIES(DefaultPluginTests DefaultPlugin MoonlitEngine Vulkan::Vulkan gtest_main)
+ADD_CUSTOM_COMMAND(TARGET DefaultPluginTests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:DefaultPluginTests> $<TARGET_FILE_DIR:DefaultPluginTests>
+        COMMAND_EXPAND_LISTS
+)
+GTEST_DISCOVER_TESTS(DefaultPluginTests)

@@ -11,8 +11,7 @@ Moonlit::MaterialInstance::MaterialInstance(vk::Device _device, Material* _mater
 	m_device = _device;
 	m_shaderData = m_baseMaterial->GetShaderData();
 
-	//TODO: Handle multiple textures
-	m_textureCount = 1;
+	m_textureCount = m_baseMaterial->GetTextureCount();
 	m_colorOutputFormat = _colorOutputFormat;
 
 	CreatePipelineLayouts();

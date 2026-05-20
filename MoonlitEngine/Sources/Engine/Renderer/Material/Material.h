@@ -36,7 +36,7 @@ namespace Moonlit
 	struct ShaderResource
 	{
 		ResourceType Type;
-		const char* Name;
+		std::string Name;
 		bool IsArray;
 		size_t ArraySize;
 	};
@@ -95,6 +95,6 @@ namespace Moonlit
 
 		std::map<vk::Device, std::shared_ptr<Moonlit::MaterialInstance>> m_instanceMap;
 
-		int m_textureCount = 1;
+		int m_textureCount = 0;
 	};
 }

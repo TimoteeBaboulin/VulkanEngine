@@ -24,11 +24,16 @@ struct VertexInput
     float3 bitangeant : BITANGEANT;
 }
 
+struct MaterialTextureIndices
+{
+    int albedo : TEXINDEX;
+}
+
 struct InstanceInput
 {
     float4x4 modelMat : MODEL;
     float4x4 inverseModelMat : INVERSEMODEL;
-    int index : TEXINDEX;
+    MaterialTextureIndices texIndices;
 }
 
 struct v2f
@@ -62,7 +67,7 @@ v2f vertexMain(VertexInput inVert, InstanceInput inInst)
     output.normal = normalize(mul(normalMatrix, inVert.normal));
     output.tangeant = normalize(mul(normalMatrix, inVert.tangeant));
     output.bitangeant = normalize(mul(normalMatrix, inVert.bitangeant   ));
-    output.texIndex = inInst.index;
+    output.texIndex = inInst.texIndices.albedo;
 
     return output;
 }

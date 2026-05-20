@@ -74,6 +74,33 @@ void ReadEntryPointData(Moonlit::EntryPoint& _entryPoint, SlangSession* _globalS
 	_entryPoint.Function.Name = _funcPtr->getName();
 }
 
+void ReadTextureSlots(Moonlit::ShaderData& _shaderData, slang::IModule* _module)
+{
+	slang::DeclReflection* moduleDecl = _module->getModuleReflection();
+	auto structDecls = moduleDecl->getChildrenOfKind<slang::DeclReflection::Kind::Struct>();
+
+	for (auto it = structDecls.begin(); it != structDecls.end(); ++it)
+	{
+		slang::DeclReflection* structDecl = *it;
+		if (strcmp(structDecl->getName(), "MaterialTextureIndices") != 0)
+			continue;
+
+		slang::TypeReflection* type = structDecl->getType();
+		unsigned int fieldCount = type->getFieldCount();
+		for (unsigned int i = 0; i < fieldCount; i++)
+		{
+			slang::VariableReflection* field = type->getFieldByIndex(i);
+			Moonlit::ShaderResource res;
+			res.Name = field->getName();
+			res.Type = Moonlit::ResourceType::Texture;
+			res.IsArray = false;
+			res.ArraySize = 1;
+			_shaderData.GlobalResources.push_back(res);
+		}
+		break;
+	}
+}
+
 std::vector<Moonlit::EntryPoint> GetEntryPoints(slang::IModule* _module,
 	Slang::ComPtr<slang::ISession> _session,
 	SlangSession* _globalSession)
@@ -190,6 +217,7 @@ Moonlit::ShaderData ReadShaderData(const char* filepath)
 
 	Moonlit::ShaderData shaderData;
 	shaderData.EntryPoints = GetEntryPoints(module, sessionPtr, globalSession);
+	ReadTextureSlots(shaderData, module);
 
 	return shaderData;
 }
@@ -198,6 +226,14 @@ Moonlit::Material::Material(std::string _shaderPath)
 {
 	m_shaderPath = _shaderPath;
 	m_shaderData = ReadShaderData(_shaderPath.c_str());
+
+	for (const auto& res : m_shaderData.GlobalResources)
+	{
+		if (res.Type == ResourceType::Texture)
+			m_textureCount += res.IsArray ? (int)res.ArraySize : 1;
+	}
+
+	LOG_INFO("Created material with " + std::to_string(m_textureCount) + " textures");
 
 	// Store all the included subpasses
 	// Make it easier to invalidate draw buffers for specific subpasses

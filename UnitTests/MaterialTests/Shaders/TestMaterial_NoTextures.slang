@@ -1,0 +1,4 @@
+struct SomeUnrelatedStruct
+{
+    int value;
+}

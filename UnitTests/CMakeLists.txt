@@ -5,8 +5,12 @@ FETCHCONTENT_DECLARE(
 FETCHCONTENT_MAKEAVAILABLE(googletest)
 
 ADD_EXECUTABLE(EngineTests test_main.cpp
-        "TaskSystemTests/TaskSystemTestMain.cpp")
-TARGET_LINK_LIBRARIES(EngineTests MoonlitEngine gtest_main)
+        "TaskSystemTests/TaskSystemTestMain.cpp"
+        "MaterialTests/MaterialTests.cpp")
+TARGET_LINK_LIBRARIES(EngineTests MoonlitEngine Vulkan::Vulkan gtest_main)
+TARGET_COMPILE_DEFINITIONS(EngineTests PRIVATE
+        "MATERIAL_TEST_SHADERS_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/MaterialTests/Shaders\""
+)
 
 ADD_CUSTOM_COMMAND(TARGET EngineTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:EngineTests> $<TARGET_FILE_DIR:EngineTests>

@@ -1,9 +1,11 @@
 #pragma once
 
+#include <memory>
 #include <unordered_map>
 
 #include "../Inputs/InputManager.h"
 #include "common.h"
+#include "CustomVulkanStructs.h"
 
 #include "Engine/ResourceManagement/ResourceManager.h"
 #include "Material/Material.h"
@@ -42,6 +44,9 @@ namespace Moonlit::Renderer
 		MoonlitRenderer();
 		~MoonlitRenderer();
 
+		MoonlitRenderer(MoonlitRenderer const&) = delete;
+		MoonlitRenderer& operator=(MoonlitRenderer const&) = delete;
+
 		void Init(struct ContextInfo& _info, std::vector<const char*> requiredExtensions);
 		void Cleanup();
 		uint32_t AddMeshInstance(MaterialHandle _material,
@@ -56,11 +61,15 @@ namespace Moonlit::Renderer
 		RenderTarget* AddRenderTarget(void* _handle, Camera* _camera);
 
 		void Render();
+
+		DrawBuffer* GetOrCreateDrawBuffer(Material* _material);
+		size_t GetDrawBufferCount() const { return m_drawBuffers.size(); }
+
 	private:
 		RendererContext* m_context;
 		RendererDeviceManager* m_deviceManager;
 
-		std::vector<RenderTarget*> m_renderTargets;
+		std::vector<std::unique_ptr<RenderTarget>> m_renderTargets;
 
 		vk::Instance* m_instance;
 
@@ -75,8 +84,8 @@ namespace Moonlit::Renderer
 
 		bool m_windowClosed = false;
 
-		RenderDevice* m_renderDevice = nullptr;
-		std::vector<DrawBuffer*> m_drawBuffers;
+		std::vector<std::unique_ptr<RenderDevice>> m_renderDevices;
+		std::unordered_map<Material*, DrawBuffer*> m_drawBuffers;
 		std::unordered_map<uint32_t, DrawBuffer*> m_instanceBufferMap;
 
 #pragma region Debug
@@ -92,6 +101,7 @@ namespace Moonlit::Renderer
 #pragma endregion
 
 		DrawBuffer* FindOrCreateDrawBuffer(MaterialHandle _material);
+		RenderDevice& GetOrCreateRenderDevice(DeviceData const& _deviceData);
 
 		void InitContext(ContextInfo& _info, std::vector<const char*> requiredExtensions);
 		void InitVulkan();

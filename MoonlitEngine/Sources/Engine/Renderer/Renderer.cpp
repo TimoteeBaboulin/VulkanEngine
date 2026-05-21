@@ -57,16 +57,9 @@ void Moonlit::Renderer::MoonlitRenderer::InitVulkan()
 
 void Moonlit::Renderer::MoonlitRenderer::InitRenderer()
 {
-
 #ifdef RENDER_DEBUG_INFORMATION_QUERY
 	InitQueryPool();
 #endif
-
-	m_renderDevice = new RenderDevice(m_deviceManager->GetDeviceData());
-
-	// TODO: Make the resource manager handle loading the material
-	Material* defaultMaterial = new Material("Resources/Shaders/BaseMaterial.slang");
-	m_drawBuffers.push_back(new DrawBuffer(defaultMaterial, *m_renderDevice));
 }
 
 void Moonlit::Renderer::MoonlitRenderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensions)
@@ -78,29 +71,44 @@ void Moonlit::Renderer::MoonlitRenderer::Init(ContextInfo& _info, std::vector<co
 
 void Moonlit::Renderer::MoonlitRenderer::Cleanup()
 {
-
-	for (auto& renderTarget : m_renderTargets)
-	{
-		delete renderTarget;
-	}
-
-	delete m_renderDevice;
-	m_renderDevice = nullptr;
+	for (auto& [mat, buf] : m_drawBuffers)
+		delete buf;
+	m_drawBuffers.clear();
+	m_renderTargets.clear();
+	m_renderDevices.clear();
 	delete m_deviceManager;
 	delete m_context;
 }
 
+Moonlit::Renderer::RenderDevice& Moonlit::Renderer::MoonlitRenderer::GetOrCreateRenderDevice(DeviceData const& _deviceData)
+{
+	for (auto& rd : m_renderDevices)
+	{
+		if (rd->GetDeviceData().PhysicalDevice == _deviceData.PhysicalDevice)
+			return *rd;
+	}
+	m_renderDevices.push_back(std::make_unique<RenderDevice>(_deviceData, *m_deviceManager));
+	return *m_renderDevices.back();
+}
+
+Moonlit::Renderer::DrawBuffer* Moonlit::Renderer::MoonlitRenderer::GetOrCreateDrawBuffer(Material* _material)
+{
+	auto it = m_drawBuffers.find(_material);
+	if (it != m_drawBuffers.end())
+		return it->second;
+	if (m_renderDevices.empty())
+	{
+		LOG_ERROR("MoonlitRenderer::GetOrCreateDrawBuffer - No render device available.");
+		return nullptr;
+	}
+	DrawBuffer* newBuffer = new DrawBuffer(_material);
+	m_drawBuffers.emplace(_material, newBuffer);
+	return newBuffer;
+}
+
 Moonlit::Renderer::DrawBuffer* Moonlit::Renderer::MoonlitRenderer::FindOrCreateDrawBuffer(MaterialHandle _material)
 {
-	Material* matPtr = &(*_material);
-	for (DrawBuffer* buffer : m_drawBuffers)
-	{
-		if (buffer->GetMaterial() == matPtr)
-			return buffer;
-	}
-	DrawBuffer* newBuffer = new DrawBuffer(matPtr, *m_renderDevice);
-	m_drawBuffers.push_back(newBuffer);
-	return newBuffer;
+	return GetOrCreateDrawBuffer(&(*_material));
 }
 
 uint32_t Moonlit::Renderer::MoonlitRenderer::AddMeshInstance(MaterialHandle _material,
@@ -108,7 +116,12 @@ uint32_t Moonlit::Renderer::MoonlitRenderer::AddMeshInstance(MaterialHandle _mat
 	std::vector<TextureHandle> _textures,
 	glm::mat4x4 _model)
 {
-	DrawBuffer* buffer = _material.IsValid() ? FindOrCreateDrawBuffer(_material) : m_drawBuffers[0];
+	if (!_material.IsValid())
+	{
+		LOG_ERROR("MoonlitRenderer::AddMeshInstance - Invalid material handle.");
+		return UINT32_MAX;
+	}
+	DrawBuffer* buffer = FindOrCreateDrawBuffer(_material);
 	uint32_t id = buffer->AddMeshInstance(_mesh, _textures, _model);
 	m_instanceBufferMap[id] = buffer;
 	return id;
@@ -161,7 +174,12 @@ uint32_t Moonlit::Renderer::MoonlitRenderer::UpdateInstanceMaterial(uint32_t _in
 	oldBuffer->RemoveMeshInstance(_instanceId);
 	m_instanceBufferMap.erase(it);
 
-	DrawBuffer* newBuffer = _material.IsValid() ? FindOrCreateDrawBuffer(_material) : m_drawBuffers[0];
+	if (!_material.IsValid())
+	{
+		LOG_ERROR("MoonlitRenderer::UpdateInstanceMaterial - Invalid material handle.");
+		return _instanceId;
+	}
+	DrawBuffer* newBuffer = FindOrCreateDrawBuffer(_material);
 	uint32_t newId = newBuffer->AddMeshInstance(_mesh, _textures, model);
 	m_instanceBufferMap[newId] = newBuffer;
 	return newId;
@@ -181,17 +199,29 @@ void Moonlit::Renderer::MoonlitRenderer::RemoveMeshInstance(uint32_t _instanceId
 
 Moonlit::Renderer::RenderTarget* Moonlit::Renderer::MoonlitRenderer::AddRenderTarget(void* _handle, Camera* _camera)
 {
-	m_renderTargets.push_back(new RenderTarget(3, (HWND)_handle, *m_instance, _camera, m_deviceManager));
-	return m_renderTargets.back();
+	vk::Win32SurfaceCreateInfoKHR surfaceCreateInfo{};
+	surfaceCreateInfo.sType = vk::StructureType::eWin32SurfaceCreateInfoKHR;
+	surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
+	surfaceCreateInfo.hwnd = (HWND)_handle;
+	vk::SurfaceKHR surface = m_instance->createWin32SurfaceKHR(surfaceCreateInfo);
+
+	DeviceData deviceData = m_deviceManager->GetOrCreateDeviceForSurface(surface);
+	RenderDevice& renderDevice = GetOrCreateRenderDevice(deviceData);
+	m_renderTargets.push_back(std::make_unique<RenderTarget>(3, (HWND)_handle, surface, *m_instance, _camera, renderDevice));
+	return m_renderTargets.back().get();
 }
 
 void Moonlit::Renderer::MoonlitRenderer::Render()
 {
-	//std::cout << "Rendering frame " << m_currentFrame << std::endl;
+	for (auto& renderDevice : m_renderDevices)
+	{
+		for (auto& [mat, drawBuffer] : m_drawBuffers)
+			renderDevice->GetOrCreateBatchData(*drawBuffer);
+	}
 	for (auto& renderTarget : m_renderTargets)
 	{
 		if (!renderTarget->IsPaused())
-			renderTarget->Render(m_drawBuffers);
+			renderTarget->Render();
 	}
 }
 

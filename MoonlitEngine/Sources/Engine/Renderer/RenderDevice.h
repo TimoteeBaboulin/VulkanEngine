@@ -5,6 +5,8 @@
 
 #include "MoonlitExport.h"
 #include "CustomVulkanStructs.h"
+#include "RendererDeviceManager.h"
+#include "BatchGpuData.h"
 
 namespace Moonlit::Renderer
 {
@@ -14,7 +16,7 @@ namespace Moonlit::Renderer
 	class MOONLIT_API RenderDevice
 	{
 	public:
-		explicit RenderDevice(DeviceData _deviceData);
+		RenderDevice(DeviceData _deviceData, RendererDeviceManager& _deviceManager);
 		~RenderDevice();
 
 		RenderDevice(RenderDevice const&) = delete;
@@ -23,11 +25,15 @@ namespace Moonlit::Renderer
 		vk::CommandPool GetCommandPool() const { return m_commandPool; }
 		DeviceData const& GetDeviceData() const { return m_deviceData; }
 
+		SwapChainSupportDetails QuerySwapChainSupportDetails(vk::SurfaceKHR& _surface);
+
 		BatchGpuData& GetOrCreateBatchData(DrawBuffer& _drawBuffer);
+		std::unordered_map<DrawBuffer*, std::unique_ptr<BatchGpuData>> const& GetBatchData() const { return m_batchData; }
 
 	private:
 		DeviceData m_deviceData;
 		vk::CommandPool m_commandPool;
+		RendererDeviceManager* m_deviceManager;
 		std::unordered_map<DrawBuffer*, std::unique_ptr<BatchGpuData>> m_batchData;
 
 		void InitCommandPool();

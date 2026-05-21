@@ -1,19 +1,14 @@
 #include "DrawBuffer.h"
 #include "Renderer.h"
-#include "BatchGpuData.h"
-#include "RenderDevice.h"
-#include "RenderTarget.h"
 
 #include "../../Debug/Logger.h"
 #include "Engine/ResourceManagement/ResourceHandle.h"
 #include "Engine/ResourceManagement/ResourceBank.h"
 
-Moonlit::Renderer::DrawBuffer::DrawBuffer(Material* _material, RenderDevice& _renderDevice)
+Moonlit::Renderer::DrawBuffer::DrawBuffer(Material* _material)
 	: m_textureList()
 {
 	m_material = _material;
-	m_renderDevice = &_renderDevice;
-
 	m_vertexCount = 0;
 	m_indexCount = 0;
 	m_instanceCount = 0;
@@ -160,24 +155,6 @@ void Moonlit::Renderer::DrawBuffer::UpdateInstanceMesh(uint32_t _instanceId, Mes
 	InvalidateGpuResources();
 }
 
-void Moonlit::Renderer::DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, std::string _renderPass)
-{
-	if (m_meshEntries.size() == 0)
-	{
-		// LOG_INFO("[DrawBuffer::RenderBuffer] No meshes to render in this draw buffer, skipping.");
-		return;
-	}
-
-	std::vector<std::string > includedSubpasses = m_material->GetIncludedSubpasses();
-	if (std::find(includedSubpasses.begin(), includedSubpasses.end(), _renderPass) == includedSubpasses.end())
-	{
-		// LOG_INFO("[DrawBuffer::RenderBuffer] The material used in this draw buffer doesn't include the requested subpass, skipping.");
-		// The material used in this draw buffer doesn't include the requested subpass
-		return;
-	}
-
-	m_renderDevice->GetOrCreateBatchData(*this).Render(_cmd, _renderPass, _target.GetDescriptorSet());
-}
 
 glm::mat4x4 Moonlit::Renderer::DrawBuffer::GetInstanceModel(uint32_t _instanceId) const
 {
@@ -414,5 +391,5 @@ std::vector<Moonlit::Renderer::TextureSlot>::iterator Moonlit::Renderer::DrawBuf
 
 void Moonlit::Renderer::DrawBuffer::InvalidateGpuResources()
 {
-	m_renderDevice->GetOrCreateBatchData(*this).InvalidateGpuResources();
+	++m_version;
 }

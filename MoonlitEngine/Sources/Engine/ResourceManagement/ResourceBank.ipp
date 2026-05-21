@@ -39,7 +39,7 @@ namespace Moonlit::ResourceManagement
     }
 
     template<class RESOURCE_TYPE>
-    ResourceHandle<RESOURCE_TYPE> ResourceBank<RESOURCE_TYPE>::Get(std::string _name)
+    ResourceHandle<RESOURCE_TYPE> ResourceBank<RESOURCE_TYPE>::GetResource(std::string _name)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
 

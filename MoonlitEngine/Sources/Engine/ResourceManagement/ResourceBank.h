@@ -39,7 +39,7 @@ namespace Moonlit::ResourceManagement
 		std::vector<HANDLE_TYPE> GetAllResources();
 		std::vector<std::string> GetAllNames();
 
-		HANDLE_TYPE Get(std::string _name);
+		HANDLE_TYPE GetResource(std::string _name);
 		bool Exist(std::string _name);
 		RESOURCE_TYPE& operator[](std::string _name);
 

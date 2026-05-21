@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 
+#include "MoonlitExport.h"
 #include "Renderer.h"
 #include "../../common.h"
 #include "Material/Material.h"
@@ -43,18 +44,16 @@ namespace Moonlit::Renderer
 	// The order in which those batches are written in are the same as the order of the meshdata in the vector
 	// So to get to instance 2 of mesh 3, we skip the combined instances of meshes 0, 1 and 2 and skip the 2 instances of mesh 3 before it
 
-	class RenderTarget;
-	class RenderDevice;
 
 	// This should be fixed to avoid confusion
 
 	/// <summary>
 	/// Class used to batch draw calls together into a single one
 	/// </summary>
-	class DrawBuffer
+	class MOONLIT_API DrawBuffer
 	{
 	public:
-		DrawBuffer(Material* _material, RenderDevice& _renderDevice);
+		DrawBuffer(Material* _material);
 		~DrawBuffer();
 
 		//DATA MANAGEMENT----------------------------------------------------------------------
@@ -65,10 +64,6 @@ namespace Moonlit::Renderer
 			glm::mat4x4 _model);
 		void UpdateInstanceModel(uint32_t _instanceId, glm::mat4x4 _model);
 		void UpdateInstanceMesh(uint32_t _instanceId, MeshHandle _mesh);
-
-		//RENDER-------------------------------------------------------------------------------
-
-		void RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, std::string _renderPass);
 
 		//GETTERS------------------------------------------------------------------------------
 
@@ -84,14 +79,15 @@ namespace Moonlit::Renderer
 		std::vector<Image*> GetAllTextures() const;
 
 		Material* GetMaterial() const { return m_material; }
+		uint32_t GetVersion() const { return m_version; }
 		glm::mat4x4 GetInstanceModel(uint32_t _instanceId) const;
 		void UpdateInstanceTextures(uint32_t _instanceId, std::vector<TextureHandle> _textures);
 
 	private:
 		//DATA---------------------------------------------------------------------------------
 
-		RenderDevice* m_renderDevice = nullptr;
 		Material* m_material;
+		uint32_t m_version = 0;
 
 		////Mesh Entries
 

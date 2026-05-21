@@ -5,13 +5,8 @@
 #include <map>
 
 #include "CustomVulkanStructs.h"
-#include "RendererDeviceManager.h"
+#include "RenderDevice.h"
 #include "Camera.h"
-
-namespace Moonlit
-{
-	class Material;
-}
 
 namespace Moonlit::Renderer
 {
@@ -33,12 +28,13 @@ namespace Moonlit::Renderer
 	{
 	public:
 		RenderTarget(int _framesInFlight, HWND _targetWindow,
-			vk::Instance _instance, Camera* _camera,
-			RendererDeviceManager* _deviceManager);
+			vk::SurfaceKHR _surface, vk::Instance _instance, Camera* _camera,
+			RenderDevice& _renderDevice);
+		~RenderTarget();
 
 		void Init();
 		void SetRenderPass(vk::RenderPass _renderPass);
-		void Render(std::vector<DrawBuffer*>& _drawBuffers);
+		void Render();
 
 		void Pause(bool _paused) { m_paused = _paused; }
 		bool IsPaused() const { return m_paused; }
@@ -63,12 +59,11 @@ namespace Moonlit::Renderer
 		int m_currentFrame = 0;
 
 		HWND m_targetWindow = nullptr;
-		Moonlit::Material* m_defaultMaterial = nullptr;
 
 		vk::Instance m_instance;
 		DeviceData m_deviceData;
 
-		RendererDeviceManager* m_deviceManager = nullptr;
+		RenderDevice* m_renderDevice = nullptr;
 		Camera* m_camera = nullptr;
 		bool m_paused = false;
 
@@ -88,7 +83,7 @@ namespace Moonlit::Renderer
 
 		vk::Image* m_swapChainDepthImages = nullptr;
 		vk::ImageView* m_swapChainDepthImageViews = nullptr;
-		vk::DeviceMemory m_swapChainDepthMemory;
+		vk::DeviceMemory* m_swapChainDepthMemory = nullptr;
 
 		//vk::Framebuffer* m_swapChainFramebuffers = nullptr;
 
@@ -117,7 +112,6 @@ namespace Moonlit::Renderer
 
 #pragma region Surface Methods
 		void CalculateExtent();
-		void CreateSurfaceKHR();
 #pragma endregion //Surface Methods
 
 #pragma region Swapchain Methods
@@ -152,6 +146,6 @@ namespace Moonlit::Renderer
 
 		void CreateCommandPool();
 		void CreateCommandBuffers();
-		void RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers);
+		void RecordCommandBuffer(vk::CommandBuffer& _buffer);
 	};
 }

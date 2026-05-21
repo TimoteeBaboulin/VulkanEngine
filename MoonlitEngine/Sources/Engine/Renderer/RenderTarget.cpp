@@ -2,42 +2,82 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Engine/Renderer/Helpers/VulkanHelperFunctions.h"
 #include "DrawBuffer.h"
+#include "BatchGpuData.h"
 
-Moonlit::Renderer::RenderTarget::RenderTarget(int _framesInFlight, HWND _surface,
-                                              vk::Instance _instance, Camera* _camera,
-                                              RendererDeviceManager* _deviceManager) : m_instance(_instance), m_camera(_camera)
+Moonlit::Renderer::RenderTarget::RenderTarget(int _framesInFlight, HWND _targetWindow,
+                                              vk::SurfaceKHR _surface, vk::Instance _instance, Camera* _camera,
+                                              RenderDevice& _renderDevice) : m_instance(_instance), m_camera(_camera)
 {
-	m_targetWindow = _surface;
+	m_targetWindow = _targetWindow;
 	m_framesInFlight = _framesInFlight;
-	m_deviceManager = _deviceManager;
-
-	//The device manager need the surface to pick a physical device
-	//So we can only link after creating the surface
-	CreateSurfaceKHR();
-	m_deviceData = _deviceManager->GetDeviceData();
-	if (m_deviceData.QueueIndices.khrPresentFamily.has_value() == false)
-	{
-		_deviceManager->InitKHRQueues(m_surfaceKHR);
-		m_deviceData = _deviceManager->GetDeviceData();
-	}
+	m_renderDevice = &_renderDevice;
+	m_surfaceKHR = _surface;
+	m_deviceData = _renderDevice.GetDeviceData();
 
 	AddSubpass("depth");
 	AddSubpass("color");
 
-	//Get the format as its gonna be used in the renderpass
 	m_format = m_deviceData.SurfaceFormat.format;
 
 	Init();
 }
 
+Moonlit::Renderer::RenderTarget::~RenderTarget()
+{
+	if (!m_deviceData.Device)
+		return;
+
+	m_deviceData.Device.waitIdle();
+
+	if (m_imageAvailableSemaphores)
+	{
+		for (size_t i = 0; i < m_framesInFlight; ++i)
+		{
+			m_deviceData.Device.destroySemaphore(m_imageAvailableSemaphores[i]);
+			m_deviceData.Device.destroySemaphore(m_renderFinishedSemaphores[i]);
+			m_deviceData.Device.destroyFence(m_waitForPreviousFrame[i]);
+		}
+		delete[] m_imageAvailableSemaphores;
+		delete[] m_renderFinishedSemaphores;
+		delete[] m_waitForPreviousFrame;
+	}
+
+	if (m_uniformBuffers)
+	{
+		for (size_t i = 0; i < m_framesInFlight; ++i)
+		{
+			m_deviceData.Device.unmapMemory(m_uniformBuffersMemory[i]);
+			m_deviceData.Device.destroyBuffer(m_uniformBuffers[i]);
+			m_deviceData.Device.freeMemory(m_uniformBuffersMemory[i]);
+		}
+		delete[] m_uniformBuffers;
+		delete[] m_uniformBuffersMemory;
+		delete[] m_uniformBuffersMaps;
+	}
+
+	if (m_descriptorPool)
+		m_deviceData.Device.destroyDescriptorPool(m_descriptorPool);
+
+	if (m_uboDescriptorSetLayout)
+		m_deviceData.Device.destroyDescriptorSetLayout(m_uboDescriptorSetLayout);
+
+	if (m_commandPool)
+	{
+		m_deviceData.Device.destroyCommandPool(m_commandPool);
+		delete[] m_commandBuffers;
+	}
+
+	if (m_swapChain)
+		DestroySwapChain();
+
+	if (m_surfaceKHR)
+		m_instance.destroySurfaceKHR(m_surfaceKHR);
+}
+
 void Moonlit::Renderer::RenderTarget::Init()
-{	
-	//Create the renderpass before the material as the material needs the renderpass
+{
 	CreateRenderPass();
 	CreateDescriptorSetLayout();
-
-	m_defaultMaterial = new Moonlit::Material("Resources/Shaders/BaseMaterial.slang");
-	
 	CalculateExtent();
 
 	CreateCommandPool();
@@ -73,15 +113,6 @@ void Moonlit::Renderer::RenderTarget::CalculateExtent()
 	}
 }
 
-void Moonlit::Renderer::RenderTarget::CreateSurfaceKHR()
-{
-	vk::Win32SurfaceCreateInfoKHR createInfo;
-	createInfo.sType = vk::StructureType::eWin32SurfaceCreateInfoKHR;
-	createInfo.hinstance = GetModuleHandle(nullptr);
-	createInfo.hwnd = m_targetWindow;
-
-	m_surfaceKHR = m_instance.createWin32SurfaceKHR(createInfo);
-}
 
 void Moonlit::Renderer::RenderTarget::CreateSwapChainResources()
 {
@@ -93,7 +124,7 @@ void Moonlit::Renderer::RenderTarget::CreateSwapChainResources()
 
 void Moonlit::Renderer::RenderTarget::CreateSwapChain()
 {
-	SwapChainSupportDetails swapChainSupport = m_deviceManager->QuerySwapChainSupportDetails(m_surfaceKHR, m_deviceData.PhysicalDevice);
+	SwapChainSupportDetails swapChainSupport = m_renderDevice->QuerySwapChainSupportDetails(m_surfaceKHR);
 
 	if (m_capabilities.maxImageCount != 0)
 	{
@@ -149,11 +180,12 @@ void Moonlit::Renderer::RenderTarget::CreateDepthResources()
 
 	m_swapChainDepthImages = new vk::Image[m_framesInFlight];
 	m_swapChainDepthImageViews = new vk::ImageView[m_framesInFlight];
+	m_swapChainDepthMemory = new vk::DeviceMemory[m_framesInFlight];
 
 	for (int i = 0; i < m_framesInFlight; ++i)
 	{
 		HelperClasses::vhf::CreateImage(m_deviceData.Device, m_deviceData.PhysicalDevice, m_extent, depthFormat, vk::ImageTiling::eOptimal,
-			vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_swapChainDepthImages[i], m_swapChainDepthMemory, vk::ImageLayout::eUndefined);
+			vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, m_swapChainDepthImages[i], m_swapChainDepthMemory[i], vk::ImageLayout::eUndefined);
 		TransitionInfo transitionInfo = HelperClasses::vhf::GetDefaultTransitionInfo(vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 		HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_deviceData.Queues.graphicsQueue, m_commandPool, m_swapChainDepthImages[i], vk::ImageAspectFlagBits::eDepth, transitionInfo);
 		m_swapChainDepthImageViews[i] = HelperClasses::vhf::CreateImageView(m_deviceData.Device, m_swapChainDepthImages[i], depthFormat, vk::ImageAspectFlagBits::eDepth);
@@ -197,16 +229,18 @@ void Moonlit::Renderer::RenderTarget::DestroySwapChain()
 	device.destroySwapchainKHR(m_swapChain);
 	for (int i = 0; i < m_framesInFlight; ++i)
 	{
+		device.destroyImageView(m_swapChainImageViews[i]);
 		device.destroyImageView(m_swapChainDepthImageViews[i]);
 		device.destroyImage(m_swapChainDepthImages[i]);
-		//device.destroyFramebuffer(m_swapChainFramebuffers[i]);
 	}
 
 	m_swapChainImages.clear();
+	for (int i = 0; i < m_framesInFlight; ++i)
+		device.freeMemory(m_swapChainDepthMemory[i]);
+	delete[] m_swapChainDepthMemory;
 	delete[] m_swapChainImageViews;
 	delete[] m_swapChainDepthImageViews;
 	delete[] m_swapChainDepthImages;
-	//delete[] m_swapChainFramebuffers;
 }
 
 void Moonlit::Renderer::RenderTarget::CreateSyncObjects()
@@ -494,7 +528,7 @@ void Moonlit::Renderer::RenderTarget::CreateDescriptorSets()
 	m_deviceData.Device.updateDescriptorSets(writeSets.size(), writeSets.data(), 0, nullptr);
 }
 
-void Moonlit::Renderer::RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuffers)
+void Moonlit::Renderer::RenderTarget::Render()
 {
 	vk::Result result = m_deviceData.Device.waitForFences(m_waitForPreviousFrame[m_currentFrame], true, std::numeric_limits<unsigned int>::max());
 
@@ -531,7 +565,7 @@ void Moonlit::Renderer::RenderTarget::Render(std::vector<DrawBuffer*>& _drawBuff
 	vk::CommandBuffer& buffer = m_commandBuffers[m_currentFrame];
 	buffer.reset();
 
-	RecordCommandBuffer(buffer, _drawBuffers);
+	RecordCommandBuffer(buffer);
 	
 	vk::PipelineStageFlags* waitStages = new vk::PipelineStageFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 
@@ -596,7 +630,7 @@ uint16_t Moonlit::Renderer::RenderTarget::GetSubpassIndexByName(const std::strin
 	}
 }
 
-void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer, std::vector<DrawBuffer*>& _drawBuffers)
+void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _buffer)
 {
 	ImageTransitionData data;
 	data.deviceData = m_deviceData;
@@ -671,9 +705,9 @@ void Moonlit::Renderer::RenderTarget::RecordCommandBuffer(vk::CommandBuffer& _bu
 
 	for (int i = 0; i < m_subpassInfos.size(); ++i)
 	{
-		for (auto& drawBuffer : _drawBuffers)
+		for (auto& [drawBuffer, batchData] : m_renderDevice->GetBatchData())
 		{
-			drawBuffer->RenderBuffer(*this, _buffer, m_subpassInfos[i].subpassName);
+			batchData->Render(_buffer, m_subpassInfos[i].subpassName, GetDescriptorSet());
 		}
 	}
 

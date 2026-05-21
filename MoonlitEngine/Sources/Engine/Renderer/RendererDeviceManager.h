@@ -17,7 +17,7 @@ namespace Moonlit::Renderer
 		RendererDeviceManager(vk::Instance _instance);
 		~RendererDeviceManager();
 
-		void InitKHRQueues(vk::SurfaceKHR _surface);
+		DeviceData GetOrCreateDeviceForSurface(vk::SurfaceKHR _surface);
 
 		SwapChainSupportDetails QuerySwapChainSupportDetails(vk::SurfaceKHR& _surface, vk::PhysicalDevice _device);
 
@@ -33,12 +33,13 @@ namespace Moonlit::Renderer
 
 		void Cleanup();
 
-		bool CheckDeviceCompatibility(vk::PhysicalDevice& _device);
+		bool CheckDeviceCompatibility(vk::PhysicalDevice& _device, vk::SurfaceKHR _surface);
 		bool CheckDeviceExtensions(vk::PhysicalDevice& _device);
 		QueueFamilyIndices GetQueueFamilies(vk::PhysicalDevice& _device);
 		void GetKHRPresentQueue(vk::SurfaceKHR _surface);
+		void InitKHRQueues(vk::SurfaceKHR _surface);
 
-		void PickPhysicalDevice();
+		void PickPhysicalDevice(vk::SurfaceKHR _surface);
 		void GetQueueHandles(DeviceData& _data);
 		void CreateLogicalDevice(DeviceData& _data);
 	};

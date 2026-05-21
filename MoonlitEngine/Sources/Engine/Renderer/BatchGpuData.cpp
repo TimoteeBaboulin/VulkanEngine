@@ -27,12 +27,14 @@ Moonlit::Renderer::BatchGpuData::BatchGpuData(BatchGpuData&& _src)
 	m_commandBuffer = _src.m_commandBuffer;
 	m_drawResources = _src.m_drawResources;
 	m_parentBuffer = _src.m_parentBuffer;
+	m_syncedVersion = _src.m_syncedVersion;
 	_src.m_renderDevice = nullptr;
 	_src.m_materialInstance = nullptr;
 	_src.m_commandBuffer = nullptr;
 	_src.m_deviceData = {};
 	_src.m_drawResources = {};
 	_src.m_parentBuffer = nullptr;
+	_src.m_syncedVersion = UINT32_MAX;
 }
 
 Moonlit::Renderer::BatchGpuData& Moonlit::Renderer::BatchGpuData::operator=(BatchGpuData&& _rhs) noexcept
@@ -48,12 +50,14 @@ Moonlit::Renderer::BatchGpuData& Moonlit::Renderer::BatchGpuData::operator=(Batc
 		m_commandBuffer = _rhs.m_commandBuffer;
 		m_drawResources = _rhs.m_drawResources;
 		m_parentBuffer = _rhs.m_parentBuffer;
+		m_syncedVersion = _rhs.m_syncedVersion;
 		_rhs.m_renderDevice = nullptr;
 		_rhs.m_materialInstance = nullptr;
 		_rhs.m_commandBuffer = nullptr;
 		_rhs.m_deviceData = {};
 		_rhs.m_drawResources = {};
 		_rhs.m_parentBuffer = nullptr;
+		_rhs.m_syncedVersion = UINT32_MAX;
 	}
 
 	return *this;
@@ -74,7 +78,11 @@ void Moonlit::Renderer::BatchGpuData::Initialise()
 void Moonlit::Renderer::BatchGpuData::Render(vk::CommandBuffer& _cmd, std::string _renderPass,
                                                        vk::DescriptorSet* _uboSet)
 {
-	if (m_isDirty || !m_resourcesGenerated)
+	std::vector<std::string> subpasses = m_parentBuffer->GetMaterial()->GetIncludedSubpasses();
+	if (std::find(subpasses.begin(), subpasses.end(), _renderPass) == subpasses.end())
+		return;
+
+	if (m_parentBuffer->GetVersion() != m_syncedVersion || !m_resourcesGenerated)
 	{
 		UpdateData();
 	}
@@ -113,11 +121,6 @@ void Moonlit::Renderer::BatchGpuData::Render(vk::CommandBuffer& _cmd, std::strin
 		currIndex += indexCount;
 		currVertex += meshEntries[i].Data.vertexCount;
 	}
-}
-
-void Moonlit::Renderer::BatchGpuData::InvalidateGpuResources()
-{
-	m_isDirty = true;
 }
 
 // Helper functions
@@ -356,7 +359,7 @@ void Moonlit::Renderer::BatchGpuData::GenerateBuffers()
 	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_renderDevice->GetCommandPool(),
 		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, instanceData);
 
-	m_isDirty = false;
+	m_syncedVersion = m_parentBuffer->GetVersion();
 	m_resourcesGenerated = true;
 }
 

@@ -24,5 +24,11 @@ namespace Moonlit::ResourceManagement
 		MeshBank() : ResourceBank<MeshData>() {};
 
 		bool TryLoad(const std::string& _filepath) override;
+
+		HANDLE_TYPE Insert(std::string _name, MeshData _data)
+		{
+			InsertResource(_name, _data);
+			return GetResource(_name);
+		}
 	};
 }

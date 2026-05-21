@@ -6,7 +6,8 @@ FETCHCONTENT_MAKEAVAILABLE(googletest)
 
 ADD_EXECUTABLE(EngineTests test_main.cpp
         "TaskSystemTests/TaskSystemTestMain.cpp"
-        "MaterialTests/MaterialTests.cpp")
+        "MaterialTests/MaterialTests.cpp"
+        "RendererTests/DrawBufferRoutingTests.cpp")
 TARGET_LINK_LIBRARIES(EngineTests MoonlitEngine Vulkan::Vulkan gtest_main)
 TARGET_COMPILE_DEFINITIONS(EngineTests PRIVATE
         "MATERIAL_TEST_SHADERS_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/MaterialTests/Shaders\""

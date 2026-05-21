@@ -60,10 +60,8 @@ namespace Moonlit::Renderer
 		void Render(vk::CommandBuffer& _cmd, std::string _renderPass,
 			vk::DescriptorSet* _uboSet);
 
-		void InvalidateGpuResources();
-
 	private:
-		bool m_isDirty = false;
+		uint32_t m_syncedVersion = UINT32_MAX;
 
 		std::shared_ptr<MaterialInstance> m_materialInstance;
 

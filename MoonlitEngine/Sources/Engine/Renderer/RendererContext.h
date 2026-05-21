@@ -1,9 +1,7 @@
 #pragma once
 
-#include "CustomVulkanStructs.h"
-
-#include <Windows.h>
 #include "MoonlitExport.h"
+#include "Engine/Renderer/CustomVulkanImport.h"
 
 namespace Moonlit::Renderer
 {

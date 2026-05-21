@@ -12,19 +12,24 @@
 Moonlit::Renderer::RendererDeviceManager::RendererDeviceManager(vk::Instance _instance)
 {
 	m_vulkanInstance = _instance;
-	PickPhysicalDevice();
+}
 
-	vk::Win32SurfaceCreateInfoKHR surfaceCreateInfo{};
-	surfaceCreateInfo.sType = vk::StructureType::eWin32SurfaceCreateInfoKHR;
-	surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
-	surfaceCreateInfo.hwnd = CreateWindowA("STATIC", "Headless Surface", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
+Moonlit::Renderer::DeviceData Moonlit::Renderer::RendererDeviceManager::GetOrCreateDeviceForSurface(vk::SurfaceKHR _surface)
+{
+	if (m_selectedDeviceData.Device)
+	{
+		SwapChainSupportDetails details = QuerySwapChainSupportDetails(_surface, m_selectedPhysicalDevice);
+		if (!details.formats.empty())
+			m_selectedDeviceData.SurfaceFormat = HelperClasses::vhf::GetFormat(m_selectedPhysicalDevice, details.formats);
+		return m_selectedDeviceData;
+	}
 
-	vk::SurfaceKHR headlessSurface = m_vulkanInstance.createWin32SurfaceKHR(surfaceCreateInfo);
-
-	InitKHRQueues(headlessSurface);
+	PickPhysicalDevice(_surface);
+	InitKHRQueues(_surface);
 	CreateLogicalDevice(m_selectedDeviceData);
 	GetQueueHandles(m_selectedDeviceData);
-	m_vulkanInstance.destroySurfaceKHR(headlessSurface);
+	m_selectedLogicalDevice = m_selectedDeviceData.Device;
+	return m_selectedDeviceData;
 }
 
 Moonlit::Renderer::RendererDeviceManager::~RendererDeviceManager()
@@ -34,14 +39,10 @@ Moonlit::Renderer::RendererDeviceManager::~RendererDeviceManager()
 
 void Moonlit::Renderer::RendererDeviceManager::InitKHRQueues(vk::SurfaceKHR _surface)
 {
-	vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_selectedPhysicalDevice.getSurfaceCapabilitiesKHR(_surface);
-	bool swapChainAdequate = false;
-	SwapChainSupportDetails swapChainSupportDetails;
-
 	GetKHRPresentQueue(_surface);
 
-	swapChainSupportDetails = QuerySwapChainSupportDetails(_surface, m_selectedPhysicalDevice);
-	swapChainAdequate = !swapChainSupportDetails.formats.empty() && !swapChainSupportDetails.presentModes.empty();
+	SwapChainSupportDetails swapChainSupportDetails = QuerySwapChainSupportDetails(_surface, m_selectedPhysicalDevice);
+	bool swapChainAdequate = !swapChainSupportDetails.formats.empty() && !swapChainSupportDetails.presentModes.empty();
 
 	if (swapChainAdequate)
 	{
@@ -52,36 +53,36 @@ void Moonlit::Renderer::RendererDeviceManager::InitKHRQueues(vk::SurfaceKHR _sur
 
 void Moonlit::Renderer::RendererDeviceManager::Cleanup()
 {
-	m_selectedLogicalDevice.waitIdle();
-	m_selectedLogicalDevice.destroy();
+	if (m_selectedLogicalDevice)
+	{
+		m_selectedLogicalDevice.waitIdle();
+		m_selectedLogicalDevice.destroy();
+	}
 }
 
 /// <summary>
 /// Method used to pick a new physical device for use by the renderer
 /// </summary>
 /// <returns> Returns a DeviceData struct with Swapchain support details, physical device and queue family indices</returns>
-void Moonlit::Renderer::RendererDeviceManager::PickPhysicalDevice()
+void Moonlit::Renderer::RendererDeviceManager::PickPhysicalDevice(vk::SurfaceKHR _surface)
 {
-	//List every physical devices on the target computer
 	std::vector<vk::PhysicalDevice> physDevices = m_vulkanInstance.enumeratePhysicalDevices();
 
-	if (physDevices.size() == 0)
-		throw new std::runtime_error("Failed to find graphics card with Vulkan support");
+	if (physDevices.empty())
+		throw std::runtime_error("Failed to find graphics card with Vulkan support");
 
-	for (int i = 0; i < physDevices.size(); i++)
+	for (auto& device : physDevices)
 	{
-		//CheckDeviceCompatibility will take care of updating the swapchain support details
-		//And the queue family indices field
-		if (CheckDeviceCompatibility(physDevices[i]))
+		if (CheckDeviceCompatibility(device, _surface))
 		{
-			m_selectedPhysicalDevice = physDevices[i];
-			m_selectedDeviceData.PhysicalDevice = physDevices[i];
+			m_selectedPhysicalDevice = device;
+			m_selectedDeviceData.PhysicalDevice = device;
 			return;
 		}
 	}
 
 	LOG_ERROR("RendererDeviceManager::PickPhysicalDevice - Couldn't find a suitable graphics card");
-	throw new std::runtime_error("Couldn't find a suitable graphics card");
+	throw std::runtime_error("Couldn't find a suitable graphics card");
 }
 
 void Moonlit::Renderer::RendererDeviceManager::GetQueueHandles(DeviceData& _data)
@@ -90,22 +91,31 @@ void Moonlit::Renderer::RendererDeviceManager::GetQueueHandles(DeviceData& _data
 	_data.Queues.presentQueue = _data.Device.getQueue(_data.QueueIndices.khrPresentFamily.value(), 0);
 }
 
-bool Moonlit::Renderer::RendererDeviceManager::CheckDeviceCompatibility(vk::PhysicalDevice& _device)
+bool Moonlit::Renderer::RendererDeviceManager::CheckDeviceCompatibility(vk::PhysicalDevice& _device, vk::SurfaceKHR _surface)
 {
-	vk::PhysicalDeviceProperties properties = _device.getProperties();
-	vk::PhysicalDeviceFeatures features = _device.getFeatures();
-
 	QueueFamilyIndices familyIndices = GetQueueFamilies(_device);
-	bool haveExtensions = CheckDeviceExtensions(_device);
-	
-	if (!haveExtensions)
-	{
+
+	if (!CheckDeviceExtensions(_device))
 		return false;
+	if (!familyIndices.HasGraphicsComputeTransferFamilies())
+		return false;
+
+	auto queueProperties = _device.getQueueFamilyProperties();
+	bool hasPresentSupport = false;
+	for (uint32_t i = 0; i < static_cast<uint32_t>(queueProperties.size()); i++)
+	{
+		if (_device.getSurfaceSupportKHR(i, _surface))
+		{
+			hasPresentSupport = true;
+			break;
+		}
 	}
 
-	m_selectedDeviceData.QueueIndices = familyIndices;
+	if (!hasPresentSupport)
+		return false;
 
-	return familyIndices.HasGraphicsComputeTransferFamilies() && haveExtensions;
+	m_selectedDeviceData.QueueIndices = familyIndices;
+	return true;
 }
 
 bool Moonlit::Renderer::RendererDeviceManager::CheckDeviceExtensions(vk::PhysicalDevice& _device)
@@ -225,4 +235,5 @@ void Moonlit::Renderer::RendererDeviceManager::CreateLogicalDevice(DeviceData& _
 	createInfo.pNext = dynamicRenderingFeatures;
 
 	_data.Device = _data.PhysicalDevice.createDevice(createInfo);
+	m_selectedLogicalDevice = _data.Device;
 }

@@ -2,10 +2,16 @@
 #include "BatchGpuData.h"
 #include "DrawBuffer.h"
 
-Moonlit::Renderer::RenderDevice::RenderDevice(DeviceData _deviceData)
-	: m_deviceData(_deviceData)
+Moonlit::Renderer::RenderDevice::RenderDevice(DeviceData _deviceData, RendererDeviceManager& _deviceManager)
+	: m_deviceData(_deviceData), m_deviceManager(&_deviceManager)
 {
 	InitCommandPool();
+}
+
+
+Moonlit::Renderer::SwapChainSupportDetails Moonlit::Renderer::RenderDevice::QuerySwapChainSupportDetails(vk::SurfaceKHR& _surface)
+{
+	return m_deviceManager->QuerySwapChainSupportDetails(_surface, m_deviceData.PhysicalDevice);
 }
 
 Moonlit::Renderer::RenderDevice::~RenderDevice()

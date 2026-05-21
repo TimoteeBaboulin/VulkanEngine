@@ -1,54 +1,56 @@
-#include "BufferDeviceLink.h"
+#include "BatchGpuData.h"
+#include "RenderDevice.h"
 #include "Engine/Renderer/Helpers/VulkanHelperFunctions.h"
 #include "Material/MaterialInstance.h"
 #include "DrawBuffer.h"
 
 #include "../ResourceManagement/Resources/TextureData.h"
 
-Moonlit::Renderer::DrawBufferDeviceBridge::DrawBufferDeviceBridge(DeviceData _deviceData, Material& _baseMaterial,
+Moonlit::Renderer::BatchGpuData::BatchGpuData(RenderDevice& _renderDevice, Material& _baseMaterial,
                                                                   DrawBuffer* _drawBuffer) : m_parentBuffer(_drawBuffer)
 {
-	m_deviceData = _deviceData;
-	m_materialInstance = _baseMaterial.GetOrCreateInstance(_deviceData);
+	m_renderDevice = &_renderDevice;
+	m_deviceData = _renderDevice.GetDeviceData();
+	m_materialInstance = _baseMaterial.GetOrCreateInstance(m_deviceData);
 
 	AllocateCommandBuffer();
 	AllocateTextureSets();
 }
 
-Moonlit::Renderer::DrawBufferDeviceBridge::DrawBufferDeviceBridge(DrawBufferDeviceBridge&& _src)
+Moonlit::Renderer::BatchGpuData::BatchGpuData(BatchGpuData&& _src)
 {
 	// We can't keep the source's resources, not only is it bad practice
 	// But using the same resources from multiple places will cause vulkan crashes that are hell to debug
+	m_renderDevice = _src.m_renderDevice;
 	m_deviceData = _src.m_deviceData;
 	m_materialInstance = _src.m_materialInstance;
-	m_commandPool = _src.m_commandPool;
 	m_commandBuffer = _src.m_commandBuffer;
 	m_drawResources = _src.m_drawResources;
 	m_parentBuffer = _src.m_parentBuffer;
+	_src.m_renderDevice = nullptr;
 	_src.m_materialInstance = nullptr;
 	_src.m_commandBuffer = nullptr;
-	_src.m_commandPool = nullptr;
 	_src.m_deviceData = {};
 	_src.m_drawResources = {};
 	_src.m_parentBuffer = nullptr;
 }
 
-Moonlit::Renderer::DrawBufferDeviceBridge& Moonlit::Renderer::DrawBufferDeviceBridge::operator=(DrawBufferDeviceBridge&& _rhs) noexcept
+Moonlit::Renderer::BatchGpuData& Moonlit::Renderer::BatchGpuData::operator=(BatchGpuData&& _rhs) noexcept
 {
 	// We can't keep the source's resources, not only is it bad practice
 	// But using the same resources from multiple places will cause vulkan crashes that are hell to debug
 
 	if (this != &_rhs)
 	{
+		m_renderDevice = _rhs.m_renderDevice;
 		m_deviceData = _rhs.m_deviceData;
 		m_materialInstance = _rhs.m_materialInstance;
-		m_commandPool = _rhs.m_commandPool;
 		m_commandBuffer = _rhs.m_commandBuffer;
 		m_drawResources = _rhs.m_drawResources;
 		m_parentBuffer = _rhs.m_parentBuffer;
+		_rhs.m_renderDevice = nullptr;
 		_rhs.m_materialInstance = nullptr;
 		_rhs.m_commandBuffer = nullptr;
-		_rhs.m_commandPool = nullptr;
 		_rhs.m_deviceData = {};
 		_rhs.m_drawResources = {};
 		_rhs.m_parentBuffer = nullptr;
@@ -57,20 +59,19 @@ Moonlit::Renderer::DrawBufferDeviceBridge& Moonlit::Renderer::DrawBufferDeviceBr
 	return *this;
 }
 
-Moonlit::Renderer::DrawBufferDeviceBridge::~DrawBufferDeviceBridge()
+Moonlit::Renderer::BatchGpuData::~BatchGpuData()
 {
 	ClearBuffers();
 	ClearTextures();
-	m_deviceData.Device.freeCommandBuffers(m_commandPool, m_commandBuffer);
-	m_deviceData.Device.destroyCommandPool(m_commandPool);
+	m_deviceData.Device.freeCommandBuffers(m_renderDevice->GetCommandPool(), m_commandBuffer);
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::Initialise()
+void Moonlit::Renderer::BatchGpuData::Initialise()
 {
 	UpdateData();
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::Render(vk::CommandBuffer& _cmd, std::string _renderPass,
+void Moonlit::Renderer::BatchGpuData::Render(vk::CommandBuffer& _cmd, std::string _renderPass,
                                                        vk::DescriptorSet* _uboSet)
 {
 	if (m_isDirty || !m_resourcesGenerated)
@@ -80,7 +81,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::Render(vk::CommandBuffer& _cmd, 
 
 	// If resources haven't been generated after the update, it means there's nothing to draw
 	if (!m_resourcesGenerated) {
-		// LOG_INFO("[DrawBufferDeviceBridge::Render] No resources generated for this draw buffer, skipping.");
+		// LOG_INFO("[BatchGpuData::Render] No resources generated for this draw buffer, skipping.");
 		return;
 	}
 
@@ -114,14 +115,14 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::Render(vk::CommandBuffer& _cmd, 
 	}
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::SetDirty()
+void Moonlit::Renderer::BatchGpuData::InvalidateGpuResources()
 {
 	m_isDirty = true;
 }
 
 // Helper functions
 
-Moonlit::TextureData Moonlit::Renderer::DrawBufferDeviceBridge::GetTextureData(Image& _image)
+Moonlit::TextureData Moonlit::Renderer::BatchGpuData::GetTextureData(Image& _image)
 {
 	vk::Buffer stagingBuffer;
 	vk::DeviceMemory stagingMemory;
@@ -158,10 +159,10 @@ Moonlit::TextureData Moonlit::Renderer::DrawBufferDeviceBridge::GetTextureData(I
 		.srcStage = vk::PipelineStageFlagBits::eTopOfPipe,
 		.dstStage = vk::PipelineStageFlagBits::eTransfer
 	};
-	HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_deviceData.Queues.graphicsQueue, m_commandPool, texData.m_image, vk::ImageAspectFlagBits::eColor, transInfo);
+	HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_deviceData.Queues.graphicsQueue, m_renderDevice->GetCommandPool(), texData.m_image, vk::ImageAspectFlagBits::eColor, transInfo);
 
 	//Copy staging buffer to image
-	HelperClasses::vhf::CopyBufferToImage(m_deviceData.Device, m_commandPool, m_deviceData.Queues.graphicsQueue, stagingBuffer, texData.m_image, extent);
+	HelperClasses::vhf::CopyBufferToImage(m_deviceData.Device, m_renderDevice->GetCommandPool(), m_deviceData.Queues.graphicsQueue, stagingBuffer, texData.m_image, extent);
 
 	//Prepare for shader read
 	transInfo =
@@ -174,7 +175,7 @@ Moonlit::TextureData Moonlit::Renderer::DrawBufferDeviceBridge::GetTextureData(I
 		.dstStage = vk::PipelineStageFlagBits::eFragmentShader
 	};
 
-	HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_deviceData.Queues.graphicsQueue, m_commandPool, texData.m_image, vk::ImageAspectFlagBits::eColor, transInfo);
+	HelperClasses::vhf::TransitionImageLayout(m_deviceData.Device, m_deviceData.Queues.graphicsQueue, m_renderDevice->GetCommandPool(), texData.m_image, vk::ImageAspectFlagBits::eColor, transInfo);
 
 	texData.m_imageView = HelperClasses::vhf::CreateImageView(m_deviceData.Device, texData.m_image, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
 
@@ -212,13 +213,13 @@ Moonlit::TextureData Moonlit::Renderer::DrawBufferDeviceBridge::GetTextureData(I
 
 // Update functions
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::UpdateData()
+void Moonlit::Renderer::BatchGpuData::UpdateData()
 {
 	UpdateBuffers();
 	UpdateTextures();
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::UpdateBuffers()
+void Moonlit::Renderer::BatchGpuData::UpdateBuffers()
 {
 	// Make sure to clear previous buffers if they exist
 	if (m_resourcesGenerated)
@@ -227,7 +228,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::UpdateBuffers()
 	GenerateBuffers();
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::UpdateTextures()
+void Moonlit::Renderer::BatchGpuData::UpdateTextures()
 {
 	std::vector<Image*> textures = m_parentBuffer->GetAllTextures();
 	//Load the textures to the device
@@ -236,7 +237,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::UpdateTextures()
 	UpdateTextureSets();
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::UpdateTextureSets()
+void Moonlit::Renderer::BatchGpuData::UpdateTextureSets()
 {
 	size_t textureCount = m_drawResources.textures.size();
 	vk::WriteDescriptorSet* writeSets = new vk::WriteDescriptorSet[textureCount];
@@ -263,24 +264,18 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::UpdateTextureSets()
 
 // Memory management functions
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::AllocateCommandBuffer()
+void Moonlit::Renderer::BatchGpuData::AllocateCommandBuffer()
 {
-	vk::CommandPoolCreateInfo poolInfo;
-	poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
-	poolInfo.queueFamilyIndex = m_deviceData.QueueIndices.graphicsFamily.value();
-	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-	m_commandPool = m_deviceData.Device.createCommandPool(poolInfo);
-
 	vk::CommandBufferAllocateInfo allocInfo;
 	allocInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
-	allocInfo.commandPool = m_commandPool;
+	allocInfo.commandPool = m_renderDevice->GetCommandPool();
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
 	allocInfo.commandBufferCount = 1;
 	auto result = m_deviceData.Device.allocateCommandBuffers(allocInfo);
 	m_commandBuffer = result.at(0);
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::AllocateTextureSets()
+void Moonlit::Renderer::BatchGpuData::AllocateTextureSets()
 {
 	vk::DescriptorSetAllocateInfo textureSetInfo;
 	textureSetInfo.sType = vk::StructureType::eDescriptorSetAllocateInfo;
@@ -291,7 +286,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::AllocateTextureSets()
 	m_drawResources.textureDescriptorSets = m_deviceData.Device.allocateDescriptorSets(textureSetInfo);
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateBuffers()
+void Moonlit::Renderer::BatchGpuData::GenerateBuffers()
 {
 	// Copy the data from the parent buffer
 	std::vector<Vertex> vertexData = m_parentBuffer->GetVertexData();
@@ -300,7 +295,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateBuffers()
 	// So we need to be very wary about continuing the render loop if this happens
 	// If there's no models, the DrawBuffer should be deleted to clear up resources
 	if (vertexData.size() == 0) {
-		// LOG_INFO("[DrawBufferDeviceBridge::GenerateBuffers] No vertex data found for this draw buffer, skipping buffer generation.");
+		// LOG_INFO("[BatchGpuData::GenerateBuffers] No vertex data found for this draw buffer, skipping buffer generation.");
 		return;
 	}
 
@@ -334,7 +329,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateBuffers()
 		.sharingMode = vk::SharingMode::eExclusive,
 		.Size = sizeof(Vertex) * vertexCount
 	};
-	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_renderDevice->GetCommandPool(),
 		m_deviceData.Queues.graphicsQueue, vertexBufferInfo, vertexData.data());
 
 	BufferCreateInfo indexBufferInfo
@@ -346,7 +341,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateBuffers()
 		.sharingMode = vk::SharingMode::eExclusive,
 		.Size = sizeof(uint16_t) * indexCount
 	};
-	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_renderDevice->GetCommandPool(),
 		m_deviceData.Queues.graphicsQueue, indexBufferInfo, indexData.data());
 
 	BufferCreateInfo modelMatrixBufferInfo
@@ -358,14 +353,14 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateBuffers()
 		.sharingMode = vk::SharingMode::eExclusive,
 		.Size = totalInstanceDataSize
 	};
-	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_commandPool,
+	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_renderDevice->GetCommandPool(),
 		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, instanceData);
 
 	m_isDirty = false;
 	m_resourcesGenerated = true;
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateTextures(std::vector<Image*>& _textures)
+void Moonlit::Renderer::BatchGpuData::GenerateTextures(std::vector<Image*>& _textures)
 {
 	for (auto it = _textures.begin(); it != _textures.end(); it++)
 	{
@@ -382,7 +377,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::GenerateTextures(std::vector<Ima
 	UpdateTextureSets();
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::ClearBuffers()
+void Moonlit::Renderer::BatchGpuData::ClearBuffers()
 {
 	vk::Device device = m_deviceData.Device;
 	device.waitIdle();
@@ -400,7 +395,7 @@ void Moonlit::Renderer::DrawBufferDeviceBridge::ClearBuffers()
 	m_resourcesGenerated = false;
 }
 
-void Moonlit::Renderer::DrawBufferDeviceBridge::ClearTextures()
+void Moonlit::Renderer::BatchGpuData::ClearTextures()
 {
 	for (auto it = m_drawResources.textures.begin(); it != m_drawResources.textures.end(); it++)
 	{

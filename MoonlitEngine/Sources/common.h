@@ -1,6 +1,6 @@
 #pragma once
 
-#include <nlohmann/json_fwd.hpp>
+#include "MoonlitExport.h"
 
 #include "Engine/ResourceManagement/Resources/Mesh.h"
 #include "Engine/ResourceManagement/Resources/Image.h"
@@ -16,8 +16,6 @@ namespace Moonlit
 		Vertex* vertices = nullptr;
 		int triangleCount = 0;
 		uint16_t* indices = nullptr;
-
-		//std::vector<Image> textures;
 	};
 
 	struct MeshInstance

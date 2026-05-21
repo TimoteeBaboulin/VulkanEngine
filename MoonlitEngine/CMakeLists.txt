@@ -26,8 +26,9 @@ TARGET_SOURCES(
         Sources/Engine/Modules/CMakeGenerator.cpp
         Sources/Engine/Renderer/Material/Material.cpp
         Sources/Engine/Renderer/Material/MaterialInstance.cpp
-        Sources/Engine/Renderer/BufferDeviceLink.cpp
+        Sources/Engine/Renderer/BatchGpuData.cpp
         Sources/Engine/Renderer/DrawBuffer.cpp
+        Sources/Engine/Renderer/RenderDevice.cpp
         Sources/Engine/Renderer/Renderer.cpp
         Sources/Engine/Renderer/RendererContext.cpp
         Sources/Engine/Renderer/RendererDeviceManager.cpp
@@ -74,11 +75,12 @@ TARGET_SOURCES(
         Sources/Engine/Renderer/Helpers/VulkanHelperFunctions.h
         Sources/Engine/Renderer/Material/Material.h
         Sources/Engine/Renderer/Material/MaterialInstance.h
-        Sources/Engine/Renderer/BufferDeviceLink.h
+        Sources/Engine/Renderer/BatchGpuData.h
         Sources/Engine/Renderer/Camera.h
         Sources/Engine/Renderer/CustomVulkanImport.h
         Sources/Engine/Renderer/CustomVulkanStructs.h
         Sources/Engine/Renderer/DrawBuffer.h
+        Sources/Engine/Renderer/RenderDevice.h
         Sources/Engine/Renderer/Renderer.h
         Sources/Engine/Renderer/RendererContext.h
         Sources/Engine/Renderer/RendererDeviceManager.h

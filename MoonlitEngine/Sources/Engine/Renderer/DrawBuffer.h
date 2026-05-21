@@ -1,10 +1,11 @@
 #pragma once
 #include <memory>
 
-#include "BufferDeviceLink.h"
 #include "Renderer.h"
 #include "../../common.h"
 #include "Material/Material.h"
+
+namespace vk { class CommandBuffer; }
 
 namespace Moonlit::Renderer
 {
@@ -43,6 +44,7 @@ namespace Moonlit::Renderer
 	// So to get to instance 2 of mesh 3, we skip the combined instances of meshes 0, 1 and 2 and skip the 2 instances of mesh 3 before it
 
 	class RenderTarget;
+	class RenderDevice;
 
 	// This should be fixed to avoid confusion
 
@@ -52,7 +54,7 @@ namespace Moonlit::Renderer
 	class DrawBuffer
 	{
 	public:
-		DrawBuffer(Material* _material, DeviceData _deviceData);
+		DrawBuffer(Material* _material, RenderDevice& _renderDevice);
 		~DrawBuffer();
 
 		//DATA MANAGEMENT----------------------------------------------------------------------
@@ -88,7 +90,7 @@ namespace Moonlit::Renderer
 	private:
 		//DATA---------------------------------------------------------------------------------
 
-		DrawBufferDeviceBridge m_deviceBridge;
+		RenderDevice* m_renderDevice = nullptr;
 		Material* m_material;
 
 		////Mesh Entries
@@ -134,6 +136,6 @@ namespace Moonlit::Renderer
 
 		std::vector<TextureSlot>::iterator FindTexture(intptr_t _texHandle);
 
-		void SetDeviceLinkDirty();
+		void InvalidateGpuResources();
 	};
 }

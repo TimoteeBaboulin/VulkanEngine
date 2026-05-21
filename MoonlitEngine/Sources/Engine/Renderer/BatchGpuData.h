@@ -11,6 +11,8 @@ class MaterialInstance;
 struct MeshEntry;
 struct DeviceData;
 
+namespace Moonlit::Renderer { class RenderDevice; }
+
 namespace Moonlit::Renderer
 {
 
@@ -35,21 +37,21 @@ namespace Moonlit::Renderer
 	/// This class owns the GPU resources for a DrawBuffer
 	/// It handles the creation, updating, and destruction of these resources
 	/// </summary>
-	class MOONLIT_API DrawBufferDeviceBridge
+	class MOONLIT_API BatchGpuData
 	{
 	public:
-		DrawBufferDeviceBridge(DeviceData _deviceData, Material& _baseMaterial,
+		BatchGpuData(RenderDevice& _renderDevice, Material& _baseMaterial,
 			class DrawBuffer* _buffer);
 
 		// Forbid copy, explicitly implement move
 		// (Don't forget rule of five)
 
-		DrawBufferDeviceBridge(DrawBufferDeviceBridge const&) = delete;
-		DrawBufferDeviceBridge& operator=(DrawBufferDeviceBridge const&) = delete;
-		DrawBufferDeviceBridge(DrawBufferDeviceBridge&& _src);
-		DrawBufferDeviceBridge& operator=(DrawBufferDeviceBridge&& _rhs) noexcept;
+		BatchGpuData(BatchGpuData const&) = delete;
+		BatchGpuData& operator=(BatchGpuData const&) = delete;
+		BatchGpuData(BatchGpuData&& _src);
+		BatchGpuData& operator=(BatchGpuData&& _rhs) noexcept;
 
-		~DrawBufferDeviceBridge();
+		~BatchGpuData();
 
 		DrawBufferResources const GetBufferResources() { return m_drawResources; };
 		vk::Device const GetDevice() { return m_deviceData.Device; }
@@ -58,7 +60,7 @@ namespace Moonlit::Renderer
 		void Render(vk::CommandBuffer& _cmd, std::string _renderPass,
 			vk::DescriptorSet* _uboSet);
 
-		void SetDirty();
+		void InvalidateGpuResources();
 
 	private:
 		bool m_isDirty = false;
@@ -69,7 +71,7 @@ namespace Moonlit::Renderer
 
 		DrawBufferResources m_drawResources;
 		DeviceData m_deviceData;
-		vk::CommandPool m_commandPool;
+		RenderDevice* m_renderDevice;
 		vk::CommandBuffer m_commandBuffer;
 
 		std::vector<Image*> m_loadedImages;

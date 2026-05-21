@@ -1,22 +1,22 @@
 #include "DrawBuffer.h"
 #include "Renderer.h"
-#include "BufferDeviceLink.h"
+#include "BatchGpuData.h"
+#include "RenderDevice.h"
 #include "RenderTarget.h"
 
 #include "../../Debug/Logger.h"
 #include "Engine/ResourceManagement/ResourceHandle.h"
 #include "Engine/ResourceManagement/ResourceBank.h"
 
-Moonlit::Renderer::DrawBuffer::DrawBuffer(Material* _material, DeviceData _deviceData)
-	: m_textureList(), m_deviceBridge(_deviceData, *_material, this)
+Moonlit::Renderer::DrawBuffer::DrawBuffer(Material* _material, RenderDevice& _renderDevice)
+	: m_textureList()
 {
 	m_material = _material;
+	m_renderDevice = &_renderDevice;
 
 	m_vertexCount = 0;
 	m_indexCount = 0;
 	m_instanceCount = 0;
-
-	m_deviceBridge.Initialise();
 }
 
 Moonlit::Renderer::DrawBuffer::~DrawBuffer()
@@ -56,7 +56,7 @@ void Moonlit::Renderer::DrawBuffer::RemoveMeshInstance(uint32_t _instanceId)
 	m_modelData.erase(m_modelData.begin() + (index * 2));
 	m_meshInstances.erase(m_meshInstances.begin() + index);
 
-	SetDeviceLinkDirty();
+	InvalidateGpuResources();
 }
 
 uint32_t Moonlit::Renderer::DrawBuffer::AddMeshInstance(MeshHandle _mesh, std::vector<TextureHandle> _textures, glm::mat4x4 _model)
@@ -98,7 +98,7 @@ uint32_t Moonlit::Renderer::DrawBuffer::AddMeshInstance(MeshHandle _mesh, std::v
 	m_textureIndices.insert(m_textureIndices.begin() + instanceToSkip * m_material->GetTextureCount(), 
 		std::make_move_iterator(textureIndices.begin()), std::make_move_iterator(textureIndices.end()));
 
-	SetDeviceLinkDirty();
+	InvalidateGpuResources();
 
 	return instanceData.Id;
 }
@@ -120,7 +120,7 @@ void Moonlit::Renderer::DrawBuffer::UpdateInstanceModel(uint32_t _instanceId, gl
 	m_modelData[index * 2] = _model;
 	m_modelData[index * 2 + 1] = glm::inverse(_model);
 
-	SetDeviceLinkDirty();
+	InvalidateGpuResources();
 }
 
 void Moonlit::Renderer::DrawBuffer::UpdateInstanceMesh(uint32_t _instanceId, MeshHandle _mesh)
@@ -157,7 +157,7 @@ void Moonlit::Renderer::DrawBuffer::UpdateInstanceMesh(uint32_t _instanceId, Mes
 	
 	InsertMeshInstance(newMeshHandle, currentModel, _instanceId);
 
-	SetDeviceLinkDirty();
+	InvalidateGpuResources();
 }
 
 void Moonlit::Renderer::DrawBuffer::RenderBuffer(RenderTarget& _target, vk::CommandBuffer& _cmd, std::string _renderPass)
@@ -176,12 +176,7 @@ void Moonlit::Renderer::DrawBuffer::RenderBuffer(RenderTarget& _target, vk::Comm
 		return;
 	}
 
-	// Get the device bridge
-	// Since the render targets are now only on a single logical device
-	// We only have a single device bridge per draw buffer
-	// As such it is now statically allocated
-
-	m_deviceBridge.Render(_cmd, _renderPass, _target.GetDescriptorSet());
+	m_renderDevice->GetOrCreateBatchData(*this).Render(_cmd, _renderPass, _target.GetDescriptorSet());
 }
 
 glm::mat4x4 Moonlit::Renderer::DrawBuffer::GetInstanceModel(uint32_t _instanceId) const
@@ -223,7 +218,7 @@ void Moonlit::Renderer::DrawBuffer::UpdateInstanceTextures(uint32_t _instanceId,
 	for (size_t i = 0; i < newIndices.size() && i < textureCount; i++)
 		m_textureIndices[index * textureCount + i] = newIndices[i];
 
-	SetDeviceLinkDirty();
+	InvalidateGpuResources();
 }
 
 std::vector<Moonlit::Image*> Moonlit::Renderer::DrawBuffer::GetAllTextures() const
@@ -320,7 +315,7 @@ void Moonlit::Renderer::DrawBuffer::InsertMeshInstance(intptr_t _meshHandle, glm
 	
 	(*meshIt).InstanceCount++;
 
-	SetDeviceLinkDirty();
+	InvalidateGpuResources();
 }
 
 void Moonlit::Renderer::DrawBuffer::RemoveMesh(std::vector<MeshEntry>::iterator _meshIt)
@@ -417,7 +412,7 @@ std::vector<Moonlit::Renderer::TextureSlot>::iterator Moonlit::Renderer::DrawBuf
 		});
 }
 
-void Moonlit::Renderer::DrawBuffer::SetDeviceLinkDirty()
+void Moonlit::Renderer::DrawBuffer::InvalidateGpuResources()
 {
-	m_deviceBridge.SetDirty();
+	m_renderDevice->GetOrCreateBatchData(*this).InvalidateGpuResources();
 }

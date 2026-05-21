@@ -6,7 +6,6 @@
 #include "common.h"
 
 #include "Engine/ResourceManagement/ResourceManager.h"
-#include "../ResourceManagement/Resources/TextureData.h"
 #include "Material/Material.h"
 
 namespace vk
@@ -26,6 +25,7 @@ namespace Moonlit::Renderer
 	class VulkanEngine;
 	class RenderTarget;
 	class DrawBuffer;
+	class RenderDevice;
 
 	constexpr int TEXTURE_DESCRIPTOR_COUNT = 16;
 
@@ -75,9 +75,9 @@ namespace Moonlit::Renderer
 
 		bool m_windowClosed = false;
 
+		RenderDevice* m_renderDevice = nullptr;
 		std::vector<DrawBuffer*> m_drawBuffers;
 		std::unordered_map<uint32_t, DrawBuffer*> m_instanceBufferMap;
-		//vk::CommandPool m_mainCommandPool;
 
 #pragma region Debug
 #ifdef RENDER_DEBUG_INFORMATION_QUERY

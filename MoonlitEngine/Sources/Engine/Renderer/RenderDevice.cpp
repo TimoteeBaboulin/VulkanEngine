@@ -1,0 +1,36 @@
+#include "RenderDevice.h"
+#include "BatchGpuData.h"
+#include "DrawBuffer.h"
+
+Moonlit::Renderer::RenderDevice::RenderDevice(DeviceData _deviceData)
+	: m_deviceData(_deviceData)
+{
+	InitCommandPool();
+}
+
+Moonlit::Renderer::RenderDevice::~RenderDevice()
+{
+	m_deviceData.Device.destroyCommandPool(m_commandPool);
+}
+
+Moonlit::Renderer::BatchGpuData& Moonlit::Renderer::RenderDevice::GetOrCreateBatchData(DrawBuffer& _drawBuffer)
+{
+	auto it = m_batchData.find(&_drawBuffer);
+	if (it == m_batchData.end())
+	{
+		auto batch = std::make_unique<BatchGpuData>(*this, *_drawBuffer.GetMaterial(), &_drawBuffer);
+		batch->Initialise();
+		auto [newIt, inserted] = m_batchData.emplace(&_drawBuffer, std::move(batch));
+		return *newIt->second;
+	}
+	return *it->second;
+}
+
+void Moonlit::Renderer::RenderDevice::InitCommandPool()
+{
+	vk::CommandPoolCreateInfo poolInfo;
+	poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
+	poolInfo.queueFamilyIndex = m_deviceData.QueueIndices.graphicsFamily.value();
+	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+	m_commandPool = m_deviceData.Device.createCommandPool(poolInfo);
+}

@@ -4,6 +4,7 @@
 
 #include "RendererDeviceManager.h"
 #include "RendererContext.h"
+#include "RenderDevice.h"
 #include "DrawBuffer.h"
 #include "../../common.h"
 
@@ -61,9 +62,11 @@ void Moonlit::Renderer::MoonlitRenderer::InitRenderer()
 	InitQueryPool();
 #endif
 
+	m_renderDevice = new RenderDevice(m_deviceManager->GetDeviceData());
+
 	// TODO: Make the resource manager handle loading the material
 	Material* defaultMaterial = new Material("Resources/Shaders/BaseMaterial.slang");
-	m_drawBuffers.push_back(new DrawBuffer(defaultMaterial, m_deviceManager->GetDeviceData()));
+	m_drawBuffers.push_back(new DrawBuffer(defaultMaterial, *m_renderDevice));
 }
 
 void Moonlit::Renderer::MoonlitRenderer::Init(ContextInfo& _info, std::vector<const char*> requiredExtensions)
@@ -81,6 +84,8 @@ void Moonlit::Renderer::MoonlitRenderer::Cleanup()
 		delete renderTarget;
 	}
 
+	delete m_renderDevice;
+	m_renderDevice = nullptr;
 	delete m_deviceManager;
 	delete m_context;
 }
@@ -93,7 +98,7 @@ Moonlit::Renderer::DrawBuffer* Moonlit::Renderer::MoonlitRenderer::FindOrCreateD
 		if (buffer->GetMaterial() == matPtr)
 			return buffer;
 	}
-	DrawBuffer* newBuffer = new DrawBuffer(matPtr, m_deviceManager->GetDeviceData());
+	DrawBuffer* newBuffer = new DrawBuffer(matPtr, *m_renderDevice);
 	m_drawBuffers.push_back(newBuffer);
 	return newBuffer;
 }

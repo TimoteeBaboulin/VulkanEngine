@@ -34,8 +34,6 @@ Moonlit::MaterialInstance::~MaterialInstance()
 		m_device.destroyDescriptorSetLayout(setLayout);
 	}
 	m_device.destroyDescriptorPool(m_descriptorPool);
-
-	m_baseMaterial->RemoveInstance(this);
 }
 
 void Moonlit::MaterialInstance::CreateUboDescriptorSetLayout()

@@ -63,7 +63,7 @@ namespace Moonlit::Renderer
 	private:
 		uint32_t m_syncedVersion = UINT32_MAX;
 
-		std::shared_ptr<MaterialInstance> m_materialInstance;
+		MaterialInstance* m_materialInstance = nullptr;
 
 		DrawBuffer* m_parentBuffer;
 

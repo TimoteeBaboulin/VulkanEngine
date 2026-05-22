@@ -5,42 +5,11 @@
 #include "Engine/Renderer/DrawBuffer.h"
 #include "Engine/Renderer/Material/Material.h"
 #include "Engine/Renderer/RendererContext.h"
-#include "Engine/ResourceManagement/Banks/MeshBank.h"
+#include "TestMeshUtils.h"
 #include <glm/glm.hpp>
 
 namespace
 {
-    Moonlit::Renderer::MeshHandle CreateTestCubeMesh()
-    {
-        static const char* kName = "TestCube";
-        auto& bank = Moonlit::ResourceManagement::MeshBank::Get();
-        if (bank.Exist(kName))
-            return bank.GetResource(kName);
-
-        static Moonlit::Vertex vertices[8] = {
-            { {-0.5f, -0.5f, -0.5f} }, { { 0.5f, -0.5f, -0.5f} },
-            { { 0.5f,  0.5f, -0.5f} }, { {-0.5f,  0.5f, -0.5f} },
-            { {-0.5f, -0.5f,  0.5f} }, { { 0.5f, -0.5f,  0.5f} },
-            { { 0.5f,  0.5f,  0.5f} }, { {-0.5f,  0.5f,  0.5f} }
-        };
-        static uint16_t indices[36] = {
-            0,1,2, 2,3,0,
-            4,5,6, 6,7,4,
-            0,4,7, 7,3,0,
-            1,5,6, 6,2,1,
-            3,2,6, 6,7,3,
-            0,1,5, 5,4,0
-        };
-
-        Moonlit::MeshData mesh;
-        mesh.vertexCount = 8;
-        mesh.vertices = vertices;
-        mesh.triangleCount = 12;
-        mesh.indices = indices;
-
-        return bank.Insert(kName, mesh);
-    }
-
     class DrawBufferRoutingFixture : public ::testing::Test
     {
     protected:
@@ -70,7 +39,28 @@ namespace
             UnregisterClass("DrawBufferTestWnd", GetModuleHandle(nullptr));
         }
     };
+
+    class DrawBufferBatchingFixture : public ::testing::Test
+    {
+    protected:
+        Moonlit::Material* m_mat = nullptr;
+        Moonlit::Renderer::DrawBuffer* m_buf = nullptr;
+
+        void SetUp() override
+        {
+            m_mat = new Moonlit::Material(std::string(MATERIAL_TEST_SHADERS_DIR) + "/TestMaterial_NoTextures.slang");
+            m_buf = new Moonlit::Renderer::DrawBuffer(m_mat);
+        }
+
+        void TearDown() override
+        {
+            delete m_buf;
+            delete m_mat;
+        }
+    };
 }
+
+// Routing -------------------------------------------------------------------------
 
 TEST_F(DrawBufferRoutingFixture, SameMaterial_ReturnsSameBuffer)
 {
@@ -100,13 +90,6 @@ TEST_F(DrawBufferRoutingFixture, ReusedMaterial_DoesNotAddExtraBuffer)
     EXPECT_EQ(m_renderer.GetDrawBufferCount(), 2u);
 }
 
-TEST(DrawBufferVersion, StartsAtZero)
-{
-    Moonlit::Material mat(std::string(MATERIAL_TEST_SHADERS_DIR) + "/TestMaterial_NoTextures.slang");
-    Moonlit::Renderer::DrawBuffer buf(&mat);
-    EXPECT_EQ(buf.GetVersion(), 0u);
-}
-
 TEST_F(DrawBufferRoutingFixture, AddMeshInstance_IncrementsVersion)
 {
     Moonlit::Material mat(std::string(MATERIAL_TEST_SHADERS_DIR) + "/TestMaterial_NoTextures.slang");
@@ -116,4 +99,66 @@ TEST_F(DrawBufferRoutingFixture, AddMeshInstance_IncrementsVersion)
     auto meshHandle = CreateTestCubeMesh();
     buf->AddMeshInstance(meshHandle, {}, glm::mat4(1.0f));
     EXPECT_EQ(buf->GetVersion(), 1u);
+}
+
+// Version -------------------------------------------------------------------------
+
+TEST(DrawBufferVersion, StartsAtZero)
+{
+    Moonlit::Material mat(std::string(MATERIAL_TEST_SHADERS_DIR) + "/TestMaterial_NoTextures.slang");
+    Moonlit::Renderer::DrawBuffer buf(&mat);
+    EXPECT_EQ(buf.GetVersion(), 0u);
+}
+
+// Batching ------------------------------------------------------------------------
+
+TEST_F(DrawBufferBatchingFixture, SameMesh_CreatesOneMeshEntry)
+{
+    auto mesh = CreateTestCubeMesh();
+    m_buf->AddMeshInstance(mesh, {}, glm::mat4(1.0f));
+    m_buf->AddMeshInstance(mesh, {}, glm::mat4(1.0f));
+    auto entries = m_buf->GetMeshEntries();
+    ASSERT_EQ(entries.size(), 1u);
+    EXPECT_EQ(entries[0].InstanceCount, 2u);
+}
+
+TEST_F(DrawBufferBatchingFixture, TwoDifferentMeshes_CreatesTwoMeshEntries)
+{
+    m_buf->AddMeshInstance(CreateTestCubeMesh(), {}, glm::mat4(1.0f));
+    m_buf->AddMeshInstance(CreateTestTriangleMesh(), {}, glm::mat4(1.0f));
+    EXPECT_EQ(m_buf->GetMeshEntries().size(), 2u);
+}
+
+TEST_F(DrawBufferBatchingFixture, RemoveOneInstance_DecrementsCount)
+{
+    auto mesh = CreateTestCubeMesh();
+    uint32_t id = m_buf->AddMeshInstance(mesh, {}, glm::mat4(1.0f));
+    m_buf->AddMeshInstance(mesh, {}, glm::mat4(1.0f));
+    m_buf->RemoveMeshInstance(id);
+    auto entries = m_buf->GetMeshEntries();
+    ASSERT_EQ(entries.size(), 1u);
+    EXPECT_EQ(entries[0].InstanceCount, 1u);
+}
+
+TEST_F(DrawBufferBatchingFixture, RemoveLastInstance_RemovesMeshEntry)
+{
+    auto mesh = CreateTestCubeMesh();
+    uint32_t id = m_buf->AddMeshInstance(mesh, {}, glm::mat4(1.0f));
+    m_buf->RemoveMeshInstance(id);
+    EXPECT_EQ(m_buf->GetMeshEntries().size(), 0u);
+}
+
+TEST_F(DrawBufferBatchingFixture, VertexCount_SameMeshTwice_NotDuplicated)
+{
+    auto mesh = CreateTestCubeMesh();
+    m_buf->AddMeshInstance(mesh, {}, glm::mat4(1.0f));
+    m_buf->AddMeshInstance(mesh, {}, glm::mat4(1.0f));
+    EXPECT_EQ(m_buf->GetVertexCount(), 8u);
+}
+
+TEST_F(DrawBufferBatchingFixture, VertexCount_TwoDifferentMeshes)
+{
+    m_buf->AddMeshInstance(CreateTestCubeMesh(), {}, glm::mat4(1.0f));
+    m_buf->AddMeshInstance(CreateTestTriangleMesh(), {}, glm::mat4(1.0f));
+    EXPECT_EQ(m_buf->GetVertexCount(), 11u);
 }

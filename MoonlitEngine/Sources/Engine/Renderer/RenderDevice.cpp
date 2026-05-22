@@ -32,6 +32,19 @@ Moonlit::Renderer::BatchGpuData& Moonlit::Renderer::RenderDevice::GetOrCreateBat
 	return *it->second;
 }
 
+Moonlit::MaterialInstance* Moonlit::Renderer::RenderDevice::GetOrCreateMaterialInstance(Material& _material)
+{
+	auto it = m_materialInstances.find(&_material);
+	if (it != m_materialInstances.end())
+		return it->second.get();
+
+	auto instance = std::make_unique<MaterialInstance>(
+		m_deviceData.Device, &_material, m_deviceData.SurfaceFormat.format);
+	MaterialInstance* ptr = instance.get();
+	m_materialInstances.emplace(&_material, std::move(instance));
+	return ptr;
+}
+
 void Moonlit::Renderer::RenderDevice::InitCommandPool()
 {
 	vk::CommandPoolCreateInfo poolInfo;

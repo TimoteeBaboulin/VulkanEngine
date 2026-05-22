@@ -11,7 +11,7 @@ Moonlit::Renderer::BatchGpuData::BatchGpuData(RenderDevice& _renderDevice, Mater
 {
 	m_renderDevice = &_renderDevice;
 	m_deviceData = _renderDevice.GetDeviceData();
-	m_materialInstance = _baseMaterial.GetOrCreateInstance(m_deviceData);
+	m_materialInstance = m_renderDevice->GetOrCreateMaterialInstance(_baseMaterial);
 
 	AllocateCommandBuffer();
 	AllocateTextureSets();
@@ -243,8 +243,8 @@ void Moonlit::Renderer::BatchGpuData::UpdateTextures()
 void Moonlit::Renderer::BatchGpuData::UpdateTextureSets()
 {
 	size_t textureCount = m_drawResources.textures.size();
-	vk::WriteDescriptorSet* writeSets = new vk::WriteDescriptorSet[textureCount];
-	vk::DescriptorImageInfo* imageInfos = new vk::DescriptorImageInfo[textureCount];
+	std::vector<vk::WriteDescriptorSet> writeSets(textureCount);
+	std::vector<vk::DescriptorImageInfo> imageInfos(textureCount);
 
 	for (int i = 0; i < textureCount; i++)
 	{
@@ -262,7 +262,7 @@ void Moonlit::Renderer::BatchGpuData::UpdateTextureSets()
 		writeSets[i].pImageInfo = &imageInfos[i];
 	}
 
-	m_deviceData.Device.updateDescriptorSets((uint32_t)textureCount, writeSets, 0, nullptr);
+	m_deviceData.Device.updateDescriptorSets((uint32_t)textureCount, writeSets.data(), 0, nullptr);
 }
 
 // Memory management functions
@@ -313,13 +313,13 @@ void Moonlit::Renderer::BatchGpuData::GenerateBuffers()
 	size_t textureCount = m_materialInstance->GetTextureCount();
 	size_t instanceDataSize = sizeof(glm::mat4x4) * 2 + sizeof(uint32_t) * textureCount;
 	size_t totalInstanceDataSize = instanceDataSize * modelCount;
-	void* instanceData = new char[totalInstanceDataSize];
+	std::vector<char> instanceData(totalInstanceDataSize);
 
 	for (uint32_t i = 0; i < modelCount; i++)
 	{
-		memcpy((char*)instanceData + i * instanceDataSize, &modelData[i * 2], sizeof(glm::mat4x4));
-		memcpy((char*)instanceData + i * instanceDataSize + sizeof(glm::mat4x4), &modelData[i * 2 + 1], sizeof(glm::mat4x4));
-		memcpy((char*)instanceData + i * instanceDataSize + 2 * sizeof(glm::mat4x4), &textureIndices[i], sizeof(uint32_t) * textureCount);
+		memcpy(instanceData.data() + i * instanceDataSize, &modelData[i * 2], sizeof(glm::mat4x4));
+		memcpy(instanceData.data() + i * instanceDataSize + sizeof(glm::mat4x4), &modelData[i * 2 + 1], sizeof(glm::mat4x4));
+		memcpy(instanceData.data() + i * instanceDataSize + 2 * sizeof(glm::mat4x4), &textureIndices[i], sizeof(uint32_t) * textureCount);
 	}
 
 	//Create the buffers
@@ -357,7 +357,7 @@ void Moonlit::Renderer::BatchGpuData::GenerateBuffers()
 		.Size = totalInstanceDataSize
 	};
 	HelperClasses::vhf::CreateBufferWithStaging(m_deviceData.Device, m_deviceData.PhysicalDevice, m_renderDevice->GetCommandPool(),
-		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, instanceData);
+		m_deviceData.Queues.graphicsQueue, modelMatrixBufferInfo, instanceData.data());
 
 	m_syncedVersion = m_parentBuffer->GetVersion();
 	m_resourcesGenerated = true;

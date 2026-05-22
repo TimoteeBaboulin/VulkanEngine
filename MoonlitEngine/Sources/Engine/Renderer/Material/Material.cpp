@@ -261,40 +261,8 @@ Moonlit::Material::~Material()
 {
 }
 
-std::shared_ptr<Moonlit::MaterialInstance> Moonlit::Material::GetOrCreateInstance(Moonlit::Renderer::DeviceData& _deviceData)
-{
-	auto it = m_instanceMap.find(_deviceData.Device);
-	if (it != m_instanceMap.end())
-	{
-		return it->second;
-	}
-
-	MaterialInstance* instance = CreateInstance(_deviceData);
-	if (instance)
-	{
-		std::shared_ptr<MaterialInstance> sharedInstance(instance);
-		m_instanceMap[_deviceData.Device] = sharedInstance;
-		return sharedInstance;
-	}
-
-	throw std::runtime_error("Failed to create MaterialInstance.");
-}
-
 Moonlit::ShaderData Moonlit::Material::GetShaderData() const
 {
 	return m_shaderData;
 }
 
-void Moonlit::Material::RemoveInstance(MaterialInstance* _instance)
-{
-	// This shouldn't be needed with the use of shared_ptr
-	// TODO: Add a check to remove unused instances from the map
-
-	/*auto it = std::find(m_instances.begin(), m_instances.end(), _instance);
-	m_instances.erase(it);*/
-}
-
-Moonlit::MaterialInstance* Moonlit::Material::CreateInstance(Moonlit::Renderer::DeviceData _deviceData)
-{
-	return new Moonlit::MaterialInstance(_deviceData.Device, this, _deviceData.SurfaceFormat.format);
-}

@@ -4,9 +4,7 @@
 #include "../CustomVulkanStructs.h"
 
 #include <vector>
-
 #include <string>
-#include <map>
 
 namespace Moonlit
 {
@@ -76,24 +74,15 @@ namespace Moonlit
 		Material(std::string _shaderPath);
 		~Material();
 
-		std::shared_ptr<MaterialInstance> GetOrCreateInstance(Renderer::DeviceData& _device);
-
 		int GetTextureCount() const { return m_textureCount; }
 		ShaderData GetShaderData() const;
 		std::vector<std::string> GetIncludedSubpasses() const { return m_includedSubpasses; }
 
 	private:
-		void RemoveInstance(MaterialInstance* _instance);
-
-		MaterialInstance* CreateInstance(Renderer::DeviceData _device);
-
 		std::string m_shaderPath;
 		ShaderData m_shaderData;
 
 		std::vector<std::string> m_includedSubpasses;
-		//ShaderCode* m_shaderCode;
-
-		std::map<vk::Device, std::shared_ptr<Moonlit::MaterialInstance>> m_instanceMap;
 
 		int m_textureCount = 0;
 	};

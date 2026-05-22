@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <unordered_map>
 #include <memory>
 
@@ -7,6 +8,8 @@
 #include "CustomVulkanStructs.h"
 #include "RendererDeviceManager.h"
 #include "BatchGpuData.h"
+#include "Material/Material.h"
+#include "Material/MaterialInstance.h"
 
 namespace Moonlit::Renderer
 {
@@ -30,11 +33,14 @@ namespace Moonlit::Renderer
 		BatchGpuData& GetOrCreateBatchData(DrawBuffer& _drawBuffer);
 		std::unordered_map<DrawBuffer*, std::unique_ptr<BatchGpuData>> const& GetBatchData() const { return m_batchData; }
 
+		MaterialInstance* GetOrCreateMaterialInstance(Material& _material);
+
 	private:
 		DeviceData m_deviceData;
 		vk::CommandPool m_commandPool;
 		RendererDeviceManager* m_deviceManager;
 		std::unordered_map<DrawBuffer*, std::unique_ptr<BatchGpuData>> m_batchData;
+		std::map<Material*, std::unique_ptr<MaterialInstance>> m_materialInstances;
 
 		void InitCommandPool();
 	};

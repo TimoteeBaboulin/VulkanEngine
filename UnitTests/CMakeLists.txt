@@ -22,8 +22,12 @@ INCLUDE(googletest)
 GTEST_DISCOVER_TESTS(EngineTests)
 
 ADD_EXECUTABLE(DefaultPluginTests
-        "DefaultPluginTests/TransformBehaviourTests.cpp")
+        "DefaultPluginTests/TransformBehaviourTests.cpp"
+        "DefaultPluginTests/MeshRendererBehaviourTests.cpp")
 TARGET_LINK_LIBRARIES(DefaultPluginTests DefaultPlugin MoonlitEngine Vulkan::Vulkan gtest_main)
+TARGET_COMPILE_DEFINITIONS(DefaultPluginTests PRIVATE
+        "MATERIAL_TEST_SHADERS_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/MaterialTests/Shaders\""
+)
 ADD_CUSTOM_COMMAND(TARGET DefaultPluginTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:DefaultPluginTests> $<TARGET_FILE_DIR:DefaultPluginTests>
         COMMAND_EXPAND_LISTS

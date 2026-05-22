@@ -81,7 +81,7 @@ namespace Moonlit::ResourceManagement {
             auto it = m_resourceBanks.find(std::type_index(typeid(RESOURCE_TYPE)));
             if (it != m_resourceBanks.end()) {
                 ResourceBank<RESOURCE_TYPE> *bank = static_cast<ResourceBank<RESOURCE_TYPE> *>(it->second);
-                _outResource = bank->Get(_name);
+                _outResource = bank->GetResource(_name);
                 return _outResource.IsValid();
             }
 

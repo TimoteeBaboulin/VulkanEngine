@@ -216,8 +216,10 @@ Moonlit::ShaderData ReadShaderData(const char* filepath)
 	}
 
 	Moonlit::ShaderData shaderData;
-	shaderData.EntryPoints = GetEntryPoints(module, sessionPtr, globalSession);
+	// ReadTextureSlots must come first: GetEntryPoints calls createCompositeComponentType
+	// + link on the session, which invalidates the module's DeclReflection data.
 	ReadTextureSlots(shaderData, module);
+	shaderData.EntryPoints = GetEntryPoints(module, sessionPtr, globalSession);
 
 	return shaderData;
 }

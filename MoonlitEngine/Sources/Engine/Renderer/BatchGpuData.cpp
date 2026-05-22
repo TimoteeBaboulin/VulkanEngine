@@ -311,7 +311,10 @@ void Moonlit::Renderer::BatchGpuData::GenerateBuffers()
 	uint32_t modelCount = (uint32_t)modelData.size() / 2;
 
 	size_t textureCount = m_materialInstance->GetTextureCount();
-	size_t instanceDataSize = sizeof(glm::mat4x4) * 2 + sizeof(uint32_t) * textureCount;
+	// Mirror the pipeline's vertex input: always reserve at least one texture index slot
+	// so the instance buffer stride matches the declared vertex attribute layout.
+	size_t textureAttrCount = std::max(textureCount, (size_t)1);
+	size_t instanceDataSize = sizeof(glm::mat4x4) * 2 + sizeof(uint32_t) * textureAttrCount;
 	size_t totalInstanceDataSize = instanceDataSize * modelCount;
 	std::vector<char> instanceData(totalInstanceDataSize);
 
@@ -319,7 +322,13 @@ void Moonlit::Renderer::BatchGpuData::GenerateBuffers()
 	{
 		memcpy(instanceData.data() + i * instanceDataSize, &modelData[i * 2], sizeof(glm::mat4x4));
 		memcpy(instanceData.data() + i * instanceDataSize + sizeof(glm::mat4x4), &modelData[i * 2 + 1], sizeof(glm::mat4x4));
-		memcpy(instanceData.data() + i * instanceDataSize + 2 * sizeof(glm::mat4x4), &textureIndices[i], sizeof(uint32_t) * textureCount);
+		if (textureCount > 0)
+		{
+			memcpy(instanceData.data() + i * instanceDataSize + 2 * sizeof(glm::mat4x4),
+			       textureIndices.data() + i * textureCount,
+			       sizeof(uint32_t) * textureCount);
+		}
+		// else: slot is 0-initialised by the vector constructor — dummy index 0 satisfies location 13
 	}
 
 	//Create the buffers

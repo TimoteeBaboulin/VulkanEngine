@@ -149,7 +149,11 @@ void Moonlit::MaterialInstance::CreatePipelines()
 		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16)  // Inverse Model Matrix Row 2
 		.AddAttribute(vk::Format::eR32G32B32A32Sfloat, 16); // Inverse Model Matrix Row 3
 
-	for (int i = 0; i < m_textureCount; i++)
+	// The vertex shader unconditionally reads texIndices from InstanceInput (location 13+).
+	// Always declare at least one slot so the pipeline always provides location 13.
+	int textureAttrCount = m_textureCount;
+	if (textureAttrCount == 0) textureAttrCount = 1;
+	for (int i = 0; i < textureAttrCount; i++)
 	{
 		vertexInputBuilder.AddAttribute(vk::Format::eR32Sint, 4); // Texture Indices
 	}

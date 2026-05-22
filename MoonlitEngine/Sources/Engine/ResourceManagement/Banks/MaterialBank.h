@@ -21,5 +21,11 @@ namespace Moonlit::ResourceManagement
         }
 
         bool TryLoad(const std::string& _filepath) override;
+
+        HANDLE_TYPE Insert(std::string _name, const std::string& _shaderPath)
+        {
+            InsertResource(_name, Moonlit::Material(_shaderPath));
+            return GetResource(_name);
+        }
     };
 }
